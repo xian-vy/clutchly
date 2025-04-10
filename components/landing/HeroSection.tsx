@@ -18,7 +18,7 @@ export function HeroSection() {
           <h1 className="font-bold tracking-tighter text-4xl md:text-6xl lg:text-7xl">
             The Reptile Data
             <br />
-            <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <span className="text-primary dark:text-primary/80">
               Management Platform
             </span>
           </h1>
