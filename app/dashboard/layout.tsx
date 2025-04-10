@@ -14,8 +14,18 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { logout } from '@/app/auth/logout/actions';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -122,7 +132,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
       {/* Main content */}
       <div className="flex-1">
         {/* Top bar */}
-        <div className="h-16 border-b border-border flex items-center px-4 lg:px-6">
+        <div className="h-16 border-b border-border flex items-center justify-between px-4 lg:px-6">
           <Button
             variant="ghost"
             size="icon"
@@ -135,6 +145,25 @@ export default function DashboardLayout({ children }: LayoutProps) {
               <Menu className="h-6 w-6" />
             )}
           </Button>
+
+          <div className="flex items-center gap-4 ml-auto">
+            <ThemeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>US</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuItem onClick={() => logout()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Page content */}
