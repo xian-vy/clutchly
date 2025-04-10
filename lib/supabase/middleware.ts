@@ -39,11 +39,12 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/auth')
+    !request.nextUrl.pathname.startsWith('/auth') &&
+    request.nextUrl.pathname !== '/' // Allow access to landing page
   ) {
-    // no user, potentially respond by redirecting the user to the login page
+    // no user, redirect to landing page for protected routes
     const url = request.nextUrl.clone()
-    url.pathname = '/auth/signin'
+    url.pathname = '/'
     return NextResponse.redirect(url)
   }
 
