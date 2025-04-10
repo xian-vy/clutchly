@@ -1,41 +1,59 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import { motion } from 'framer-motion'
 import { FiMail, FiLock } from 'react-icons/fi'
 import { AuthLayout } from './AuthLayout'
+import { login } from '@/app/auth/signin/actions'
+import { useFormStatus } from 'react-dom'
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  
+  return (
+    <motion.button 
+      type="submit" 
+      className="relative w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
+      disabled={pending}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
+    >
+      <span className="relative z-10">
+        {pending ? (
+          <span className="flex items-center justify-center">
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Signing in...
+          </span>
+        ) : (
+          'Sign In'
+        )}
+      </span>
+      <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+    </motion.button>
+  )
+}
 
 export function SignInForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-
+  async function handleSignIn(formData: FormData) {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) throw error
-      router.push('/dashboard')
+      const result = await login(formData)
+      
+      if (result?.error) {
+        setError(result.error)
+        return
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message)
       } else {
         setError('An unexpected error occurred')
       }
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -53,7 +71,7 @@ export function SignInForm() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          onSubmit={handleSignIn} 
+          action={handleSignIn}
           className="space-y-6"
         >
           <div className="space-y-2">
@@ -65,11 +83,10 @@ export function SignInForm() {
               <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="you@example.com"
                 className="w-full px-10 py-3 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/50"
-                value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -84,11 +101,10 @@ export function SignInForm() {
               <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 className="w-full px-10 py-3 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/50"
-                value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
               />
             </div>
@@ -104,28 +120,7 @@ export function SignInForm() {
             </motion.div>
           )}
 
-          <motion.button 
-            type="submit" 
-            className="relative w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
-            disabled={loading}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-          >
-            <span className="relative z-10">
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                'Sign In'
-              )}
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-          </motion.button>
+          <SubmitButton />
 
           <div className="text-center text-sm">
             <span className="text-muted-foreground">Dont have an account?</span>{' '}
