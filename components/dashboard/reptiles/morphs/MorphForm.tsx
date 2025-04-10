@@ -1,0 +1,228 @@
+'use client'
+
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { Button } from '@/components/ui/button'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { NewMorph, Morph } from '@/lib/types/morph'
+import { Species } from '@/lib/types/species'
+import { useEffect, useState } from 'react'
+import { getSpecies } from '@/app/api/reptiles/species'
+import { Badge } from '@/components/ui/badge'
+import { X } from 'lucide-react'
+
+const formSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  species_id: z.string().min(1, 'Species is required'),
+  description: z.string().nullable(),
+  genetic_traits: z.array(z.string()),
+  visual_traits: z.array(z.string())
+})
+
+interface MorphFormProps {
+  initialData?: Morph & { species: { name: string } }
+  onSubmit: (data: NewMorph) => Promise<void>
+  onCancel: () => void
+}
+
+export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
+  const [species, setSpecies] = useState<Species[]>([])
+  const [geneticTraits, setGeneticTraits] = useState<string[]>(initialData?.genetic_traits || [])
+  const [visualTraits, setVisualTraits] = useState<string[]>(initialData?.visual_traits || [])
+  const [newGeneticTrait, setNewGeneticTrait] = useState('')
+  const [newVisualTrait, setNewVisualTrait] = useState('')
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: initialData?.name || '',
+      species_id: initialData?.species_id || '',
+      description: initialData?.description || '',
+      genetic_traits: initialData?.genetic_traits || [],
+      visual_traits: initialData?.visual_traits || []
+    }
+  })
+
+  useEffect(() => {
+    async function loadSpecies() {
+      try {
+        const data = await getSpecies()
+        setSpecies(data)
+      } catch (error) {
+        console.error('Failed to load species:', error)
+      }
+    }
+    loadSpecies()
+  }, [])
+
+  const handleAddGeneticTrait = () => {
+    if (newGeneticTrait.trim()) {
+      const updatedTraits = [...geneticTraits, newGeneticTrait.trim()]
+      setGeneticTraits(updatedTraits)
+      form.setValue('genetic_traits', updatedTraits)
+      setNewGeneticTrait('')
+    }
+  }
+
+  const handleRemoveGeneticTrait = (index: number) => {
+    const updatedTraits = geneticTraits.filter((_, i) => i !== index)
+    setGeneticTraits(updatedTraits)
+    form.setValue('genetic_traits', updatedTraits)
+  }
+
+  const handleAddVisualTrait = () => {
+    if (newVisualTrait.trim()) {
+      const updatedTraits = [...visualTraits, newVisualTrait.trim()]
+      setVisualTraits(updatedTraits)
+      form.setValue('visual_traits', updatedTraits)
+      setNewVisualTrait('')
+    }
+  }
+
+  const handleRemoveVisualTrait = (index: number) => {
+    const updatedTraits = visualTraits.filter((_, i) => i !== index)
+    setVisualTraits(updatedTraits)
+    form.setValue('visual_traits', updatedTraits)
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="species_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Species</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select species" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {species.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="space-y-4">
+          <FormItem>
+            <FormLabel>Genetic Traits</FormLabel>
+            <div className="flex gap-2">
+              <Input
+                value={newGeneticTrait}
+                onChange={(e) => setNewGeneticTrait(e.target.value)}
+                placeholder="Add genetic trait"
+              />
+              <Button type="button" onClick={handleAddGeneticTrait}>
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {geneticTraits.map((trait, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="flex items-center gap-1"
+                >
+                  {trait}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0 hover:bg-transparent"
+                    onClick={() => handleRemoveGeneticTrait(index)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              ))}
+            </div>
+          </FormItem>
+
+          <FormItem>
+            <FormLabel>Visual Traits</FormLabel>
+            <div className="flex gap-2">
+              <Input
+                value={newVisualTrait}
+                onChange={(e) => setNewVisualTrait(e.target.value)}
+                placeholder="Add visual trait"
+              />
+              <Button type="button" onClick={handleAddVisualTrait}>
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {visualTraits.map((trait, index) => (
+                <Badge
+                  key={index}
+                  className="flex items-center gap-1"
+                >
+                  {trait}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0 hover:bg-transparent"
+                    onClick={() => handleRemoveVisualTrait(index)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              ))}
+            </div>
+          </FormItem>
+        </div>
+
+        <div className="flex justify-end gap-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">
+            {initialData ? 'Update' : 'Create'} Morph
+          </Button>
+        </div>
+      </form>
+    </Form>
+  )
+} 
