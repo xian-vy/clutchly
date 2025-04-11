@@ -35,8 +35,8 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       species: initialData?.species || '',
       morph: initialData?.morph || '',
       sex: initialData?.sex || 'unknown',
-      hatch_date: initialData?.hatch_date || '',
-      acquisition_date: initialData?.acquisition_date || '',
+      hatch_date: initialData?.hatch_date || new Date().toISOString().split('T')[0],
+      acquisition_date: initialData?.acquisition_date || new Date().toISOString().split('T')[0],
       status: initialData?.status || 'active',
       notes: initialData?.notes || ''
     }
