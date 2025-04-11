@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { Reptile, NewReptile } from '@/lib/types/reptile'
+import { NewReptile, Reptile } from '@/lib/types/reptile'
 
 export async function getReptiles() {
   const supabase = await createClient()
@@ -30,10 +30,15 @@ export async function getReptileById(id: string) {
 
 export async function createReptile(reptile: NewReptile) {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
+  const newReptile = {
+    ...reptile,
+    user_id : userId,
+  }
   const { data, error } = await supabase
     .from('reptiles')
-    .insert([reptile])
+    .insert([newReptile])
     .select()
     .single()
 
