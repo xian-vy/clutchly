@@ -14,7 +14,7 @@ function SubmitButton() {
   return (
     <motion.button 
       type="submit" 
-      className="relative w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
+      className="relative w-full py-3 px-4 bg-primary dark:bg-[#2d8e25] dark:text-white text-primary-foreground rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
       disabled={pending}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
