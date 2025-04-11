@@ -21,8 +21,8 @@ export default function ReptilesPage() {
         <div className="flex flex-col w-full">
             <TabsList>
               <TabsTrigger value="reptiles">Reptiles</TabsTrigger>
-              <TabsTrigger value="species">Species</TabsTrigger>
               <TabsTrigger value="morphs">Morphs</TabsTrigger>
+              <TabsTrigger value="species">Species</TabsTrigger>
             </TabsList>
             <hr className='mt-[1px]'/>
         </div>
