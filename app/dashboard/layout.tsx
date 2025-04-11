@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
                   'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors',
                   isCollapsed ? 'justify-center px-2 py-2' : 'px-3 py-2',
                   pathname === item.href
-                    ? 'bg-sidebar-primary dark:bg-[#2d8e25] text-sidebar-primary-foreground'
+                    ? 'bg-sidebar-primary text-primary-foreground'
                     : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 )}
               >
