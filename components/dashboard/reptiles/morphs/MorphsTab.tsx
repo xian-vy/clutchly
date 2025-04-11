@@ -2,7 +2,7 @@ import { createMorph, deleteMorph, getMorphs, updateMorph } from '@/app/api/rept
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useResource } from '@/lib/hooks/useResource'
 import { Morph, NewMorph } from '@/lib/types/morph'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { MorphForm } from './MorphForm'
 import { MorphList } from './MorphList'
 
@@ -16,21 +16,19 @@ export function MorphsTab() {
     isLoading,
     selectedResource: selectedMorph,
     setSelectedResource: setSelectedMorph,
-    loadResources,
     handleCreate,
     handleUpdate,
     handleDelete,
   } = useResource<MorphWithSpecies, NewMorph>({
     resourceName: 'Morph',
+    queryKey: ['morphs'],
     getResources: getMorphs,
     createResource: createMorph,
     updateResource: updateMorph,
     deleteResource: deleteMorph,
   })
 
-  useEffect(() => {
-    loadResources()
-  }, [])
+
 
   if (isLoading) {
     return <div>Loading...</div>

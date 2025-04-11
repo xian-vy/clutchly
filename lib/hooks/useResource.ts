@@ -1,5 +1,11 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { 
+  useQuery, 
+  useMutation, 
+  useQueryClient,
+  QueryKey 
+} from '@tanstack/react-query'
 
 interface Resource {
   id: string
@@ -7,6 +13,7 @@ interface Resource {
 
 interface UseResourceOptions<T extends Resource, N> {
   resourceName: string
+  queryKey: QueryKey
   getResources: () => Promise<T[]>
   createResource: (data: N) => Promise<T>
   updateResource: (id: string, data: N) => Promise<T>
@@ -15,68 +22,88 @@ interface UseResourceOptions<T extends Resource, N> {
 
 export function useResource<T extends Resource, N>({
   resourceName,
+  queryKey,
   getResources,
   createResource,
   updateResource,
   deleteResource,
 }: UseResourceOptions<T, N>) {
-  const [resources, setResources] = useState<T[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [selectedResource, setSelectedResource] = useState<T | undefined>()
+  const queryClient = useQueryClient()
 
-  async function loadResources() {
-    setIsLoading(true)
-    try {
-      const data = await getResources()
-      setResources(data)
-    } catch (error) {
-      toast.error(`Failed to load ${resourceName}`)
+  // Query for fetching resources
+  const { data: resources = [], isLoading } = useQuery({
+    queryKey,
+    queryFn: getResources,
+  })
+
+  // Mutation for creating resource
+  const createMutation = useMutation({
+    mutationFn: createResource,
+    onSuccess: (newResource) => {
+      queryClient.setQueryData(queryKey, (old: T[] = []) => [newResource, ...old])
+      toast.success(`${resourceName} created successfully`)
+    },
+    onError: (error) => {
+      toast.error(`Failed to create ${resourceName}`)
       console.error(error)
-    } finally {
-      setIsLoading(false)
     }
-  }
+  })
+
+  // Mutation for updating resource
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: N }) => 
+      updateResource(id, data),
+    onSuccess: (updatedResource) => {
+      queryClient.setQueryData(queryKey, (old: T[] = []) => 
+        old.map(r => r.id === updatedResource.id ? updatedResource : r)
+      )
+      setSelectedResource(undefined)
+      toast.success(`${resourceName} updated successfully`)
+    },
+    onError: (error) => {
+      toast.error(`Failed to update ${resourceName}`)
+      console.error(error)
+    }
+  })
+
+  // Mutation for deleting resource
+  const deleteMutation = useMutation({
+    mutationFn: deleteResource,
+    onSuccess: (_, deletedId) => {
+      queryClient.setQueryData(queryKey, (old: T[] = []) => 
+        old.filter(r => r.id !== deletedId)
+      )
+      toast.success(`${resourceName} deleted successfully`)
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete ${resourceName}`)
+      console.error(error)
+    }
+  })
 
   async function handleCreate(data: N) {
     try {
-      const newResource = await createResource(data)
-      setResources(prev => [newResource, ...prev])
-      toast.success(`${resourceName} created successfully`)
+      await createMutation.mutateAsync(data)
       return true
-    } catch (error) {
-      toast.error(`Failed to create ${resourceName}`)
-      console.error(error)
+    } catch {
       return false
     }
   }
 
   async function handleUpdate(data: N) {
     if (!selectedResource) return false
-
     try {
-      const updatedResource = await updateResource(selectedResource.id, data)
-      setResources(prev => prev.map(r => r.id === updatedResource.id ? updatedResource : r))
-      setSelectedResource(undefined)
-      toast.success(`${resourceName} updated successfully`)
+      await updateMutation.mutateAsync({ id: selectedResource.id, data })
       return true
-    } catch (error) {
-      toast.error(`Failed to update ${resourceName}`)
-      console.error(error)
+    } catch {
       return false
     }
   }
 
-  async function handleDelete(id: string): Promise<void> {
+  async function handleDelete(id: string) {
     if (!confirm(`Are you sure you want to delete this ${resourceName}?`)) return
-
-    try {
-      await deleteResource(id)
-      setResources(prev => prev.filter(r => r.id !== id))
-      toast.success(`${resourceName} deleted successfully`)
-    } catch (error) {
-      toast.error(`Failed to delete ${resourceName}`)
-      console.error(error)
-    }
+    await deleteMutation.mutateAsync(id)
   }
 
   return {
@@ -84,9 +111,8 @@ export function useResource<T extends Resource, N>({
     isLoading,
     selectedResource,
     setSelectedResource,
-    loadResources,
     handleCreate,
     handleUpdate,
     handleDelete,
   }
-} 
+}

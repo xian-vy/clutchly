@@ -27,7 +27,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { logout } from '@/app/auth/logout/actions';
 import { AvatarImage } from '@radix-ui/react-avatar';
-
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000, // 1 minute
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -170,7 +178,9 @@ export default function DashboardLayout({ children }: LayoutProps) {
 
         {/* Page content */}
         <div className="p-4 lg:p-6">
-          {children}
+          <QueryClientProvider client={queryClient}>
+             {children}
+          </QueryClientProvider>
         </div>
       </div>
     </div>

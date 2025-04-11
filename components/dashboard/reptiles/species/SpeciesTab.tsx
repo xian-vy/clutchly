@@ -2,7 +2,7 @@ import { createSpecies, deleteSpecies, getSpecies, updateSpecies } from '@/app/a
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useResource } from '@/lib/hooks/useResource'
 import { NewSpecies, Species } from '@/lib/types/species'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { SpeciesForm } from './SpeciesForm'
 import { SpeciesList } from './SpeciesList'
 
@@ -14,21 +14,18 @@ export function SpeciesTab() {
     isLoading,
     selectedResource: selectedSpecies,
     setSelectedResource: setSelectedSpecies,
-    loadResources,
     handleCreate,
     handleUpdate,
     handleDelete,
   } = useResource<Species, NewSpecies>({
     resourceName: 'Species',
+    queryKey: ['species'],
     getResources: getSpecies,
     createResource: createSpecies,
     updateResource: updateSpecies,
     deleteResource: deleteSpecies,
   })
 
-  useEffect(() => {
-    loadResources()
-  }, [])
 
   if (isLoading) {
     return <div>Loading...</div>

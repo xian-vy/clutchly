@@ -4,7 +4,7 @@ import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useResource } from '@/lib/hooks/useResource'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ReptileList } from './ReptileList'
 import { ReptileForm } from './ReptileForm'
 
@@ -16,21 +16,17 @@ export function ReptilesTab() {
     isLoading,
     selectedResource: selectedReptile,
     setSelectedResource: setSelectedReptile,
-    loadResources,
     handleCreate,
     handleUpdate,
     handleDelete,
   } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
+    queryKey: ['reptiles'],
     getResources: getReptiles,
     createResource: createReptile,
     updateResource: updateReptile,
     deleteResource: deleteReptile,
   })
-
-  useEffect(() => {
-    loadResources()
-  }, [])
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -73,4 +69,4 @@ export function ReptilesTab() {
       </Dialog>
     </div>
   )
-} 
+}
