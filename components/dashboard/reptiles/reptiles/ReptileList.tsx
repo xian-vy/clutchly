@@ -70,6 +70,15 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
       header: "Hatch Date",
     },
     {
+      id: "notes",
+      accessorKey: "notes",
+      header: "With Note",
+      cell: ({ row }) => {
+        const notes = row.getValue("notes") as string | null;
+        return <div className="text-left">{notes && notes.length > 0 ? "Yes" : "No"}</div>; 
+      }
+    },
+    {
       id: "actions",
       cell: ({ row }) => {
         const reptile = row.original;
