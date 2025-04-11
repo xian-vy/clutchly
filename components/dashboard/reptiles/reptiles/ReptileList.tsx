@@ -74,20 +74,20 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
       cell: ({ row }) => {
         const reptile = row.original;
         return (
-          <div className="flex space-x-2">
+          <div className="flex justify-end">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => onEdit?.(reptile)}
             >
-              <Edit className="h-4 w-4" />
+              <Edit strokeWidth={1.5} className="h-4 w-4" />
             </Button>
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => onDelete?.(reptile.id)}
             >
-              <Trash className="h-4 w-4" />
+              <Trash strokeWidth={1.5} className="h-4 w-4" />
             </Button>
           </div>
         );

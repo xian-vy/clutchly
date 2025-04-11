@@ -38,20 +38,20 @@ export function SpeciesList({ species, onEdit, onDelete, onAddNew }: SpeciesList
       cell: ({ row }) => {
         const speciesItem = row.original;
         return (
-          <div className="flex space-x-2">
+          <div className="flex justify-end">
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => onEdit?.(speciesItem)}
             >
-              <Edit className="h-4 w-4" />
+              <Edit strokeWidth={1.5} className="h-4 w-4 text-muted-foreground" />
             </Button>
             <Button 
               variant="ghost" 
               size="icon"
               onClick={() => onDelete?.(speciesItem.id)}
             >
-              <Trash className="h-4 w-4" />
+              <Trash strokeWidth={1.5} className="h-4 w-4 text-muted-foreground" />
             </Button>
           </div>
         );
