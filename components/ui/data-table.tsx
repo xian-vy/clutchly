@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Filter, Plus } from "lucide-react"
+import { Filter, Plus, Search } from "lucide-react"
 import { useState } from "react"
 
 interface DataTableProps<TData, TValue> {
@@ -71,12 +71,13 @@ export function DataTable<TData, TValue>({
             </Button>
           )}
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center relative">
+          <Search className="h-4 w-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="Search..."
             value={globalFilter ?? ""}
             onChange={(event) => setGlobalFilter(event.target.value)}
-            className="max-w-sm"
+            className="max-w-sm pl-7"
           />
         </div>
       </div>
