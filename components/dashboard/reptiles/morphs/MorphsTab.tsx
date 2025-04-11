@@ -1,12 +1,10 @@
 import { createMorph, deleteMorph, getMorphs, updateMorph } from '@/app/api/reptiles/morphs'
-import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useResource } from '@/lib/hooks/useResource'
 import { Morph, NewMorph } from '@/lib/types/morph'
 import { useEffect, useState } from 'react'
-import { ResourceList } from '../../ResourceList'
-import { MorphCard } from './MorphCard'
 import { MorphForm } from './MorphForm'
+import { MorphList } from './MorphList'
 
 type MorphWithSpecies = Morph & { species: { name: string } }
 
@@ -34,28 +32,22 @@ export function MorphsTab() {
     loadResources()
   }, [])
 
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button onClick={() => setIsDialogOpen(true)}>
-          Add Morph
-        </Button>
-      </div>
 
-      <ResourceList
-        resources={morphs}
-        isLoading={isLoading}
-        renderItem={(morph) => (
-          <MorphCard
-            morph={morph}
-            onEdit={() => {
-              setSelectedMorph(morph)
-              setIsDialogOpen(true)
-            }}
-            onDelete={() => handleDelete(morph.id)}
-          />
-        )}
-        emptyMessage="No morphs found"
+
+      <MorphList 
+        morphs={morphs}
+        onEdit={(morph) => {
+          setSelectedMorph(morph as MorphWithSpecies)
+          setIsDialogOpen(true)
+        }}
+        onDelete={handleDelete}
+        onAddNew={() => setIsDialogOpen(true)}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

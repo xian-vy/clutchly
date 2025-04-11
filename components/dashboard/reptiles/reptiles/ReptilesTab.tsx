@@ -1,11 +1,11 @@
+'use client';
+
 import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles'
-import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useResource } from '@/lib/hooks/useResource'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { useEffect, useState } from 'react'
-import { ResourceList } from '../../ResourceList'
-import { ReptileCard } from './ReptileCard'
+import { ReptileList } from './ReptileList'
 import { ReptileForm } from './ReptileForm'
 
 export function ReptilesTab() {
@@ -32,28 +32,20 @@ export function ReptilesTab() {
     loadResources()
   }, [])
 
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button onClick={() => setIsDialogOpen(true)}>
-          Add Reptile
-        </Button>
-      </div>
-
-      <ResourceList
-        resources={reptiles}
-        isLoading={isLoading}
-        renderItem={(reptile) => (
-          <ReptileCard
-            reptile={reptile}
-            onEdit={() => {
-              setSelectedReptile(reptile)
-              setIsDialogOpen(true)
-            }}
-            onDelete={() => handleDelete(reptile.id)}
-          />
-        )}
-        emptyMessage="No reptiles found"
+      <ReptileList 
+        reptiles={reptiles}
+        onEdit={(reptile) => {
+          setSelectedReptile(reptile)
+          setIsDialogOpen(true)
+        }}
+        onDelete={handleDelete}
+        onAddNew={() => setIsDialogOpen(true)}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

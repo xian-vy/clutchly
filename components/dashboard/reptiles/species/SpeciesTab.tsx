@@ -1,12 +1,10 @@
 import { createSpecies, deleteSpecies, getSpecies, updateSpecies } from '@/app/api/reptiles/species'
-import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useResource } from '@/lib/hooks/useResource'
 import { NewSpecies, Species } from '@/lib/types/species'
 import { useEffect, useState } from 'react'
-import { ResourceList } from '../../ResourceList'
-import { SpeciesCard } from './SpeciesCard'
 import { SpeciesForm } from './SpeciesForm'
+import { SpeciesList } from './SpeciesList'
 
 export function SpeciesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -32,28 +30,21 @@ export function SpeciesTab() {
     loadResources()
   }, [])
 
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button onClick={() => setIsDialogOpen(true)}>
-          Add Species
-        </Button>
-      </div>
 
-      <ResourceList
-        resources={species}
-        isLoading={isLoading}
-        renderItem={(species) => (
-          <SpeciesCard
-            species={species}
-            onEdit={() => {
-              setSelectedSpecies(species)
-              setIsDialogOpen(true)
-            }}
-            onDelete={() => handleDelete(species.id)}
-          />
-        )}
-        emptyMessage="No species found"
+      <SpeciesList 
+        species={species}
+        onEdit={(speciesItem) => {
+          setSelectedSpecies(speciesItem)
+          setIsDialogOpen(true)
+        }}
+        onDelete={handleDelete}
+        onAddNew={() => setIsDialogOpen(true)}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
