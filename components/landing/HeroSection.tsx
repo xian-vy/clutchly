@@ -18,7 +18,7 @@ export function HeroSection() {
           <h1 className="font-bold tracking-tighter text-4xl md:text-6xl lg:text-7xl">
             The Reptile Data
             <br />
-            <span className="text-primary dark:text-primary/80">
+            <span className="text-primary">
               Management Platform
             </span>
           </h1>
@@ -29,7 +29,7 @@ export function HeroSection() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary dark:bg-[#2d8e25] dark:text-white  px-8 py-3 text-lg font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary  px-8 py-3 text-lg font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Get Started
               <ArrowRight className="h-5 w-5" />
