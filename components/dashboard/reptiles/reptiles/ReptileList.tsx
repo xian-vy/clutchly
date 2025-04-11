@@ -67,7 +67,11 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
     },
     {
       accessorKey: "hatch_date",
-      header: "Hatch Date",
+      header: "Hatch",
+    },
+    {
+      accessorKey: "acquisition_date",
+      header: "Acquisition",
     },
     {
       id: "notes",
