@@ -49,10 +49,15 @@ export async function getMorphsBySpecies(speciesId: string) {
 
 export async function createMorph(morph: NewMorph) {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
+  const newMorph = {
+    ...morph,
+    user_id : userId,
+  }
   const { data, error } = await supabase
     .from('morphs')
-    .insert([morph])
+    .insert([newMorph])
     .select(`
       *,
       species:species(name)

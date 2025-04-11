@@ -30,10 +30,15 @@ export async function getSpeciesById(id: string) {
 
 export async function createSpecies(species: NewSpecies) {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
+  const NewSpecies = {
+    ...species,
+    user_id : userId,
+  }
   const { data, error } = await supabase
     .from('species')
-    .insert([species])
+    .insert([NewSpecies])
     .select()
     .single()
 
