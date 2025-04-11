@@ -12,8 +12,8 @@ export function ThemeToggle() {
       className="p-2 rounded-md hover:bg-secondary/80 transition-colors"
       aria-label="Toggle theme"
     >
-      <Sun className="h-5 w-5 block dark:hidden " />
-      <Moon className=" h-5 w-5 hidden dark:block" />
+      <Sun className="h-4 w-4 block dark:hidden " />
+      <Moon className=" h-4 w-4 hidden dark:block" />
     </button>
   )
 } 

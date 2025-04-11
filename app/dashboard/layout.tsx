@@ -26,6 +26,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { logout } from '@/app/auth/logout/actions';
+import { AvatarImage } from '@radix-ui/react-avatar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -146,13 +147,14 @@ export default function DashboardLayout({ children }: LayoutProps) {
             )}
           </Button>
 
-          <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-3 ml-auto">
             <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback>US</AvatarFallback>
+                  <Avatar className="cursor-pointer">
+                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
