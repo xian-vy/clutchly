@@ -53,7 +53,7 @@ Develop a **Progressive Web Application (PWA)** designed for reptile breeders an
 - Illness and Treatment Logs
 - Medication Schedule
 - Shedding Records
-- Feeding Logs (Type, Amount, Date, Refusals)
+- Feeding Refusals
 
 ### 3. 📈 Growth Tracking
 
@@ -89,14 +89,11 @@ Develop a **Progressive Web Application (PWA)** designed for reptile breeders an
 
 ## ✅ MVP Checklist
 
-- [ ] User Authentication via Supabase (Email/OAuth)
-- [ ] Reptile Profile CRUD
+- [/] User Authentication via Supabase (Email/OAuth)
+- [/] Reptile Profile CRUD
 - [ ] Health Tracking Module
 - [ ] Growth Tracker with Recharts Visualizations
 - [ ] Breeding History & Lineage UI
-- [ ] Fully Responsive UI with Tailwind
-- [ ] PWA Setup (Service Workers + Manifest)
-- [ ] PostgreSQL Schema Design
 
 ---
 
@@ -108,6 +105,4 @@ Develop a **Progressive Web Application (PWA)** designed for reptile breeders an
   - **User:** Access to personal reptile data only
 
 ---
-
-## 📁 Suggested Project Structure
 
