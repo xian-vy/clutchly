@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { 
   getHealthCategories 
 } from '@/app/api/health/categories';
@@ -25,42 +26,49 @@ interface HealthState {
   getTypesBySubcategory: (subcategoryId: string) => HealthLogType[];
 }
 
-export const useHealthStore = create<HealthState>((set, get) => ({
-  categories: [],
-  subcategories: [],
-  types: [],
-  isLoading: false,
-  error: null,
+export const useHealthStore = create<HealthState>()(
+  persist(
+    (set, get) => ({
+      categories: [],
+      subcategories: [],
+      types: [],
+      isLoading: false,
+      error: null,
 
-  fetchAllData: async () => {
-    try {
-      set({ isLoading: true, error: null });
-      const [categoriesData, subcategoriesData, typesData] = await Promise.all([
-        getHealthCategories(),
-        getHealthSubcategories(),
-        getHealthTypes()
-      ]);
-      set({ 
-        categories: categoriesData,
-        subcategories: subcategoriesData,
-        types: typesData,
-        isLoading: false 
-      });
-    } catch (err) {
-      set({ 
-        error: err instanceof Error ? err : new Error('Failed to fetch health data'),
-        isLoading: false 
-      });
+      fetchAllData: async () => {
+        try {
+          set({ isLoading: true, error: null });
+          const [categoriesData, subcategoriesData, typesData] = await Promise.all([
+            getHealthCategories(),
+            getHealthSubcategories(),
+            getHealthTypes()
+          ]);
+          set({ 
+            categories: categoriesData,
+            subcategories: subcategoriesData,
+            types: typesData,
+            isLoading: false 
+          });
+        } catch (err) {
+          set({ 
+            error: err instanceof Error ? err : new Error('Failed to fetch health data'),
+            isLoading: false 
+          });
+        }
+      },
+
+      getSubcategoriesByCategory: (categoryId: string) => {
+        const { subcategories } = get();
+        return subcategories.filter(s => s.category_id === categoryId);
+      },
+
+      getTypesBySubcategory: (subcategoryId: string) => {
+        const { types } = get();
+        return types.filter(t => t.subcategory_id === subcategoryId);
+      },
+    }),
+    {
+      name: 'health-storage',
     }
-  },
-
-  getSubcategoriesByCategory: (categoryId: string) => {
-    const { subcategories } = get();
-    return subcategories.filter(s => s.category_id === categoryId);
-  },
-
-  getTypesBySubcategory: (subcategoryId: string) => {
-    const { types } = get();
-    return types.filter(t => t.subcategory_id === subcategoryId);
-  },
-})); 
+  )
+); 

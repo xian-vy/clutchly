@@ -8,7 +8,7 @@ import { HealthLogEntry } from "@/lib/types/health";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { useHealthStore } from '@/lib/stores/healthStore';
-import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 interface HealthLogListProps {
   healthLogs: HealthLogEntry[];
@@ -22,12 +22,28 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
     categories, 
     getSubcategoriesByCategory,
     getTypesBySubcategory,
-    fetchAllData
+    fetchAllData,
+    isLoading: healthStoreLoading
   } = useHealthStore();
 
-  useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+  // Use TanStack Query only for the initial load of health data
+  const { isLoading: healthQueryLoading } = useQuery({
+    queryKey: ['health-initial-load'],
+    queryFn: async () => {
+      // Only fetch if we don't have categories in the store
+      if (categories.length === 0) {
+        await fetchAllData();
+      }
+      return categories;
+    },
+    // Only run once on component mount
+    enabled: categories.length === 0,
+    // Don't refetch on window focus or reconnect
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    // Don't consider data stale
+    staleTime: Infinity,
+  });
 
   const columns: ColumnDef<HealthLogEntry>[] = [
     {
@@ -127,6 +143,12 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
       },
     },
   ];
+
+  const isLoading = healthStoreLoading || healthQueryLoading;
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return <DataTable columns={columns} data={healthLogs} onAddNew={onAddNew} />;
 } 

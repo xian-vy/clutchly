@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -9,12 +8,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { HealthLogEntry, CreateHealthLogEntryInput, HealthLogSeverity } from '@/lib/types/health';
+import { HealthLogEntry, CreateHealthLogEntryInput } from '@/lib/types/health';
 import { useHealthStore } from '@/lib/stores/healthStore';
 import { useResource } from '@/lib/hooks/useResource';
 import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 // Define the form schema to match the CreateHealthLogEntryInput type
 const formSchema = z.object({
@@ -47,7 +47,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     categories, 
     getSubcategoriesByCategory,
     getTypesBySubcategory,
-    fetchAllData
+    isLoading: healthStoreLoading
   } = useHealthStore();
 
   // Use the useResource hook to fetch reptiles
@@ -62,10 +62,6 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     updateResource: async () => { throw new Error('Not implemented'); },
     deleteResource: async () => { throw new Error('Not implemented'); },
   });
-
-  useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -130,6 +126,12 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     const { user_id, ...formData } = data;
     await onSubmit(formData as CreateHealthLogEntryInput);
   };
+
+  const isLoading = isReptilesLoading || healthStoreLoading;
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form {...form}>
