@@ -8,6 +8,7 @@ export interface Morph {
   genetic_traits: string[]
   visual_traits: string[]
   last_modified: string
+  is_global?: boolean
 }
 
 export type NewMorph = Omit<Morph, 'id' | 'created_at' | 'user_id' | 'last_modified'> 

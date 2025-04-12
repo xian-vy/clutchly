@@ -94,4 +94,20 @@ export async function deleteMorph(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
+}
+
+export async function getGlobalMorphs() {
+  const supabase = await createClient()
+  
+  const { data: morphs, error } = await supabase
+    .from('morphs')
+    .select(`
+      *,
+      species:species(name)
+    `)
+    .eq('is_global', true)
+    .order('name')
+
+  if (error) throw error
+  return morphs as (Morph & { species: { name: string } })[]
 } 

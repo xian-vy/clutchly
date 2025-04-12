@@ -8,7 +8,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { NewReptile, Reptile,  } from '@/lib/types/reptile'
+import { NewReptile, Reptile } from '@/lib/types/reptile'
+import { useEffect, useState } from 'react'
+import { useSpeciesStore } from '@/lib/stores/speciesStore'
+import { useMorphsStore } from '@/lib/stores/morphsStore'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -28,6 +31,13 @@ interface ReptileFormProps {
 }
 
 export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProps) {
+  // Get species and morphs from the Zustand stores
+  const { species, fetchSpecies } = useSpeciesStore()
+  const { morphs, fetchMorphs, getMorphsBySpecies } = useMorphsStore()
+  
+  const [availableMorphs, setAvailableMorphs] = useState<{ id: string, name: string }[]>([])
+  const [selectedSpeciesId, setSelectedSpeciesId] = useState<string>('')
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,6 +51,26 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       notes: initialData?.notes || ''
     }
   })
+
+  useEffect(() => {
+    // Fetch species and morphs if not already loaded
+    if (species.length === 0) {
+      fetchSpecies()
+    }
+    if (morphs.length === 0) {
+      fetchMorphs()
+    }
+  }, [species.length, morphs.length, fetchSpecies, fetchMorphs])
+
+  // Update available morphs when species changes
+  useEffect(() => {
+    const speciesId = form.watch('species')
+    if (speciesId) {
+      setSelectedSpeciesId(speciesId)
+      const morphsForSpecies = getMorphsBySpecies(speciesId)
+      setAvailableMorphs(morphsForSpecies.map(m => ({ id: m.id, name: m.name })))
+    }
+  }, [form.watch('species'), getMorphsBySpecies])
 
   return (
     <Form {...form}>
@@ -66,9 +96,24 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Species</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <Select onValueChange={(value) => {
+                  field.onChange(value)
+                  // Reset morph when species changes
+                  form.setValue('morph', '')
+                }} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select species" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {species.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -80,9 +125,20 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Morph</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedSpeciesId}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select morph" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {availableMorphs.map((m) => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

@@ -1,31 +1,54 @@
-import { createSpecies, deleteSpecies, getSpecies, updateSpecies } from '@/app/api/reptiles/species'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { useResource } from '@/lib/hooks/useResource'
 import { NewSpecies, Species } from '@/lib/types/species'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SpeciesForm } from './SpeciesForm'
 import { SpeciesList } from './SpeciesList'
+import { useSpeciesStore } from '@/lib/stores/speciesStore'
+import { DownloadCommonData } from '../DownloadCommonData'
 
 export function SpeciesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
   const {
-    resources: species,
+    species,
     isLoading,
-    selectedResource: selectedSpecies,
-    setSelectedResource: setSelectedSpecies,
-    handleCreate,
-    handleUpdate,
-    handleDelete,
-  } = useResource<Species, NewSpecies>({
-    resourceName: 'Species',
-    queryKey: ['species'],
-    getResources: getSpecies,
-    createResource: createSpecies,
-    updateResource: updateSpecies,
-    deleteResource: deleteSpecies,
-  })
+    addSpecies,
+    updateSpecies,
+    deleteSpecies,
+    fetchSpecies
+  } = useSpeciesStore()
+  
+  const [selectedSpecies, setSelectedSpecies] = useState<Species | undefined>(undefined)
 
+  // Download species data on initial load
+  useEffect(() => {
+    fetchSpecies();
+  }, [fetchSpecies]);
+
+  const handleCreate = async (data: NewSpecies) => {
+    const result = await addSpecies(data)
+    if (result) {
+      setIsDialogOpen(false)
+      return true
+    }
+    return false
+  }
+
+  const handleUpdate = async (data: NewSpecies) => {
+    if (!selectedSpecies) return false
+    const result = await updateSpecies(selectedSpecies.id, data)
+    if (result) {
+      setIsDialogOpen(false)
+      setSelectedSpecies(undefined)
+      return true
+    }
+    return false
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this species?')) return
+    await deleteSpecies(id)
+  }
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -33,6 +56,12 @@ export function SpeciesTab() {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold tracking-tight">Species</h2>
+        <div className="flex items-center gap-2">
+          <DownloadCommonData showInMorphsTab={false} />
+        </div>
+      </div>
 
       <SpeciesList 
         species={species}

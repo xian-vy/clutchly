@@ -11,9 +11,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { NewMorph, Morph } from '@/lib/types/morph'
 import { Species } from '@/lib/types/species'
 import { useEffect, useState } from 'react'
-import { getSpecies } from '@/app/api/reptiles/species'
 import { Badge } from '@/components/ui/badge'
 import { X } from 'lucide-react'
+import { useSpeciesStore } from '@/lib/stores/speciesStore'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -30,11 +30,13 @@ interface MorphFormProps {
 }
 
 export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
-  const [species, setSpecies] = useState<Species[]>([])
   const [geneticTraits, setGeneticTraits] = useState<string[]>(initialData?.genetic_traits || [])
   const [visualTraits, setVisualTraits] = useState<string[]>(initialData?.visual_traits || [])
   const [newGeneticTrait, setNewGeneticTrait] = useState('')
   const [newVisualTrait, setNewVisualTrait] = useState('')
+  
+  // Get species from the Zustand store
+  const { species, fetchSpecies } = useSpeciesStore()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,16 +50,11 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
   })
 
   useEffect(() => {
-    async function loadSpecies() {
-      try {
-        const data = await getSpecies()
-        setSpecies(data)
-      } catch (error) {
-        console.error('Failed to load species:', error)
-      }
+    // Fetch species if not already loaded
+    if (species.length === 0) {
+      fetchSpecies()
     }
-    loadSpecies()
-  }, [])
+  }, [species.length, fetchSpecies])
 
   const handleAddGeneticTrait = () => {
     if (newGeneticTrait.trim()) {

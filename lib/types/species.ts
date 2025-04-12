@@ -9,6 +9,7 @@ export interface Species {
   description: string | null
   care_level: CareLevel
   last_modified: string
+  is_global?: boolean
 }
 
 export type NewSpecies = Omit<Species, 'id' | 'created_at' | 'user_id' | 'last_modified'> 

@@ -69,4 +69,17 @@ export async function deleteSpecies(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
+}
+
+export async function getGlobalSpecies() {
+  const supabase = await createClient()
+  
+  const { data: species, error } = await supabase
+    .from('species')
+    .select('*')
+    .eq('is_global', true)
+    .order('name')
+
+  if (error) throw error
+  return species as Species[]
 } 

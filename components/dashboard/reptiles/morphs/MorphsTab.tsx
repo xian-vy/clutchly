@@ -1,10 +1,10 @@
-import { createMorph, deleteMorph, getMorphs, updateMorph } from '@/app/api/reptiles/morphs'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { useResource } from '@/lib/hooks/useResource'
 import { Morph, NewMorph } from '@/lib/types/morph'
 import { useState } from 'react'
 import { MorphForm } from './MorphForm'
 import { MorphList } from './MorphList'
+import { useMorphsStore } from '@/lib/stores/morphsStore'
+import { DownloadCommonData } from '../DownloadCommonData'
 
 type MorphWithSpecies = Morph & { species: { name: string } }
 
@@ -12,23 +12,39 @@ export function MorphsTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
   const {
-    resources: morphs,
+    morphs,
     isLoading,
-    selectedResource: selectedMorph,
-    setSelectedResource: setSelectedMorph,
-    handleCreate,
-    handleUpdate,
-    handleDelete,
-  } = useResource<MorphWithSpecies, NewMorph>({
-    resourceName: 'Morph',
-    queryKey: ['morphs'],
-    getResources: getMorphs,
-    createResource: createMorph,
-    updateResource: updateMorph,
-    deleteResource: deleteMorph,
-  })
+    addMorph,
+    updateMorph,
+    deleteMorph
+  } = useMorphsStore()
+  
+  const [selectedMorph, setSelectedMorph] = useState<MorphWithSpecies | undefined>(undefined)
 
+  const handleCreate = async (data: NewMorph) => {
+    const result = await addMorph(data)
+    if (result) {
+      setIsDialogOpen(false)
+      return true
+    }
+    return false
+  }
 
+  const handleUpdate = async (data: NewMorph) => {
+    if (!selectedMorph) return false
+    const result = await updateMorph(selectedMorph.id, data)
+    if (result) {
+      setIsDialogOpen(false)
+      setSelectedMorph(undefined)
+      return true
+    }
+    return false
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this morph?')) return
+    await deleteMorph(id)
+  }
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -36,12 +52,17 @@ export function MorphsTab() {
 
   return (
     <div className="space-y-6">
-
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold tracking-tight">Morphs</h2>
+        <div className="flex items-center gap-2">
+          <DownloadCommonData showInMorphsTab={true} />
+        </div>
+      </div>
 
       <MorphList 
         morphs={morphs}
         onEdit={(morph) => {
-          setSelectedMorph(morph as MorphWithSpecies)
+          setSelectedMorph(morph)
           setIsDialogOpen(true)
         }}
         onDelete={handleDelete}
