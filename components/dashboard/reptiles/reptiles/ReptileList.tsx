@@ -8,15 +8,21 @@ import { Reptile } from "@/lib/types/reptile";
 import { Badge } from "@/components/ui/badge";
 import { SEX_COLORS, STATUS_COLORS } from "@/lib/constants/colors";
 
+// Extended Reptile type with species_name and morph_name
+interface EnrichedReptile extends Reptile {
+  species_name: string;
+  morph_name: string;
+}
+
 interface ReptileListProps {
-  reptiles: Reptile[];
-  onEdit?: (reptile: Reptile) => void;
+  reptiles: EnrichedReptile[];
+  onEdit?: (reptile: EnrichedReptile) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
 }
 
 export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileListProps) {
-  const columns: ColumnDef<Reptile>[] = [
+  const columns: ColumnDef<EnrichedReptile>[] = [
     {
       header: "#",
       cell: ({ row }) => {
@@ -28,11 +34,11 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
       header: "Name",
     },
     {
-      accessorKey: "species",
+      accessorKey: "species_name",
       header: "Species",
     },
     {
-      accessorKey: "morph",
+      accessorKey: "morph_name",
       header: "Morph",
     },
     {

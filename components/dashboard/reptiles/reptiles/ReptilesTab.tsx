@@ -4,16 +4,18 @@ import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { useResource } from '@/lib/hooks/useResource'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ReptileList } from './ReptileList'
 import { ReptileForm } from './ReptileForm'
+import { useSpeciesStore } from '@/lib/stores/speciesStore'
+import { useMorphsStore } from '@/lib/stores/morphsStore'
 
 export function ReptilesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
   const {
     resources: reptiles,
-    isLoading,
+    isLoading: reptilesLoading,
     selectedResource: selectedReptile,
     setSelectedResource: setSelectedReptile,
     handleCreate,
@@ -28,6 +30,30 @@ export function ReptilesTab() {
     deleteResource: deleteReptile,
   })
 
+  // Get species and morphs from their respective stores
+  const { species, fetchSpecies, isLoading: speciesLoading } = useSpeciesStore()
+  const { morphs, fetchMorphs, isLoading: morphsLoading } = useMorphsStore()
+
+  // Fetch species and morphs on component mount
+  useEffect(() => {
+    fetchSpecies()
+    fetchMorphs()
+  }, [fetchSpecies, fetchMorphs])
+
+  // Create enriched reptiles with species and morph names
+  const enrichedReptiles = reptiles.map(reptile => {
+    const speciesData = species.find(s => s.id === reptile.species)
+    const morphData = morphs.find(m => m.id === reptile.morph)
+    
+    return {
+      ...reptile,
+      species_name: speciesData?.name || 'Unknown Species',
+      morph_name: morphData?.name || 'Unknown Morph'
+    }
+  })
+
+  const isLoading = reptilesLoading || speciesLoading || morphsLoading
+
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -35,7 +61,7 @@ export function ReptilesTab() {
   return (
     <div className="space-y-6">
       <ReptileList 
-        reptiles={reptiles}
+        reptiles={enrichedReptiles}
         onEdit={(reptile) => {
           setSelectedReptile(reptile)
           setIsDialogOpen(true)

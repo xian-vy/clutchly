@@ -24,8 +24,14 @@ const formSchema = z.object({
   notes: z.string().nullable()
 })
 
+// Extended Reptile type with species_name and morph_name
+interface EnrichedReptile extends Reptile {
+  species_name?: string;
+  morph_name?: string;
+}
+
 interface ReptileFormProps {
-  initialData?: Reptile
+  initialData?: EnrichedReptile
   onSubmit: (data: NewReptile) => Promise<void>
   onCancel: () => void
 }
