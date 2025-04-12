@@ -33,10 +33,16 @@ export async function createHealthLog(healthLog: CreateHealthLogEntryInput) {
   const currentUser = await supabase.auth.getUser()
   const userId = currentUser.data.user?.id
   
+  if (!userId) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
+  
   const newHealthLog = {
     ...healthLog,
     user_id: userId,
   }
+  
   
   const { data, error } = await supabase
     .from('health_log_entries')
@@ -44,7 +50,11 @@ export async function createHealthLog(healthLog: CreateHealthLogEntryInput) {
     .select()
     .single()
 
-  if (error) throw error
+  if (error) {
+    console.error('Error creating health log:', error);
+    throw error;
+  }
+  
   return data as HealthLogEntry
 }
 
