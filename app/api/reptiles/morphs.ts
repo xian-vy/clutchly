@@ -9,13 +9,19 @@ export async function getMorphs() {
   const { data: morphs, error } = await supabase
     .from('morphs')
     .select(`
-      *,
+      id,
+      user_id,
+      species_id,
+      name,
+      genetic_traits,
+      visual_traits,
+      is_global,
       species:species(name)
     `)
     .order('name')
 
   if (error) throw error
-  return morphs as (Morph & { species: { name: string } })[]
+  return (morphs as unknown) as (Morph & { species: { name: string } })[]
 }
 
 export async function getMorphById(id: string) {
@@ -24,14 +30,20 @@ export async function getMorphById(id: string) {
   const { data: morph, error } = await supabase
     .from('morphs')
     .select(`
-      *,
+      id,
+      user_id,
+      species_id,
+      name,
+      genetic_traits,
+      visual_traits,
+      is_global,
       species:species(name)
     `)
     .eq('id', id)
     .single()
 
   if (error) throw error
-  return morph as Morph & { species: { name: string } }
+  return (morph as unknown) as Morph & { species: { name: string } }
 }
 
 export async function getMorphsBySpecies(speciesId: string) {
@@ -39,12 +51,20 @@ export async function getMorphsBySpecies(speciesId: string) {
   
   const { data: morphs, error } = await supabase
     .from('morphs')
-    .select('*')
+    .select(`
+      id,
+      user_id,
+      species_id,
+      name,
+      genetic_traits,
+      visual_traits,
+      is_global
+    `)
     .eq('species_id', speciesId)
     .order('name')
 
   if (error) throw error
-  return morphs as Morph[]
+  return (morphs as unknown) as Morph[]
 }
 
 export async function createMorph(morph: NewMorph) {
@@ -59,13 +79,19 @@ export async function createMorph(morph: NewMorph) {
     .from('morphs')
     .insert([newMorph])
     .select(`
-      *,
+      id,
+      user_id,
+      species_id,
+      name,
+      genetic_traits,
+      visual_traits,
+      is_global,
       species:species(name)
     `)
     .single()
 
   if (error) throw error
-  return data as Morph & { species: { name: string } }
+  return (data as unknown) as Morph & { species: { name: string } }
 }
 
 export async function updateMorph(id: string, updates: Partial<NewMorph>) {
@@ -76,13 +102,19 @@ export async function updateMorph(id: string, updates: Partial<NewMorph>) {
     .update({ ...updates, last_modified: new Date().toISOString() })
     .eq('id', id)
     .select(`
-      *,
+      id,
+      user_id,
+      species_id,
+      name,
+      genetic_traits,
+      visual_traits,
+      is_global,
       species:species(name)
     `)
     .single()
 
   if (error) throw error
-  return data as Morph & { species: { name: string } }
+  return (data as unknown) as Morph & { species: { name: string } }
 }
 
 export async function deleteMorph(id: string): Promise<void> {
@@ -102,12 +134,18 @@ export async function getGlobalMorphs() {
   const { data: morphs, error } = await supabase
     .from('morphs')
     .select(`
-      *,
+      id,
+      user_id,
+      species_id,
+      name,
+      genetic_traits,
+      visual_traits,
+      is_global,
       species:species(name)
     `)
     .eq('is_global', true)
     .order('name')
 
   if (error) throw error
-  return morphs as (Morph & { species: { name: string } })[]
+  return (morphs as unknown) as (Morph & { species: { name: string } })[]
 } 

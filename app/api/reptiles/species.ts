@@ -8,11 +8,18 @@ export async function getSpecies() {
   
   const { data: species, error } = await supabase
     .from('species')
-    .select('*')
+    .select(`
+      id,
+      user_id,
+      name,
+      scientific_name,
+      care_level,
+      is_global
+    `)
     .order('name')
 
   if (error) throw error
-  return species as Species[]
+  return (species as unknown) as Species[]
 }
 
 export async function getSpeciesById(id: string) {
@@ -20,12 +27,19 @@ export async function getSpeciesById(id: string) {
   
   const { data: species, error } = await supabase
     .from('species')
-    .select('*')
+    .select(`
+      id,
+      user_id,
+      name,
+      scientific_name,
+      care_level,
+      is_global
+    `)
     .eq('id', id)
     .single()
 
   if (error) throw error
-  return species as Species
+  return (species as unknown) as Species
 }
 
 export async function createSpecies(species: NewSpecies) {
@@ -39,11 +53,18 @@ export async function createSpecies(species: NewSpecies) {
   const { data, error } = await supabase
     .from('species')
     .insert([NewSpecies])
-    .select()
+    .select(`
+      id,
+      user_id,
+      name,
+      scientific_name,
+      care_level,
+      is_global
+    `)
     .single()
 
   if (error) throw error
-  return data as Species
+  return (data as unknown) as Species
 }
 
 export async function updateSpecies(id: string, updates: Partial<NewSpecies>) {
@@ -53,11 +74,18 @@ export async function updateSpecies(id: string, updates: Partial<NewSpecies>) {
     .from('species')
     .update({ ...updates, last_modified: new Date().toISOString() })
     .eq('id', id)
-    .select()
+    .select(`
+      id,
+      user_id,
+      name,
+      scientific_name,
+      care_level,
+      is_global
+    `)
     .single()
 
   if (error) throw error
-  return data as Species
+  return (data as unknown) as Species
 }
 
 export async function deleteSpecies(id: string): Promise<void> {
@@ -76,10 +104,17 @@ export async function getGlobalSpecies() {
   
   const { data: species, error } = await supabase
     .from('species')
-    .select('*')
+    .select(`
+      id,
+      user_id,
+      name,
+      scientific_name,
+      care_level,
+      is_global
+    `)
     .eq('is_global', true)
     .order('name')
 
   if (error) throw error
-  return species as Species[]
+  return (species as unknown) as Species[]
 } 

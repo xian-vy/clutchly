@@ -54,7 +54,7 @@ export const useMorphsStore = create<MorphsState>()(
           
           // Filter morphs by selected species if provided
           const morphsToDownload = selectedSpeciesIds
-            ? commonMorphs.filter(m => selectedSpeciesIds.includes(m.species_id))
+            ? commonMorphs.filter(m => selectedSpeciesIds.includes(m.species_id.toString()))
             : commonMorphs;
           
           // Merge with existing morphs, avoiding duplicates by name and species
@@ -102,7 +102,7 @@ export const useMorphsStore = create<MorphsState>()(
           set({ isLoading: true, error: null });
           const updatedMorph = await updateMorph(id, updates);
           set(state => ({ 
-            morphs: state.morphs.map(m => m.id === id ? updatedMorph : m),
+            morphs: state.morphs.map(m => m.id.toString() === id ? updatedMorph : m),
             isLoading: false 
           }));
           return updatedMorph;
@@ -120,7 +120,7 @@ export const useMorphsStore = create<MorphsState>()(
           set({ isLoading: true, error: null });
           await deleteMorph(id);
           set(state => ({ 
-            morphs: state.morphs.filter(m => m.id !== id),
+            morphs: state.morphs.filter(m => m.id.toString() !== id),
             isLoading: false 
           }));
           return true;
@@ -134,11 +134,11 @@ export const useMorphsStore = create<MorphsState>()(
       },
 
       getMorphById: (id: string) => {
-        return get().morphs.find(m => m.id === id);
+        return get().morphs.find(m => m.id.toString() === id);
       },
 
       getMorphsBySpecies: (speciesId: string) => {
-        return get().morphs.filter(m => m.species_id === speciesId);
+        return get().morphs.filter(m => m.species_id.toString() === speciesId);
       }
     }),
     {

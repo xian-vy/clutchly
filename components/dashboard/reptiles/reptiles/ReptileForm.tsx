@@ -76,7 +76,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       
       // Load morphs for the selected species
       const morphsForSpecies = getMorphsBySpecies(speciesId)
-      setAvailableMorphs(morphsForSpecies.map(m => ({ id: m.id, name: m.name })))
+      setAvailableMorphs(morphsForSpecies.map(m => ({ id: m.id.toString(), name: m.name })))
       setIsLoadingMorphs(false)
     }
   }, [form.watch('species'), getMorphsBySpecies])
@@ -117,7 +117,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                   </FormControl>
                   <SelectContent>
                     {species.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
+                      <SelectItem key={s.id} value={s.id.toString()}>
                         {s.name}
                       </SelectItem>
                     ))}

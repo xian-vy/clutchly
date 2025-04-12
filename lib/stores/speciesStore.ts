@@ -43,7 +43,7 @@ export const useSpeciesStore = create<SpeciesState>()(
           
           // Filter species if IDs are provided
           const speciesToDownload = selectedIds 
-            ? commonSpecies.filter(s => selectedIds.includes(s.id))
+            ? commonSpecies.filter(s => selectedIds.includes(s.id.toString()))
             : commonSpecies;
           
           // Merge with existing species, avoiding duplicates by name
@@ -87,7 +87,7 @@ export const useSpeciesStore = create<SpeciesState>()(
           set({ isLoading: true, error: null });
           const updatedSpecies = await updateSpecies(id, updates);
           set(state => ({ 
-            species: state.species.map(s => s.id === id ? updatedSpecies : s),
+            species: state.species.map(s => s.id.toString() === id ? updatedSpecies : s),
             isLoading: false 
           }));
           return updatedSpecies;
@@ -105,7 +105,7 @@ export const useSpeciesStore = create<SpeciesState>()(
           set({ isLoading: true, error: null });
           await deleteSpecies(id);
           set(state => ({ 
-            species: state.species.filter(s => s.id !== id),
+            species: state.species.filter(s => s.id.toString() !== id),
             isLoading: false 
           }));
           return true;
@@ -119,7 +119,7 @@ export const useSpeciesStore = create<SpeciesState>()(
       },
 
       getSpeciesById: (id: string) => {
-        return get().species.find(s => s.id === id);
+        return get().species.find(s => s.id.toString() === id);
       },
 
       getSpeciesByName: (name: string) => {

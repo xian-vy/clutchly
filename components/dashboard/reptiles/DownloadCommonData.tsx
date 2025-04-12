@@ -111,17 +111,17 @@ export function DownloadCommonData({ showInMorphsTab = false }: DownloadCommonDa
                 {species.map((s) => (
                   <div key={s.id} className="flex items-center space-x-2">
                     <Checkbox
-                      id={s.id}
-                      checked={selectedSpecies.includes(s.id)}
+                      id={s.id.toString()}
+                      checked={selectedSpecies.includes(s.id.toString())}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          setSelectedSpecies([...selectedSpecies, s.id]);
+                          setSelectedSpecies([...selectedSpecies, s.id.toString()]);
                         } else {
-                          setSelectedSpecies(selectedSpecies.filter(id => id !== s.id));
+                          setSelectedSpecies(selectedSpecies.filter(id => id !== s.id.toString()));
                         }
                       }}
                     />
-                    <Label htmlFor={s.id}>{s.name}</Label>
+                    <Label htmlFor={s.id.toString()}>{s.name}</Label>
                   </div>
                 ))}
               </div>

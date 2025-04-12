@@ -38,8 +38,8 @@ export function ReptilesTab() {
   // Create enriched reptiles with species and morph names
   const enrichedReptiles = useMemo(() => {
     return reptiles.map(reptile => {
-      const speciesData = species.find(s => s.id === reptile.species);
-      const morphData = morphs.find(m => m.id === reptile.morph);
+      const speciesData = species.find(s => s.id.toString() === reptile.species);
+      const morphData = morphs.find(m => m.id.toString() === reptile.morph);
       
       return {
         ...reptile,

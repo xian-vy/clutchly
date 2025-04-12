@@ -13,7 +13,6 @@ import { NewSpecies, Species } from '@/lib/types/species'
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   scientific_name: z.string().nullable(),
-  description: z.string().nullable(),
   care_level: z.enum(['beginner', 'intermediate', 'advanced'] as const)
 })
 
@@ -29,7 +28,6 @@ export function SpeciesForm({ initialData, onSubmit, onCancel }: SpeciesFormProp
     defaultValues: {
       name: initialData?.name || '',
       scientific_name: initialData?.scientific_name || '',
-      description: initialData?.description || '',
       care_level: initialData?.care_level || 'beginner'
     }
   })
@@ -83,20 +81,6 @@ export function SpeciesForm({ initialData, onSubmit, onCancel }: SpeciesFormProp
                   <SelectItem value="advanced">Advanced</SelectItem>
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea {...field} value={field.value || ''} />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}

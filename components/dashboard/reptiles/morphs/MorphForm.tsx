@@ -18,7 +18,6 @@ import { useSpeciesStore } from '@/lib/stores/speciesStore'
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   species_id: z.string().min(1, 'Species is required'),
-  description: z.string().nullable(),
   genetic_traits: z.array(z.string()),
   visual_traits: z.array(z.string())
 })
@@ -27,6 +26,13 @@ interface MorphFormProps {
   initialData?: Morph & { species: { name: string } }
   onSubmit: (data: NewMorph) => Promise<void>
   onCancel: () => void
+}
+
+type FormValues = {
+  name: string
+  species_id: string
+  genetic_traits: string[]
+  visual_traits: string[]
 }
 
 export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
@@ -38,12 +44,11 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
   // Get species from the Zustand store
   const { species, fetchSpecies } = useSpeciesStore()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
-      species_id: initialData?.species_id || '',
-      description: initialData?.description || '',
+      species_id: initialData?.species_id?.toString() || '',
       genetic_traits: initialData?.genetic_traits || [],
       visual_traits: initialData?.visual_traits || []
     }
@@ -55,6 +60,13 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
       fetchSpecies()
     }
   }, [species.length, fetchSpecies])
+
+  const handleSubmit = async (data: FormValues) => {
+    await onSubmit({
+      ...data,
+      species_id: parseInt(data.species_id, 10)
+    })
+  }
 
   const handleAddGeneticTrait = () => {
     if (newGeneticTrait.trim()) {
@@ -88,7 +100,7 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
@@ -117,26 +129,12 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
                 </FormControl>
                 <SelectContent>
                   {species.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
+                    <SelectItem key={s.id} value={s.id.toString()}>
                       {s.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea {...field} value={field.value || ''} />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}
