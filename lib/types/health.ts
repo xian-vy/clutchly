@@ -5,9 +5,9 @@ export interface HealthLogEntry {
   reptile_id: string;
   user_id: string;
   date: string;
-  category: HealthLogCategoryId;
-  subcategory: HealthLogSubcategoryId;
-  type: 'custom' | HealthLogTypeId;
+  category_id: string;
+  subcategory_id: string;
+  type_id: string | null;
   custom_type_label?: string;
   notes?: string;
   severity?: HealthLogSeverity;
@@ -17,44 +17,43 @@ export interface HealthLogEntry {
   updated_at: string;
 }
 
-export type HealthLogCategoryId = string;
-export type HealthLogSubcategoryId = string;
-export type HealthLogTypeId = string;
-
 export interface HealthLogCategory {
-  id: HealthLogCategoryId;
+  id: string;
   label: string;
-  description?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface HealthLogSubcategory {
-  id: HealthLogSubcategoryId;
-  category_id: HealthLogCategoryId;
+  id: string;
+  category_id: string;
   label: string;
-  description?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface HealthLogType {
-  id: HealthLogTypeId;
-  subcategory_id: HealthLogSubcategoryId;
+  id: string;
+  subcategory_id: string;
   label: string;
-  description?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface HealthCategory {
-  id: HealthLogCategoryId;
+  id: string;
   label: string;
 }
 
 export interface HealthSubcategory {
-  id: HealthLogSubcategoryId;
-  category_id: HealthLogCategoryId;
+  id: string;
+  category_id: string;
   label: string;
 }
 
 export interface HealthType {
-  id: HealthLogTypeId;
-  subcategory_id: HealthLogSubcategoryId;
+  id: string;
+  subcategory_id: string;
   label: string;
 }
 
@@ -62,12 +61,12 @@ export interface CreateHealthLogEntryInput {
   reptile_id: string;
   user_id: string;
   date: string;
-  category: HealthLogCategoryId;
-  subcategory: HealthLogSubcategoryId;
-  type: 'custom' | HealthLogTypeId;
+  category_id: string;
+  subcategory_id: string;
+  type_id: string | null;
   custom_type_label?: string;
   notes?: string;
-  severity?: 'low' | 'moderate' | 'high';
+  severity?: HealthLogSeverity;
   resolved: boolean;
   attachments: string[];
 }
