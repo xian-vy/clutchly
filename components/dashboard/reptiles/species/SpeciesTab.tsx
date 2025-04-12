@@ -1,17 +1,20 @@
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { NewSpecies, Species } from '@/lib/types/species'
-import { useState, useEffect } from 'react'
-import { SpeciesForm } from './SpeciesForm'
-import { SpeciesList } from './SpeciesList'
-import { useSpeciesStore } from '@/lib/stores/speciesStore'
-import { DownloadCommonData } from '../DownloadCommonData'
+'use client';
+
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { NewSpecies, Species } from '@/lib/types/species';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { DownloadCommonData } from '../DownloadCommonData';
+import { SpeciesForm } from './SpeciesForm';
+import { SpeciesList } from './SpeciesList';
 
 export function SpeciesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
   const {
     species,
-    isLoading,
+    isLoading: storeLoading,
     addSpecies,
     updateSpecies,
     deleteSpecies,
@@ -20,10 +23,24 @@ export function SpeciesTab() {
   
   const [selectedSpecies, setSelectedSpecies] = useState<Species | undefined>(undefined)
 
-  // Download species data on initial load
-  useEffect(() => {
-    fetchSpecies();
-  }, [fetchSpecies]);
+  // Use TanStack Query only for the initial load
+  const { isLoading: queryLoading } = useQuery({
+    queryKey: ['species-initial-load'],
+    queryFn: async () => {
+      // Only fetch if we don't have species in the store
+      if (species.length === 0) {
+        await fetchSpecies();
+      }
+      return species;
+    },
+    // Only run once on component mount
+    enabled: species.length === 0,
+    // Don't refetch on window focus or reconnect
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    // Don't consider data stale
+    staleTime: Infinity,
+  });
 
   const handleCreate = async (data: NewSpecies) => {
     const result = await addSpecies(data)
@@ -49,6 +66,8 @@ export function SpeciesTab() {
     if (!confirm('Are you sure you want to delete this species?')) return
     await deleteSpecies(id)
   }
+
+  const isLoading = storeLoading || queryLoading;
 
   if (isLoading) {
     return <div>Loading...</div>

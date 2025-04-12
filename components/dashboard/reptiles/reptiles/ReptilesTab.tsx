@@ -1,14 +1,14 @@
 'use client';
 
-import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { useResource } from '@/lib/hooks/useResource'
-import { NewReptile, Reptile } from '@/lib/types/reptile'
-import { useState, useEffect } from 'react'
-import { ReptileList } from './ReptileList'
-import { ReptileForm } from './ReptileForm'
-import { useSpeciesStore } from '@/lib/stores/speciesStore'
-import { useMorphsStore } from '@/lib/stores/morphsStore'
+import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { useResource } from '@/lib/hooks/useResource';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { NewReptile, Reptile } from '@/lib/types/reptile';
+import { useMemo, useState } from 'react';
+import { ReptileForm } from './ReptileForm';
+import { ReptileList } from './ReptileList';
 
 export function ReptilesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -31,28 +31,25 @@ export function ReptilesTab() {
   })
 
   // Get species and morphs from their respective stores
-  const { species, fetchSpecies, isLoading: speciesLoading } = useSpeciesStore()
-  const { morphs, fetchMorphs, isLoading: morphsLoading } = useMorphsStore()
+  const { species,  isLoading: speciesLoading } = useSpeciesStore()
+  const { morphs, isLoading: morphsLoading } = useMorphsStore()
 
-  // Fetch species and morphs on component mount
-  useEffect(() => {
-    fetchSpecies()
-    fetchMorphs()
-  }, [fetchSpecies, fetchMorphs])
 
   // Create enriched reptiles with species and morph names
-  const enrichedReptiles = reptiles.map(reptile => {
-    const speciesData = species.find(s => s.id === reptile.species)
-    const morphData = morphs.find(m => m.id === reptile.morph)
-    
-    return {
-      ...reptile,
-      species_name: speciesData?.name || 'Unknown Species',
-      morph_name: morphData?.name || 'Unknown Morph'
-    }
-  })
+  const enrichedReptiles = useMemo(() => {
+    return reptiles.map(reptile => {
+      const speciesData = species.find(s => s.id === reptile.species);
+      const morphData = morphs.find(m => m.id === reptile.morph);
+      
+      return {
+        ...reptile,
+        species_name: speciesData?.name || 'Unknown Species',
+        morph_name: morphData?.name || 'Unknown Morph'
+      };
+    });
+  }, [reptiles, species, morphs]);
 
-  const isLoading = reptilesLoading || speciesLoading || morphsLoading
+  const isLoading = reptilesLoading || speciesLoading  || morphsLoading;
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -63,8 +60,8 @@ export function ReptilesTab() {
       <ReptileList 
         reptiles={enrichedReptiles}
         onEdit={(reptile) => {
-          setSelectedReptile(reptile)
-          setIsDialogOpen(true)
+          setSelectedReptile(reptile);
+          setIsDialogOpen(true);
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
@@ -80,19 +77,19 @@ export function ReptilesTab() {
             onSubmit={async (data) => {
               const success = selectedReptile
                 ? await handleUpdate(data)
-                : await handleCreate(data)
+                : await handleCreate(data);
               if (success) {
-                setIsDialogOpen(false)
-                setSelectedReptile(undefined)
+                setIsDialogOpen(false);
+                setSelectedReptile(undefined);
               }
             }}
             onCancel={() => {
-              setIsDialogOpen(false)
-              setSelectedReptile(undefined)
+              setIsDialogOpen(false);
+              setSelectedReptile(undefined);
             }}
           />
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

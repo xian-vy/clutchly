@@ -12,6 +12,7 @@ import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { useEffect, useState } from 'react'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { useMorphsStore } from '@/lib/stores/morphsStore'
+import { Morph } from '@/lib/types/morph'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -39,10 +40,11 @@ interface ReptileFormProps {
 export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProps) {
   // Get species and morphs from the Zustand stores
   const { species, fetchSpecies } = useSpeciesStore()
-  const { morphs, fetchMorphs, getMorphsBySpecies } = useMorphsStore()
+  const { getMorphsBySpecies } = useMorphsStore()
   
   const [availableMorphs, setAvailableMorphs] = useState<{ id: string, name: string }[]>([])
   const [selectedSpeciesId, setSelectedSpeciesId] = useState<string>('')
+  const [isLoadingMorphs, setIsLoadingMorphs] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -59,22 +61,23 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
   })
 
   useEffect(() => {
-    // Fetch species and morphs if not already loaded
+    // Fetch species if not already loaded
     if (species.length === 0) {
       fetchSpecies()
     }
-    if (morphs.length === 0) {
-      fetchMorphs()
-    }
-  }, [species.length, morphs.length, fetchSpecies, fetchMorphs])
+  }, [species.length, fetchSpecies])
 
   // Update available morphs when species changes
   useEffect(() => {
     const speciesId = form.watch('species')
     if (speciesId) {
       setSelectedSpeciesId(speciesId)
+      setIsLoadingMorphs(true)
+      
+      // Load morphs for the selected species
       const morphsForSpecies = getMorphsBySpecies(speciesId)
       setAvailableMorphs(morphsForSpecies.map(m => ({ id: m.id, name: m.name })))
+      setIsLoadingMorphs(false)
     }
   }, [form.watch('species'), getMorphsBySpecies])
 
@@ -131,10 +134,10 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Morph</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedSpeciesId}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedSpeciesId || isLoadingMorphs}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select morph" />
+                      <SelectValue placeholder={isLoadingMorphs ? "Loading..." : "Select morph"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
