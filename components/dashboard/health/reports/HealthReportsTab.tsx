@@ -1,14 +1,246 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { HealthLogEntry } from '@/lib/types/health';
+import { Reptile } from '@/lib/types/reptile';
+import { FilterControls } from './FilterControls';
+import { OverviewTab } from './OverviewTab';
+import { AnalysisTab } from './AnalysisTab';
+import { RecommendationsTab } from './RecommendationsTab';
+import { useResource } from '@/lib/hooks/useResource';
+import { getHealthLogs } from '@/app/api/health/entries';
+import { getReptiles } from '@/app/api/reptiles/reptiles';
+import { getHealthCategories } from '@/app/api/health/categories';
+
 export function HealthReportsTab() {
+  // Use the useResource hook for data fetching
+  const { 
+    resources: healthLogs, 
+    isLoading: isHealthLogsLoading 
+  } = useResource<HealthLogEntry, any>({
+    resourceName: 'Health Log',
+    queryKey: ['healthLogs'],
+    getResources: getHealthLogs,
+    createResource: async () => { throw new Error('Not implemented'); },
+    updateResource: async () => { throw new Error('Not implemented'); },
+    deleteResource: async () => { throw new Error('Not implemented'); },
+  });
+
+  const { 
+    resources: reptiles, 
+    isLoading: isReptilesLoading 
+  } = useResource<Reptile, any>({
+    resourceName: 'Reptile',
+    queryKey: ['reptiles'],
+    getResources: getReptiles,
+    createResource: async () => { throw new Error('Not implemented'); },
+    updateResource: async () => { throw new Error('Not implemented'); },
+    deleteResource: async () => { throw new Error('Not implemented'); },
+  });
+
+  const { 
+    resources: categories, 
+    isLoading: isCategoriesLoading 
+  } = useResource<any, any>({
+    resourceName: 'Category',
+    queryKey: ['categories'],
+    getResources: getHealthCategories,
+    createResource: async () => { throw new Error('Not implemented'); },
+    updateResource: async () => { throw new Error('Not implemented'); },
+    deleteResource: async () => { throw new Error('Not implemented'); },
+  });
+  
+  // Filter states
+  const [selectedReptile, setSelectedReptile] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
+    start: '',
+    end: ''
+  });
+  const [severityFilter, setSeverityFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  
+  // Apply filters
+  const filteredLogs = healthLogs.filter(log => {
+    if (selectedReptile && log.reptile_id !== selectedReptile) return false;
+    if (severityFilter && log.severity !== severityFilter) return false;
+    if (statusFilter && (log.resolved ? 'resolved' : 'active') !== statusFilter) return false;
+    if (categoryFilter && log.category_id !== categoryFilter) return false;
+    
+    if (dateRange.start && dateRange.end) {
+      const logDate = new Date(log.date);
+      const startDate = new Date(dateRange.start);
+      const endDate = new Date(dateRange.end);
+      if (logDate < startDate || logDate > endDate) return false;
+    }
+    
+    return true;
+  });
+  
+  // Calculate statistics
+  const stats = {
+    totalIssues: filteredLogs.length,
+    activeIssues: filteredLogs.filter(log => !log.resolved).length,
+    resolvedIssues: filteredLogs.filter(log => log.resolved).length,
+    highSeverityIssues: filteredLogs.filter(log => log.severity === 'high').length,
+    moderateSeverityIssues: filteredLogs.filter(log => log.severity === 'moderate').length,
+    lowSeverityIssues: filteredLogs.filter(log => log.severity === 'low').length,
+    resolutionRate: filteredLogs.length > 0 
+      ? (filteredLogs.filter(log => log.resolved).length / filteredLogs.length) * 100 
+      : 0,
+    avgResolutionDays: filteredLogs
+      .filter(log => log.resolved)
+      .reduce((acc, log) => {
+        // Since resolved_date doesn't exist in the type, we'll use created_at as a fallback
+        // This is a workaround until the type is updated
+        const resolvedDate = new Date(log.updated_at || log.created_at);
+        const createdDate = new Date(log.date);
+        const diffTime = Math.abs(resolvedDate.getTime() - createdDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return acc + diffDays;
+      }, 0) / filteredLogs.filter(log => log.resolved).length || 0
+  };
+  
+  // Calculate category distribution
+  const categoryDistribution = categories.map(category => ({
+    name: category.label,
+    count: filteredLogs.filter(log => log.category_id === category.id).length
+  }));
+  
+  // Calculate monthly trends
+  const monthlyTrends = Array.from({ length: 6 }, (_, i) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+    
+    const monthLogs = filteredLogs.filter(log => {
+      const logDate = new Date(log.date);
+      return logDate.getMonth() === date.getMonth() && 
+             logDate.getFullYear() === date.getFullYear();
+    });
+    
+    return {
+      month: `${month} ${year}`,
+      total: monthLogs.length,
+      resolved: monthLogs.filter(log => log.resolved).length,
+      active: monthLogs.filter(log => !log.resolved).length
+    };
+  }).reverse();
+  
+  // Get reptile health summary if a reptile is selected
+  const reptileHealthSummary = selectedReptile ? (() => {
+    const reptile = reptiles.find(r => r.id === selectedReptile);
+    if (!reptile) return null;
+    
+    return {
+      name: reptile.name,
+      species: reptile.species,
+      totalIssues: filteredLogs.length,
+      activeIssues: filteredLogs.filter(log => !log.resolved).length,
+      highSeverityIssues: filteredLogs.filter(log => log.severity === 'high').length,
+      lastIssueDate: filteredLogs.length > 0 
+        ? new Date(Math.max(...filteredLogs.map(log => new Date(log.date).getTime())))
+            .toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+        : 'No issues recorded'
+    };
+  })() : null;
+  
+  // Reset filters
+  const resetFilters = () => {
+    setSelectedReptile(null);
+    setDateRange({ start: '', end: '' });
+    setSeverityFilter(null);
+    setStatusFilter(null);
+    setCategoryFilter(null);
+  };
+  
+  // Export functions
+  const exportToCSV = () => {
+    console.log('Export to CSV functionality will be implemented');
+  };
+  
+  const exportToPDF = () => {
+    console.log('Export to PDF functionality will be implemented');
+  };
+  
+  // Check if any data is still loading
+  const isLoading = isHealthLogsLoading || isReptilesLoading || isCategoriesLoading;
+  
+  if (isLoading) {
+    return <div>Loading health reports...</div>;
+  }
+  
   return (
     <div className="space-y-4">
-      <div className="rounded-md border p-8 text-center">
-        <h2 className="text-xl font-semibold mb-2">Health Reports</h2>
-        <p className="text-muted-foreground">
-          Health reports feature will be implemented in a future update.
-        </p>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Health Reports</h2>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportToCSV}>
+            <FileSpreadsheet className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button variant="outline" onClick={exportToPDF}>
+            <FileText className="h-4 w-4 mr-2" />
+            Export PDF
+          </Button>
+        </div>
       </div>
+      
+      <FilterControls
+        reptiles={reptiles}
+        categories={categories}
+        selectedReptile={selectedReptile}
+        setSelectedReptile={setSelectedReptile}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        severityFilter={severityFilter}
+        setSeverityFilter={setSeverityFilter}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        resetFilters={resetFilters}
+        filteredLogsCount={filteredLogs.length}
+      />
+      
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="analysis">Analysis</TabsTrigger>
+          <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview">
+          <OverviewTab
+            stats={stats}
+            reptileHealthSummary={reptileHealthSummary}
+          />
+        </TabsContent>
+        
+        <TabsContent value="analysis">
+          <AnalysisTab
+            categoryDistribution={categoryDistribution}
+            monthlyTrends={monthlyTrends}
+            filteredLogs={filteredLogs}
+            reptiles={reptiles}
+            categories={categories}
+            stats={stats}
+          />
+        </TabsContent>
+        
+        <TabsContent value="recommendations">
+          <RecommendationsTab
+            filteredLogs={filteredLogs}
+            reptiles={reptiles}
+            categories={categories}
+            stats={stats}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 } 
