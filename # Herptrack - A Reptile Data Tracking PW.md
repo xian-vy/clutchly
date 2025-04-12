@@ -58,7 +58,7 @@ Develop a **Progressive Web Application (PWA)** designed for reptile breeders an
 ### 3. 📈 Growth Tracking
 
 - Weight and Length Entries (Date-based)
-- Photo Uploads with Timestamps
+- Photo Uploads with Timestamps (optional)
 - Visual Growth Charts using **Recharts + shadcn/ui**
 - Target Growth Comparison
 
@@ -91,7 +91,7 @@ Develop a **Progressive Web Application (PWA)** designed for reptile breeders an
 
 - [/] User Authentication via Supabase (Email/OAuth)
 - [/] Reptile Profile CRUD
-- [ ] Health Tracking Module
+- [/] Health Tracking Module
 - [ ] Growth Tracker with Recharts Visualizations
 - [ ] Breeding History & Lineage UI
 
