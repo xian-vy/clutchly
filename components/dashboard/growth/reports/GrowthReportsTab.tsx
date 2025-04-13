@@ -11,6 +11,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
+import { Loader2 } from 'lucide-react';
 
 export function GrowthReportsTab() {
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
@@ -100,7 +101,11 @@ export function GrowthReportsTab() {
   const isLoading = growthStoreLoading || isReptilesLoading;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
+          <Loader2 className='w-6 h-6 animate-spin text-black dark:text-white' />
+      </div>
+    )
   }
 
   return (

@@ -12,6 +12,7 @@ import {
 } from '@/app/api/growth/entries';
 import { GrowthEntryList } from './GrowthEntryList';
 import { GrowthEntryForm } from './GrowthEntryForm';
+import { Loader2 } from 'lucide-react';
 
 
 export function GrowthEntriesTab() {
@@ -35,7 +36,11 @@ export function GrowthEntriesTab() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
+          <Loader2 className='w-6 h-6 animate-spin text-black dark:text-white' />
+      </div>
+    )
   }
 
   return (

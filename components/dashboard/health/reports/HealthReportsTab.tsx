@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { HealthLogEntry } from '@/lib/types/health';
 import { Reptile } from '@/lib/types/reptile';
 import { FilterControls } from './FilterControls';
@@ -171,7 +171,11 @@ export function HealthReportsTab() {
   const isLoading = isHealthLogsLoading || isReptilesLoading || isCategoriesLoading;
   
   if (isLoading) {
-    return <div>Loading health reports...</div>;
+    return (
+      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
+          <Loader2 className='w-6 h-6 animate-spin text-black dark:text-white' />
+      </div>
+    )
   }
   
   return (

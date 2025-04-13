@@ -11,6 +11,7 @@ import { BreedingProjectDetails } from './BreedingProjectDetails';
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Reptile } from '@/lib/types/reptile';
+import { Loader2 } from 'lucide-react';
 
 export function BreedingProjectsTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -43,7 +44,11 @@ export function BreedingProjectsTab() {
   const isLoading = projectsLoading || reptilesLoading;
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
+          <Loader2 className='w-6 h-6 animate-spin text-black dark:text-white' />
+      </div>
+    )
   }
 
   return (

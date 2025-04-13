@@ -12,6 +12,7 @@ import {
 } from '@/app/api/health/entries';
 import { HealthLogList } from './HealthLogList';
 import { HealthLogForm } from './HealthLogForm';
+import { Loader2 } from 'lucide-react';
 
 export function HealthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -34,7 +35,11 @@ export function HealthEntriesTab() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
+          <Loader2 className='w-6 h-6 animate-spin text-black dark:text-white' />
+      </div>
+    )
   }
 
   return (

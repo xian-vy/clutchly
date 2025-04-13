@@ -9,6 +9,7 @@ import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { useMemo, useState } from 'react';
 import { ReptileForm } from './ReptileForm';
 import { ReptileList } from './ReptileList';
+import { Loader2 } from 'lucide-react';
 
 export function ReptilesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -52,7 +53,11 @@ export function ReptilesTab() {
   const isLoading = reptilesLoading || speciesLoading  || morphsLoading;
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
+          <Loader2 className='w-6 h-6 animate-spin text-black dark:text-white' />
+      </div>
+    )
   }
 
   return (
