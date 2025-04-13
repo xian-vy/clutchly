@@ -14,6 +14,7 @@ export interface Reptile {
   status: Status
   notes: string | null
   last_modified: string
+  parent_clutch_id?: string | null
 }
 
 export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'user_id' | 'last_modified'> 

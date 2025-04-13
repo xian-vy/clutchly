@@ -12,7 +12,6 @@ import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { useEffect, useState } from 'react'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { useMorphsStore } from '@/lib/stores/morphsStore'
-import { Morph } from '@/lib/types/morph'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -53,12 +52,21 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       species: initialData?.species || '',
       morph: initialData?.morph || '',
       sex: initialData?.sex || 'unknown',
-      hatch_date: initialData?.hatch_date || new Date().toISOString().split('T')[0],
+      hatch_date: initialData?.hatch_date || null,
       acquisition_date: initialData?.acquisition_date || new Date().toISOString().split('T')[0],
       status: initialData?.status || 'active',
-      notes: initialData?.notes || ''
+      notes: initialData?.notes || null
     }
   })
+
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    const formattedData = {
+      ...data,
+      hatch_date: data.hatch_date || null,
+      notes: data.notes || null
+    }
+    await onSubmit(formattedData)
+  }
 
   useEffect(() => {
     // Fetch species if not already loaded
@@ -83,7 +91,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"

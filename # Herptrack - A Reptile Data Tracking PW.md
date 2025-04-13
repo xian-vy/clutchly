@@ -92,7 +92,7 @@ Develop a **Progressive Web Application (PWA)** designed for reptile breeders an
 - [/] User Authentication via Supabase (Email/OAuth)
 - [/] Reptile Profile CRUD
 - [/] Health Tracking Module
-- [ ] Growth Tracker with Recharts Visualizations
+- [/] Growth Tracker with Recharts Visualizations
 - [ ] Breeding History & Lineage UI
 
 ---
