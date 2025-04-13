@@ -1,4 +1,4 @@
-import { Database, Heart, LineChart, Users } from 'lucide-react'
+import { Database, Dna, Heart, LineChart } from 'lucide-react'
 import { FeatureCard } from './FeatureCard'
 
 export function FeaturesSection() {
@@ -34,7 +34,7 @@ export function FeaturesSection() {
       ]
     },
     {
-      icon: Users,
+      icon: Dna,
       title: 'Breeding Management',
       features: [
         'AI-driven breeding compatibility analysis',

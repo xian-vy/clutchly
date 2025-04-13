@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Dna,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -69,7 +70,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
     {
       name: 'Breeding',
       href: '/dashboard/breeding',
-      icon: Heart,
+      icon: Dna,
     },
   ];
 
