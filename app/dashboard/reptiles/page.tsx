@@ -11,7 +11,7 @@ export default function ReptilesPage() {
   return (
     <div className="container mx-auto">
         <div className="flex items-center justify-between w-full">
-            <h1 className="text-3xl font-bold mb-6">Reptile Management</h1>
+            <h1 className="text-3xl font-bold mb-6">Herp Management</h1>
             <Button variant="outline">
               <Settings className="h-4 w-4" />
               Options
@@ -20,7 +20,7 @@ export default function ReptilesPage() {
       <Tabs defaultValue="reptiles" className="space-y-6">
         <div className="flex flex-col w-full">
             <TabsList>
-              <TabsTrigger value="reptiles">Reptiles</TabsTrigger>
+              <TabsTrigger value="reptiles">Herps</TabsTrigger>
               <TabsTrigger value="morphs">Morphs</TabsTrigger>
               <TabsTrigger value="species">Species</TabsTrigger>
             </TabsList>

@@ -70,7 +70,7 @@ export function ReptilesTab() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogTitle>
-            {selectedReptile ? 'Edit Reptile' : 'Add New Reptile'}
+            {selectedReptile ? 'Edit Herp' : 'Add New Herp'}
           </DialogTitle>
           <ReptileForm
             initialData={selectedReptile}

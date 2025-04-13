@@ -52,24 +52,24 @@ export default function DashboardLayout({ children }: LayoutProps) {
       icon: LayoutDashboard,
     },
     {
-      name: 'Reptiles',
+      name: 'Herps',
       href: '/dashboard/reptiles',
       icon: Turtle,
     },
     {
-      name: 'Health Tracking',
+      name: 'Health',
       href: '/dashboard/health',
       icon: Heart,
     },
     {
-      name: 'Growth Records',
+      name: 'Growth',
       href: '/dashboard/growth',
       icon: LineChart,
     },
     {
       name: 'Breeding',
       href: '/dashboard/breeding',
-      icon: Users,
+      icon: Heart,
     },
   ];
 
