@@ -15,6 +15,15 @@ export interface Reptile {
   notes: string | null
   last_modified: string
   parent_clutch_id?: string | null
+  dam_id ?: string | null
+  sire_id?: string | null
+  generation?: number 
+  breeding_line?: string          
+  is_breeder?: boolean   
+  retired_breeder?: boolean       
+  primary_genetics?: string[]  
+  lineage_path?: string  
+  project_ids?: string[]
 }
 
 export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'user_id' | 'last_modified'> 
