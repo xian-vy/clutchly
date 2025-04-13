@@ -49,27 +49,27 @@ export default function DashboardLayout({ children }: LayoutProps) {
   const navItems = [
     {
       name: 'Overview',
-      href: '/dashboard',
+      href: '/overview',
       icon: LayoutDashboard,
     },
     {
       name: 'Herps',
-      href: '/dashboard/reptiles',
+      href: '/reptiles',
       icon: Turtle,
     },
     {
       name: 'Health',
-      href: '/dashboard/health',
+      href: '/health',
       icon: Heart,
     },
     {
       name: 'Growth',
-      href: '/dashboard/growth',
+      href: '/growth',
       icon: LineChart,
     },
     {
       name: 'Breeding',
-      href: '/dashboard/breeding',
+      href: '/breeding',
       icon: Dna,
     },
   ];

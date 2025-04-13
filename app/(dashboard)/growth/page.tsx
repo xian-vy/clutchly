@@ -1,4 +1,3 @@
-'use client';
 
 import { GrowthEntriesTab } from '@/components/dashboard/growth/entries/GrowthEntriesTab';
 import { GrowthReportsTab } from '@/components/dashboard/growth/reports/GrowthReportsTab';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings } from 'lucide-react';
 
-export default function GrowthPage() {
+export default async function GrowthPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="flex items-center justify-between w-full">

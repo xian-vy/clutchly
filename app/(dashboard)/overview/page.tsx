@@ -1,9 +1,8 @@
-'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Turtle, Heart, LineChart, Users } from "lucide-react";
 
-export default function DashboardPage() {
+export default async  function DashboardPage() {
   const stats = [
     {
       title: "Total Reptiles",

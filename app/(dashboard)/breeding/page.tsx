@@ -1,7 +1,7 @@
 import { BreedingProjectsTab } from '@/components/dashboard/breeding/BreedingProjectsTab'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-export default function BreedingPage() {
+export default async function BreedingPage() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">

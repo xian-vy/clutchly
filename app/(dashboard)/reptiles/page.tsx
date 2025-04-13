@@ -1,4 +1,3 @@
-'use client';
 
 import { MorphsTab } from '@/components/dashboard/reptiles/morphs/MorphsTab';
 import { ReptilesTab } from '@/components/dashboard/reptiles/reptiles/ReptilesTab';
@@ -7,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings } from 'lucide-react';
 
-export default function ReptilesPage() {
+export default async function ReptilesPage() {
+
   return (
     <div className="container mx-auto">
         <div className="flex items-center justify-between w-full">
