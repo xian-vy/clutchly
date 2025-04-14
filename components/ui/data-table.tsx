@@ -24,24 +24,27 @@ import {
 import { Filter, Plus, Search } from "lucide-react"
 import { useState } from "react"
 import Paginator from "./paginator"
+import { DownloadCommonData } from "../dashboard/reptiles/DownloadCommonData"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onAddNew?: () => void
+  onDownload?: () => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onAddNew,
+  onDownload,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState("")
   const [pagination, setPagination] = useState({
     pageIndex: 0, 
-    pageSize: 5,
+    pageSize: 10,
   });
   
 
@@ -77,6 +80,11 @@ export function DataTable<TData, TValue>({
                New
               <Plus className="h-4 w-4 " />
             </Button>
+          )}
+          {onDownload && (
+             <div className="flex items-center gap-2">
+             <DownloadCommonData showInMorphsTab={true} />
+           </div> 
           )}
         </div>
         <div className="flex items-center relative">
