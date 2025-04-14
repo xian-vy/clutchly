@@ -27,6 +27,8 @@ const formSchema = z.object({
   notes: z.string().nullable(),
   dam_id: z.string().nullable(),
   sire_id: z.string().nullable(),
+  weight: z.coerce.number().min(0, 'Weight must be a positive number'),
+  length: z.coerce.number().min(0, 'Length must be a positive number'),
 })
 
 // Extended Reptile type with species_name and morph_name
@@ -75,6 +77,8 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       notes: initialData?.notes || null,
       dam_id: initialData?.dam_id || null,
       sire_id: initialData?.sire_id || null,
+      weight: initialData?.weight || 0,
+      length: initialData?.length || 0,
     }
   })
 
@@ -182,9 +186,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
               </FormItem>
             )}
           />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+ 
           <FormField
             control={form.control}
             name="dam_id"
@@ -253,9 +255,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
               </FormItem>
             )}
           />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+   
           <FormField
             control={form.control}
             name="sex"
@@ -301,9 +301,35 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
               </FormItem>
             )}
           />
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="weight"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Weight (g)</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.1" min="0" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="length"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Length (cm)</FormLabel>
+                <FormControl>
+                  <Input type="number" step="0.1" min="0" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+     
           <FormField
             control={form.control}
             name="hatch_date"

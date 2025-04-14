@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { CreateGrowthEntryInput } from '@/lib/types/growth'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
 
 export async function getReptiles() {
@@ -42,7 +43,21 @@ export async function createReptile(reptile: NewReptile) {
     .select()
     .single()
 
-  if (error) throw error
+    const newReptileGrowth : CreateGrowthEntryInput = {
+      reptile_id: data.id,
+      user_id: userId || '',
+      date: new Date().toISOString(), 
+      weight: data.weight,
+      length: data.length,
+      notes: "",
+      attachments: [],
+    }
+
+    const {error : growthError} = await supabase
+    .from('growth_entries')
+    .insert([newReptileGrowth])
+
+  if (error || growthError) throw error
   return data as Reptile
 }
 

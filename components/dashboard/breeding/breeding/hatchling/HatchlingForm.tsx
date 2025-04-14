@@ -28,7 +28,8 @@ const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   morph: z.string().min(1, 'Morph is required'),
   sex: z.enum(['male', 'female', 'unknown']),
-  // weight: z.coerce.number().min(0, 'Weight must be positive'),
+  weight: z.coerce.number().min(0, 'Weight must be positive'),
+  length: z.coerce.number().min(0, 'Length must be positive'),
   notes: z.string().nullable(),
 });
 
@@ -57,6 +58,8 @@ export function HatchlingForm({
       morph: '',
       sex: 'unknown',
       notes: '',
+      weight: 0,
+      length: 0,
     },
   });
 
@@ -74,7 +77,6 @@ export function HatchlingForm({
         dam_id :projectDetails.male_id,
         sire_id : projectDetails.female_id,
         status: 'active',
-       
       };
       await onSubmit(hatchlingData);
     } catch (error) {
@@ -98,73 +100,87 @@ export function HatchlingForm({
             </FormItem>
           )}
         />
-      <FormField
-            control={form.control}
-            name="morph"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Morph</FormLabel>
-                <Select onValueChange={(value) => {
-                  field.onChange(value)
-                }} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select Morph" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {morphsForSpecies.map((s) => (
-                      <SelectItem key={s.id} value={s.id.toString()}>
-                        {s.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-2 gap-4">
+                <FormField
+                      control={form.control}
+                      name="morph"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Morph</FormLabel>
+                          <Select onValueChange={(value) => {
+                            field.onChange(value)
+                          }} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className='w-full'>
+                                <SelectValue placeholder="Select Morph" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {morphsForSpecies.map((s) => (
+                                <SelectItem key={s.id} value={s.id.toString()}>
+                                  {s.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-        <FormField
-          control={form.control}
-          name="sex"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sex</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger className='w-full'>
-                    <SelectValue placeholder="Select sex" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="unknown">Unknown</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                  <FormField
+                    control={form.control}
+                    name="sex"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sex</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className='w-full'>
+                              <SelectValue placeholder="Select sex" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="unknown">Unknown</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                      control={form.control}
+                      name="weight"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Weight (g)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.1" min="0" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-        {/* <FormField
-          control={form.control}
-          name="weight"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Weight (g)</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.01" min="0" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
+                    <FormField
+                      control={form.control}
+                      name="length"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Length (cm)</FormLabel>
+                          <FormControl>
+                            <Input type="number" step="0.1" min="0" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+          </div>
         <FormField
           control={form.control}
           name="notes"

@@ -9,6 +9,8 @@ export interface Reptile {
   species: string
   morph: string
   sex: Sex
+  weight: number;
+  length: number;
   hatch_date: string | null
   acquisition_date: string
   status: Status
