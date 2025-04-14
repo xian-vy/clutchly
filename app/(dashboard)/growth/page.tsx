@@ -7,7 +7,7 @@ import { Settings } from 'lucide-react';
 
 export default async function GrowthPage() {
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto">
       <div className="flex items-center justify-between w-full">
         <h1 className="text-3xl font-bold mb-6">Growth Tracking</h1>
         <Button variant="outline">
@@ -15,12 +15,14 @@ export default async function GrowthPage() {
           Options
         </Button>
       </div>
-      <Tabs defaultValue="entries" className="w-full">
-        <TabsList >
-          <TabsTrigger value="entries">Entries</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-        </TabsList>
-        
+      <Tabs defaultValue="entries" className="space-y-6">
+       <div className="flex flex-col w-full">
+            <TabsList >
+              <TabsTrigger value="entries">Entries</TabsTrigger>
+              <TabsTrigger value="reports">Reports</TabsTrigger>
+            </TabsList>
+            <hr className='mt-[1px]'/>
+        </div>
         <TabsContent value="entries">
           <GrowthEntriesTab />
         </TabsContent>
