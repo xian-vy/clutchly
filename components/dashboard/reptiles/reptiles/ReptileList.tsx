@@ -93,7 +93,7 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
       header: "Breeder",
       cell: ({ row }) => {
         const is_breeder = row.getValue("is_breeder") 
-        const label = is_breeder === 1 ? "Yes" : "No";
+        const label = is_breeder  ? "Yes" : "No";
         return (
           <Badge
             variant="custom"
