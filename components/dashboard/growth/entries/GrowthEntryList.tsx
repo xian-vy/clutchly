@@ -1,16 +1,11 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
-import { ColumnDef } from "@tanstack/react-table";
 import { GrowthEntry } from "@/lib/types/growth";
+import { ColumnDef } from "@tanstack/react-table";
 import { format } from 'date-fns';
-import { useGrowthStore } from '@/lib/stores/growthStore';
-import { useQuery } from '@tanstack/react-query';
-import { useResource } from '@/lib/hooks/useResource';
-import { NewReptile, Reptile } from '@/lib/types/reptile';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
+import { Edit, Trash2 } from "lucide-react";
 
 interface GrowthEntryListProps {
   growthEntries: GrowthEntry[];
@@ -20,56 +15,27 @@ interface GrowthEntryListProps {
 }
 
 export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: GrowthEntryListProps) {
-  const { 
-    fetchEntries,
-    isLoading: growthStoreLoading
-  } = useGrowthStore();
-
-  // Use TanStack Query only for the initial load of growth data
-  const { isLoading: growthQueryLoading } = useQuery({
-    queryKey: ['growth-initial-load'],
-    queryFn: async () => {
-      await fetchEntries();
-      return true;
-    },
-    // Only run once on component mount
-    enabled: true,
-    // Don't refetch on window focus or reconnect
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    // Don't consider data stale
-    staleTime: Infinity,
-  });
-
-  // Use the useResource hook to fetch reptiles
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
-    queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
-  });
+  
 
   const columns: ColumnDef<GrowthEntry>[] = [
+    {
+      accessorKey: 'reptile',
+      header: 'Reptile', 
+    },
+    {
+      accessorKey:'morph',
+      header: 'Morph', 
+    },
+    {
+      accessorKey:'species',
+      header: 'Species', 
+    },
     {
       accessorKey: 'date',
       header: 'Date',
       cell: ({ row }) => {
         const date = row.getValue('date') as string;
         return format(new Date(date), 'MMM d, yyyy');
-      },
-    },
-    {
-      accessorKey: 'reptile_id',
-      header: 'Reptile',
-      cell: ({ row }) => {
-        const reptileId = row.getValue('reptile_id') as string;
-        const reptile = reptiles.find(r => r.id === reptileId);
-        return reptile?.name || '-';
       },
     },
     {
@@ -123,11 +89,7 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
     },
   ];
 
-  const isLoading = growthStoreLoading || growthQueryLoading || isReptilesLoading;
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return <DataTable columns={columns} data={growthEntries} onAddNew={onAddNew} />;
 } 
