@@ -13,11 +13,12 @@ import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { getReptileLineage } from '@/app/api/reptiles/lineage';
 import { Badge } from '@/components/ui/badge';
-import { SEX_COLORS } from '@/lib/constants/colors';
 import { Reptile } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
+import { useQuery } from '@tanstack/react-query';
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 
 interface ReptileNode extends Reptile {
   children: ReptileNode[];
@@ -86,6 +87,12 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const { morphs } = useMorphsStore();
+  
+  
+  const { data: reptiles = [] } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  });
 
   const layoutNodes = useCallback(
     (tree: ReptileNode, x = 0, y = 0, level = 0, nodeMap = new Map<string, Node<CustomNodeData>>()) => {
@@ -190,7 +197,8 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
   useEffect(() => {
     const loadLineage = async () => {
       try {
-        const lineageData = await getReptileLineage(reptileId);
+        // Pass cached reptiles to the lineage function
+        const lineageData = await getReptileLineage(reptileId, reptiles);
         const { nodes, edges } = layoutNodes(lineageData);
         setNodes(nodes);
         setEdges(edges);
@@ -201,7 +209,7 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
       }
     };
     loadLineage();
-  }, [reptileId, layoutNodes]);
+  }, [reptileId, layoutNodes, reptiles]); // Add reptiles to dependencies
 
   // Memoize ReactFlow to prevent unnecessary re-renders
   const reactFlow = useMemo(

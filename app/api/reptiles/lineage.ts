@@ -11,18 +11,26 @@ interface ReptileNode extends Reptile {
   };
 }
 
-export async function getReptileLineage(reptileId: string): Promise<ReptileNode> {
-  const supabase = await createClient();
-  const userId = (await supabase.auth.getUser()).data.user?.id;
+export async function getReptileLineage(reptileId: string, cachedReptiles?: Reptile[]): Promise<ReptileNode> {
+  let reptiles: Reptile[] = cachedReptiles || [];
 
-  // Fetch all reptiles for the user
-  const { data: reptiles, error } = await supabase
-    .from('reptiles')
-    .select('*')
-    .eq('user_id', userId);
+  // Only fetch if no cached data provided
+  if (!cachedReptiles) {
+    const supabase = await createClient();
+    const userId = (await supabase.auth.getUser()).data.user?.id;
 
-  if (error) throw new Error(`Failed to fetch reptiles: ${error.message}`);
-  if (!reptiles || reptiles.length === 0) throw new Error('No reptiles found');
+    const { data, error } = await supabase
+      .from('reptiles')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) throw new Error(`Failed to fetch reptiles: ${error.message}`);
+    if (!data || data.length === 0) throw new Error('No reptiles found');
+    
+    reptiles = data;
+  } else {
+    console.log("Using cached reptiles")
+  }
 
   // Cache reptiles by ID for quick lookup
   const reptileMap = new Map<string, Reptile>(reptiles.map((r) => [r.id, r]));
