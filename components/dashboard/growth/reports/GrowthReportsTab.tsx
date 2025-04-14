@@ -2,7 +2,7 @@
 
 import { useGrowthStore } from '@/lib/stores/growthStore';
 import { useResource } from '@/lib/hooks/useResource';
-import { Reptile } from '@/lib/types/reptile';
+import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState, useEffect } from 'react';
@@ -27,7 +27,7 @@ export function GrowthReportsTab() {
   const { 
     resources: reptiles, 
     isLoading: isReptilesLoading 
-  } = useResource<Reptile, any>({
+  } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
     queryKey: ['reptiles'],
     getResources: getReptiles,

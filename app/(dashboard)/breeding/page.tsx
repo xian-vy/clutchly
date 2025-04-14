@@ -1,4 +1,5 @@
 import { BreedingProjectsTab } from '@/components/dashboard/breeding/breeding/BreedingProjectsTab'
+import Lineage from '@/components/dashboard/breeding/lineage/Lineage'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Settings } from 'lucide-react'
@@ -27,9 +28,9 @@ export default async function BreedingPage() {
             <BreedingProjectsTab />
           </TabsContent>
           
-          <TabsContent value="lineage" className="p-4">
-            <div className="text-center text-muted-foreground py-8">
-              Lineage tracking coming soon
+          <TabsContent value="lineage" className="p-0">
+            <div className="text-center text-muted-foreground">
+              <Lineage />
             </div>
           </TabsContent>
           
