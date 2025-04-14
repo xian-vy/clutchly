@@ -9,13 +9,13 @@ import {
   Turtle,
   Heart,
   LineChart,
-  Users,
   Menu,
   X,
   ChevronLeft,
   ChevronRight,
   LogOut,
   Dna,
+  Settings,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -72,6 +72,11 @@ export default function DashboardLayout({ children }: LayoutProps) {
       href: '/breeding',
       icon: Dna,
     },
+    {
+      name: 'Settings',
+      href: '/settings',
+      icon: Settings,
+    },
   ];
 
   return (
@@ -98,7 +103,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
         )}>
           <Turtle className="w-6 h-6 text-primary" />
           {!isCollapsed && (
-            <span className="font-semibold text-lg text-sidebar-foreground">HerpTrack</span>
+            <span className="font-semibold text-lg text-sidebar-foreground">Herptrack</span>
           )}
         </div>
 
