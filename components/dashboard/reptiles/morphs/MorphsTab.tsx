@@ -5,7 +5,6 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph, NewMorph } from '@/lib/types/morph';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { DownloadCommonData } from '../DownloadCommonData';
 import { MorphForm } from './MorphForm';
 import { MorphList } from './MorphList';
 
@@ -55,7 +54,7 @@ export function MorphsTab() {
 
   const handleUpdate = async (data: NewMorph) => {
     if (!selectedMorph) return false
-    const result = await updateMorph(selectedMorph.id, data)
+    const result = await updateMorph(selectedMorph.id.toString(), data)
     if (result) {
       setIsDialogOpen(false)
       setSelectedMorph(undefined)
@@ -77,12 +76,6 @@ export function MorphsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight">Morphs</h2>
-        <div className="flex items-center gap-2">
-          <DownloadCommonData showInMorphsTab={true} />
-        </div>
-      </div>
 
       <MorphList 
         morphs={morphs}
@@ -92,6 +85,7 @@ export function MorphsTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
+        onDownload={() => {}}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

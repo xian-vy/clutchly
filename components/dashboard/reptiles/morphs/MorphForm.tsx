@@ -1,19 +1,17 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { NewMorph, Morph } from '@/lib/types/morph'
-import { Species } from '@/lib/types/species'
-import { useEffect, useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { X } from 'lucide-react'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
+import { Morph, NewMorph } from '@/lib/types/morph'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
