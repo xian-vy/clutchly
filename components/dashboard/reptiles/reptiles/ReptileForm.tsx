@@ -12,6 +12,9 @@ import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { useEffect, useState } from 'react'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { useMorphsStore } from '@/lib/stores/morphsStore'
+import { useResource } from '@/lib/hooks/useResource'
+import { getReptiles } from '@/app/api/reptiles/reptiles'
+import { Loader2 } from 'lucide-react'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -21,7 +24,9 @@ const formSchema = z.object({
   hatch_date: z.string().nullable(),
   acquisition_date: z.string().min(1, 'Acquisition date is required'),
   status: z.enum(['active', 'sold', 'deceased'] as const),
-  notes: z.string().nullable()
+  notes: z.string().nullable(),
+  dam_id: z.string().nullable(),
+  sire_id: z.string().nullable(),
 })
 
 // Extended Reptile type with species_name and morph_name
@@ -45,6 +50,18 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
   const [selectedSpeciesId, setSelectedSpeciesId] = useState<string>('')
   const [isLoadingMorphs, setIsLoadingMorphs] = useState(false)
 
+  const { 
+    resources: reptiles, 
+    isLoading: isReptilesLoading 
+  } = useResource<Reptile, NewReptile>({
+    resourceName: 'Reptile',
+    queryKey: ['reptiles'],
+    getResources: getReptiles,
+    createResource: async () => { throw new Error('Not implemented'); },
+    updateResource: async () => { throw new Error('Not implemented'); },
+    deleteResource: async () => { throw new Error('Not implemented'); },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,7 +72,9 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       hatch_date: initialData?.hatch_date || null,
       acquisition_date: initialData?.acquisition_date || new Date().toISOString().split('T')[0],
       status: initialData?.status || 'active',
-      notes: initialData?.notes || null
+      notes: initialData?.notes || null,
+      dam_id: initialData?.dam_id || null,
+      sire_id: initialData?.sire_id || null,
     }
   })
 
@@ -89,6 +108,9 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
     }
   }, [form.watch('species'), getMorphsBySpecies])
 
+  const males = reptiles.filter(r => r.sex === 'male')
+  const females = reptiles.filter(r => r.sex === 'female')
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -119,7 +141,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                   form.setValue('morph', '')
                 }} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select species" />
                     </SelectTrigger>
                   </FormControl>
@@ -144,7 +166,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                 <FormLabel>Morph</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedSpeciesId || isLoadingMorphs}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder={isLoadingMorphs ? "Loading..." : "Select morph"} />
                     </SelectTrigger>
                   </FormControl>
@@ -165,13 +187,84 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
+            name="dam_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dam (Female Parent)</FormLabel>
+                <Select
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                  disabled={isReptilesLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder="Select a reptile" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {isReptilesLoading ? (
+                      <div className="flex items-center justify-center p-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </div>
+                    ) : (
+                      females.map((reptile) => (
+                        <SelectItem key={reptile.id} value={reptile.id}>
+                          {reptile.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="sire_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sire (Male Parent)</FormLabel>
+                <Select
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                  disabled={isReptilesLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder="Select a reptile" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {isReptilesLoading ? (
+                      <div className="flex items-center justify-center p-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </div>
+                    ) : (
+                      males.map((reptile) => (
+                        <SelectItem key={reptile.id} value={reptile.id}>
+                          {reptile.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="sex"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sex</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select sex" />
                     </SelectTrigger>
                   </FormControl>
@@ -194,7 +287,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                 <FormLabel>Status</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                   </FormControl>

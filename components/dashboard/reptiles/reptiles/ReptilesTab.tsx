@@ -41,11 +41,17 @@ export function ReptilesTab() {
     return reptiles.map(reptile => {
       const speciesData = species.find(s => s.id.toString() === reptile.species);
       const morphData = morphs.find(m => m.id.toString() === reptile.morph);
-      
+      const dam = reptile.dam_id ? reptiles.find(r => r.id.toString() === reptile.dam_id) : null;
+      const sire = reptile.sire_id ? reptiles.find(r => r.id.toString() === reptile.sire_id) : null;
+      const damName = dam ? dam.name : 'Unknown';
+      const sireName = sire ? sire.name : 'Unknown';
+
       return {
         ...reptile,
         species_name: speciesData?.name || 'Unknown Species',
-        morph_name: morphData?.name || 'Unknown Morph'
+        morph_name: morphData?.name || 'Unknown Morph',
+        dam_name: damName,
+        sire_name: sireName,
       };
     });
   }, [reptiles, species, morphs]);
