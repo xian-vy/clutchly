@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash, MoreHorizontal } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { HealthLogEntry } from "@/lib/types/health";
@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { useHealthStore } from '@/lib/stores/healthStore';
 import { useQuery } from '@tanstack/react-query';
+import { HEALTH_STATUS_COLORS, SEVERITY_COLORS } from "@/lib/constants/colors";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface HealthLogListProps {
   healthLogs: HealthLogEntry[];
@@ -47,12 +49,16 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
 
   const columns: ColumnDef<HealthLogEntry>[] = [
     {
-      accessorKey: 'date',
-      header: 'Date',
-      cell: ({ row }) => {
-        const date = row.getValue('date') as string;
-        return format(new Date(date), 'MMM d, yyyy');
-      },
+      accessorKey: 'reptile',
+      header: 'Reptile', 
+    },
+    {
+      accessorKey:'morph',
+      header: 'Morph', 
+    },
+    {
+      accessorKey:'species',
+      header: 'Species', 
     },
     {
       accessorKey: 'category_id',
@@ -95,9 +101,10 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
       accessorKey: 'severity',
       header: 'Severity',
       cell: ({ row }) => {
-        const severity = row.getValue('severity') as string;
+        const severity = row.getValue('severity') as keyof typeof SEVERITY_COLORS;
         return severity ? (
-          <Badge variant="outline" className="capitalize">
+          <Badge variant="custom" 
+            className={SEVERITY_COLORS[severity.toLowerCase() as keyof typeof SEVERITY_COLORS]}>
             {severity}
           </Badge>
         ) : '-';
@@ -107,38 +114,48 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
       accessorKey: 'resolved',
       header: 'Status',
       cell: ({ row }) => {
-        const resolved = row.getValue('resolved') as boolean;
+        const resolved = row.getValue('resolved') 
+        const label = resolved ? 'Resolved' : 'Ongoing';
         return (
           <Badge 
-            variant={resolved ? "outline" : "destructive"}
-            className={resolved ? "bg-green-100 text-green-800" : ""}
+            variant="custom"
+            className={HEALTH_STATUS_COLORS[label.toLowerCase() as keyof typeof HEALTH_STATUS_COLORS]}
           >
-            {resolved ? 'Resolved' : 'Active'}
+            {resolved ? 'resolved' : 'ongoing'}
           </Badge>
         );
       },
     },
     {
-      id: 'actions',
+      accessorKey: 'date',
+      header: 'Date',
       cell: ({ row }) => {
-        const healthLog = row.original;
+        const date = row.getValue('date') as string;
+        return format(new Date(date), 'MMM d, yyyy');
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const health = row.original;
         return (
-          <div className="flex justify-end">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => onEdit?.(healthLog)}
-            >
-              <Edit strokeWidth={1.5} className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => onDelete?.(healthLog.id)}
-            >
-              <Trash2 strokeWidth={1.5} className="h-4 w-4" />
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit?.(health)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete?.(health.id)}>
+                <Trash className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     },

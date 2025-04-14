@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { HealthLogEntry, CreateHealthLogEntryInput } from '@/lib/types/health';
 import { useHealthStore } from '@/lib/stores/healthStore';
 import { useResource } from '@/lib/hooks/useResource';
-import { Reptile } from '@/lib/types/reptile';
+import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -54,7 +54,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
   const { 
     resources: reptiles, 
     isLoading: isReptilesLoading 
-  } = useResource<Reptile, any>({
+  } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
     queryKey: ['reptiles'],
     getResources: getReptiles,
@@ -123,7 +123,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
 
   // Handle form submission
   const handleSubmit = async (data: FormValues) => {
-    const { user_id, ...formData } = data;
+    const {  ...formData } = data;
     await onSubmit(formData as CreateHealthLogEntryInput);
   };
 
@@ -149,7 +149,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
                   disabled={isReptilesLoading}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select a reptile" />
                     </SelectTrigger>
                   </FormControl>
@@ -197,7 +197,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
                   onValueChange={handleCategoryChange}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                   </FormControl>
@@ -226,7 +226,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
                   disabled={!selectedCategoryId}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select a subcategory" />
                     </SelectTrigger>
                   </FormControl>
@@ -255,7 +255,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
                   disabled={!selectedSubcategoryId}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select a type" />
                     </SelectTrigger>
                   </FormControl>
@@ -300,7 +300,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
                   onValueChange={field.onChange}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select severity" />
                     </SelectTrigger>
                   </FormControl>
@@ -326,7 +326,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
                   onValueChange={(value) => field.onChange(value === 'resolved')}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                   </FormControl>
