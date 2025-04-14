@@ -12,6 +12,7 @@ export interface BreedingProject {
   end_date?: string
   expected_hatch_date?: string
   notes?: string
+  species_id: string
   created_at: string
   updated_at: string
 }
@@ -27,6 +28,7 @@ export interface Clutch {
   incubation_humidity?: number
   hatch_date?: string
   notes?: string
+  species_id: string
   created_at: string
   updated_at: string
 }
@@ -38,6 +40,7 @@ export interface Hatchling {
   sex: 'male' | 'female' | 'unknown'
   weight: number
   notes?: string
+  species_id: string
   created_at: string
 }
 

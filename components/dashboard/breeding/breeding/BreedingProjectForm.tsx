@@ -25,6 +25,9 @@ import * as z from 'zod';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useQuery } from '@tanstack/react-query';
 import { Reptile } from '@/lib/types/reptile';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { useEffect, useState } from 'react';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
 
 const breedingStatuses: BreedingStatus[] = ['planned', 'active', 'completed', 'failed'];
 
@@ -37,6 +40,7 @@ const formSchema = z.object({
   end_date: z.string().optional(),
   expected_hatch_date: z.string().optional(),
   notes: z.string().optional(),
+  species_id: z.string().min(1, 'Species is required'),
 });
 
 interface BreedingProjectFormProps {
@@ -61,6 +65,7 @@ export function BreedingProjectForm({
       end_date: '',
       expected_hatch_date: '',
       notes: '',
+      species_id: '',
     },
   });
 
@@ -68,9 +73,9 @@ export function BreedingProjectForm({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-
-  const maleReptiles = reptiles.filter((r) => r.sex === 'male');
-  const femaleReptiles = reptiles.filter((r) => r.sex === 'female');
+  const { species } = useSpeciesStore()
+  const [selectedSpeciesId, setSelectedSpeciesId] = useState<string>('')
+  const { getMorphsBySpecies } = useMorphsStore()
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     // Convert empty date strings to undefined before submission
@@ -83,6 +88,34 @@ export function BreedingProjectForm({
     await onSubmit(formattedData);
   };
 
+  // Add these state variables near other state declarations
+  const [maleReptiles, setMaleReptiles] = useState<Reptile[]>([]);
+  const [femaleReptiles, setFemaleReptiles] = useState<Reptile[]>([]);
+
+  useEffect(() => {
+    const speciesId = form.watch('species_id')
+    if (speciesId) {
+      setSelectedSpeciesId(speciesId)
+      const morphsForSpecies = getMorphsBySpecies(speciesId)
+      const morphsList = morphsForSpecies.map(m => ({ id: m.id.toString(), name: m.name }))
+
+
+      // Filter reptiles based on species and morphs
+      setMaleReptiles(reptiles.filter((r) => 
+        r.sex === 'male' && 
+        r.species === speciesId &&
+        (!r.morph || morphsList.some(m => m.id === r.morph))
+      ));
+
+      setFemaleReptiles(reptiles.filter((r) => 
+        r.sex === 'female' && 
+        r.species === speciesId &&
+        (!r.morph || morphsList.some(m => m.id === r.morph))
+      ));
+    }
+  }, [form.watch('species_id'), getMorphsBySpecies, reptiles]);
+
+  // Remove the old filter declarations
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -111,7 +144,7 @@ export function BreedingProjectForm({
                 defaultValue={field.value}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className='w-full'>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                 </FormControl>
@@ -128,6 +161,36 @@ export function BreedingProjectForm({
           )}
         />
 
+        <FormField
+            control={form.control}
+            name="species_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Species</FormLabel>
+                <Select onValueChange={(value) => {
+                  field.onChange(value)
+                  // Reset reptiles when species changes
+                  form.setValue('male_id', '');
+                  form.setValue('female_id', '')
+                }} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder="Select species" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {species.map((s) => (
+                      <SelectItem key={s.id} value={s.id.toString()}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -138,6 +201,7 @@ export function BreedingProjectForm({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={!selectedSpeciesId}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -166,6 +230,7 @@ export function BreedingProjectForm({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={!selectedSpeciesId}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -244,4 +309,4 @@ export function BreedingProjectForm({
       </form>
     </Form>
   );
-} 
+}
