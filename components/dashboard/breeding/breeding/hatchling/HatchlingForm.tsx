@@ -1,5 +1,4 @@
 'use client';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -19,27 +18,30 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { Clutch, NewHatchling } from '@/lib/types/breeding';
+import { BreedingProject, Clutch } from '@/lib/types/breeding';
+import { NewReptile } from '@/lib/types/reptile';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const formSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
   morph: z.string().min(1, 'Morph is required'),
   sex: z.enum(['male', 'female', 'unknown']),
-  weight: z.coerce.number().min(0, 'Weight must be positive'),
-  notes: z.string().optional(),
-  species_id: z.string().min(1, 'Species is required'),
+  // weight: z.coerce.number().min(0, 'Weight must be positive'),
+  notes: z.string().nullable(),
 });
 
 interface HatchlingFormProps {
   clutch: Clutch;
-  onSubmit: (data: NewHatchling) => Promise<void>;
+  projectDetails : BreedingProject
+  onSubmit: (data: NewReptile) => Promise<void>;
   onCancel: () => void;
 }
 
 export function HatchlingForm({
   clutch,
+  projectDetails,
   onSubmit,
   onCancel,
 }: HatchlingFormProps) {
@@ -51,25 +53,51 @@ export function HatchlingForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: '',
       morph: '',
       sex: 'unknown',
-      weight: 0,
       notes: '',
     },
   });
 
-  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const hatchlingData: NewHatchling = {
-      ...data,
-      clutch_id: clutch.id,
-      species_id: clutch.species_id,
-    };
-    await onSubmit(hatchlingData);
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const today = new Date().toISOString().split('T')[0]
+
+      const hatchlingData: NewReptile = {
+        ...values,
+        parent_clutch_id: clutch.id,
+        species: clutch.species_id,
+        hatch_date: today,
+        acquisition_date: today,
+        generation: 1,
+        dam_id :projectDetails.male_id,
+        sire_id : projectDetails.female_id,
+        status: 'active',
+       
+      };
+      await onSubmit(hatchlingData);
+    } catch (error) {
+      console.error('Error submitting hatchling:', error);
+    }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       <FormField
             control={form.control}
             name="morph"
@@ -108,7 +136,7 @@ export function HatchlingForm({
                 defaultValue={field.value}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className='w-full'>
                     <SelectValue placeholder="Select sex" />
                   </SelectTrigger>
                 </FormControl>
@@ -123,7 +151,7 @@ export function HatchlingForm({
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="weight"
           render={({ field }) => (
@@ -135,7 +163,7 @@ export function HatchlingForm({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormField
           control={form.control}
@@ -146,7 +174,7 @@ export function HatchlingForm({
               <FormControl>
                 <Textarea
                   placeholder="Enter any additional notes..."
-                  {...field}
+                  {...field} value={field.value || ''} 
                 />
               </FormControl>
               <FormMessage />
@@ -163,4 +191,4 @@ export function HatchlingForm({
       </form>
     </Form>
   );
-} 
+}

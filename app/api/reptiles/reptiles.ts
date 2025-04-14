@@ -70,3 +70,15 @@ export async function deleteReptile(id: string): Promise<void> {
 
   if (error) throw error
 } 
+export async function getReptileByClutchId(clutch_id: string) {
+  const supabase = await createClient()
+  
+  const { data: reptile, error } = await supabase
+    .from('reptiles')
+    .select('*')
+    .eq('parent_clutch_id', clutch_id)
+    .single()
+
+  if (error) throw error
+  return reptile as Reptile
+}

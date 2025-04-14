@@ -3,19 +3,17 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BreedingProject, Clutch, Hatchling, NewClutch, IncubationStatus, NewHatchling } from '@/lib/types/breeding';
+import { BreedingProject, Clutch, NewClutch, IncubationStatus } from '@/lib/types/breeding';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getClutches } from '@/app/api/breeding/clutches';
-import { getHatchlings } from '@/app/api/breeding/hatchlings';
 import { createClutch, updateClutch } from '@/app/api/breeding/clutches';
-import { createHatchling } from '@/app/api/breeding/hatchlings';
 import { toast } from 'sonner';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { Reptile } from '@/lib/types/reptile';
+import { createReptile, getReptileByClutchId, getReptiles } from '@/app/api/reptiles/reptiles';
+import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { STATUS_COLORS } from '@/lib/constants/colors';
 import { HatchlingsList } from './hatchling/HatchlingsList';
 import { ClutchForm } from './clutch/ClutchForm';
@@ -61,10 +59,14 @@ export function BreedingProjectDetails({
     queryFn: () => getClutches(project.id),
   });
 
-  // Fetch hatchlings for the selected clutch
-  const { data: hatchlings = [] } = useQuery<Hatchling[]>({
+  //Fetch hatchlings for the selected clutch
+  const { data: hatchlings = [] } = useQuery<Reptile[]>({
     queryKey: ['hatchlings', selectedClutch?.id],
-    queryFn: () => selectedClutch ? getHatchlings(selectedClutch.id) : Promise.resolve([]),
+    queryFn: async () => {
+      if (!selectedClutch) return [];
+      const result = await getReptileByClutchId(selectedClutch.id);
+      return Array.isArray(result) ? result : [result];
+    },
     enabled: !!selectedClutch,
   });
 
@@ -106,13 +108,13 @@ export function BreedingProjectDetails({
     }
   };
 
-  const handleAddHatchling = async (data: NewHatchling) => {
+  const handleAddHatchling = async (data: NewReptile) => {
     if (!selectedClutch) return;
     
     try {
-      await createHatchling({
+      await createReptile({
         ...data,
-        clutch_id: selectedClutch.id,
+        parent_clutch_id: selectedClutch.id,
       });
       
       // Invalidate queries to refresh the data
@@ -205,8 +207,8 @@ export function BreedingProjectDetails({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {clutches.map((clutch) => (
                 <Card key={clutch.id} className="cursor-pointer hover:bg-accent/50" onClick={() => setSelectedClutch(clutch)}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Clutch from {format(new Date(clutch.lay_date), 'MMM d, yyyy')}</CardTitle>
+                  <CardHeader >
+                    <CardTitle className="text-lg" >{format(new Date(clutch.lay_date), 'MMM d, yyyy')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-2">
@@ -312,6 +314,7 @@ export function BreedingProjectDetails({
           <DialogTitle>Add Hatchling</DialogTitle>
           {selectedClutch && (
             <HatchlingForm
+              projectDetails={project}
               clutch={selectedClutch}
               onSubmit={handleAddHatchling}
               onCancel={() => setIsAddHatchlingDialogOpen(false)}
@@ -322,4 +325,4 @@ export function BreedingProjectDetails({
 
     </div>
   );
-} 
+}

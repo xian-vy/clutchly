@@ -33,17 +33,6 @@ export interface Clutch {
   updated_at: string
 }
 
-export interface Hatchling {
-  id: string
-  clutch_id: string
-  morph: string
-  sex: 'male' | 'female' | 'unknown'
-  weight: number
-  notes?: string
-  species_id: string
-  created_at: string
-}
 
 export type NewBreedingProject = Omit<BreedingProject, 'id' | 'user_id' | 'created_at' | 'updated_at'>
 export type NewClutch = Omit<Clutch, 'id' | 'created_at' | 'updated_at'>
-export type NewHatchling = Omit<Hatchling, 'id' | 'created_at'> 
