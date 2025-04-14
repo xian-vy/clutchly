@@ -49,8 +49,16 @@ export async function createGrowthEntry(growthEntry: CreateGrowthEntryInput) {
     .select()
     .single()
 
-  if (error) {
-    console.error('Error creating growth entry:', error);
+    const {  error : reptileError } = await supabase
+    .from('reptiles')
+    .update({ 
+      weight: data.weight,
+      length: data.length
+     })
+    .eq('id', data.reptile_id)
+
+  if (error || reptileError) {
+    console.error('Error creating growth entry:', error || reptileError);
     throw error;
   }
   
