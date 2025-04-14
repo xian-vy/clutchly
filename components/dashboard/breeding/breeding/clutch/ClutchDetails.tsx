@@ -2,16 +2,16 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clutch, Hatchling, IncubationStatus } from '@/lib/types/breeding';
+import { Clutch, Hatchling, IncubationStatus, NewHatchling } from '@/lib/types/breeding';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { HatchlingsList } from './HatchlingsList';
+import { HatchlingsList } from '../hatchling/HatchlingsList';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { createHatchling } from '@/app/api/breeding/hatchlings';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { HatchlingForm } from './HatchlingForm';
+import { HatchlingForm } from '../hatchling/HatchlingForm';
 
 interface ClutchDetailsProps {
   clutch: Clutch;
@@ -34,7 +34,7 @@ export function ClutchDetails({
   const [isAddHatchlingDialogOpen, setIsAddHatchlingDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const handleAddHatchling = async (data: any) => {
+  const handleAddHatchling = async (data: NewHatchling) => {
     try {
       await createHatchling({
         ...data,

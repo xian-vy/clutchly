@@ -14,12 +14,12 @@ import { getHatchlings } from '@/app/api/breeding/hatchlings';
 import { createClutch, updateClutch } from '@/app/api/breeding/clutches';
 import { createHatchling } from '@/app/api/breeding/hatchlings';
 import { toast } from 'sonner';
-import { HatchlingForm } from './HatchlingForm';
-import { HatchlingsList } from './HatchlingsList';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Reptile } from '@/lib/types/reptile';
-import { ClutchForm } from './ClutchForm';
 import { STATUS_COLORS } from '@/lib/constants/colors';
+import { HatchlingsList } from './hatchling/HatchlingsList';
+import { ClutchForm } from './clutch/ClutchForm';
+import { HatchlingForm } from './hatchling/HatchlingForm';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;

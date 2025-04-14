@@ -1,4 +1,4 @@
-import { BreedingProjectsTab } from '@/components/dashboard/breeding/BreedingProjectsTab'
+import { BreedingProjectsTab } from '@/components/dashboard/breeding/breeding/BreedingProjectsTab'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Settings } from 'lucide-react'
