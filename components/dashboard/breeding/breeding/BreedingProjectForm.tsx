@@ -204,7 +204,7 @@ export function BreedingProjectForm({
                   disabled={!selectedSpeciesId}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select male" />
                     </SelectTrigger>
                   </FormControl>
@@ -233,7 +233,7 @@ export function BreedingProjectForm({
                   disabled={!selectedSpeciesId}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select female" />
                     </SelectTrigger>
                   </FormControl>
