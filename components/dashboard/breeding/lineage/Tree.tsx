@@ -39,14 +39,17 @@ interface CustomNodeData {
   generation?: number;
   breeding_line?: string;
   morph_name: string;
+  isSelected?: boolean;
 }
 
 const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
   <div
     className={cn(
-      'px-4 py-2 shadow-lg rounded-md border bg-card min-w-[200px]',
-      data.isParent === 'dam' && 'border-pink-500',
-      data.isParent === 'sire' && 'border-blue-500',
+      'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
+      data.isParent === 'dam' && 'text-red-400',
+      data.isParent === 'sire' && 'text-blue-500',
+      data.isSelected && 
+        'ring-1 ring-primary shadow-2xl  bg-primary/5 border-primary z-50'
     )}
   >
     <Handle type="target" position={Position.Top} />
@@ -54,12 +57,12 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
       <div className="font-bold">{data.name || 'Unknown'}</div>
       <div className="text-[0.8rem] text-muted-foreground">{data.morph_name || 'N/A'}</div>
       <div className="flex gap-2 justify-center flex-wrap w-full">
-        <Badge
+        {/* <Badge
           variant="custom"
           className={SEX_COLORS[data.sex.toLowerCase() as keyof typeof SEX_COLORS] || 'bg-gray-500'}
         >
           {data.sex || 'Unknown'}
-        </Badge>
+        </Badge> */}
         {data.generation && (
           <Badge variant="outline">Gen {data.generation}</Badge>
         )}
@@ -67,11 +70,11 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
           <Badge variant="secondary">{data.breeding_line}</Badge>
         )}
       </div>
-      {data.isParent && (
+      {/* {data.isParent && (
         <Badge variant="outline" className="mt-1 w-full flex justify-center">
           {data.isParent === 'dam' ? 'Dam' : 'Sire'}
         </Badge>
-      )}
+      )} */}
     </div>
     <Handle type="source" position={Position.Bottom} />
   </div>
@@ -108,6 +111,7 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
           generation: tree.generation,
           breeding_line: tree.breeding_line,
           morph_name: morphName,
+          isSelected: tree.id === reptileId,  
         },
       };
       nodes.push(node);
@@ -180,7 +184,7 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
 
       return { nodes, edges };
     },
-    [morphs],
+    [morphs,reptileId],
   );
 
   useEffect(() => {
