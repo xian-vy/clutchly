@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BreedingProject, Clutch, Hatchling, NewClutch, IncubationStatus } from '@/lib/types/breeding';
+import { BreedingProject, Clutch, Hatchling, NewClutch, IncubationStatus, NewHatchling } from '@/lib/types/breeding';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,18 +19,13 @@ import { HatchlingsList } from './HatchlingsList';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Reptile } from '@/lib/types/reptile';
 import { ClutchForm } from './ClutchForm';
+import { STATUS_COLORS } from '@/lib/constants/colors';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
-  onClose: () => void;
 }
 
-const statusColors = {
-  active: 'bg-green-500',
-  completed: 'bg-blue-500',
-  failed: 'bg-red-500',
-  planned: 'bg-yellow-500',
-};
+
 
 const incubationStatusColors = {
   not_started: 'bg-gray-500',
@@ -41,7 +36,6 @@ const incubationStatusColors = {
 
 export function BreedingProjectDetails({
   project,
-  onClose,
 }: BreedingProjectDetailsProps) {
   const [isAddClutchDialogOpen, setIsAddClutchDialogOpen] = useState(false);
   const [isAddHatchlingDialogOpen, setIsAddHatchlingDialogOpen] = useState(false);
@@ -73,7 +67,7 @@ export function BreedingProjectDetails({
     enabled: !!selectedClutch,
   });
 
-  const handleAddClutch = async (data: any) => {
+  const handleAddClutch = async (data: NewClutch) => {
     try {
       await createClutch({
         ...data,
@@ -111,7 +105,7 @@ export function BreedingProjectDetails({
     }
   };
 
-  const handleAddHatchling = async (data: any) => {
+  const handleAddHatchling = async (data: NewHatchling) => {
     if (!selectedClutch) return;
     
     try {
@@ -143,7 +137,7 @@ export function BreedingProjectDetails({
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className='shadow-none border'>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -153,19 +147,18 @@ export function BreedingProjectDetails({
             <div>
               <p className="text-sm font-medium text-muted-foreground">Status</p>
               <Badge
-                className={`${
-                  statusColors[project.status]
-                } text-white capitalize`}
+                variant="custom"
+                className={STATUS_COLORS[project.status.toLowerCase() as keyof typeof STATUS_COLORS]}
               >
                 {project.status}
               </Badge>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Male</p>
+              <p className="text-sm font-medium text-muted-foreground">Sire (Male)</p>
               <p>{reptileMap.get(project.male_id) || 'Unknown'}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Female</p>
+              <p className="text-sm font-medium text-muted-foreground">Dam (Female)</p>
               <p>{reptileMap.get(project.female_id) || 'Unknown'}</p>
             </div>
             <div>
@@ -326,11 +319,6 @@ export function BreedingProjectDetails({
         </DialogContent>
       </Dialog>
 
-      <div className="flex justify-end">
-        <Button variant="outline" onClick={onClose}>
-          Close
-        </Button>
-      </div>
     </div>
   );
 } 

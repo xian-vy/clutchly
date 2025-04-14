@@ -23,7 +23,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-type IncubationStatus = 'not_started' | 'in_progress' | 'completed' | 'failed';
 
 const formSchema = z.object({
   breeding_project_id: z.string().min(1, 'Breeding project is required'),

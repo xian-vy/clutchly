@@ -10,6 +10,7 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Reptile } from '@/lib/types/reptile';
 import { BreedingProject } from '@/lib/types/breeding';
 import { format } from 'date-fns';
+import { STATUS_COLORS } from '@/lib/constants/colors';
 
 interface EnrichedBreedingProject extends BreedingProject {
   male_name: string;
@@ -24,12 +25,7 @@ interface BreedingProjectListProps {
   onViewDetails: (project: BreedingProject) => void;
 }
 
-const statusColors = {
-  active: 'bg-green-500',
-  completed: 'bg-blue-500',
-  failed: 'bg-red-500',
-  planned: 'bg-yellow-500',
-};
+
 
 export function BreedingProjectList({
   projects,
@@ -77,14 +73,14 @@ export function BreedingProjectList({
       header: 'Dam',
     },
     {
-      accessorKey: 'status',
-      header: 'Status',
+      accessorKey: "status",
+      header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue('status') as keyof typeof statusColors;
+        const status = row.getValue("status") as keyof typeof STATUS_COLORS;
         return (
           <Badge
             variant="custom"
-            className={`${statusColors[status.toLowerCase() as keyof typeof statusColors]} text-white`}
+            className={STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]}
           >
             {status}
           </Badge>
