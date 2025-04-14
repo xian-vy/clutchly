@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { useGrowthStore } from '@/lib/stores/growthStore';
 import { useQuery } from '@tanstack/react-query';
 import { useResource } from '@/lib/hooks/useResource';
-import { Reptile } from '@/lib/types/reptile';
+import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 
 interface GrowthEntryListProps {
@@ -45,7 +45,7 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
   const { 
     resources: reptiles, 
     isLoading: isReptilesLoading 
-  } = useResource<Reptile, any>({
+  } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
     queryKey: ['reptiles'],
     getResources: getReptiles,

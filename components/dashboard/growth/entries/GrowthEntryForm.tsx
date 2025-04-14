@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { GrowthEntry, CreateGrowthEntryInput } from '@/lib/types/growth';
 import { useResource } from '@/lib/hooks/useResource';
-import { Reptile } from '@/lib/types/reptile';
+import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Loader2 } from 'lucide-react';
 
@@ -39,7 +39,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
   const { 
     resources: reptiles, 
     isLoading: isReptilesLoading 
-  } = useResource<Reptile, any>({
+  } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
     queryKey: ['reptiles'],
     getResources: getReptiles,
@@ -63,7 +63,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
 
   // Handle form submission
   const handleSubmit = async (data: FormValues) => {
-    const { user_id, ...formData } = data;
+    const { ...formData } = data;
     await onSubmit(formData as CreateGrowthEntryInput);
   };
 
@@ -87,7 +87,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
                   disabled={isReptilesLoading}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className='w-full'>
                       <SelectValue placeholder="Select a reptile" />
                     </SelectTrigger>
                   </FormControl>
