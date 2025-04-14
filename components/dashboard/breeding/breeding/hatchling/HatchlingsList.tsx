@@ -11,19 +11,16 @@ import {
 } from '@/components/ui/table';
 import { Hatchling } from '@/lib/types/breeding';
 import { format } from 'date-fns';
-import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { HatchlingToReptileForm } from './HatchlingToReptileForm';
 
 interface HatchlingsListProps {
   hatchlings: Hatchling[];
-  onAddNew: () => void;
 }
 
 export function HatchlingsList({
   hatchlings,
-  onAddNew,
 }: HatchlingsListProps) {
   const [selectedHatchling, setSelectedHatchling] = useState<Hatchling | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -35,13 +32,7 @@ export function HatchlingsList({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Hatchlings</h2>
-        <Button onClick={onAddNew}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Hatchling
-        </Button>
-      </div>
+  
 
       <div className="border rounded-lg">
         <Table>

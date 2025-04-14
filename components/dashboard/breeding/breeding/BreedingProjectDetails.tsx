@@ -20,6 +20,7 @@ import { STATUS_COLORS } from '@/lib/constants/colors';
 import { HatchlingsList } from './hatchling/HatchlingsList';
 import { ClutchForm } from './clutch/ClutchForm';
 import { HatchlingForm } from './hatchling/HatchlingForm';
+import { Plus } from 'lucide-react';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
@@ -278,13 +279,12 @@ export function BreedingProjectDetails({
                   Hatchlings for Clutch from {format(new Date(selectedClutch.lay_date), 'MMM d, yyyy')}
                 </h2>
                 <Button onClick={() => setIsAddHatchlingDialogOpen(true)}>
-                  Add Hatchling
+                <Plus className="w-4 h-4" />  Add Hatchling
                 </Button>
               </div>
 
               <HatchlingsList
                 hatchlings={hatchlings}
-                onAddNew={() => setIsAddHatchlingDialogOpen(true)}
               />
             </div>
           ) : (

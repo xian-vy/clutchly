@@ -62,6 +62,7 @@ export function HatchlingForm({
     const hatchlingData: NewHatchling = {
       ...data,
       clutch_id: clutch.id,
+      species_id: clutch.species_id,
     };
     await onSubmit(hatchlingData);
   };
