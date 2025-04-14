@@ -1,7 +1,8 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, MoreHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Reptile } from "@/lib/types/reptile";
@@ -126,26 +127,27 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
       cell: ({ row }) => {
         const reptile = row.original;
         return (
-          <div className="flex justify-end">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => onEdit?.(reptile)}
-            >
-              <Edit strokeWidth={1.5} className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => onDelete?.(reptile.id)}
-            >
-              <Trash strokeWidth={1.5} className="h-4 w-4" />
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit?.(reptile)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onDelete?.(reptile.id)}>
+                <Trash className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     },
   ];
 
   return <DataTable columns={columns} data={reptiles} onAddNew={onAddNew} />;
-} 
+}
