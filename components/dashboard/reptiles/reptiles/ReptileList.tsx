@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Edit, Trash, MoreHorizontal } from "lucide-react";
+import { Edit, Trash, MoreHorizontal, Eye, Star } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
@@ -57,14 +57,14 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
         );
       },
     },
-    {
-      accessorKey: "dam_name",
-      header: "Dam",
-    },
-    {
-      accessorKey: "sire_name",
-      header: "Sire",
-    },
+    // {
+    //   accessorKey: "dam_name",
+    //   header: "Dam",
+    // },
+    // {
+    //   accessorKey: "sire_name",
+    //   header: "Sire",
+    // },
     {
       accessorKey: "status",
       header: "Status",
@@ -80,14 +80,11 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
         );
       },
     },
-    {
-      accessorKey: "hatch_date",
-      header: "Hatch",
-    },
-    {
-      accessorKey: "acquisition_date",
-      header: "Acquired",
-    },
+    // {
+    //   accessorKey: "hatch_date",
+    //   header: "Hatch",
+    // },
+
     {
       accessorKey: "is_breeder",
       header: "Breeder",
@@ -105,28 +102,35 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
       },
     },
     {
-      accessorKey: "generation",
-      header: "Gen",
-      cell: ({ row }) => {
-        const generation = row.getValue("generation") as number | null;
-        const label = generation === null? "1" : generation.toString();
-        return <div className="text-left">{"F" + label}</div>; 
-      }
+      accessorKey: "acquisition_date",
+      header: "Acquired",
     },
-    {
-      id: "notes",
-      accessorKey: "notes",
-      header: "Note",
-      cell: ({ row }) => {
-        const notes = row.getValue("notes") as string | null;
-        return <div className="text-left">{notes && notes.length > 0 ? "Yes" : "No"}</div>; 
-      }
-    },
+    // {
+    //   accessorKey: "generation",
+    //   header: "Gen",
+    //   cell: ({ row }) => {
+    //     const generation = row.getValue("generation") as number | null;
+    //     const label = generation === null? "1" : generation.toString();
+    //     return <div className="text-left">{"F" + label}</div>; 
+    //   }
+    // },
+    // {
+    //   id: "notes",
+    //   accessorKey: "notes",
+    //   header: "Note",
+    //   cell: ({ row }) => {
+    //     const notes = row.getValue("notes") as string | null;
+    //     return <div className="text-left">{notes && notes.length > 0 ? "Yes" : "No"}</div>; 
+    //   }
+    // },
+    
     {
       id: "actions",
       cell: ({ row }) => {
         const reptile = row.original;
         return (
+          <>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -134,6 +138,14 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem >
+                <Star className="mr-2 h-4 w-4" />
+                Mark as Favorite
+              </DropdownMenuItem>
+              <DropdownMenuItem >
+                <Eye className="mr-2 h-4 w-4" />
+                 Full Details
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onEdit?.(reptile)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
@@ -144,6 +156,7 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </>
         );
       },
     },
