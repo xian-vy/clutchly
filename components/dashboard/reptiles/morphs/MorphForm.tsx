@@ -121,7 +121,7 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
               <FormLabel>Species</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className='w-full'>
                     <SelectValue placeholder="Select species" />
                   </SelectTrigger>
                 </FormControl>

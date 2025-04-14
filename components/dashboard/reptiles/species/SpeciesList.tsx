@@ -23,25 +23,28 @@ export function SpeciesList({ species, onEdit, onDelete, onAddNew }: SpeciesList
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: "Species",
     },
     {
       accessorKey: "scientific_name",
       header: "Scientific Name",
     },
     {
-      accessorKey: "description",
-      header: "Description",
+      accessorKey: "care_level",
+      header: "Care Level",
     },
     {
       id: "actions",
       cell: ({ row }) => {
         const speciesItem = row.original;
+        const isglobal = speciesItem.is_global
+
         return (
           <div className="flex justify-end">
             <Button 
               variant="ghost" 
               size="icon"
+              disabled={isglobal}
               onClick={() => onEdit?.(speciesItem)}
             >
               <Edit strokeWidth={1.5} className="h-4 w-4 text-muted-foreground" />
@@ -49,7 +52,8 @@ export function SpeciesList({ species, onEdit, onDelete, onAddNew }: SpeciesList
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => onDelete?.(speciesItem.id)}
+              disabled={isglobal}
+              onClick={() => onDelete?.(speciesItem.id.toString())}
             >
               <Trash strokeWidth={1.5} className="h-4 w-4 text-muted-foreground" />
             </Button>

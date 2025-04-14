@@ -5,7 +5,6 @@ import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { NewSpecies, Species } from '@/lib/types/species';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { DownloadCommonData } from '../DownloadCommonData';
 import { SpeciesForm } from './SpeciesForm';
 import { SpeciesList } from './SpeciesList';
 
@@ -53,7 +52,7 @@ export function SpeciesTab() {
 
   const handleUpdate = async (data: NewSpecies) => {
     if (!selectedSpecies) return false
-    const result = await updateSpecies(selectedSpecies.id, data)
+    const result = await updateSpecies(selectedSpecies.id.toString(), data)
     if (result) {
       setIsDialogOpen(false)
       setSelectedSpecies(undefined)
@@ -75,12 +74,6 @@ export function SpeciesTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight">Species</h2>
-        <div className="flex items-center gap-2">
-          <DownloadCommonData showInMorphsTab={false} />
-        </div>
-      </div>
 
       <SpeciesList 
         species={species}

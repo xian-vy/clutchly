@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import { NewSpecies, Species } from '@/lib/types/species'
 
 const formSchema = z.object({
@@ -71,7 +70,7 @@ export function SpeciesForm({ initialData, onSubmit, onCancel }: SpeciesFormProp
               <FormLabel>Care Level</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className='w-full'>
                     <SelectValue placeholder="Select care level" />
                   </SelectTrigger>
                 </FormControl>
