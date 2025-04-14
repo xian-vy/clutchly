@@ -48,6 +48,10 @@ export async function getReptileLineage(reptileId: string): Promise<ReptileNode>
       node.parents.sire = buildFamilyTree(reptile.sire_id, new Set(visited));
     }
 
+    if (!reptiles) {
+      throw new Error('Lineage : No reptiles found!');
+    }
+
     // Build children
     const children = reptiles.filter((r) => r.dam_id === id || r.sire_id === id);
     node.children = children
