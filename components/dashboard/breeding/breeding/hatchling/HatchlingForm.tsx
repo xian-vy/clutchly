@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { NewHatchling } from '@/lib/types/breeding';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { Clutch, NewHatchling } from '@/lib/types/breeding';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -28,19 +29,25 @@ const formSchema = z.object({
   sex: z.enum(['male', 'female', 'unknown']),
   weight: z.coerce.number().min(0, 'Weight must be positive'),
   notes: z.string().optional(),
+  species_id: z.string().min(1, 'Species is required'),
 });
 
 interface HatchlingFormProps {
-  clutchId: string;
+  clutch: Clutch;
   onSubmit: (data: NewHatchling) => Promise<void>;
   onCancel: () => void;
 }
 
 export function HatchlingForm({
-  clutchId,
+  clutch,
   onSubmit,
   onCancel,
 }: HatchlingFormProps) {
+
+  const { getMorphsBySpecies } = useMorphsStore()
+  const morphsForSpecies = getMorphsBySpecies(clutch.species_id.toString())
+  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,7 +61,7 @@ export function HatchlingForm({
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     const hatchlingData: NewHatchling = {
       ...data,
-      clutch_id: clutchId,
+      clutch_id: clutch.id,
     };
     await onSubmit(hatchlingData);
   };
@@ -62,19 +69,32 @@ export function HatchlingForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="morph"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Morph</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter morph" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <FormField
+            control={form.control}
+            name="morph"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Morph</FormLabel>
+                <Select onValueChange={(value) => {
+                  field.onChange(value)
+                }} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder="Select Morph" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {morphsForSpecies.map((s) => (
+                      <SelectItem key={s.id} value={s.id.toString()}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
         <FormField
           control={form.control}

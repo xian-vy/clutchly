@@ -302,6 +302,7 @@ export function BreedingProjectDetails({
             breedingProjectId={project.id}
             onSubmit={handleAddClutch}
             onCancel={() => setIsAddClutchDialogOpen(false)}
+            speciesID={project.species_id}
           />
         </DialogContent>
       </Dialog>
@@ -311,7 +312,7 @@ export function BreedingProjectDetails({
           <DialogTitle>Add Hatchling</DialogTitle>
           {selectedClutch && (
             <HatchlingForm
-              clutchId={selectedClutch.id}
+              clutch={selectedClutch}
               onSubmit={handleAddHatchling}
               onCancel={() => setIsAddHatchlingDialogOpen(false)}
             />

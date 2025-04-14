@@ -41,6 +41,7 @@ interface ClutchFormProps {
   initialData?: Partial<NewClutch>;
   onSubmit: (data: NewClutch) => Promise<void>;
   onCancel: () => void;
+  speciesID: string
 }
 
 export function ClutchForm({
@@ -48,6 +49,7 @@ export function ClutchForm({
   initialData,
   onSubmit,
   onCancel,
+  speciesID
 }: ClutchFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,6 +75,7 @@ export function ClutchForm({
       incubation_humidity: data.incubation_humidity || undefined,
       hatch_date: data.hatch_date || undefined,
       notes: data.notes || undefined,
+      species_id: speciesID
     };
     
     await onSubmit(formattedData as NewClutch);

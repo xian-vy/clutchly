@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Morph, NewMorph } from '@/lib/types/morph';
-import { getMorphs, createMorph, updateMorph, deleteMorph, getMorphsBySpecies, getGlobalMorphs } from '@/app/api/reptiles/morphs';
+import { getMorphs, createMorph, updateMorph, deleteMorph, getGlobalMorphs } from '@/app/api/reptiles/morphs';
 import { useSpeciesStore } from './speciesStore';
 
 interface MorphsState {
