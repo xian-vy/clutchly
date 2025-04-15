@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { X } from 'lucide-react'
 import { useState } from 'react'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 interface HetTrait {
   trait: string
@@ -57,11 +58,11 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
       <h3 className="text-lg font-medium">Het Traits</h3>
       <Card className='shadow-none'>
         <CardContent className="pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2  gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-4">
             <div className='space-y-2'>
-              <FormLabel>Trait Name</FormLabel>
+              <FormLabel>Het Trait Name</FormLabel>
               <Input 
-                placeholder="Trait name" 
+                placeholder="Ex: Eclipse" 
                 value={newHetTrait.trait} 
                 onChange={(e) => setNewHetTrait({...newHetTrait, trait: e.target.value})}
               />
@@ -109,45 +110,44 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
           </div>
           <div className="mt-2 flex justify-end">
             <Button type="button" onClick={addHetTrait}>
-              Add Het Trait
+              Add Het 
             </Button>
           </div>
         </CardContent>
       </Card>
       
-      {hetTraits.length > 0 && (
-        <div className="space-y-2 mt-4">
-          {hetTraits.map((trait, index) => (
-            <Card key={index} className="relative shadow-none">
-              <button 
-                type="button" 
-                onClick={() => removeHetTrait(trait.trait)} 
-                className="absolute top-3 right-3 text-destructive hover:text-destructive/80"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <CardContent className="pt-4 grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-sm font-medium">Trait</p>
-                  <p>{trait.trait}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Percentage</p>
-                  <p>{trait.percentage}%</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Source</p>
-                  <p>{trait.source?.replace('_', ' ') || 'Not specified'}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Verified</p>
-                  <p>{trait.verified ? 'Yes' : 'No'}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="mt-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Trait</TableHead>
+                <TableHead>Percentage</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead>Verified</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {hetTraits.map((trait, index) => (
+                <TableRow key={index}>
+                  <TableCell>{trait.trait}</TableCell>
+                  <TableCell>{trait.percentage}%</TableCell>
+                  <TableCell>{trait.source?.replace('_', ' ') || 'Not specified'}</TableCell>
+                  <TableCell>{trait.verified ? 'Yes' : 'No'}</TableCell>
+                  <TableCell className="text-right">
+                    <button 
+                      type="button" 
+                      onClick={() => removeHetTrait(trait.trait)} 
+                      className="text-destructive hover:text-destructive/80"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-      )}
     </div>
   )
 }
