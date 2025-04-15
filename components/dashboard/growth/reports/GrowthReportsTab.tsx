@@ -1,21 +1,22 @@
 'use client';
 
-import { useGrowthStore } from '@/lib/stores/growthStore';
-import { useResource } from '@/lib/hooks/useResource';
-import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useGroupedReptiles } from '@/lib/hooks/useGroupedReptiles';
+import { useGrowthStore } from '@/lib/stores/growthStore';
+import { Reptile } from '@/lib/types/reptile';
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export function GrowthReportsTab() {
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
-  
+  const { ReptileSelect } = useGroupedReptiles()
+
   const { 
     entries, 
     fetchEntries,
@@ -23,17 +24,9 @@ export function GrowthReportsTab() {
     isLoading: growthStoreLoading
   } = useGrowthStore();
 
-  // Use the useResource hook to fetch reptiles
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
+  const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
+    queryFn: getReptiles,
   });
 
   // Fetch growth entries if not already loaded
@@ -98,7 +91,7 @@ export function GrowthReportsTab() {
   };
 
   const growthStats = calculateGrowthStats();
-  const isLoading = growthStoreLoading || isReptilesLoading;
+  const isLoading = growthStoreLoading || reptilesLoading;
 
   if (isLoading) {
     return (
@@ -110,22 +103,12 @@ export function GrowthReportsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <Select
-          value={selectedReptileId}
-          onValueChange={setSelectedReptileId}
-        >
-          <SelectTrigger className="w-[300px]">
-            <SelectValue placeholder="Select a reptile" />
-          </SelectTrigger>
-          <SelectContent>
-            {reptiles.map((reptile) => (
-              <SelectItem key={reptile.id} value={reptile.id}>
-                {reptile.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex items-center float-right max-w-[270px] space-x-4 w-full">
+          <ReptileSelect
+            value={selectedReptileId}
+            onValueChange={setSelectedReptileId}
+            placeholder="Select a reptile"
+        />
       </div>
 
       {selectedReptileId && reptileEntries.length > 0 ? (
@@ -136,7 +119,7 @@ export function GrowthReportsTab() {
             <TabsTrigger value="data">Raw Data</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-6 pt-5">
             <Card>
               <CardHeader>
                 <CardTitle>Growth Summary</CardTitle>
