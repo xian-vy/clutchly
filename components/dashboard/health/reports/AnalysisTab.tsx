@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { HealthLogEntry } from '@/lib/types/health';
+import { HealthCategory, HealthLogEntry } from '@/lib/types/health';
 import { Reptile } from '@/lib/types/reptile';
 import { 
   BarChart, 
@@ -26,7 +26,7 @@ interface AnalysisTabProps {
   monthlyTrends: { month: string; total: number; resolved: number; active: number }[];
   filteredLogs: HealthLogEntry[];
   reptiles: Reptile[];
-  categories: any[];
+  categories: HealthCategory[];
   stats: {
     totalIssues: number;
     activeIssues: number;
@@ -75,7 +75,17 @@ export function AnalysisTab({
   }).filter(data => data.total > 0);
 
   // Custom tooltip for pie charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ 
+    active, 
+    payload 
+  }: {
+    active?: boolean;
+    payload?: Array<{
+      name: string;
+      value: number;
+      payload: { total: number };
+    }>;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded shadow-sm">
@@ -327,4 +337,4 @@ export function AnalysisTab({
       </Tabs>
     </div>
   );
-} 
+}
