@@ -293,6 +293,7 @@ export function GrowthReportsTab() {
                           if (value === 'length') return 'Length (cm)';
                           return value;
                         }}
+                        wrapperStyle={{ 
                           fontSize: '13px',
                           color: 'var(--foreground)' 
                         }}
