@@ -388,12 +388,8 @@ function Flow({ reptileId }: { reptileId: string }) {
       sire: parentInfo?.sire || null,
       child: node.id
     });
-    
-    // Center view on the selected node
-    if (reactFlowInstance) {
-      reactFlowInstance.setCenter(node.position.x, node.position.y, { duration: 800 });
-    }
-  }, [parentRelationships, reactFlowInstance]);
+ 
+  }, [parentRelationships]);
 
   // Add legend component
   const Legend = () => (
