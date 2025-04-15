@@ -11,12 +11,14 @@ import { useQuery } from '@tanstack/react-query';
 import { CircleHelp, Mars, Venus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import ReactFlow, {
+  applyNodeChanges,
   Background,
   Controls,
   Edge,
   Handle,
   MarkerType,
   Node,
+  NodeChange,
   NodeProps,
   Position,
   ReactFlowProvider
@@ -404,6 +406,14 @@ function Flow({ reptileId }: { reptileId: string }) {
  
   }, [parentRelationships]);
 
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setNodes((nds) => applyNodeChanges(changes, nds));
+    },
+    [setNodes]
+  );
+
+
   // Add legend component
   const Legend = () => (
     <div className="absolute bottom-24 right-8 bg-white dark:bg-slate-900 p-3 rounded-md shadow-md border border-gray-200 dark:border-gray-800 z-10">
@@ -437,6 +447,8 @@ function Flow({ reptileId }: { reptileId: string }) {
       maxZoom={2}
       defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
       attributionPosition="bottom-left"
+      nodesDraggable={true}
+      onNodesChange={onNodesChange} 
     >
       <Controls />
       <Background />
