@@ -50,7 +50,7 @@ export function useSelectList<T>({ data, getValue, getLabel, disabled }: UseSele
       }, [value])
 
       return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover modal={true}  open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild disabled={disabled}>
             <Button
               variant="outline"
