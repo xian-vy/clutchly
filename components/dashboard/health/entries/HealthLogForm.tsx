@@ -1,20 +1,17 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { HealthLogEntry, CreateHealthLogEntryInput } from '@/lib/types/health';
+import { useGroupedReptiles } from '@/lib/hooks/useGroupedReptiles';
 import { useHealthStore } from '@/lib/stores/healthStore';
-import { useResource } from '@/lib/hooks/useResource';
-import { NewReptile, Reptile } from '@/lib/types/reptile';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { Loader2 } from 'lucide-react';
+import { CreateHealthLogEntryInput, HealthLogEntry } from '@/lib/types/health';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 // Define the form schema to match the CreateHealthLogEntryInput type
 const formSchema = z.object({
@@ -50,18 +47,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     isLoading: healthStoreLoading
   } = useHealthStore();
 
-  // Use the useResource hook to fetch reptiles
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
-    queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
-  });
+  const { ReptileSelect } = useGroupedReptiles()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -127,7 +113,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     await onSubmit(formData as CreateHealthLogEntryInput);
   };
 
-  const isLoading = isReptilesLoading || healthStoreLoading;
+  const isLoading =  healthStoreLoading;
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -138,40 +124,22 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <FormField
-            control={form.control}
-            name="reptile_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Reptile</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isReptilesLoading}
-                >
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select a reptile" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {isReptilesLoading ? (
-                      <div className="flex items-center justify-center p-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      </div>
-                    ) : (
-                      reptiles.map((reptile) => (
-                        <SelectItem key={reptile.id} value={reptile.id}>
-                          {reptile.name}
-                        </SelectItem>
-                      ))
+                    control={form.control}
+                    name="reptile_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Reptile</FormLabel>
+                        <FormControl>
+                          <ReptileSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select a reptile"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+                  />
           <FormField
             control={form.control}
             name="date"
