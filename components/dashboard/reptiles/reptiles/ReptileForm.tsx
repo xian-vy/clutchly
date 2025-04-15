@@ -194,7 +194,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
               <FormItem>
                 <FormLabel>Dam (Female Parent)</FormLabel>
                 <Select
-                  value={field.value || ''}
+                  defaultValue={field.value || ''}
                   onValueChange={field.onChange}
                   disabled={isReptilesLoading}
                 >
@@ -228,7 +228,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
               <FormItem>
                 <FormLabel>Sire (Male Parent)</FormLabel>
                 <Select
-                  value={field.value || ''}
+                  defaultValue={field.value || ''}
                   onValueChange={field.onChange}
                   disabled={isReptilesLoading}
                 >
