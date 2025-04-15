@@ -56,16 +56,16 @@ export function BreedingProjectForm({
 }: BreedingProjectFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      name: '',
-      status: 'planned',
-      male_id: '',
-      female_id: '',
-      start_date: new Date().toISOString().split('T')[0],
-      end_date: '',
-      expected_hatch_date: '',
-      notes: '',
-      species_id: '',
+    defaultValues:{
+      name: initialData?.name || '',
+      status: initialData?.status || 'planned',
+      start_date: initialData?.start_date || new Date().toISOString().split('T')[0],
+      end_date: initialData?.end_date || new Date().toISOString().split('T')[0],
+      expected_hatch_date: initialData?.expected_hatch_date || '',
+      notes: initialData?.notes || '',
+      species_id: initialData?.species_id?.toString() || '',
+      male_id: initialData?.male_id || '',
+      female_id: initialData?.female_id || '',
     },
   });
 
