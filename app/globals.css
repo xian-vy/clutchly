@@ -80,7 +80,7 @@
 .dark {
   --background: #030619;  /* Base color */
   --foreground: #fafafa;
-  --card: #020513;  /* Slightly lighter than background */
+  --card: #030619;  /* Slightly lighter than background */
   --card-foreground: #fafafa;
   --popover: #050923;
   --popover-foreground: #fafafa;
