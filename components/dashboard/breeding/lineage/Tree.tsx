@@ -49,7 +49,7 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
     className={cn(
       'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
       data.isSelected && 
-        'ring-1 ring-primary shadow-2xl  bg-primary/5 border-primary z-50'
+        'ring-1 ring-primary shadow-2xl bg-primary/5 border-primary z-50'
     )}
   >
     <Handle type="target" position={Position.Top} />
@@ -75,7 +75,6 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
             <Badge variant="secondary">{data.breeding_line}</Badge>
           )}
         </div>
-
     </div>
     <Handle type="source" position={Position.Bottom} />
   </div>
@@ -88,114 +87,150 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
   const [edges, setEdges] = useState<Edge[]>([]);
   const { morphs } = useMorphsStore();
   
-  
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
 
+  // Enhanced layoutNodes function with improved positioning algorithm
   const layoutNodes = useCallback(
-    (tree: ReptileNode, x = 0, y = 0, level = 0, nodeMap = new Map<string, Node<CustomNodeData>>()) => {
+    (tree: ReptileNode) => {
+      const processedNodes = new Map<string, Node<CustomNodeData>>();
+      const nodesArray: Node<CustomNodeData>[] = [];
+      const edgesArray: Edge[] = [];
+      
+      // Constants for layout
       const BASE_NODE_WIDTH = 250;
       const LEVEL_HEIGHT = 200;
+      const HORIZONTAL_SPACING = 300;
 
-      const nodes: Node<CustomNodeData>[] = [];
-      const edges: Edge[] = [];
-
-      // Skip if node already processed
-      if (nodeMap.has(tree.id)) return { nodes: [], edges: [] };
-
-      // Create node
-      const morphName = morphs.find((m: Morph) => m.id.toString() === tree.morph)?.name || 'Unknown';
-      const node: Node<CustomNodeData> = {
-        id: tree.id,
-        position: { x, y },
-        type: 'custom',
-        data: {
-          name: tree.name,
-          species_name: tree.species,
-          sex: tree.sex,
-          generation: tree.generation,
-          breeding_line: tree.breeding_line,
-          morph_name: morphName,
-          isSelected: tree.id === reptileId,  
-        },
-      };
-      nodes.push(node);
-      nodeMap.set(tree.id, node);
-
-      // Process parents
-      const parentWidth = BASE_NODE_WIDTH * 1.5;
-      if (tree.parents) {
-        if (tree.parents.dam) {
-          const damX = x - parentWidth;
-          const damY = y - LEVEL_HEIGHT;
-          const damEdgeId = `${tree.parents.dam.id}-${tree.id}`;
-          if (!edges.some((e) => e.id === damEdgeId)) {
-            edges.push({
-              id: damEdgeId,
-              source: tree.parents.dam.id,
-              target: tree.id,
-              type: 'smoothstep',
-            });
-          }
-          const damLayout = layoutNodes(tree.parents.dam, damX, damY, level - 1, nodeMap);
-          if (damLayout.nodes[0]?.data) {
-            damLayout.nodes[0].data.isParent = 'dam';
-          }
-          nodes.push(...damLayout.nodes);
-          edges.push(...damLayout.edges);
+      // First pass: Create all nodes and their basic relationships
+      function createNodesAndEdges(
+        node: ReptileNode, 
+        x = 0, 
+        y = 0,
+        parentId?: string
+      ) {
+        // Skip if already processed
+        if (processedNodes.has(node.id)) return;
+        
+        // Create node
+        const morphName = morphs.find((m: Morph) => m.id.toString() === node.morph)?.name || 'Unknown';
+        const newNode: Node<CustomNodeData> = {
+          id: node.id,
+          position: { x, y },
+          type: 'custom',
+          data: {
+            name: node.name,
+            species_name: node.species,
+            sex: node.sex,
+            generation: node.generation,
+            breeding_line: node.breeding_line,
+            morph_name: morphName,
+            isSelected: node.id === reptileId,
+          },
+        };
+        
+        processedNodes.set(node.id, newNode);
+        nodesArray.push(newNode);
+        
+        // Create edge if this is a child
+        if (parentId) {
+          const edgeId = `${parentId}-${node.id}`;
+          edgesArray.push({
+            id: edgeId,
+            source: parentId,
+            target: node.id,
+            type: 'smoothstep',
+          });
         }
-        if (tree.parents.sire) {
-          const sireX = x + parentWidth;
-          const sireY = y - LEVEL_HEIGHT;
-          const sireEdgeId = `${tree.parents.sire.id}-${tree.id}`;
-          if (!edges.some((e) => e.id === sireEdgeId)) {
-            edges.push({
-              id: sireEdgeId,
-              source: tree.parents.sire.id,
-              target: tree.id,
-              type: 'smoothstep',
-            });
-          }
-          const sireLayout = layoutNodes(tree.parents.sire, sireX, sireY, level - 1, nodeMap);
-          if (sireLayout.nodes[0]?.data) {
-            sireLayout.nodes[0].data.isParent = 'sire';
-          }
-          nodes.push(...sireLayout.nodes);
-          edges.push(...sireLayout.edges);
+        
+        // Process dam and sire (parents)
+        if (node.parents.dam) {
+          createNodesAndEdges(node.parents.dam, 0, 0, null);
+          edgesArray.push({
+            id: `${node.parents.dam.id}-${node.id}`,
+            source: node.parents.dam.id,
+            target: node.id,
+            type: 'smoothstep',
+          });
         }
-      }
-
-      // Process children
-      if (tree.children?.length) {
-        const childCount = tree.children.length;
-        const childrenWidth = BASE_NODE_WIDTH * childCount;
-        const startX = x - childrenWidth / 2 + BASE_NODE_WIDTH / 2;
-
-        tree.children.forEach((child, index) => {
-          const childX = startX + index * BASE_NODE_WIDTH;
-          const childY = y + LEVEL_HEIGHT;
-          const edgeId = `${tree.id}-${child.id}`;
-          if (!edges.some((e) => e.id === edgeId)) {
-            edges.push({
-              id: edgeId,
-              source: tree.id,
-              target: child.id,
-              type: 'smoothstep',
-              sourceHandle: Position.Bottom,
-              targetHandle: Position.Top,
-            });
-          }
-          const childLayout = layoutNodes(child, childX, childY, level + 1, nodeMap);
-          nodes.push(...childLayout.nodes);
-          edges.push(...childLayout.edges);
+        
+        if (node.parents.sire) {
+          createNodesAndEdges(node.parents.sire, 0, 0, null);
+          edgesArray.push({
+            id: `${node.parents.sire.id}-${node.id}`,
+            source: node.parents.sire.id,
+            target: node.id,
+            type: 'smoothstep',
+          });
+        }
+        
+        // Process children
+        node.children.forEach(child => {
+          createNodesAndEdges(child, 0, 0, node.id);
         });
       }
-
-      return { nodes, edges };
+      
+      // Initialize with the root node
+      createNodesAndEdges(tree);
+      
+      // Second pass: Calculate generations and assign y-coordinates
+      const generationMap = new Map<string, number>();
+      
+      function calculateGenerations(nodeId: string, generation = 0) {
+        const currentGen = generationMap.get(nodeId) ?? -Infinity;
+        
+        // Only update if this path gives a higher generation number
+        if (generation > currentGen) {
+          generationMap.set(nodeId, generation);
+          
+          // Find parents
+          for (const edge of edgesArray) {
+            if (edge.target === nodeId) {
+              calculateGenerations(edge.source, generation - 1);
+            }
+          }
+          
+          // Find children
+          for (const edge of edgesArray) {
+            if (edge.source === nodeId) {
+              calculateGenerations(edge.target, generation + 1);
+            }
+          }
+        }
+      }
+      
+      // Start with the selected reptile at generation 0
+      calculateGenerations(reptileId);
+      
+      // Group nodes by generation
+      const generationGroups = new Map<number, string[]>();
+      for (const [nodeId, gen] of generationMap.entries()) {
+        if (!generationGroups.has(gen)) {
+          generationGroups.set(gen, []);
+        }
+        generationGroups.get(gen)!.push(nodeId);
+      }
+      
+      // Third pass: Assign x-coordinates within each generation
+      generationGroups.forEach((nodeIds, generation) => {
+        const y = generation * LEVEL_HEIGHT;
+        const totalWidth = nodeIds.length * HORIZONTAL_SPACING;
+        const startX = -totalWidth / 2 + HORIZONTAL_SPACING / 2;
+        
+        nodeIds.forEach((nodeId, index) => {
+          const x = startX + index * HORIZONTAL_SPACING;
+          const node = processedNodes.get(nodeId);
+          if (node) {
+            node.position = { x, y };
+          }
+        });
+      });
+      
+      return { nodes: nodesArray, edges: edgesArray };
     },
-    [morphs,reptileId],
+    [morphs, reptileId],
   );
 
   useEffect(() => {
@@ -212,8 +247,11 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
         setEdges([]);
       }
     };
-    loadLineage();
-  }, [reptileId, layoutNodes, reptiles]); // Add reptiles to dependencies
+    
+    if (reptileId && reptiles.length > 0) {
+      loadLineage();
+    }
+  }, [reptileId, layoutNodes, reptiles]);
 
   // Memoize ReactFlow to prevent unnecessary re-renders
   const reactFlow = useMemo(
