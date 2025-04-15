@@ -33,42 +33,8 @@ export function MorphList({ morphs, onEdit, onDelete,onAddNew,onDownload }: Morp
       header: "Species",
     },
     {
-      accessorKey: "genetic_traits",
-      header: "Genetic Traits",
-      cell: ({ row }) => {
-        const traits = row.getValue("genetic_traits") as string[];
-        return  (
-          <div className="flex flex-wrap gap-1">
-            {traits?.map((trait: string, index: number) => (
-              <span 
-                key={index}
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-foreground"
-              >
-                {trait}
-              </span>
-            ))}
-          </div>
-        )
-      },
-    },
-    {
-      accessorKey: "visual_traits",
-      header: "Visual Traits",
-      cell: ({ row }) => {
-        const traits = row.getValue("visual_traits") as string[];
-        return  (
-          <div className="flex flex-wrap gap-1">
-            {traits?.map((trait: string, index: number) => (
-              <span 
-                key={index}
-                className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-foreground"
-              >
-                {trait}
-              </span>
-            ))}
-          </div>
-        )
-      },
+      accessorKey: "description",
+      header: "Description",
     },
     {
       id: "actions",

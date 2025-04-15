@@ -13,8 +13,7 @@ export async function getMorphs() {
       user_id,
       species_id,
       name,
-      genetic_traits,
-      visual_traits,
+      description,
       is_global,
       species:species(name)
     `)
@@ -34,8 +33,7 @@ export async function getMorphById(id: string) {
       user_id,
       species_id,
       name,
-      genetic_traits,
-      visual_traits,
+      description,
       is_global,
       species:species(name)
     `)
@@ -56,8 +54,7 @@ export async function getMorphsBySpecies(speciesId: string) {
       user_id,
       species_id,
       name,
-      genetic_traits,
-      visual_traits,
+      description,
       is_global
     `)
     .eq('species_id', speciesId)
@@ -83,8 +80,7 @@ export async function createMorph(morph: NewMorph) {
       user_id,
       species_id,
       name,
-      genetic_traits,
-      visual_traits,
+      description,
       is_global,
       species:species(name)
     `)
@@ -106,8 +102,7 @@ export async function updateMorph(id: string, updates: Partial<NewMorph>) {
       user_id,
       species_id,
       name,
-      genetic_traits,
-      visual_traits,
+      description,
       is_global,
       species:species(name)
     `)
@@ -138,8 +133,7 @@ export async function getGlobalMorphs() {
       user_id,
       species_id,
       name,
-      genetic_traits,
-      visual_traits,
+      description,
       is_global,
       species:species(name)
     `)

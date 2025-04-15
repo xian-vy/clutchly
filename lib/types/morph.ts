@@ -3,9 +3,7 @@ export interface Morph {
   user_id: string
   species_id: number
   name: string
-  genetic_traits: string[]
-  visual_traits: string[]
+  description: string | null
   is_global?: boolean
 }
-
-export type NewMorph = Omit<Morph, 'id' | 'user_id'> 
+export type NewMorph = Omit<Morph, 'id' | 'user_id'>
