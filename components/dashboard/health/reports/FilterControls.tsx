@@ -133,14 +133,14 @@ export function FilterControls({
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-start items-center mb-5">
         <div className="flex items-center gap-2">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={resetFilters}
           >
-            <Filter className="mr-2 h-4 w-4" />
+            <Filter className="mr-1 h-4 w-4" />
             Reset Filters
           </Button>
           <span className="text-sm text-muted-foreground">

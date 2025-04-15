@@ -112,14 +112,14 @@ export function GrowthReportsTab() {
       </div>
 
       {selectedReptileId && reptileEntries.length > 0 ? (
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="overview" className="w-full space-y-5">
+          <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="charts">Growth Charts</TabsTrigger>
             <TabsTrigger value="data">Raw Data</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="overview" className="space-y-6 pt-5">
+          <TabsContent value="overview" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Growth Summary</CardTitle>

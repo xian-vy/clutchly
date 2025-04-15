@@ -184,11 +184,11 @@ export function HealthReportsTab() {
         <h2 className="text-2xl font-bold">Health Reports</h2>
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportToCSV}>
-            <FileSpreadsheet className="h-4 w-4 mr-2" />
+            <FileSpreadsheet className="h-4 w-4 mr-1" />
             Export CSV
           </Button>
           <Button variant="outline" onClick={exportToPDF}>
-            <FileText className="h-4 w-4 mr-2" />
+            <FileText className="h-4 w-4 mr-1" />
             Export PDF
           </Button>
         </div>
@@ -210,7 +210,7 @@ export function HealthReportsTab() {
         filteredLogsCount={filteredLogs.length}
       />
       
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs defaultValue="overview" className="w-full space-y-5">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="analysis">Analysis</TabsTrigger>
