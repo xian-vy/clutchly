@@ -97,11 +97,11 @@ const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
           {data.breeding_line && (
             <Badge variant="secondary">{data.breeding_line}</Badge>
           )}
-          {data.isParentOf && (
+          {/* {data.isParentOf && (
             <p className='text-xs bg-slate-700/20 dark:bg-slate-700/50 px-2 py-1 rounded-md'>
               {data.isParent === 'dam' ? 'Dam of' : 'Sire of'} {data.selectedReptileName}
             </p>
-          )}
+          )} */}
         </div>
     </div>
     <Handle type="source" position={Position.Bottom} />
