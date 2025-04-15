@@ -10,10 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
 import { useResource } from '@/lib/hooks/useResource'
+import { useSelectList } from '@/lib/hooks/useSelectList'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -122,6 +122,30 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
     speciesId : speciesId || '',
   });
 
+  const { Select: SpeciesSelect } = useSelectList({
+    data: species,
+    getValue: (species) => species.id.toString(),
+    getLabel: (species) => species.name,
+  })
+  const { Select: MorphSelect } = useSelectList({
+    data: morphsForSpecies,
+    getValue: (morph) => morph.id.toString(),
+    getLabel: (morph) => morph.name,
+    disabled : !selectedSpeciesId 
+  })
+  const { Select: SireSelect } = useSelectList({
+    data: maleReptiles,
+    getValue: (reptile) => reptile.id.toString(),
+    getLabel: (reptile) => reptile.name,
+    disabled: isReptilesLoading
+  })
+  const { Select: DamSelect } = useSelectList({
+    data: femaleReptiles,
+    getValue: (reptile) => reptile.id.toString(),
+    getLabel: (reptile) => reptile.name,
+    disabled: isReptilesLoading
+  })
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -149,128 +173,74 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
 
             <div className="grid grid-cols-2 2xl:grid-cols-4 gap-3  2xl:gap-5">
               <FormField
-                control={form.control}
-                name="species_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Species</FormLabel>
-                    <Select onValueChange={(value) => {
-                      field.onChange(value)
-                      // Reset morph when species changes
-                      form.setValue('morph_id', '')
-                    }} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className='w-full'>
-                          <SelectValue placeholder="Select species" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {species.map((s) => (
-                          <SelectItem key={s.id} value={s.id.toString()}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="morph_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Morph</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedSpeciesId }>
-                      <FormControl>
-                        <SelectTrigger className='w-full'>
-                          <SelectValue placeholder={"Select morph"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {morphsForSpecies.map((m) => (
-                          <SelectItem key={m.id} value={m.id.toString()}>
-                            {m.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    control={form.control}
+                    name="species_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Species</FormLabel>
+                        <FormControl>
+                          <SpeciesSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select a Species"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="morph_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Morph</FormLabel>
+                        <FormControl>
+                          <MorphSelect
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Select a Morph"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
      
-              <FormField
-                control={form.control}
-                name="dam_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dam (Female Parent)</FormLabel>
-                    <Select
-                      defaultValue={field.value || ''}
-                      onValueChange={field.onChange}
-                      disabled={isReptilesLoading}
-                    >
-                      <FormControl>
-                        <SelectTrigger className='w-full'>
-                          <SelectValue placeholder="Select a reptile" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {isReptilesLoading ? (
-                          <div className="flex items-center justify-center p-2">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          </div>
-                        ) : (
-                          femaleReptiles.map((reptile) => (
-                            <SelectItem key={reptile.id} value={reptile.id}>
-                              {reptile.name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="sire_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sire (Male Parent)</FormLabel>
-                    <Select
-                      defaultValue={field.value || ''}
-                      onValueChange={field.onChange}
-                      disabled={isReptilesLoading}
-                    >
-                      <FormControl>
-                        <SelectTrigger className='w-full'>
-                          <SelectValue placeholder="Select a reptile" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {isReptilesLoading ? (
-                          <div className="flex items-center justify-center p-2">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          </div>
-                        ) : (
-                          maleReptiles.map((reptile) => (
-                            <SelectItem key={reptile.id} value={reptile.id}>
-                              {reptile.name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-       
+                <FormField
+                    control={form.control}
+                    name="dam_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dam (Female)</FormLabel>
+                        <FormControl>
+                          <DamSelect
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                            placeholder="Select a Parent"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="sire_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sire (Male)</FormLabel>
+                        <FormControl>
+                          <SireSelect
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                            placeholder="Select a Parent"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
               <FormField
                 control={form.control}
                 name="sex"
