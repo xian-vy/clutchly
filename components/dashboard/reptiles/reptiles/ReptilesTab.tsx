@@ -66,6 +66,11 @@ export function ReptilesTab() {
     )
   }
 
+  const onDialogChange = () => {
+    setIsDialogOpen(false);
+    setSelectedReptile(undefined); 
+  }
+
   return (
     <div className="space-y-6">
       <ReptileList 
@@ -78,7 +83,7 @@ export function ReptilesTab() {
         onAddNew={() => setIsDialogOpen(true)}
       />
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogTitle>
             {selectedReptile ? 'Edit Herp' : 'Add New Herp'}
@@ -90,14 +95,10 @@ export function ReptilesTab() {
                 ? await handleUpdate(data)
                 : await handleCreate(data);
               if (success) {
-                setIsDialogOpen(false);
-                setSelectedReptile(undefined);
+                onDialogChange(); 
               }
             }}
-            onCancel={() => {
-              setIsDialogOpen(false);
-              setSelectedReptile(undefined);
-            }}
+            onCancel={onDialogChange}
           />
         </DialogContent>
       </Dialog>
