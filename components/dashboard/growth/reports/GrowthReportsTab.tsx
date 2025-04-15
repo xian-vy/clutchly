@@ -43,9 +43,12 @@ export function GrowthReportsTab() {
 
   // Format data for the chart
   const chartData = reptileEntries.map(entry => ({
-    date: new Date(entry.date).toLocaleDateString(),
+    date: format(new Date(entry.date), 'MMM d, yyyy'),
     weight: entry.weight,
     length: entry.length,
+    // Adding formatted display values for tooltip
+    weightDisplay: `${entry.weight}g`,
+    lengthDisplay: `${entry.length}cm`,
   }));
 
   // Calculate growth statistics
@@ -92,6 +95,7 @@ export function GrowthReportsTab() {
 
   const growthStats = calculateGrowthStats();
   const isLoading = growthStoreLoading || reptilesLoading;
+  const [selectedMetric, setSelectedMetric] = useState<'both' | 'weight' | 'length'>('both');
 
   if (isLoading) {
     return (
@@ -103,7 +107,7 @@ export function GrowthReportsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center float-right max-w-[270px] space-x-4 w-full">
+      <div className="flex items-center float-left max-w-[270px] space-x-4 w-full">
           <ReptileSelect
             value={selectedReptileId}
             onValueChange={setSelectedReptileId}
@@ -211,55 +215,113 @@ export function GrowthReportsTab() {
           </TabsContent>
           
           <TabsContent value="charts" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Weight Growth</CardTitle>
-                  <CardDescription>Weight measurements over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
-                        data={chartData}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis label={{ value: 'Weight (g)', angle: -90, position: 'insideLeft' }} />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="weight" stroke="#8884d8" activeDot={{ r: 8 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Length Growth</CardTitle>
-                  <CardDescription>Length measurements over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
-                        data={chartData}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis label={{ value: 'Length (cm)', angle: -90, position: 'insideLeft' }} />
-                        <Tooltip />
-                        <Legend />
-                        <Line type="monotone" dataKey="length" stroke="#82ca9d" activeDot={{ r: 8 }} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Growth Progress</CardTitle>
+                  <CardDescription>Combined weight and length measurements over time</CardDescription>
+                </div>
+                <select 
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  value={selectedMetric}
+                  onChange={(e) => setSelectedMetric(e.target.value as typeof selectedMetric)}
+                >
+                  <option value="both">Show Both</option>
+                  <option value="weight">Weight Only</option>
+                  <option value="length">Length Only</option>
+                </select>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart
+                      data={chartData}
+                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid 
+                        strokeDasharray="3 3" 
+                        stroke="var(--color-border)"
+                        opacity={0.3}
+                      />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="var(--color-muted-foreground)"
+                        fontSize={12}
+                      />
+                      {(selectedMetric === 'both' || selectedMetric === 'weight') && (
+                        <YAxis 
+                          yAxisId="weight"
+                          label={{ 
+                            value: 'Weight (g)', 
+                            angle: -90, 
+                            position: 'insideLeft',
+                            style: { fill: 'var(--color-muted-foreground)' }
+                          }}
+                          stroke="var(--color-chart-1)"
+                          fontSize={12}
+                        />
+                      )}
+                      {(selectedMetric === 'both' || selectedMetric === 'length') && (
+                        <YAxis 
+                          yAxisId="length"
+                          orientation="right"
+                          label={{ 
+                            value: 'Length (cm)', 
+                            angle: 90, 
+                            position: 'insideRight',
+                            style: { fill: 'var(--color-muted-foreground)' }
+                          }}
+                          stroke="var(--color-chart-2)"
+                          fontSize={12}
+                        />
+                      )}
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'var(--color-card)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: '8px'
+                        }}
+                        formatter={(value: number, name: string) => {
+                          if (name === 'weight') return [`${value}g`, 'Weight'];
+                          if (name === 'length') return [`${value}cm`, 'Length'];
+                          return [value, name];
+                        }}
+                        labelFormatter={(label) => format(new Date(label), 'MMMM d, yyyy')}
+                      />
+                      <Legend 
+                        formatter={(value) => {
+                          if (value === 'weight') return 'Weight (g)';
+                          if (value === 'length') return 'Length (cm)';
+                          return value;
+                        }}
+                      />
+                      {(selectedMetric === 'both' || selectedMetric === 'weight') && (
+                        <Line 
+                          yAxisId="weight"
+                          type="monotone" 
+                          dataKey="weight" 
+                          stroke="var(--color-chart-1)"
+                          strokeWidth={2}
+                          dot={{ r: 4, fill: 'var(--color-chart-1)' }}
+                          activeDot={{ r: 6, fill: 'var(--color-chart-1)' }}
+                        />
+                      )}
+                      {(selectedMetric === 'both' || selectedMetric === 'length') && (
+                        <Line 
+                          yAxisId="length"
+                          type="monotone" 
+                          dataKey="length" 
+                          stroke="var(--color-chart-2)"
+                          strokeWidth={2}
+                          dot={{ r: 4, fill: 'var(--color-chart-2)' }}
+                          activeDot={{ r: 6, fill: 'var(--color-chart-2)' }}
+                        />
+                      )}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="data">
@@ -306,4 +368,4 @@ export function GrowthReportsTab() {
       )}
     </div>
   );
-} 
+}
