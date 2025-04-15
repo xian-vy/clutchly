@@ -5,7 +5,7 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Badge } from '@/components/ui/badge';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
-import { Reptile } from '@/lib/types/reptile';
+import { HetTrait, Reptile } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { CircleHelp, Mars, Venus } from 'lucide-react';
@@ -47,6 +47,8 @@ interface CustomNodeData {
   isHighlighted?: boolean;
   isParentOf?: string;
   selectedReptileName : string;
+  visualTraits: string[];
+  hetTraits: HetTrait[];
 }
 
 const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
@@ -54,7 +56,7 @@ const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
     className={cn(
       'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
       data.isSelected && 
-        'ring-1 ring-primary shadow-2xl bg-primary/5 border-primary z-50',
+        'ring-1 ring-primary shadow-2xl  border-primary z-50',
       data.isHighlighted && !data.isSelected && 
         'ring-1 ring-amber-500 shadow-xl bg-amber-50 dark:bg-amber-900/30 border-amber-500 z-40',
       data.isParentOf && 
@@ -77,7 +79,17 @@ const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
                 )}
               </>
         </div>
-        <div className="text-[0.8rem] text-muted-foreground">{data.morph_name || 'N/A'}</div>
+        <div className="text-sm  font-medium">{data.morph_name || 'N/A'}</div>
+        <div className="flex gap-2 flex-wrap w-full justify-center">
+          {data.visualTraits?.map((trait, index) => (
+            <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs' >{trait}</Badge>
+          ))}
+        </div>
+        <div className="flex gap-2 flex-wrap w-full justify-center">
+          {data.hetTraits?.map((trait, index) => (
+            <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs'>{trait.percentage + "% het " +  trait.trait}</Badge>
+          ))}
+        </div>
         <div className="flex gap-2 justify-center flex-wrap w-full">
           {data.generation && (
             <Badge variant="outline">Gen {data.generation}</Badge>
@@ -86,7 +98,7 @@ const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
             <Badge variant="secondary">{data.breeding_line}</Badge>
           )}
           {data.isParentOf && (
-            <p className='text-sm bg-muted-foreground/20 px-2 py-1 rounded-md'>
+            <p className='text-xs bg-slate-700/20 dark:bg-slate-700/50 px-2 py-1 rounded-md'>
               {data.isParent === 'dam' ? 'Dam of' : 'Sire of'} {data.selectedReptileName}
             </p>
           )}
@@ -270,6 +282,8 @@ function Flow({ reptileId }: { reptileId: string }) {
             isParentOf: isParentOf,
             isParent: isParent,
             selectedReptileName : reptiles.find((r: Reptile) => r.id.toString() === selectedReptile)?.name || 'Unknown',
+            visualTraits: reptileNode.visual_traits || [],
+            hetTraits: reptileNode.het_traits || [],
           },
         };
         
