@@ -212,7 +212,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                     name="dam_id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Dam (Female)</FormLabel>
+                        <FormLabel>Dam (Optional)</FormLabel>
                         <FormControl>
                           <DamSelect
                             value={field.value || ''}
@@ -229,7 +229,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                     name="sire_id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Sire (Male)</FormLabel>
+                        <FormLabel>Sire (Optional)</FormLabel>
                         <FormControl>
                           <SireSelect
                             value={field.value || ''}
