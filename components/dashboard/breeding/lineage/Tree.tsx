@@ -8,6 +8,7 @@ import ReactFlow, {
   Position,
   NodeProps,
   Handle,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useState, useMemo } from 'react';
@@ -49,7 +50,9 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
     className={cn(
       'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
       data.isSelected && 
-        'ring-1 ring-primary shadow-2xl bg-primary/5 border-primary z-50'
+        'ring-1 ring-primary shadow-2xl bg-primary/5 border-primary z-50',
+      // data.sex === 'male' && 'border-l-4 border-l-blue-400',
+      // data.sex === 'female' && 'border-l-4 border-l-red-500'
     )}
   >
     <Handle type="target" position={Position.Top} />
@@ -82,6 +85,7 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
 
 const nodeTypes = { custom: CustomNode };
 
+
 export function ReptileTree({ reptileId }: ReptileTreeProps) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -97,7 +101,7 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
       const flowNodes: Node<CustomNodeData>[] = [];
       const flowEdges: Edge[] = [];
       const nodeMap = new Map<string, Node<CustomNodeData>>();
-      const processedIds = new Set<string>();
+      // const processedIds = new Set<string>();
       
       // First, extract all nodes from the tree with an iterative approach
       const allTreeNodes = new Map<string, ReptileNode>();
@@ -239,6 +243,17 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
               source: node.parents.dam.id,
               target: id,
               type: 'smoothstep',
+              style: { stroke: '#e91e63', strokeWidth: 2 }, // Pink for dam (female)
+              label: 'Dam',
+              labelStyle: { fill: '#e91e63', fontWeight: 500 },
+              labelBgStyle: { fill: 'rgba(255, 255, 255, 0.75)' },
+              labelBgPadding: [4, 2],
+              labelBgBorderRadius: 4,
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: '#e91e63',
+              },
+              animated: true,
             });
             processedEdges.add(edgeId);
           }
@@ -252,6 +267,17 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
               source: node.parents.sire.id,
               target: id,
               type: 'smoothstep',
+              style: { stroke: '#2196f3', strokeWidth: 2 }, // Blue for sire (male)
+              label: 'Sire',
+              labelStyle: { fill: '#2196f3', fontWeight: 500 },
+              labelBgStyle: { fill: 'rgba(255, 255, 255, 0.75)' },
+              labelBgPadding: [4, 2],
+              labelBgBorderRadius: 4,
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: '#2196f3',
+              },
+              animated: true,
             });
             processedEdges.add(edgeId);
           }
@@ -283,6 +309,27 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
     loadLineage();
   }, [reptileId, createFlowElements, reptiles]);
 
+  // Add legend component
+  const Legend = () => (
+    <div className="absolute bottom-24 right-8 bg-white dark:bg-slate-900 p-3 rounded-md shadow-md border border-gray-200 dark:border-gray-800 z-10">
+      <div className="text-sm font-medium mb-2">Legend</div>
+      <div className="flex items-center mb-1">
+        <div className="w-4 h-0.5 bg-blue-400 mr-2"></div>
+        <div className="flex items-center">
+          <span className="text-xs mr-1">Sire</span>
+          <Mars className="h-3 w-3 text-blue-400" />
+        </div>
+      </div>
+      <div className="flex items-center">
+        <div className="w-4 h-0.5 bg-red-500 mr-2"></div>
+        <div className="flex items-center">
+          <span className="text-xs mr-1">Dam</span>
+          <Venus className="h-3 w-3 text-red-500" />
+        </div>
+      </div>
+    </div>
+  );
+
   // Memoize ReactFlow to prevent unnecessary re-renders
   const reactFlow = useMemo(
     () => (
@@ -299,6 +346,7 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
       >
         <Controls />
         <Background />
+        <Legend />
       </ReactFlow>
     ),
     [nodes, edges],
