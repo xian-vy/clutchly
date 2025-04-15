@@ -102,28 +102,26 @@ export function ReptileList({ reptiles, onEdit, onDelete, onAddNew }: ReptileLis
       },
     },
     {
+      id: "notes",
+      accessorKey: "notes",
+      header: "Notes",
+      cell: ({ row }) => {
+        const notes = row.getValue("notes") as string | null;
+        const label = notes && notes.length > 0 ? "yes" : "no";
+        return (
+          <Badge
+            variant="custom"
+            className={YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]}
+          >
+            {label}
+          </Badge>
+        );
+      }
+    },
+    {
       accessorKey: "acquisition_date",
       header: "Acquired",
     },
-    // {
-    //   accessorKey: "generation",
-    //   header: "Gen",
-    //   cell: ({ row }) => {
-    //     const generation = row.getValue("generation") as number | null;
-    //     const label = generation === null? "1" : generation.toString();
-    //     return <div className="text-left">{"F" + label}</div>; 
-    //   }
-    // },
-    // {
-    //   id: "notes",
-    //   accessorKey: "notes",
-    //   header: "Note",
-    //   cell: ({ row }) => {
-    //     const notes = row.getValue("notes") as string | null;
-    //     return <div className="text-left">{notes && notes.length > 0 ? "Yes" : "No"}</div>; 
-    //   }
-    // },
-    
     {
       id: "actions",
       cell: ({ row }) => {
