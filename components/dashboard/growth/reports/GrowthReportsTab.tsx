@@ -241,7 +241,6 @@ export function GrowthReportsTab() {
                       <CartesianGrid 
                         strokeDasharray="3 3" 
                         stroke="var(--color-border)"
-                        opacity={0.3}
                       />
                       <XAxis 
                         dataKey="date" 

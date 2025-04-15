@@ -88,7 +88,7 @@ export function AnalysisTab({
   }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded shadow-sm">
+        <div className="bg-card p-3 border border-gray-200 rounded shadow-sm">
           <p className="font-medium">{`${payload[0].name}: ${payload[0].value}`}</p>
           <p className="text-sm text-gray-500">
             {`${((payload[0].value / payload[0].payload.total) * 100).toFixed(1)}%`}
@@ -108,7 +108,7 @@ export function AnalysisTab({
           <TabsTrigger value="distribution">Distribution</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-4 pt-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -180,8 +180,13 @@ export function AnalysisTab({
                   data={reptileHealthData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
+                  <CartesianGrid 
+                    strokeDasharray="3 3"
+                   stroke="var(--color-border)"
+                   />
+                  <XAxis dataKey="name" 
+                  stroke="var(--color-muted-foreground)"
+                   />
                   <YAxis />
                   <Tooltip />
                   <Legend />
@@ -193,7 +198,7 @@ export function AnalysisTab({
           </Card>
         </TabsContent>
         
-        <TabsContent value="trends" className="space-y-4">
+        <TabsContent value="trends" className="space-y-4 pt-3">
           <Card>
             <CardHeader>
               <CardTitle>Monthly Health Trends</CardTitle>
@@ -205,7 +210,9 @@ export function AnalysisTab({
                   data={monthlyTrends}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="3 3"
+                  stroke="var(--color-border)"
+                  />
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
@@ -240,7 +247,7 @@ export function AnalysisTab({
           </Card>
         </TabsContent>
         
-        <TabsContent value="distribution" className="space-y-4">
+        <TabsContent value="distribution" className="space-y-4 pt-3">
           <Card>
             <CardHeader>
               <CardTitle>Category Distribution</CardTitle>
@@ -253,7 +260,7 @@ export function AnalysisTab({
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   layout="vertical"
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis type="number" />
                   <YAxis dataKey="name" type="category" width={150} />
                   <Tooltip />
