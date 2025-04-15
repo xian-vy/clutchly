@@ -195,7 +195,6 @@ export function HealthReportsTab() {
       </div>
       
       <FilterControls
-        reptiles={reptiles}
         categories={categories}
         selectedReptile={selectedReptile}
         setSelectedReptile={setSelectedReptile}

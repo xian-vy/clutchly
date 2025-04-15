@@ -1,14 +1,14 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Filter, Calendar } from 'lucide-react';
-import { Reptile } from '@/lib/types/reptile';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useGroupedReptiles } from '@/lib/hooks/useGroupedReptiles';
+import { HealthCategory } from '@/lib/types/health';
+import { Calendar, Filter } from 'lucide-react';
 
 interface FilterControlsProps {
-  reptiles: Reptile[];
-  categories: any[];
+  categories: HealthCategory[];
   selectedReptile: string | null;
   setSelectedReptile: (value: string | null) => void;
   dateRange: { start: string; end: string };
@@ -24,7 +24,6 @@ interface FilterControlsProps {
 }
 
 export function FilterControls({ 
-  reptiles, 
   categories, 
   selectedReptile, 
   setSelectedReptile, 
@@ -39,27 +38,19 @@ export function FilterControls({
   resetFilters,
   filteredLogsCount
 }: FilterControlsProps) {
+  const { ReptileSelect } = useGroupedReptiles()
+
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Reptile</label>
-          <Select
-            value={selectedReptile || undefined}
-            onValueChange={(value) => setSelectedReptile(value === 'all' ? null : value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All Reptiles" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Reptiles</SelectItem>
-              {reptiles.map((reptile) => (
-                <SelectItem key={reptile.id} value={reptile.id}>
-                  {reptile.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
+
+       <div className="space-y-2">
+          <label className="text-sm font-medium">Status</label>
+            <ReptileSelect
+                value={selectedReptile || undefined}
+                onValueChange={(value) => setSelectedReptile(value === 'all' ? null : value)}
+                placeholder="Select a reptile"
+            />
         </div>
 
         <div className="space-y-2">
@@ -68,7 +59,7 @@ export function FilterControls({
             value={categoryFilter || undefined}
             onValueChange={(value) => setCategoryFilter(value === 'all' ? null : value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className='w-full'>
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -88,7 +79,7 @@ export function FilterControls({
             value={severityFilter || undefined}
             onValueChange={(value) => setSeverityFilter(value === 'all' ? null : value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className='w-full'>
               <SelectValue placeholder="All Severities" />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +97,7 @@ export function FilterControls({
             value={statusFilter || undefined}
             onValueChange={(value) => setStatusFilter(value === 'all' ? null : value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className='w-full'>
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
