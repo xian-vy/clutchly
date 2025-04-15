@@ -84,7 +84,7 @@ export function ReptilesTab() {
       />
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[800px]">
           <DialogTitle>
             {selectedReptile ? 'Edit Herp' : 'Add New Herp'}
           </DialogTitle>

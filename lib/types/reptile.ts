@@ -1,6 +1,13 @@
 export type Sex = 'male' | 'female' | 'unknown'
 export type Status = 'active' | 'sold' | 'deceased'
 
+export interface HetTrait {
+  trait: string;
+  percentage: number;
+  source?: 'visual_parent' | 'genetic_test' | 'breeding_odds';
+  verified?: boolean;
+}
+
 export interface Reptile {
   id: string
   created_at: string
@@ -8,6 +15,8 @@ export interface Reptile {
   name: string
   species: string
   morph: string
+  visual_traits: string[] | null
+  het_traits: HetTrait[] | null
   sex: Sex
   weight: number;
   length: number;
@@ -28,4 +37,4 @@ export interface Reptile {
   project_ids?: string[]
 }
 
-export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'user_id' | 'last_modified'> 
+export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'user_id' | 'last_modified'>
