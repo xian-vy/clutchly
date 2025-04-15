@@ -392,6 +392,17 @@ function Flow({ reptileId }: { reptileId: string }) {
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     event.preventDefault();
     
+    // Reset if clicking the same node
+    if (selectedReptile === node.id) {
+      setSelectedReptile('');
+      setHighlightedNodes({
+        dam: null,
+        sire: null,
+        child: null
+      });
+      return;
+    }
+
     setSelectedReptile(node.id);
     
     // Find parents for this node
@@ -404,7 +415,7 @@ function Flow({ reptileId }: { reptileId: string }) {
       child: node.id
     });
  
-  }, [parentRelationships]);
+  }, [parentRelationships, selectedReptile]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
