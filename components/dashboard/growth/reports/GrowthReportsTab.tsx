@@ -293,6 +293,9 @@ export function GrowthReportsTab() {
                           if (value === 'length') return 'Length (cm)';
                           return value;
                         }}
+                          fontSize: '13px',
+                          color: 'var(--foreground)' 
+                        }}
                       />
                       {(selectedMetric === 'both' || selectedMetric === 'weight') && (
                         <Line 
