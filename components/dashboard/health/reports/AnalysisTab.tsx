@@ -179,6 +179,7 @@ export function AnalysisTab({
                 <BarChart
                   data={reptileHealthData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  maxBarSize={25}
                 >
                   <CartesianGrid 
                     strokeDasharray="3 3"
