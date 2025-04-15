@@ -25,7 +25,7 @@ export function AuthLayout({ children, mode }: AuthLayoutProps) {
           >
             Welcome to{' '}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              HerpTrack
+            Clutchly
             </span>
           </motion.h1>
           <motion.p 

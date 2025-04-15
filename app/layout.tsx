@@ -8,8 +8,8 @@ const sourceSans = Source_Sans_3({ subsets: ["latin"] });
 
 
 export const metadata: Metadata = {
-  title: "HerpTrack - Reptile Data Management Platform",
-  description: "Create high-quality reptile breeding records with HerpTrack, the open source platform that makes reptile data management intuitive.",
+  title: "Clutchly - Reptile Data Management Platform",
+  description: "Create high-quality reptile breeding records with Clutchly, the open source platform that makes reptile data management intuitive.",
 };
 
 export default function RootLayout({

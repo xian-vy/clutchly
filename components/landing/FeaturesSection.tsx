@@ -53,10 +53,10 @@ export function FeaturesSection() {
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
             Features
           </span>
-          <h2 className="text-center text-3xl font-bold tracking-tight md:text-4xl mb-4">
+          <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl mb-4">
             Everything you need to manage your collection
           </h2>
-          <p className="text-muted-foreground text-lg max-w-[600px]">
+          <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>

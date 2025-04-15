@@ -103,7 +103,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
         )}>
           <Turtle className="w-6 h-6 text-primary" />
           {!isCollapsed && (
-            <span className="font-semibold text-lg text-sidebar-foreground">Herptrack</span>
+            <span className="font-semibold text-lg text-sidebar-foreground">Clutchly</span>
           )}
         </div>
 

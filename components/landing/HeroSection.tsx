@@ -12,7 +12,7 @@ export function HeroSection() {
               <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
             </div>
             <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-              Welcome to HerpTrack
+              Welcome to Clutchly
             </span>
           </div>
           <h1 className="font-bold tracking-tighter text-4xl md:text-6xl lg:text-7xl">
@@ -23,7 +23,7 @@ export function HeroSection() {
             </span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Create high-quality reptile breeding records with HerpTrack, the open source
+            Create high-quality reptile breeding records with Clutchly, the open source
             platform that makes reptile data management intuitive.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
