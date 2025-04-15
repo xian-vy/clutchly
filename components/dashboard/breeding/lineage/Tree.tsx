@@ -243,17 +243,17 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
               source: node.parents.dam.id,
               target: id,
               type: 'smoothstep',
-              style: { stroke: '#e91e63', strokeWidth: 2 }, // Pink for dam (female)
-              label: 'Dam',
-              labelStyle: { fill: '#e91e63', fontWeight: 500 },
-              labelBgStyle: { fill: 'rgba(255, 255, 255, 0.75)' },
+              style: { stroke: '#e91e63', strokeWidth: 1 }, // Pink for dam (female)
+              // label: 'Dam',
+              // labelStyle: { fill: '#e91e63', fontWeight: 500 },
+              // labelBgStyle: { fill: 'rgba(255, 255, 255, 0.75)' },
               labelBgPadding: [4, 2],
               labelBgBorderRadius: 4,
               markerEnd: {
                 type: MarkerType.ArrowClosed,
                 color: '#e91e63',
               },
-              animated: true,
+              // animated: true,
             });
             processedEdges.add(edgeId);
           }
@@ -267,17 +267,17 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
               source: node.parents.sire.id,
               target: id,
               type: 'smoothstep',
-              style: { stroke: '#2196f3', strokeWidth: 2 }, // Blue for sire (male)
-              label: 'Sire',
-              labelStyle: { fill: '#2196f3', fontWeight: 500 },
-              labelBgStyle: { fill: 'rgba(255, 255, 255, 0.75)' },
+              style: { stroke: '#2196f3', strokeWidth: 1 }, // Blue for sire (male)
+              // label: 'Sire',
+              // labelStyle: { fill: '#2196f3', fontWeight: 500 },
+              // labelBgStyle: { fill: 'rgba(255, 255, 255, 0.75)' },
               labelBgPadding: [4, 2],
               labelBgBorderRadius: 4,
               markerEnd: {
                 type: MarkerType.ArrowClosed,
                 color: '#2196f3',
               },
-              animated: true,
+              // animated: true,
             });
             processedEdges.add(edgeId);
           }
