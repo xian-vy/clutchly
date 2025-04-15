@@ -19,6 +19,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
+import { CircleHelp, Mars, Venus } from 'lucide-react';
 
 interface ReptileNode extends Reptile {
   children: ReptileNode[];
@@ -47,35 +48,34 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
   <div
     className={cn(
       'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
-      data.isParent === 'dam' && 'text-red-400',
-      data.isParent === 'sire' && 'text-blue-500',
       data.isSelected && 
         'ring-1 ring-primary shadow-2xl  bg-primary/5 border-primary z-50'
     )}
   >
     <Handle type="target" position={Position.Top} />
-    <div className="flex flex-col gap-1.5">
-      <div className="font-bold">{data.name || 'Unknown'}</div>
-      <div className="text-[0.8rem] text-muted-foreground">{data.morph_name || 'N/A'}</div>
-      <div className="flex gap-2 justify-center flex-wrap w-full">
-        {/* <Badge
-          variant="custom"
-          className={SEX_COLORS[data.sex.toLowerCase() as keyof typeof SEX_COLORS] || 'bg-gray-500'}
-        >
-          {data.sex || 'Unknown'}
-        </Badge> */}
-        {data.generation && (
-          <Badge variant="outline">Gen {data.generation}</Badge>
-        )}
-        {data.breeding_line && (
-          <Badge variant="secondary">{data.breeding_line}</Badge>
-        )}
-      </div>
-      {/* {data.isParent && (
-        <Badge variant="outline" className="mt-1 w-full flex justify-center">
-          {data.isParent === 'dam' ? 'Dam' : 'Sire'}
-        </Badge>
-      )} */}
+    <div className="flex flex-col items-center gap-1.5">
+        <div className="flex items-center gap-3">
+              <div className="font-bold">{data.name || 'Unknown'}</div>
+              <>
+                {data.sex === 'male' ? (
+                  <Mars className="h-4 w-4 text-blue-400"/>
+                ) : data.sex === 'female' ? (
+                  <Venus className="h-4 w-4 text-red-500"/>
+                ) :(
+                  <CircleHelp className="h-4 w-4 text-muted-foreground"/>
+                )}
+              </>
+        </div>
+        <div className="text-[0.8rem] text-muted-foreground">{data.morph_name || 'N/A'}</div>
+        <div className="flex gap-2 justify-center flex-wrap w-full">
+          {data.generation && (
+            <Badge variant="outline">Gen {data.generation}</Badge>
+          )}
+          {data.breeding_line && (
+            <Badge variant="secondary">{data.breeding_line}</Badge>
+          )}
+        </div>
+
     </div>
     <Handle type="source" position={Position.Bottom} />
   </div>
