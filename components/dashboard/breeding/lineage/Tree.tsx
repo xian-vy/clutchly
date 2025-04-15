@@ -140,7 +140,9 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
             });
           }
           const damLayout = layoutNodes(tree.parents.dam, damX, damY, level - 1, nodeMap);
-          damLayout.nodes[0]?.data && (damLayout.nodes[0].data.isParent = 'dam');
+          if (damLayout.nodes[0]?.data) {
+            damLayout.nodes[0].data.isParent = 'dam';
+          }
           nodes.push(...damLayout.nodes);
           edges.push(...damLayout.edges);
         }
@@ -157,7 +159,9 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
             });
           }
           const sireLayout = layoutNodes(tree.parents.sire, sireX, sireY, level - 1, nodeMap);
-          sireLayout.nodes[0]?.data && (sireLayout.nodes[0].data.isParent = 'sire');
+          if (sireLayout.nodes[0]?.data) {
+            sireLayout.nodes[0].data.isParent = 'sire';
+          }
           nodes.push(...sireLayout.nodes);
           edges.push(...sireLayout.edges);
         }
