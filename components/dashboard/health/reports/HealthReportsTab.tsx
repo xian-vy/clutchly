@@ -1,26 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
-import { HealthLogEntry } from '@/lib/types/health';
-import { Reptile } from '@/lib/types/reptile';
-import { FilterControls } from './FilterControls';
-import { OverviewTab } from './OverviewTab';
-import { AnalysisTab } from './AnalysisTab';
-import { RecommendationsTab } from './RecommendationsTab';
-import { useResource } from '@/lib/hooks/useResource';
+import { getHealthCategories } from '@/app/api/health/categories';
 import { getHealthLogs } from '@/app/api/health/entries';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { getHealthCategories } from '@/app/api/health/categories';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useResource } from '@/lib/hooks/useResource';
+import { CreateHealthLogEntryInput, HealthLogCategory, HealthLogEntry } from '@/lib/types/health';
+import { NewReptile, Reptile } from '@/lib/types/reptile';
+import { FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { AnalysisTab } from './AnalysisTab';
+import { FilterControls } from './FilterControls';
+import { OverviewTab } from './OverviewTab';
+import { RecommendationsTab } from './RecommendationsTab';
 
 export function HealthReportsTab() {
   // Use the useResource hook for data fetching
   const { 
     resources: healthLogs, 
     isLoading: isHealthLogsLoading 
-  } = useResource<HealthLogEntry, any>({
+  } = useResource<HealthLogEntry, CreateHealthLogEntryInput>({
     resourceName: 'Health Log',
     queryKey: ['healthLogs'],
     getResources: getHealthLogs,
@@ -32,7 +32,7 @@ export function HealthReportsTab() {
   const { 
     resources: reptiles, 
     isLoading: isReptilesLoading 
-  } = useResource<Reptile, any>({
+  } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
     queryKey: ['reptiles'],
     getResources: getReptiles,
@@ -44,7 +44,7 @@ export function HealthReportsTab() {
   const { 
     resources: categories, 
     isLoading: isCategoriesLoading 
-  } = useResource<any, any>({
+  } = useResource<HealthLogCategory, CreateHealthLogEntryInput >({
     resourceName: 'Category',
     queryKey: ['categories'],
     getResources: getHealthCategories,
