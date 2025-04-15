@@ -9,6 +9,8 @@ import ReactFlow, {
   NodeProps,
   Handle,
   MarkerType,
+  useReactFlow,
+  ReactFlowProvider,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useState, useMemo } from 'react';
@@ -43,16 +45,23 @@ interface CustomNodeData {
   breeding_line?: string;
   morph_name: string;
   isSelected?: boolean;
+  isHighlighted?: boolean;
+  isParentOf?: string;
+  selectedReptileName : string;
 }
 
-const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
+const CustomNode = ({ data, id }: NodeProps<CustomNodeData>) => (
   <div
     className={cn(
       'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
       data.isSelected && 
         'ring-1 ring-primary shadow-2xl bg-primary/5 border-primary z-50',
-      // data.sex === 'male' && 'border-l-4 border-l-blue-400',
-      // data.sex === 'female' && 'border-l-4 border-l-red-500'
+      data.isHighlighted && !data.isSelected && 
+        'ring-1 ring-amber-500 shadow-xl bg-amber-50 dark:bg-amber-900/30 border-amber-500 z-40',
+      data.isParentOf && 
+        (data.isParent === 'dam' 
+          ? 'ring-1 ring-red-500 shadow-xl bg-red-50 dark:bg-red-900/30 border-red-500 z-40'
+          : 'ring-1 ring-blue-500 shadow-xl bg-blue-50 dark:bg-blue-900/30 border-blue-500 z-40')
     )}
   >
     <Handle type="target" position={Position.Top} />
@@ -77,6 +86,11 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
           {data.breeding_line && (
             <Badge variant="secondary">{data.breeding_line}</Badge>
           )}
+          {data.isParentOf && (
+            <p className='text-sm bg-muted-foreground/20 px-2 py-1 rounded-md'>
+              {data.isParent === 'dam' ? 'Dam of' : 'Sire of'} {data.selectedReptileName}
+            </p>
+          )}
         </div>
     </div>
     <Handle type="source" position={Position.Bottom} />
@@ -85,23 +99,44 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
 
 const nodeTypes = { custom: CustomNode };
 
-
-export function ReptileTree({ reptileId }: ReptileTreeProps) {
+// Create a flow component that uses the ReactFlow hooks inside the provider context
+function Flow({ reptileId }: { reptileId: string }) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [selectedReptile, setSelectedReptile] = useState<string>(reptileId);
+  const [highlightedNodes, setHighlightedNodes] = useState<{
+    dam: string | null,
+    sire: string | null,
+    child: string | null
+  }>({
+    dam: null,
+    sire: null,
+    child: null
+  });
+  
   const { morphs } = useMorphsStore();
+  const reactFlowInstance = useReactFlow();
   
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
 
+  // Keep track of parent-child relationships for quick lookup
+  const [parentRelationships, setParentRelationships] = useState<Map<string, {
+    dam: string | null,
+    sire: string | null
+  }>>(new Map());
+
   const createFlowElements = useCallback(
     (reptileTree: ReptileNode) => {
       const flowNodes: Node<CustomNodeData>[] = [];
       const flowEdges: Edge[] = [];
       const nodeMap = new Map<string, Node<CustomNodeData>>();
-      // const processedIds = new Set<string>();
+      const parentChildMap = new Map<string, {
+        dam: string | null,
+        sire: string | null
+      }>();
       
       // First, extract all nodes from the tree with an iterative approach
       const allTreeNodes = new Map<string, ReptileNode>();
@@ -116,6 +151,12 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
           
           allTreeNodes.set(node.id, node);
           
+          // Store parent relationships
+          parentChildMap.set(node.id, {
+            dam: node.parents.dam?.id || null,
+            sire: node.parents.sire?.id || null
+          });
+          
           // Add parents to queue
           if (node.parents.dam) queue.push(node.parents.dam);
           if (node.parents.sire) queue.push(node.parents.sire);
@@ -128,6 +169,9 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
       }
       
       collectAllNodes(reptileTree);
+      
+      // Store parent relationships for later use
+      setParentRelationships(parentChildMap);
       
       // Calculate generations for each node (iterative approach)
       const generationMap = new Map<string, number>();
@@ -204,6 +248,14 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
         
         // Create the flow node
         const morphName = morphs.find((m: Morph) => m.id.toString() === reptileNode.morph)?.name || 'Unknown';
+        
+        const isParentOf = highlightedNodes.child && 
+          (highlightedNodes.dam === reptileNode.id || highlightedNodes.sire === reptileNode.id) ? 
+          highlightedNodes.child : undefined;
+          
+        const isParent = highlightedNodes.dam === reptileNode.id ? 'dam' : 
+                         highlightedNodes.sire === reptileNode.id ? 'sire' : undefined;
+        
         const flowNode: Node<CustomNodeData> = {
           id: reptileNode.id,
           position: { x, y },
@@ -215,7 +267,11 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
             generation: reptileNode.generation,
             breeding_line: reptileNode.breeding_line,
             morph_name: morphName,
-            isSelected: reptileNode.id === reptileId,
+            isSelected: reptileNode.id === selectedReptile,
+            isHighlighted: reptileNode.id === highlightedNodes.dam || reptileNode.id === highlightedNodes.sire,
+            isParentOf: isParentOf,
+            isParent: isParent,
+            selectedReptileName : reptiles.find((r: Reptile) => r.id.toString() === selectedReptile)?.name || 'Unknown',
           },
         };
         
@@ -238,22 +294,26 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
         if (node.parents.dam) {
           const edgeId = `${node.parents.dam.id}-${id}`;
           if (!processedEdges.has(edgeId)) {
+            const isHighlighted = 
+              (highlightedNodes.child === id && highlightedNodes.dam === node.parents.dam.id);
+            
             flowEdges.push({
               id: edgeId,
               source: node.parents.dam.id,
               target: id,
               type: 'smoothstep',
-              style: { stroke: '#e91e63', strokeWidth: 1 }, // Pink for dam (female)
-              // label: 'Dam',
-              // labelStyle: { fill: '#e91e63', fontWeight: 500 },
-              // labelBgStyle: { fill: 'rgba(255, 255, 255, 0.75)' },
+              style: { 
+                stroke: '#e91e63', 
+                strokeWidth: isHighlighted ? 2 : 1,
+                opacity: isHighlighted ? 1 : 0.75,
+              },
               labelBgPadding: [4, 2],
               labelBgBorderRadius: 4,
               markerEnd: {
                 type: MarkerType.ArrowClosed,
                 color: '#e91e63',
               },
-              // animated: true,
+              animated: isHighlighted,
             });
             processedEdges.add(edgeId);
           }
@@ -262,22 +322,26 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
         if (node.parents.sire) {
           const edgeId = `${node.parents.sire.id}-${id}`;
           if (!processedEdges.has(edgeId)) {
+            const isHighlighted = 
+              (highlightedNodes.child === id && highlightedNodes.sire === node.parents.sire.id);
+              
             flowEdges.push({
               id: edgeId,
               source: node.parents.sire.id,
               target: id,
               type: 'smoothstep',
-              style: { stroke: '#2196f3', strokeWidth: 1 }, // Blue for sire (male)
-              // label: 'Sire',
-              // labelStyle: { fill: '#2196f3', fontWeight: 500 },
-              // labelBgStyle: { fill: 'rgba(255, 255, 255, 0.75)' },
+              style: { 
+                stroke: '#2196f3', 
+                strokeWidth: isHighlighted ? 2 : 1,
+                opacity: isHighlighted ? 1 : 0.75,
+              },
               labelBgPadding: [4, 2],
               labelBgBorderRadius: 4,
               markerEnd: {
                 type: MarkerType.ArrowClosed,
                 color: '#2196f3',
               },
-              // animated: true,
+              animated: isHighlighted,
             });
             processedEdges.add(edgeId);
           }
@@ -286,7 +350,7 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
       
       return { nodes: flowNodes, edges: flowEdges };
     },
-    [morphs, reptileId],
+    [morphs, reptileId, selectedReptile, highlightedNodes],
   );
 
   useEffect(() => {
@@ -309,6 +373,28 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
     loadLineage();
   }, [reptileId, createFlowElements, reptiles]);
 
+  // Function to handle node click
+  const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    
+    setSelectedReptile(node.id);
+    
+    // Find parents for this node
+    const parentInfo = parentRelationships.get(node.id);
+    
+    // Update highlighted nodes
+    setHighlightedNodes({
+      dam: parentInfo?.dam || null,
+      sire: parentInfo?.sire || null,
+      child: node.id
+    });
+    
+    // Center view on the selected node
+    if (reactFlowInstance) {
+      reactFlowInstance.setCenter(node.position.x, node.position.y, { duration: 800 });
+    }
+  }, [parentRelationships, reactFlowInstance]);
+
   // Add legend component
   const Legend = () => (
     <div className="absolute bottom-24 right-8 bg-white dark:bg-slate-900 p-3 rounded-md shadow-md border border-gray-200 dark:border-gray-800 z-10">
@@ -330,27 +416,33 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
     </div>
   );
 
-  // Memoize ReactFlow to prevent unnecessary re-renders
-  const reactFlow = useMemo(
-    () => (
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={{ padding: 0.5 }}
-        minZoom={0.1}
-        maxZoom={2}
-        defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
-        attributionPosition="bottom-left"
-      >
-        <Controls />
-        <Background />
-        <Legend />
-      </ReactFlow>
-    ),
-    [nodes, edges],
+  return (
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      nodeTypes={nodeTypes}
+      onNodeClick={handleNodeClick}
+      fitView
+      fitViewOptions={{ padding: 0.5 }}
+      minZoom={0.1}
+      maxZoom={2}
+      defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+      attributionPosition="bottom-left"
+    >
+      <Controls />
+      <Background />
+      <Legend />
+    </ReactFlow>
   );
+}
 
-  return <div style={{ width: '100%', height: '800px' }}>{reactFlow}</div>;
+// Main component that wraps everything with the ReactFlowProvider
+export function ReptileTree({ reptileId }: ReptileTreeProps) {
+  return (
+    <div style={{ width: '100%', height: '800px' }}>
+      <ReactFlowProvider>
+        <Flow reptileId={reptileId} />
+      </ReactFlowProvider>
+    </div>
+  );
 }
