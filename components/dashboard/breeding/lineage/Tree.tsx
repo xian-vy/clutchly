@@ -1,28 +1,27 @@
 'use client';
 
-import ReactFlow, {
-  Node,
-  Edge,
-  Controls,
-  Background,
-  Position,
-  NodeProps,
-  Handle,
-  MarkerType,
-  useReactFlow,
-  ReactFlowProvider,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import { useCallback, useEffect, useState, useMemo } from 'react';
 import { getReptileLineage } from '@/app/api/reptiles/lineage';
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Badge } from '@/components/ui/badge';
-import { Reptile } from '@/lib/types/reptile';
-import { cn } from '@/lib/utils';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
+import { Reptile } from '@/lib/types/reptile';
+import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { CircleHelp, Mars, Venus } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import ReactFlow, {
+  Background,
+  Controls,
+  Edge,
+  Handle,
+  MarkerType,
+  Node,
+  NodeProps,
+  Position,
+  ReactFlowProvider
+} from 'reactflow';
+import 'reactflow/dist/style.css';
 
 interface ReptileNode extends Reptile {
   children: ReptileNode[];
@@ -50,7 +49,7 @@ interface CustomNodeData {
   selectedReptileName : string;
 }
 
-const CustomNode = ({ data, id }: NodeProps<CustomNodeData>) => (
+const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
   <div
     className={cn(
       'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
@@ -115,7 +114,6 @@ function Flow({ reptileId }: { reptileId: string }) {
   });
   
   const { morphs } = useMorphsStore();
-  const reactFlowInstance = useReactFlow();
   
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
@@ -281,8 +279,8 @@ function Flow({ reptileId }: { reptileId: string }) {
         return flowNode;
       }
       
-      // Create all nodes first
-      for (const [id, node] of allTreeNodes.entries()) {
+       // Create all nodes first
+       for (const node of allTreeNodes.values()) {
         createNode(node);
       }
       
