@@ -24,17 +24,17 @@ export default async function BreedingPage() {
                </TabsList>
                <hr className='mt-[1px]'/>
           </div>
-          <TabsContent value="projects" className="p-4">
+          <TabsContent value="projects">
             <BreedingProjectsTab />
           </TabsContent>
           
-          <TabsContent value="lineage" className="p-0">
+          <TabsContent value="lineage" >
             <div className="text-center text-muted-foreground">
               <Lineage />
             </div>
           </TabsContent>
           
-          <TabsContent value="reports" className="p-4">
+          <TabsContent value="reports">
             <div className="text-center text-muted-foreground py-8">
               Breeding reports coming soon
             </div>
