@@ -137,13 +137,13 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
     data: maleReptiles,
     getValue: (reptile) => reptile.id.toString(),
     getLabel: (reptile) => reptile.name,
-    disabled: isReptilesLoading
+    disabled: isReptilesLoading || !selectedSpeciesId 
   })
   const { Select: DamSelect } = useSelectList({
     data: femaleReptiles,
     getValue: (reptile) => reptile.id.toString(),
     getLabel: (reptile) => reptile.name,
-    disabled: isReptilesLoading
+    disabled: isReptilesLoading || !selectedSpeciesId 
   })
 
   return (
