@@ -1,5 +1,6 @@
 'use client';
 
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,16 +19,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { BreedingProject, BreedingStatus, NewBreedingProject } from '@/lib/types/breeding';
+import { Reptile } from '@/lib/types/reptile';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { useQuery } from '@tanstack/react-query';
-import { Reptile } from '@/lib/types/reptile';
-import { useSpeciesStore } from '@/lib/stores/speciesStore';
-import { useEffect, useState } from 'react';
-import { useMorphsStore } from '@/lib/stores/morphsStore';
 
 const breedingStatuses: BreedingStatus[] = ['planned', 'active', 'completed', 'failed'];
 
@@ -73,9 +72,13 @@ export function BreedingProjectForm({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-  const { species } = useSpeciesStore()
-  const [selectedSpeciesId, setSelectedSpeciesId] = useState<string>('')
-  const { getMorphsBySpecies } = useMorphsStore()
+
+  const { species } = useSpeciesStore();
+  const speciesId = form.watch('species_id');
+  const { selectedSpeciesId, maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
+    reptiles,
+    speciesId : speciesId || '',
+  });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     // Convert empty date strings to undefined before submission
@@ -87,33 +90,6 @@ export function BreedingProjectForm({
     
     await onSubmit(formattedData);
   };
-
-  // Add these state variables near other state declarations
-  const [maleReptiles, setMaleReptiles] = useState<Reptile[]>([]);
-  const [femaleReptiles, setFemaleReptiles] = useState<Reptile[]>([]);
-
-  useEffect(() => {
-    const speciesId = form.watch('species_id')
-    if (speciesId) {
-      setSelectedSpeciesId(speciesId)
-      const morphsForSpecies = getMorphsBySpecies(speciesId)
-      const morphsList = morphsForSpecies.map(m => ({ id: m.id.toString(), name: m.name }))
-
-
-      // Filter reptiles based on species and morphs
-      setMaleReptiles(reptiles.filter((r) => 
-        r.sex === 'male' && 
-        r.species === speciesId &&
-        (!r.morph || morphsList.some(m => m.id === r.morph))
-      ));
-
-      setFemaleReptiles(reptiles.filter((r) => 
-        r.sex === 'female' && 
-        r.species === speciesId &&
-        (!r.morph || morphsList.some(m => m.id === r.morph))
-      ));
-    }
-  }, [form.watch('species_id'), getMorphsBySpecies, reptiles]);
 
   // Remove the old filter declarations
   return (

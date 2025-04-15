@@ -1,20 +1,20 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
+import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { NewReptile, Reptile } from '@/lib/types/reptile'
-import { useEffect, useState } from 'react'
-import { useSpeciesStore } from '@/lib/stores/speciesStore'
-import { useMorphsStore } from '@/lib/stores/morphsStore'
+import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
 import { useResource } from '@/lib/hooks/useResource'
-import { getReptiles } from '@/app/api/reptiles/reptiles'
+import { useSpeciesStore } from '@/lib/stores/speciesStore'
+import { NewReptile, Reptile } from '@/lib/types/reptile'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -44,13 +44,7 @@ interface ReptileFormProps {
 }
 
 export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProps) {
-  // Get species and morphs from the Zustand stores
   const { species, fetchSpecies } = useSpeciesStore()
-  const { getMorphsBySpecies } = useMorphsStore()
-  
-  const [availableMorphs, setAvailableMorphs] = useState<{ id: string, name: string }[]>([])
-  const [selectedSpeciesId, setSelectedSpeciesId] = useState<string>('')
-  const [isLoadingMorphs, setIsLoadingMorphs] = useState(false)
 
   const { 
     resources: reptiles, 
@@ -98,22 +92,13 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
     }
   }, [species.length, fetchSpecies])
 
-  // Update available morphs when species changes
-  useEffect(() => {
-    const speciesId = form.watch('species')
-    if (speciesId) {
-      setSelectedSpeciesId(speciesId)
-      setIsLoadingMorphs(true)
-      
-      // Load morphs for the selected species
-      const morphsForSpecies = getMorphsBySpecies(speciesId)
-      setAvailableMorphs(morphsForSpecies.map(m => ({ id: m.id.toString(), name: m.name })))
-      setIsLoadingMorphs(false)
-    }
-  }, [form.watch('species'), getMorphsBySpecies])
+  const speciesId = form.watch('species');
+  const { selectedSpeciesId, maleReptiles, femaleReptiles, morphsForSpecies } = useReptilesParentsBySpecies({
+    reptiles,
+    speciesId : speciesId || '',
+  });
 
-  const males = reptiles.filter(r => r.sex === 'male')
-  const females = reptiles.filter(r => r.sex === 'female')
+
 
   return (
     <Form {...form}>
@@ -168,15 +153,15 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Morph</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedSpeciesId || isLoadingMorphs}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedSpeciesId }>
                   <FormControl>
                     <SelectTrigger className='w-full'>
-                      <SelectValue placeholder={isLoadingMorphs ? "Loading..." : "Select morph"} />
+                      <SelectValue placeholder={"Select morph"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {availableMorphs.map((m) => (
-                      <SelectItem key={m.id} value={m.id}>
+                    {morphsForSpecies.map((m) => (
+                      <SelectItem key={m.id} value={m.id.toString()}>
                         {m.name}
                       </SelectItem>
                     ))}
@@ -209,7 +194,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                         <Loader2 className="h-4 w-4 animate-spin" />
                       </div>
                     ) : (
-                      females.map((reptile) => (
+                      femaleReptiles.map((reptile) => (
                         <SelectItem key={reptile.id} value={reptile.id}>
                           {reptile.name}
                         </SelectItem>
@@ -243,7 +228,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                         <Loader2 className="h-4 w-4 animate-spin" />
                       </div>
                     ) : (
-                      males.map((reptile) => (
+                      maleReptiles.map((reptile) => (
                         <SelectItem key={reptile.id} value={reptile.id}>
                           {reptile.name}
                         </SelectItem>
