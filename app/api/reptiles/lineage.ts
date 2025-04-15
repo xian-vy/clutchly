@@ -35,58 +35,85 @@ export async function getReptileLineage(reptileId: string, cachedReptiles?: Rept
   // Cache reptiles by ID for quick lookup
   const reptileMap = new Map<string, Reptile>(reptiles.map((r) => [r.id, r]));
   
-  // Global visited set to prevent reptiles from appearing multiple times
-  const globalVisited = new Set<string>();
+  // Maximum depth to prevent infinite recursion
+  const MAX_DEPTH = 10;
+  
+  // Track processed reptiles to avoid cycles
+  const processedReptiles = new Map<string, ReptileNode>();
 
-  function buildFamilyTree(id: string, depth = 0, maxDepth = 10): ReptileNode | null {
-    // Safety check to prevent infinite recursion
-    if (depth > maxDepth) return null;
+  // Build reptile node with depth limit
+  function buildReptileNode(id: string, depth = 0): ReptileNode | null {
+    // Check depth to prevent stack overflow
+    if (depth > MAX_DEPTH) return null;
     
+    // Return null if reptile doesn't exist
     if (!reptileMap.has(id)) return null;
-    if (globalVisited.has(id)) return null; // Prevent cycles globally
-
+    
+    // Return already processed node to avoid cycles
+    if (processedReptiles.has(id)) return processedReptiles.get(id)!;
+    
     const reptile = reptileMap.get(id)!;
-    globalVisited.add(id);
-
+    
+    // Create the node with empty children and parents
     const node: ReptileNode = {
       ...reptile,
       children: [],
       parents: { dam: null, sire: null },
     };
-
-    // Build parents only if we haven't reached max depth
-    if (depth < maxDepth) {
-      if (reptile.dam_id && reptileMap.has(reptile.dam_id)) {
-        node.parents.dam = buildFamilyTree(reptile.dam_id, depth + 1, maxDepth);
+    
+    // Save to processed map immediately to avoid cycles
+    processedReptiles.set(id, node);
+    
+    // Process parents if depth allows
+    if (depth < MAX_DEPTH) {
+      if (reptile.dam_id) {
+        node.parents.dam = buildReptileNode(reptile.dam_id, depth + 1);
       }
       
-      if (reptile.sire_id && reptileMap.has(reptile.sire_id)) {
-        node.parents.sire = buildFamilyTree(reptile.sire_id, depth + 1, maxDepth);
+      if (reptile.sire_id) {
+        node.parents.sire = buildReptileNode(reptile.sire_id, depth + 1);
       }
     }
-
-    // Find direct children (where this reptile is either dam or sire)
-    // Do not add children if they're already in the tree
-    if (depth < maxDepth) {
-      const childrenReptiles = reptiles.filter(
-        (r) => (r.dam_id === id || r.sire_id === id) && !globalVisited.has(r.id)
-      );
-      
-      for (const child of childrenReptiles) {
-        const childNode = buildFamilyTree(child.id, depth + 1, maxDepth);
-        if (childNode) node.children.push(childNode);
-      }
-    }
-
+    
     return node;
   }
-
-  // Find the root reptile and build the tree
-  const familyTree = buildFamilyTree(reptileId);
-  if (!familyTree) throw new Error('Reptile not found or invalid lineage');
-
-  // Reset the global visited set to allow for proper tree traversal when rendering
-  globalVisited.clear();
   
-  return familyTree;
+  // Build the family tree starting from the root reptile
+  const rootNode = buildReptileNode(reptileId);
+  if (!rootNode) throw new Error('Reptile not found');
+  
+  // Now add children relationships with a separate non-recursive approach
+  // to avoid stack overflows
+  const addedChildRelations = new Set<string>();
+  
+  for (const reptile of reptiles) {
+    if (reptile.dam_id || reptile.sire_id) {
+      const childNode = processedReptiles.get(reptile.id);
+      
+      // Skip if this reptile wasn't included in our tree
+      if (!childNode) continue;
+      
+      // Add as child to dam if dam exists in our tree
+      if (reptile.dam_id && processedReptiles.has(reptile.dam_id)) {
+        const relationKey = `${reptile.dam_id}-${reptile.id}`;
+        if (!addedChildRelations.has(relationKey)) {
+          const damNode = processedReptiles.get(reptile.dam_id)!;
+          damNode.children.push(childNode);
+          addedChildRelations.add(relationKey);
+        }
+      }
+      
+      // Add as child to sire if sire exists in our tree
+      if (reptile.sire_id && processedReptiles.has(reptile.sire_id)) {
+        const relationKey = `${reptile.sire_id}-${reptile.id}`;
+        if (!addedChildRelations.has(relationKey)) {
+          const sireNode = processedReptiles.get(reptile.sire_id)!;
+          sireNode.children.push(childNode);
+          addedChildRelations.add(relationKey);
+        }
+      }
+    }
+  }
+  
+  return rootNode;
 }
