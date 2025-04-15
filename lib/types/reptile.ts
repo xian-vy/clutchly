@@ -13,8 +13,8 @@ export interface Reptile {
   created_at: string
   user_id: string
   name: string
-  species: string
-  morph: string
+  species_id: string
+  morph_id: string
   visual_traits: string[] | null
   het_traits: HetTrait[] | null
   sex: Sex

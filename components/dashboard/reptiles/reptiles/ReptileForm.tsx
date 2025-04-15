@@ -22,8 +22,8 @@ import { VisualTraitsForm } from './VisualTraitsForm'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  species: z.string().min(1, 'Species is required'),
-  morph: z.string().min(1, 'Morph is required'),
+  species_id: z.string().min(1, 'Species is required'),
+  morph_id: z.string().min(1, 'Morph is required'),
   sex: z.enum(['male', 'female', 'unknown'] as const),
   hatch_date: z.string().nullable(),
   acquisition_date: z.string().min(1, 'Acquisition date is required'),
@@ -82,8 +82,8 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
-      species: initialData?.species || '',
-      morph: initialData?.morph || '',
+      species_id: initialData?.species_id || '',
+      morph_id: initialData?.morph_id || '',
       sex: initialData?.sex || 'unknown',
       hatch_date: initialData?.hatch_date || null,
       acquisition_date: initialData?.acquisition_date || new Date().toISOString().split('T')[0],
@@ -116,7 +116,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
     }
   }, [species.length, fetchSpecies])
 
-  const speciesId = form.watch('species');
+  const speciesId = form.watch('species_id');
   const { selectedSpeciesId, maleReptiles, femaleReptiles, morphsForSpecies } = useReptilesParentsBySpecies({
     reptiles,
     speciesId : speciesId || '',
@@ -150,14 +150,14 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
             <div className="grid grid-cols-2 2xl:grid-cols-4 gap-3  2xl:gap-5">
               <FormField
                 control={form.control}
-                name="species"
+                name="species_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Species</FormLabel>
                     <Select onValueChange={(value) => {
                       field.onChange(value)
                       // Reset morph when species changes
-                      form.setValue('morph', '')
+                      form.setValue('morph_id', '')
                     }} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className='w-full'>
@@ -179,7 +179,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
 
               <FormField
                 control={form.control}
-                name="morph"
+                name="morph_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Morph</FormLabel>

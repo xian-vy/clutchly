@@ -70,13 +70,17 @@ export function HatchlingForm({
       const hatchlingData: NewReptile = {
         ...values,
         parent_clutch_id: clutch.id,
-        species: clutch.species_id,
+        species_id: clutch.species_id,
+        morph_id: "",
         hatch_date: today,
         acquisition_date: today,
         generation: 1,
         dam_id :projectDetails.male_id,
         sire_id : projectDetails.female_id,
         status: 'active',
+        het_traits: [],
+        notes: values.notes || '',
+        visual_traits: [],
       };
       await onSubmit(hatchlingData);
     } catch (error) {

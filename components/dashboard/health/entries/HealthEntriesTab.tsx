@@ -56,8 +56,8 @@ export function HealthEntriesTab() {
   const enrichedHealthLogs = useMemo(() => {
     return healthLogs.map(health => {
       const reptile = reptiles.find(reptile => reptile.id === health.reptile_id);
-      const speciesName = species.find(s => s.id.toString() === reptile?.species);
-      const morphName = morphs.find(m => m.id.toString() === reptile?.morph);
+      const speciesName = species.find(s => s.id.toString() === reptile?.species_id);
+      const morphName = morphs.find(m => m.id.toString() === reptile?.morph_id);
       return {
         ...health,
         reptile: reptile?.name || 'Unknown',

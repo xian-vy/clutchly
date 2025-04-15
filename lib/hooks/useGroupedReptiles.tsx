@@ -39,7 +39,7 @@ export function useGroupedReptiles() {
     return species.map(speciesItem => ({
       label: speciesItem.name,
       items: reptiles
-        .filter(reptile => reptile.species === speciesItem.id.toString())
+        .filter(reptile => reptile.species_id === speciesItem.id.toString())
         .map(reptile => ({
           value: reptile.id,
           label: reptile.name,

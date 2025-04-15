@@ -35,7 +35,7 @@ export function HatchlingsList({
           </TableHeader>
           <TableBody>
             {hatchlings.map((hatchling) => {
-              const morphName = morphs.find((morph) => morph.id.toString() === hatchling.morph)?.name;
+              const morphName = morphs.find((morph) => morph.id.toString() === hatchling.morph_id)?.name;
               return (
               <TableRow key={hatchling.id}>
                 <TableCell>{hatchling.name}</TableCell>

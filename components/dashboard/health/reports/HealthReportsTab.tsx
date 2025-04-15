@@ -138,7 +138,7 @@ export function HealthReportsTab() {
     
     return {
       name: reptile.name,
-      species: reptile.species,
+      species: reptile.species_id,
       totalIssues: filteredLogs.length,
       activeIssues: filteredLogs.filter(log => !log.resolved).length,
       highSeverityIssues: filteredLogs.filter(log => log.severity === 'high').length,

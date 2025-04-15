@@ -39,8 +39,8 @@ export function ReptilesTab() {
   // Create enriched reptiles with species and morph names
   const enrichedReptiles = useMemo(() => {
     return reptiles.map(reptile => {
-      const speciesData = species.find(s => s.id.toString() === reptile.species);
-      const morphData = morphs.find(m => m.id.toString() === reptile.morph);
+      const speciesData = species.find(s => s.id.toString() === reptile.species_id);
+      const morphData = morphs.find(m => m.id.toString() === reptile.morph_id);
       const dam = reptile.dam_id ? reptiles.find(r => r.id.toString() === reptile.dam_id) : null;
       const sire = reptile.sire_id ? reptiles.find(r => r.id.toString() === reptile.sire_id) : null;
       const damName = dam ? dam.name : 'Unknown';
