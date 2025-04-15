@@ -348,7 +348,7 @@ function Flow({ reptileId }: { reptileId: string }) {
                 stroke: '#2196f3', 
                 strokeWidth: isHighlighted ? 2 : 1.5,
                 strokeOpacity: isHighlighted ? 1 : 0.6,
-                strokeDasharray: '5,5', // Dashed line for sire, matching the image
+                // strokeDasharray: '5,5',
               },
               labelBgPadding: [4, 2],
               labelBgBorderRadius: 4,
