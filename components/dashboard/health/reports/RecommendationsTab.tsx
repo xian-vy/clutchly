@@ -2,13 +2,13 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Stethoscope, Droplets, Thermometer, Scale, Clock, Calendar } from 'lucide-react';
-import { HealthLogEntry } from '@/lib/types/health';
+import { HealthCategory, HealthLogEntry } from '@/lib/types/health';
 import { Reptile } from '@/lib/types/reptile';
 
 interface RecommendationsTabProps {
   filteredLogs: HealthLogEntry[];
   reptiles: Reptile[];
-  categories: any[];
+  categories: HealthCategory[];
   stats: {
     totalIssues: number;
     activeIssues: number;
@@ -25,7 +25,6 @@ export function RecommendationsTab({
   filteredLogs, 
   reptiles, 
   categories, 
-  stats 
 }: RecommendationsTabProps) {
   // Generate health recommendations based on the data
   const getRecommendations = () => {
