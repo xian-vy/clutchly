@@ -3,25 +3,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { SEX_COLORS, STATUS_COLORS } from "@/lib/constants/colors";
 import { useMorphsStore } from "@/lib/stores/morphsStore";
 import { useSpeciesStore } from "@/lib/stores/speciesStore";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
+import { VirtualizedMorphSelect } from "../../../ui/virtual-morph-select";
 const sex = ['male', 'female', 'unknown'] as const;
 const reptileStatus = ['active', 'sold', 'deceased'] as const;
 
@@ -86,30 +81,7 @@ export function ReptileFilterDialog({
   });
 
   const {species : availableSpecies} = useSpeciesStore();
-  const {morphs} = useMorphsStore();
-  const speciesIds = form.watch('species');
-  const [morphSearchTerm, setMorphSearchTerm] = useState("");
-  const [morphCommandOpen, setMorphCommandOpen] = useState(false);
-
-  // Memoize filtered morphs to prevent unnecessary recalculations
-  const availableMorphs = useMemo(() => {
-    if (!speciesIds || speciesIds.length === 0) {
-      return morphs;
-    }
-    
-    return morphs.filter((morph) => 
-      morph.species_id && speciesIds.includes(morph.species_id.toString())
-    );
-  }, [morphs, speciesIds]);
-
-  // Filter morphs based on search term
-  const filteredMorphs = useMemo(() => {
-    if (!morphSearchTerm) return availableMorphs;
-    
-    return availableMorphs.filter((morph) => 
-      morph.name.toLowerCase().includes(morphSearchTerm.toLowerCase())
-    );
-  }, [availableMorphs, morphSearchTerm]);
+  const {morphs : availableMorphs} = useMorphsStore();
 
   function onSubmit(values: ReptileFilters) {
     onApplyFilters(values);
@@ -195,94 +167,17 @@ export function ReptileFilterDialog({
                   </FormItem>
                 )}
               />
-
-              {/* Morphs Filter - Replace with optimized version */}
+     
               <FormField
-                control={form.control}
-                name="morphs"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Morphs</FormLabel>
-                    <Popover open={morphCommandOpen} onOpenChange={setMorphCommandOpen}>
-                      <PopoverTrigger asChild >
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={morphCommandOpen}
-                            className="justify-between w-[160px]"    
-                          >
-                            {field.value?.length 
-                              ? `${field.value.length} morph${field.value.length > 1 ? 's' : ''} selected` 
-                              : "Select morphs"}
-                              <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0" align="start">
-                        <Command>
-                          <CommandInput 
-                            placeholder="Search morphs..." 
-                            value={morphSearchTerm}
-                            onValueChange={setMorphSearchTerm}
-                          />
-                          <CommandEmpty>No morphs found.</CommandEmpty>
-                          <CommandGroup>
-                            <ScrollArea className="h-60">
-                              {filteredMorphs.map((morph) => (
-                                <CommandItem
-                                  key={morph.id}
-                                  value={morph.id.toString()}
-                                  onSelect={() => {
-                                    const morphId = morph.id.toString();
-                                    const newValue = field.value?.includes(morphId)
-                                      ? field.value.filter(id => id !== morphId)
-                                      : [...(field.value || []), morphId];
-                                    field.onChange(newValue);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      field.value?.includes(morph.id.toString()) 
-                                        ? "opacity-100" 
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {morph.name}
-                                </CommandItem>
-                              ))}
-                            </ScrollArea>
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {field.value?.map((morphId) => {
-                        const morph = morphs.find((m) => m.id.toString() === morphId);
-                        return morph ? (
-                          <Badge 
-                            key={morphId}
-                            variant="secondary"
-                            className="flex items-center gap-1"
-                          >
-                            {morph.name}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                field.onChange(field.value?.filter((id) => id !== morphId));
-                              }}
-                              className="ml-1 rounded-full hover:bg-muted"
-                            >
-                              ✕
-                            </button>
-                          </Badge>
-                        ) : null;
-                      })}
-                    </div>
-                  </FormItem>
-                )}
-              />
+                    control={form.control}
+                    name="morphs"
+                    render={({ field }) => (
+                        <VirtualizedMorphSelect 
+                         field={field} 
+                        availableMorphs={availableMorphs} 
+                        />
+                    )}
+                    />
             </div>
 
             <Separator />
