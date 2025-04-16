@@ -145,11 +145,11 @@ export function BreedingProjectDetails({
   return (
     <div className="space-y-6">
       <Card className='shadow-none border'>
-        <CardContent className="space-y-4 pt-6">
-          <div className="grid grid-cols-2 gap-4">
+        <CardContent className="space-y-4 ">
+          <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Name</p>
-              <p>{project.name}</p>
+              <p className="text-sm font-medium text-muted-foreground">Project Name</p>
+              <p className='text-sm'>{project.name}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Status</p>
@@ -161,20 +161,21 @@ export function BreedingProjectDetails({
               </Badge>
             </div>
             <div>
+              <p className="text-sm font-medium text-muted-foreground">Start Date</p>
+              <p className='text-sm'>{format(new Date(project.start_date), 'MMM d, yyyy')}</p>
+            </div>
+            <div>
               <p className="text-sm font-medium text-muted-foreground">Sire (Male)</p>
-              <p>{reptileMap.get(project.male_id) || 'Unknown'}</p>
+              <p className='text-sm'>{reptileMap.get(project.male_id) || 'Unknown'}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Dam (Female)</p>
-              <p>{reptileMap.get(project.female_id) || 'Unknown'}</p>
+              <p className='text-sm'>{reptileMap.get(project.female_id) || 'Unknown'}</p>
             </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Start Date</p>
-              <p>{format(new Date(project.start_date), 'MMM d, yyyy')}</p>
-            </div>
+
             <div>
               <p className="text-sm font-medium text-muted-foreground">Expected Hatch</p>
-              <p>
+              <p className='text-sm'>
                 {project.expected_hatch_date
                   ? format(new Date(project.expected_hatch_date), 'MMM d, yyyy')
                   : 'Not set'}
@@ -193,7 +194,7 @@ export function BreedingProjectDetails({
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Clutches & Hatchlings</h2>
+          <h2 className="text-base font-semibold">Clutches & Hatchlings</h2>
           <Button onClick={() => setIsAddClutchDialogOpen(true)}>
             Add Clutch
           </Button>

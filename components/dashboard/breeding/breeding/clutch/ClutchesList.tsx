@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Clutch, IncubationStatus } from '@/lib/types/breeding';
@@ -44,40 +44,32 @@ export function ClutchesList({
           className="border rounded-lg overflow-hidden"
         >
           <Card className="border-0 shadow-none">
-            <CollapsibleTrigger className="w-full text-left">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg flex items-center">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-sm flex items-center">
                   Clutch: {format(new Date(clutch.lay_date), 'MMM d, yyyy')}
-                  <span className="ml-2">
-                    {openClutches[clutch.id] ? 
-                      <ChevronUp className="h-4 w-4" /> : 
-                      <ChevronDown className="h-4 w-4" />
-                    }
-                  </span>
                 </CardTitle>
                 <Badge
                   className={`${
                     INCUBATION_STATUS_COLORS[clutch.incubation_status]
-                  } text-white capitalize`}
+                  }  capitalize`}
                 >
                   {clutch.incubation_status.replace('_', ' ')}
                 </Badge>
               </CardHeader>
-            </CollapsibleTrigger>
             
             <CardContent>
-              <div className="grid grid-cols-2 gap-2 mb-4">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Egg Count</p>
-                  <p>{clutch.egg_count}</p>
+                  <p className='text-sm'>{clutch.egg_count}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Fertile Count</p>
-                  <p>{clutch.fertile_count || 'Not recorded'}</p>
+                  <p className='text-sm'>{clutch.fertile_count || 'Not recorded'}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Hatch Date</p>
-                  <p>{clutch.hatch_date ? format(new Date(clutch.hatch_date), 'MMM d, yyyy') : 'Not hatched'}</p>
+                  <p className='text-sm'>{clutch.hatch_date ? format(new Date(clutch.hatch_date), 'MMM d, yyyy') : 'Not hatched'}</p>
                 </div>
                 <div className="flex gap-2 items-end">
                   {clutch.incubation_status !== 'completed' && (
@@ -107,12 +99,21 @@ export function ClutchesList({
                 </div>
               </div>
             </CardContent>
+             <CollapsibleTrigger className="flex justify-end cursor-pointer w-full pr-2">
+                <span className="text-xs flex items-center gap-2">
+                  View Hatchlings
+                    {openClutches[clutch.id] ? 
+                      <ChevronUp className="h-4 w-4" /> : 
+                      <ChevronDown className="h-4 w-4" />
+                    }
+                  </span>
+              </CollapsibleTrigger>
           </Card>
           
           <CollapsibleContent>
             <div className="px-6 pb-6 pt-2 border-t">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-md font-medium">Hatchlings</h3>
+                <h3 className="text-sm font-medium">Hatchlings</h3>
                 <Button 
                   size="sm" 
                   onClick={(e) => {
