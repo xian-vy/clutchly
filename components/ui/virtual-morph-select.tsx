@@ -29,7 +29,8 @@ export function VirtualizedMorphSelect({ field }: Props) {
       const speciesInfo = species.find(s => s.id === morph.species_id);
       return {
         ...morph,
-        speciesName: speciesInfo?.name || 'Unknown Species'
+        speciesName: speciesInfo?.name || 'Unknown Species',
+        uniqueValue: `${morph.id}-${morph.name}-${speciesInfo?.name || 'unknown'}`
       };
     });
   }, [morphs, species]);
@@ -125,7 +126,7 @@ export function VirtualizedMorphSelect({ field }: Props) {
                       return (
                         <CommandItem
                           key={morph.id}
-                          value={morph.name}
+                          value={morph.uniqueValue}
                           onSelect={() => {
                             const morphId = morph.id.toString();
                             const newValue = field.value?.includes(morphId)
