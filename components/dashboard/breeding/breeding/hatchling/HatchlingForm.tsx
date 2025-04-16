@@ -1,4 +1,5 @@
 'use client';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -21,6 +22,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { BreedingProject, Clutch } from '@/lib/types/breeding';
 import { NewReptile } from '@/lib/types/reptile';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Info } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -91,6 +93,13 @@ export function HatchlingForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <Alert variant="success">
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          Adding a hatchling will add a new reptile record to your collection.
+        </AlertDescription>
+      </Alert>
+
       <FormField
           control={form.control}
           name="name"
