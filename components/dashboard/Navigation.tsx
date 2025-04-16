@@ -12,6 +12,7 @@ import {
     Settings,
     Turtle
 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -72,10 +73,16 @@ export function Navigation() {
         )}
       >
         <div className={cn(
-          "flex h-16 items-center border-b border-sidebar-border",
+          "flex h-16 items-center border-b border-sidebar-border ml-2",
           isCollapsed ? "justify-center px-2" : "gap-2 px-4"
         )}>
-          <Turtle className="w-6 h-6 text-primary" />
+          <Image
+            src="/logo_white.png"
+            width={35}
+            height={35}
+            alt="lutchly"
+            className="rounded-full"
+          />
           {!isCollapsed && (
             <span className="font-semibold text-lg text-sidebar-foreground">Clutchly</span>
           )}
