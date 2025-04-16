@@ -12,11 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AvatarImage } from '@radix-ui/react-avatar';
 import {
+    Crown,
     LogOut,
     Menu,
     X
 } from 'lucide-react';
 import { useState } from 'react';
+import { Badge } from '../ui/badge';
 
 const TopNavigation = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -37,6 +39,10 @@ const TopNavigation = () => {
         </Button>
 
         <div className="flex items-center gap-3 ml-auto">
+             <Badge variant="default" className="flex items-center gap-1 font-medium">
+                <Crown className="h-3 w-3" />
+                 Premium
+             </Badge>
             <ThemeToggle />
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -54,6 +60,7 @@ const TopNavigation = () => {
                 </DropdownMenuItem>
             </DropdownMenuContent>
             </DropdownMenu>
+
         </div>
     </div>
   )
