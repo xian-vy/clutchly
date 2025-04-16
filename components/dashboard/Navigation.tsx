@@ -16,6 +16,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import AccountAvatar from './AccountAvatar';
 
 const navItems = [
   {
@@ -99,7 +100,7 @@ export function Navigation() {
                   'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors',
                   isCollapsed ? 'justify-center px-2 py-2' : 'px-3 py-2',
                   pathname === item.href
-                    ? 'bg-sidebar-primary text-primary-foreground'
+                    ? 'bg-slate-100 dark:bg-slate-800/50 text-primary'
                     : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 )}
               >
@@ -109,6 +110,8 @@ export function Navigation() {
             );
           })}
         </nav>
+
+        <AccountAvatar />
 
         {/* Collapse toggle button */}
         <Button
