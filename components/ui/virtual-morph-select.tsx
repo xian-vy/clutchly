@@ -97,7 +97,7 @@ export function VirtualizedMorphSelect({ field }: Props) {
             </Button>
           </FormControl>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="start">
+        <PopoverContent className="w-[300px] p-0" align="start">
           <Command shouldFilter={false}> {/* Disable built-in filtering */}
             <CommandInput 
               placeholder="Search morphs..." 
