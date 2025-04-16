@@ -9,6 +9,9 @@ import { useState } from 'react';
 import { BreedingProjectDetails } from './BreedingProjectDetails';
 import { BreedingProjectForm } from './BreedingProjectForm';
 import { BreedingProjectList } from './BreedingProjectList';
+import { Badge } from '@/components/ui/badge';
+import { STATUS_COLORS } from '@/lib/constants/colors';
+import { format } from 'date-fns';
 
 export function BreedingProjectsTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -90,7 +93,29 @@ export function BreedingProjectsTab() {
 
       <Dialog open={isDetailsDialogOpen} onOpenChange={handleCloseProjectDetails}>
         <DialogContent className="sm:max-w-[800px]">
-          <DialogTitle>Project Details</DialogTitle>
+          <DialogTitle className='flex flex-col items-start gap-2 text-base'>
+            {selectedProjectForDetails?.name}
+            <div className="flex justify-between w-full items-center">
+                <Badge variant="custom"  className={`${STATUS_COLORS[selectedProjectForDetails?.status.toLowerCase() as keyof typeof STATUS_COLORS]} !capitalize`}>
+                    {selectedProjectForDetails?.status}
+                </Badge>
+                <div className="flex gap-5">
+                      <div className='flex items-center gap-2'>
+                          <p className="text-xs font-medium text-muted-foreground">Start Date</p>
+                          <p className='text-xs'>{format(new Date(selectedProjectForDetails?.start_date || new Date()), 'MMM d, yyyy')}</p>
+                      </div>
+                      <div className='flex items-center gap-2'>
+                          <p className="text-xs font-medium text-muted-foreground">Expected Hatch</p>
+                          <p className='text-xs'>
+                            {selectedProjectForDetails?.expected_hatch_date
+                              ? format(new Date(selectedProjectForDetails?.expected_hatch_date), 'MMM d, yyyy')
+                              : 'Not set'}
+                          </p>
+                      </div>
+                  </div>
+            </div>
+
+          </DialogTitle>
           {selectedProjectForDetails && (
             <BreedingProjectDetails
               project={selectedProjectForDetails}

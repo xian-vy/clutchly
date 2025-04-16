@@ -13,12 +13,13 @@ import { getClutches } from '@/app/api/breeding/clutches';
 import { createClutch, updateClutch } from '@/app/api/breeding/clutches';
 import { toast } from 'sonner';
 import { createReptile, getReptileByClutchId, getReptiles } from '@/app/api/reptiles/reptiles';
-import { NewReptile, Reptile } from '@/lib/types/reptile';
+import { HetTrait, NewReptile, Reptile } from '@/lib/types/reptile';
 import { STATUS_COLORS } from '@/lib/constants/colors';
 import { ClutchForm } from './clutch/ClutchForm';
 import { HatchlingForm } from './hatchling/HatchlingForm';
 import { ClutchesList } from './clutch/ClutchesList';
-import { Plus } from 'lucide-react';
+import { Mars, Plus, Venus, X } from 'lucide-react';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
@@ -33,6 +34,7 @@ export function BreedingProjectDetails({
   const [isAddHatchlingDialogOpen, setIsAddHatchlingDialogOpen] = useState(false);
   const [selectedClutchId, setSelectedClutchId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const {morphs} = useMorphsStore()
 
   // Fetch reptiles to get parent names
   const { data: reptiles = [] } = useQuery<Reptile[]>({
@@ -41,11 +43,16 @@ export function BreedingProjectDetails({
   });
 
   // Create a map of reptile IDs to names for quick lookup
-  const reptileMap = new Map<string, string>();
+  const reptileMap = new Map<string, { name: string; morphName: string, hets : HetTrait[] | null, visuals : string[] | null }>();
   reptiles.forEach(reptile => {
-    reptileMap.set(reptile.id, reptile.name);
+    const morphName = reptile.morph_id ? morphs.find(m => m.id.toString() === reptile.morph_id)?.name || 'Unknown' : 'None';
+    reptileMap.set(reptile.id, { 
+      name: reptile.name,
+      morphName: morphName,
+      hets : reptile.het_traits,
+      visuals : reptile.visual_traits
+    });
   });
-
   // Fetch clutches for this project
   const { data: clutches = [] } = useQuery<Clutch[]>({
     queryKey: ['clutches', project.id],
@@ -144,45 +151,55 @@ export function BreedingProjectDetails({
 
   const selectedClutch = clutches.find(c => c.id === selectedClutchId) || null;
 
+
   return (
     <div className="space-y-6">
       <Card className='shadow-none border'>
         <CardContent className="space-y-4 ">
-          <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Project Name</p>
-              <p className='text-sm'>{project.name}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Status</p>
-              <Badge
-                variant="custom"
-                className={STATUS_COLORS[project.status.toLowerCase() as keyof typeof STATUS_COLORS]}
-              >
-                {project.status}
-              </Badge>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Start Date</p>
-              <p className='text-sm'>{format(new Date(project.start_date), 'MMM d, yyyy')}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Sire (Male)</p>
-              <p className='text-sm'>{reptileMap.get(project.male_id) || 'Unknown'}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Dam (Female)</p>
-              <p className='text-sm'>{reptileMap.get(project.female_id) || 'Unknown'}</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Expected Hatch</p>
-              <p className='text-sm'>
-                {project.expected_hatch_date
-                  ? format(new Date(project.expected_hatch_date), 'MMM d, yyyy')
-                  : 'Not set'}
-              </p>
-            </div>
+  
+          {/* Parents Info */}
+          <div className="flex items-start justify-center gap-10 2xl:gap-16">
+              <div className='flex flex-col items-center gap-1'>
+                    <p className='text-sm text-center  flex gap-1 font-bold'>
+                        {reptileMap.get(project.male_id)?.name || 'Unknown'}
+                        <Mars className="h-4 w-4 text-blue-400"/>
+                    </p>
+                    <p className='text-sm text-center text-muted-foreground'> {reptileMap.get(project.male_id)?.morphName}</p>
+                    <div className='space-y-1'>
+                        <div className="flex items-center justify-center gap-1.5">
+                            {reptileMap.get(project.male_id)?.visuals?.map((visualtrait, index) =>
+                              <Badge key={index}  variant="secondary" className='text-[0.7rem]'>{visualtrait}</Badge>
+                            )}
+                        </div>
+                        <div className="flex  items-center justify-center gap-1.5">
+                            {reptileMap.get(project.male_id)?.hets?.map((het, index) =>
+                              <Badge key={index}  variant="secondary"  className='text-[0.7rem]'>{het.percentage} {" % ph "}{het.trait}</Badge>
+                            )}
+                        </div>
+                    </div>
+              </div>
+              <div className="my-auto">
+                 <X className='text-muted-foreground'/>
+              </div>                        
+              <div  className='flex flex-col items-center  gap-1'>
+                    <p className='text-sm flex gap-1 font-bold'>
+                        {reptileMap.get(project.female_id)?.name || 'Unknown'}
+                        <Venus className="h-4 w-4 text-red-500"/>
+                    </p>
+                    <p className='text-sm text-center text-muted-foreground'> {reptileMap.get(project.female_id)?.morphName} </p>
+                    <div className='space-y-1'>
+                      <div className="flex items-center justify-center gap-1.5">
+                          {reptileMap.get(project.female_id)?.visuals?.map((visualtrait, index) =>
+                            <Badge key={index}  variant="secondary" className='text-[0.7rem]'>{visualtrait}</Badge>
+                          )}
+                      </div>
+                      <div className="flex  items-center justify-center gap-1.5">
+                          {reptileMap.get(project.female_id)?.hets?.map((het, index) =>
+                            <Badge key={index}  variant="secondary"  className='text-[0.7rem]'>{het.percentage} {" % ph "}{het.trait}</Badge>
+                          )}
+                      </div>
+                  </div>
+              </div>
           </div>
 
           {project.notes && (
