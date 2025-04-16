@@ -28,7 +28,7 @@ import * as z from 'zod';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  morph: z.string().min(1, 'Morph is required'),
+  morph_id: z.string().min(1, 'Morph is required'),
   sex: z.enum(['male', 'female', 'unknown']),
   weight: z.coerce.number().min(0, 'Weight must be positive'),
   length: z.coerce.number().min(0, 'Length must be positive'),
@@ -57,7 +57,7 @@ export function HatchlingForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      morph: '',
+      morph_id: '',
       sex: 'unknown',
       notes: '',
       weight: 0,
@@ -73,7 +73,6 @@ export function HatchlingForm({
         ...values,
         parent_clutch_id: clutch.id,
         species_id: clutch.species_id,
-        morph_id: "",
         hatch_date: today,
         acquisition_date: today,
         generation: 1,
@@ -116,7 +115,7 @@ export function HatchlingForm({
           <div className="grid grid-cols-2 gap-4">
                 <FormField
                       control={form.control}
-                      name="morph"
+                      name="morph_id"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Morph</FormLabel>

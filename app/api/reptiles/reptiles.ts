@@ -43,6 +43,11 @@ export async function createReptile(reptile: NewReptile) {
     .select()
     .single()
 
+    if (error) {
+      console.error("Error creating reptile :", error.message)
+      throw error
+    }
+
     const newReptileGrowth : CreateGrowthEntryInput = {
       reptile_id: data.id,
       user_id: userId || '',
@@ -57,7 +62,10 @@ export async function createReptile(reptile: NewReptile) {
     .from('growth_entries')
     .insert([newReptileGrowth])
 
-  if (error || growthError) throw error
+  if (growthError) {
+    console.error("Error creating growth after reptile :", growthError.message)
+    throw error
+  }
   return data as Reptile
 }
 
