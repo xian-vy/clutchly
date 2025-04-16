@@ -10,11 +10,11 @@ import { useState } from 'react';
 import { HatchlingsList } from '../hatchling/HatchlingsList';
 import { Reptile } from '@/lib/types/reptile';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { INCUBATION_STATUS_COLORS } from '@/lib/constants/colors';
 
 interface ClutchesListProps {
   clutches: Clutch[];
   hatchlings: Record<string, Reptile[]>;
-  incubationStatusColors: Record<string, string>;
   onAddHatchling: (clutchId: string) => void;
   onUpdateIncubationStatus: (clutchId: string, status: IncubationStatus) => void;
 }
@@ -22,7 +22,6 @@ interface ClutchesListProps {
 export function ClutchesList({
   clutches,
   hatchlings,
-  incubationStatusColors,
   onAddHatchling,
   onUpdateIncubationStatus,
 }: ClutchesListProps) {
@@ -58,7 +57,7 @@ export function ClutchesList({
                 </CardTitle>
                 <Badge
                   className={`${
-                    incubationStatusColors[clutch.incubation_status]
+                    INCUBATION_STATUS_COLORS[clutch.incubation_status]
                   } text-white capitalize`}
                 >
                   {clutch.incubation_status.replace('_', ' ')}

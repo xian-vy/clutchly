@@ -22,12 +22,7 @@ interface BreedingProjectDetailsProps {
   project: BreedingProject;
 }
 
-const incubationStatusColors = {
-  not_started: 'bg-gray-500',
-  in_progress: 'bg-blue-500',
-  completed: 'bg-green-500',
-  failed: 'bg-red-500',
-};
+
 
 export function BreedingProjectDetails({
   project,
@@ -207,7 +202,6 @@ export function BreedingProjectDetails({
         <ClutchesList 
           clutches={clutches}
           hatchlings={allHatchlings}
-          incubationStatusColors={incubationStatusColors}
           onAddHatchling={handleAddHatchlingClick}
           onUpdateIncubationStatus={handleUpdateIncubationStatus}
         />
