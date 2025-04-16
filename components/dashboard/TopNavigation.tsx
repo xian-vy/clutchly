@@ -56,19 +56,19 @@ const TopNavigation = () => {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40" align="end" forceMount>
-                <DropdownMenuItem onClick={() => logout()}>
-                    <LogOut className="mr-2 cursor-pointer" />
-                    <span>Log out</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className='cursor-pointer'>
-                    {theme === 'dark'? 
-                      <Moon className="mr-2" />
-                     : <Sun className="mr-2" />
-                    }
-                     Theme
-                </DropdownMenuItem>
-            </DropdownMenuContent>
+                        {theme === 'dark'? 
+                        <Moon className="mr-2" />
+                        : <Sun className="mr-2" />
+                        }
+                        Theme
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => logout()}>
+                        <LogOut className="mr-2 cursor-pointer" />
+                        <span>Log out</span>
+                    </DropdownMenuItem>
+               </DropdownMenuContent>
             </DropdownMenu>
 
         </div>
