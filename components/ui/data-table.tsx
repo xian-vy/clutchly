@@ -22,9 +22,10 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import { Filter, Plus, Search } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Paginator from "./paginator"
 import { DownloadCommonData } from "../dashboard/reptiles/DownloadCommonData"
+import { useScreenSize } from "@/lib/hooks/useScreenSize"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -42,11 +43,18 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState("")
+  const screenSize = useScreenSize();
   const [pagination, setPagination] = useState({
     pageIndex: 0, 
-    pageSize: 10,
+    pageSize: screenSize === "xlarge" ? 10 : 5,
   });
   
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      pageSize: screenSize === "xlarge" ? 10 : 5
+    }));
+  }, [screenSize]);
 
   const table = useReactTable({
     data,
