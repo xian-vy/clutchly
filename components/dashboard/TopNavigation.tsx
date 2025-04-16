@@ -1,13 +1,13 @@
 'use client';
 
 import { logout } from '@/app/auth/logout/actions';
-import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AvatarImage } from '@radix-ui/react-avatar';
@@ -15,14 +15,17 @@ import {
     Crown,
     LogOut,
     Menu,
+    Moon,
+    Sun,
     X
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { Badge } from '../ui/badge';
 
 const TopNavigation = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+    const { theme, setTheme } = useTheme();
   return (
     <div className="h-16 border-b border-border flex items-center justify-between px-4 lg:px-6">
         <Button
@@ -38,12 +41,11 @@ const TopNavigation = () => {
             )}
         </Button>
 
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="flex items-center gap-3 2xl:gap-5 ml-auto">
              <Badge variant="default" className="flex items-center gap-1 font-medium">
                 <Crown className="h-3 w-3" />
                  Premium
              </Badge>
-            <ThemeToggle />
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -53,10 +55,18 @@ const TopNavigation = () => {
                 </Avatar>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-40" align="end" forceMount>
                 <DropdownMenuItem onClick={() => logout()}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                    <LogOut className="mr-2 cursor-pointer" />
+                    <span>Log out</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className='cursor-pointer'>
+                    {theme === 'dark'? 
+                      <Moon className="mr-2" />
+                     : <Sun className="mr-2" />
+                    }
+                     Theme
                 </DropdownMenuItem>
             </DropdownMenuContent>
             </DropdownMenu>
