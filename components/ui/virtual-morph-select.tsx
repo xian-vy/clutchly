@@ -81,7 +81,7 @@ export function VirtualizedMorphSelect({ field }: Props) {
   return (
     <FormItem className="flex flex-col">
       <FormLabel>Morphs</FormLabel>
-      <Popover open={morphCommandOpen} onOpenChange={setMorphCommandOpen}>
+      <Popover modal open={morphCommandOpen} onOpenChange={setMorphCommandOpen}>
         <PopoverTrigger asChild>
           <FormControl>
             <Button
@@ -152,7 +152,7 @@ export function VirtualizedMorphSelect({ field }: Props) {
                             )}
                           />
                           <span className="flex-1 truncate">
-                            {morph.name} <span className="text-muted-foreground">({morph.speciesName})</span>
+                            {morph.name}{" "}({morph.speciesName})
                           </span>
                         </CommandItem>
                       );
