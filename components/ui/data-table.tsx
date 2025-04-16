@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   onAddNew?: () => void
   onDownload?: () => void
+  filterButton?: React.ReactNode
 }
 
 export function DataTable<TData, TValue>({
@@ -39,6 +40,7 @@ export function DataTable<TData, TValue>({
   data,
   onAddNew,
   onDownload,
+  filterButton,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -79,10 +81,14 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-1" />
-            Filter
-          </Button>
+          {filterButton ? (
+            filterButton
+          ) : (
+            <Button variant="outline" size="sm">
+              <Filter className="h-4 w-4 mr-1" />
+              Filter
+            </Button>
+          )}
           {onAddNew && (
             <Button variant="default" size="sm" onClick={onAddNew}>
                New
@@ -171,4 +177,4 @@ export function DataTable<TData, TValue>({
 
     </div>
   )
-} 
+}
