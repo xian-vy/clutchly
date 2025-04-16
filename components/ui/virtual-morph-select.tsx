@@ -4,14 +4,13 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "
 import { FormControl, FormItem, FormLabel } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useMorphsStore } from "@/lib/stores/morphsStore";
+import { useSpeciesStore } from "@/lib/stores/speciesStore";
 import { cn } from "@/lib/utils";
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 import { ReptileFilters } from "../dashboard/reptiles/reptiles/ReptileFilterDialog";
-import { useSpeciesStore } from "@/lib/stores/speciesStore";
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Props {
   field: ControllerRenderProps<ReptileFilters, "morphs">;
@@ -89,7 +88,7 @@ export function VirtualizedMorphSelect({ field }: Props) {
               variant="outline"
               role="combobox"
               aria-expanded={morphCommandOpen}
-              className="justify-between w-[280px]"    
+              className="justify-between w-[200px]"    
             >
               {field.value?.length 
                 ? `${field.value.length} morph${field.value.length > 1 ? 's' : ''} selected` 
@@ -98,7 +97,7 @@ export function VirtualizedMorphSelect({ field }: Props) {
             </Button>
           </FormControl>
         </PopoverTrigger>
-        <PopoverContent className="w-[280px] p-0" align="start">
+        <PopoverContent className="w-[200px] p-0" align="start">
           <Command shouldFilter={false}> {/* Disable built-in filtering */}
             <CommandInput 
               placeholder="Search morphs..." 
@@ -109,9 +108,9 @@ export function VirtualizedMorphSelect({ field }: Props) {
             <CommandEmpty>No morphs found.</CommandEmpty>
             {filteredMorphs.length > 0 && (
               <CommandGroup>
-                <ScrollArea    
+                <div    
                  ref={scrollableRef} 
-                 className="h-[300px]">
+                 className="h-[300px] overflow-y-auto">
                     <div
                       style={{
                         height: `${rowVirtualizer.getTotalSize()}px`,
@@ -158,7 +157,7 @@ export function VirtualizedMorphSelect({ field }: Props) {
                         );
                       })}
                     </div>
-                </ScrollArea>
+                </div>
               </CommandGroup>
             )}
           </Command>

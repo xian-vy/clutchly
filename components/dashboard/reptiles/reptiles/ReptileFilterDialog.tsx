@@ -106,13 +106,13 @@ export function ReptileFilterDialog({
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] 2xl:max-w-[650px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] 2xl:max-w-[650px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Filter Reptiles</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 2xl:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Species Filter */}
               <FormField
@@ -127,7 +127,7 @@ export function ReptileFilterDialog({
                       }}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-[200px]">
                           <SelectValue placeholder="Select species" />
                         </SelectTrigger>
                       </FormControl>
@@ -165,7 +165,6 @@ export function ReptileFilterDialog({
                   </FormItem>
                 )}
               />
-     
               <FormField
                     control={form.control}
                     name="morphs"
