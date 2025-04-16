@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { SEX_COLORS, STATUS_COLORS } from "@/lib/constants/colors";
-import { useMorphsStore } from "@/lib/stores/morphsStore";
 import { useSpeciesStore } from "@/lib/stores/speciesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -81,7 +80,6 @@ export function ReptileFilterDialog({
   });
 
   const {species : availableSpecies} = useSpeciesStore();
-  const {morphs : availableMorphs} = useMorphsStore();
 
   function onSubmit(values: ReptileFilters) {
     onApplyFilters(values);
@@ -174,7 +172,6 @@ export function ReptileFilterDialog({
                     render={({ field }) => (
                         <VirtualizedMorphSelect 
                          field={field} 
-                        availableMorphs={availableMorphs} 
                         />
                     )}
                     />

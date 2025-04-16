@@ -3,34 +3,49 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { FormControl, FormItem, FormLabel } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Morph } from "@/lib/types/morph";
+import { useMorphsStore } from "@/lib/stores/morphsStore";
 import { cn } from "@/lib/utils";
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 import { ReptileFilters } from "../dashboard/reptiles/reptiles/ReptileFilterDialog";
+import { useSpeciesStore } from "@/lib/stores/speciesStore";
+
 interface Props {
   field: ControllerRenderProps<ReptileFilters, "morphs">;
-  availableMorphs: Morph[];
 }
 
-export function VirtualizedMorphSelect({  field, availableMorphs} : Props) {
+export function VirtualizedMorphSelect({ field }: Props) {
   const [morphSearchTerm, setMorphSearchTerm] = useState("");
   const [morphCommandOpen, setMorphCommandOpen] = useState(false);
   const scrollableRef = useRef<HTMLDivElement>(null);
+  const { morphs } = useMorphsStore();
+  const {  species } = useSpeciesStore();
+
+  // Create enhanced morphs with species information
+  const enhancedMorphs = useMemo(() => {
+    return morphs.map(morph => {
+      const speciesInfo = species.find(s => s.id === morph.species_id);
+      return {
+        ...morph,
+        speciesName: speciesInfo?.name || 'Unknown Species'
+      };
+    });
+  }, [morphs, species]);
 
   // Filter morphs based on search term
   const filteredMorphs = useMemo(() => { 
     const searchTerms = morphSearchTerm.toLowerCase().split(' ').filter(Boolean);
-    if (searchTerms.length === 0) return availableMorphs;
+    if (searchTerms.length === 0) return enhancedMorphs;
     
-    return availableMorphs.filter((morph) => 
+    return enhancedMorphs.filter((morph) => 
       searchTerms.every(term => 
-        morph.name.toLowerCase().includes(term)
+        morph.name.toLowerCase().includes(term) || 
+        morph.speciesName.toLowerCase().includes(term)
       )
     );
-  }, [availableMorphs, morphSearchTerm]);
+  }, [enhancedMorphs, morphSearchTerm]);
 
   // Create virtualizer with the filtered items
   const rowVirtualizer = useVirtualizer({
@@ -72,7 +87,7 @@ export function VirtualizedMorphSelect({  field, availableMorphs} : Props) {
               variant="outline"
               role="combobox"
               aria-expanded={morphCommandOpen}
-              className="justify-between w-[240px]"    
+              className="justify-between w-[280px]"    
             >
               {field.value?.length 
                 ? `${field.value.length} morph${field.value.length > 1 ? 's' : ''} selected` 
@@ -81,7 +96,7 @@ export function VirtualizedMorphSelect({  field, availableMorphs} : Props) {
             </Button>
           </FormControl>
         </PopoverTrigger>
-        <PopoverContent className="w-[240px] p-0" align="start">
+        <PopoverContent className="w-[280px] p-0" align="start">
           <Command shouldFilter={false}> {/* Disable built-in filtering */}
             <CommandInput 
               placeholder="Search morphs..." 
@@ -135,7 +150,9 @@ export function VirtualizedMorphSelect({  field, availableMorphs} : Props) {
                                 : "opacity-0"
                             )}
                           />
-                          {morph.name}
+                          <span className="flex-1 truncate">
+                            {morph.name} <span className="text-muted-foreground">({morph.speciesName})</span>
+                          </span>
                         </CommandItem>
                       );
                     })}
@@ -148,14 +165,14 @@ export function VirtualizedMorphSelect({  field, availableMorphs} : Props) {
       </Popover>
       <div className="flex flex-wrap gap-1 mt-2">
         {field.value?.map((morphId : string) => {
-          const morph = availableMorphs.find((m) => m.id.toString() === morphId);
+          const morph = enhancedMorphs.find((m) => m.id.toString() === morphId);
           return morph ? (
             <Badge 
               key={morphId}
               variant="secondary"
               className="flex items-center gap-1"
             >
-              {morph.name}
+              {morph.name} <span className="text-xs text-muted-foreground">({morph.speciesName})</span>
               <button
                 type="button"
                 onClick={() => {
