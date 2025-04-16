@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { BreedingProject, Clutch, NewClutch, IncubationStatus } from '@/lib/types/breeding';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
@@ -15,16 +14,13 @@ import { toast } from 'sonner';
 import { createReptile, getReptileByClutchId, getReptiles } from '@/app/api/reptiles/reptiles';
 import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { STATUS_COLORS } from '@/lib/constants/colors';
-import { HatchlingsList } from './hatchling/HatchlingsList';
 import { ClutchForm } from './clutch/ClutchForm';
 import { HatchlingForm } from './hatchling/HatchlingForm';
-import { Plus } from 'lucide-react';
+import { ClutchesList } from './clutch/ClutchesList';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
 }
-
-
 
 const incubationStatusColors = {
   not_started: 'bg-gray-500',
@@ -38,7 +34,7 @@ export function BreedingProjectDetails({
 }: BreedingProjectDetailsProps) {
   const [isAddClutchDialogOpen, setIsAddClutchDialogOpen] = useState(false);
   const [isAddHatchlingDialogOpen, setIsAddHatchlingDialogOpen] = useState(false);
-  const [selectedClutch, setSelectedClutch] = useState<Clutch | null>(null);
+  const [selectedClutchId, setSelectedClutchId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch reptiles to get parent names
@@ -59,15 +55,20 @@ export function BreedingProjectDetails({
     queryFn: () => getClutches(project.id),
   });
 
-  //Fetch hatchlings for the selected clutch
-  const { data: hatchlings = [] } = useQuery<Reptile[]>({
-    queryKey: ['hatchlings', selectedClutch?.id],
+  // Fetch hatchlings for all clutches
+  const { data: allHatchlings = {} } = useQuery<Record<string, Reptile[]>>({
+    queryKey: ['all-hatchlings', project.id],
     queryFn: async () => {
-      if (!selectedClutch) return [];
-      const result = await getReptileByClutchId(selectedClutch.id);
-      return Array.isArray(result) ? result : [result];
+      const result: Record<string, Reptile[]> = {};
+      
+      for (const clutch of clutches) {
+        const hatchlings = await getReptileByClutchId(clutch.id);
+        result[clutch.id] = Array.isArray(hatchlings) ? hatchlings : [hatchlings];
+      }
+      
+      return result;
     },
-    enabled: !!selectedClutch,
+    enabled: clutches.length > 0,
   });
 
   const handleAddClutch = async (data: NewClutch) => {
@@ -79,6 +80,7 @@ export function BreedingProjectDetails({
       
       // Invalidate queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
+      queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
       
       toast.success('Clutch added successfully');
       setIsAddClutchDialogOpen(false);
@@ -109,16 +111,16 @@ export function BreedingProjectDetails({
   };
 
   const handleAddHatchling = async (data: NewReptile) => {
-    if (!selectedClutch) return;
+    if (!selectedClutchId) return;
     
     try {
       await createReptile({
         ...data,
-        parent_clutch_id: selectedClutch.id,
+        parent_clutch_id: selectedClutchId,
       });
       
       // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['hatchlings', selectedClutch.id] });
+      queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
       
       toast.success('Hatchling added successfully');
       setIsAddHatchlingDialogOpen(false);
@@ -138,10 +140,17 @@ export function BreedingProjectDetails({
     }
   };
 
+  const handleAddHatchlingClick = (clutchId: string) => {
+    setSelectedClutchId(clutchId);
+    setIsAddHatchlingDialogOpen(true);
+  };
+
+  const selectedClutch = clutches.find(c => c.id === selectedClutchId) || null;
+
   return (
     <div className="space-y-6">
       <Card className='shadow-none border'>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Name</p>
@@ -187,115 +196,22 @@ export function BreedingProjectDetails({
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="clutches" className="w-full">
-        <TabsList className="w-full justify-start border-b rounded-none">
-          <TabsTrigger value="clutches">Clutches</TabsTrigger>
-          <TabsTrigger value="hatchlings" disabled={!selectedClutch}>
-            Hatchlings
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="clutches" className="p-4">
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Clutches</h2>
-              <Button onClick={() => setIsAddClutchDialogOpen(true)}>
-                Add Clutch
-              </Button>
-            </div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Clutches & Hatchlings</h2>
+          <Button onClick={() => setIsAddClutchDialogOpen(true)}>
+            Add Clutch
+          </Button>
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {clutches.map((clutch) => (
-                <Card key={clutch.id} className="cursor-pointer hover:bg-accent/50" onClick={() => setSelectedClutch(clutch)}>
-                  <CardHeader >
-                    <CardTitle className="text-lg" >{format(new Date(clutch.lay_date), 'MMM d, yyyy')}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Egg Count</p>
-                        <p>{clutch.egg_count}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Fertile Count</p>
-                        <p>{clutch.fertile_count || 'Not recorded'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Hatch Date</p>
-                        <p>{clutch.hatch_date ? format(new Date(clutch.hatch_date), 'MMM d, yyyy') : 'Not hatched'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Status</p>
-                        <Badge
-                          className={`${
-                            incubationStatusColors[clutch.incubation_status]
-                          } text-white capitalize`}
-                        >
-                          {clutch.incubation_status.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      {clutch.incubation_status !== 'completed' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUpdateIncubationStatus(clutch.id, 'completed');
-                          }}
-                        >
-                          Mark as Completed
-                        </Button>
-                      )}
-                      {clutch.incubation_status !== 'failed' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUpdateIncubationStatus(clutch.id, 'failed');
-                          }}
-                        >
-                          Mark as Failed
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              {clutches.length === 0 && (
-                <div className="col-span-2 text-center py-8 text-muted-foreground">
-                  No clutches found. Add one to get started!
-                </div>
-              )}
-            </div>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="hatchlings" className="p-4">
-          {selectedClutch ? (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">
-                  Hatchlings for Clutch from {format(new Date(selectedClutch.lay_date), 'MMM d, yyyy')}
-                </h2>
-                <Button onClick={() => setIsAddHatchlingDialogOpen(true)}>
-                <Plus className="w-4 h-4" />  Add Hatchling
-                </Button>
-              </div>
-
-              <HatchlingsList
-                hatchlings={hatchlings}
-              />
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Select a clutch to view its hatchlings
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+        <ClutchesList 
+          clutches={clutches}
+          hatchlings={allHatchlings}
+          incubationStatusColors={incubationStatusColors}
+          onAddHatchling={handleAddHatchlingClick}
+          onUpdateIncubationStatus={handleUpdateIncubationStatus}
+        />
+      </div>
 
       <Dialog open={isAddClutchDialogOpen} onOpenChange={setIsAddClutchDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
@@ -322,7 +238,6 @@ export function BreedingProjectDetails({
           )}
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }

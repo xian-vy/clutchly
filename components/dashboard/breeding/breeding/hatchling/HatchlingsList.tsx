@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Reptile } from '@/lib/types/reptile';
+import { format } from 'date-fns';
 
 interface HatchlingsListProps {
   hatchlings: Reptile[];
@@ -18,43 +19,44 @@ interface HatchlingsListProps {
 export function HatchlingsList({
   hatchlings,
 }: HatchlingsListProps) {
-
-  const {morphs} = useMorphsStore();
+  const { morphs } = useMorphsStore();
 
   return (
-    <div className="space-y-4">
-      <div >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Morph</TableHead>
-              <TableHead>Sex</TableHead>
-              <TableHead>Hatched</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {hatchlings.map((hatchling) => {
-              const morphName = morphs.find((morph) => morph.id.toString() === hatchling.morph_id)?.name;
-              return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Morph</TableHead>
+            <TableHead>Sex</TableHead>
+            <TableHead>Hatched</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {hatchlings.map((hatchling) => {
+            const morphName = morphs.find((morph) => morph.id.toString() === hatchling.morph_id)?.name;
+            return (
               <TableRow key={hatchling.id}>
                 <TableCell>{hatchling.name}</TableCell>
                 <TableCell>{morphName}</TableCell>
                 <TableCell className="capitalize">{hatchling.sex}</TableCell>
-                <TableCell>{hatchling.hatch_date}</TableCell>
-              </TableRow>
-            )})}
-            {hatchlings.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No hatchlings found. Add one to get started!
+                <TableCell>
+                  {hatchling.hatch_date 
+                    ? format(new Date(hatchling.hatch_date), 'MMM d, yyyy')
+                    : 'Unknown'}
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
+            );
+          })}
+          {hatchlings.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+                No hatchlings found for this clutch yet
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
-} 
+}
