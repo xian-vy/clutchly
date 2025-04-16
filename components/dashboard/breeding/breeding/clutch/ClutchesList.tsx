@@ -1,141 +1,112 @@
 'use client';
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Clutch, IncubationStatus } from '@/lib/types/breeding';
-import { format } from 'date-fns';
-import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
-import { useState } from 'react';
-import { HatchlingsList } from '../hatchling/HatchlingsList';
-import { Reptile } from '@/lib/types/reptile';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { INCUBATION_STATUS_COLORS } from '@/lib/constants/colors';
+import { Clutch, IncubationStatus } from '@/lib/types/breeding';
+import { Reptile } from '@/lib/types/reptile';
+import { format } from 'date-fns';
+import { Plus } from 'lucide-react';
+import { HatchlingsList } from '../hatchling/HatchlingsList';
 
 interface ClutchesListProps {
-  clutches: Clutch[];
+  clutch: Clutch;
   hatchlings: Record<string, Reptile[]>;
   onAddHatchling: (clutchId: string) => void;
   onUpdateIncubationStatus: (clutchId: string, status: IncubationStatus) => void;
 }
 
 export function ClutchesList({
-  clutches,
+  clutch,
   hatchlings,
   onAddHatchling,
   onUpdateIncubationStatus,
 }: ClutchesListProps) {
-  const [openClutches, setOpenClutches] = useState<Record<string, boolean>>({});
-
-  const toggleClutch = (clutchId: string) => {
-    setOpenClutches(prev => ({
-      ...prev,
-      [clutchId]: !prev[clutchId]
-    }));
-  };
 
   return (
     <div className="space-y-4">
-      {clutches.map((clutch) => (
-        <Collapsible 
-          key={clutch.id} 
-          open={openClutches[clutch.id]} 
-          onOpenChange={() => toggleClutch(clutch.id)}
-          className="border rounded-lg overflow-hidden"
-        >
+        <div key={clutch.id} className="rounded-lg  bg-card">
           <Card className="border-0 shadow-none">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-sm flex items-center">
-                  Clutch: {format(new Date(clutch.lay_date), 'MMM d, yyyy')}
-                </CardTitle>
-                <Badge
-                  className={`${
-                    INCUBATION_STATUS_COLORS[clutch.incubation_status]
-                  }  capitalize`}
-                >
-                  {clutch.incubation_status.replace('_', ' ')}
-                </Badge>
-              </CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-sm font-medium">
+                Clutch Info
+              </CardTitle>
+              <Badge
+                className={`${
+                  INCUBATION_STATUS_COLORS[clutch.incubation_status]
+                } capitalize`}
+              >
+                {clutch.incubation_status.replace('_', ' ')}
+              </Badge>
+            </CardHeader>
             
             <CardContent>
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-2">
-                <div>
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Egg Count</p>
-                  <p className='text-sm'>{clutch.egg_count}</p>
+                  <p className="text-sm font-semibold">{clutch.egg_count}</p>
                 </div>
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Fertile Count</p>
-                  <p className='text-sm'>{clutch.fertile_count || 'Not recorded'}</p>
+                  <p className="text-sm font-semibold">{clutch.fertile_count || 'Not recorded'}</p>
                 </div>
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Hatch Date</p>
-                  <p className='text-sm'>{clutch.hatch_date ? format(new Date(clutch.hatch_date), 'MMM d, yyyy') : 'Not hatched'}</p>
+                  <p className="text-sm font-semibold">{clutch.hatch_date ? format(new Date(clutch.hatch_date), 'MMM d, yyyy') : 'Not hatched'}</p>
                 </div>
-                <div className="flex gap-2 items-end">
-                  {clutch.incubation_status !== 'completed' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onUpdateIncubationStatus(clutch.id, 'completed');
-                      }}
-                    >
-                      Mark Completed
-                    </Button>
-                  )}
-                  {clutch.incubation_status !== 'failed' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onUpdateIncubationStatus(clutch.id, 'failed');
-                      }}
-                    >
-                      Mark Failed
-                    </Button>
-                  )}
-                </div>
+                <div className="flex gap-2 justify-end">
+                {clutch.incubation_status !== 'completed' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUpdateIncubationStatus(clutch.id, 'completed');
+                    }}
+                    className='text-xs'
+                  >
+                    Mark Completed
+                  </Button>
+                )}
+                {clutch.incubation_status !== 'failed' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUpdateIncubationStatus(clutch.id, 'failed');
+                    }}
+                    className='text-xs'
+                  >
+                    Mark Failed
+                  </Button>
+                )}
               </div>
+              </div>
+             
             </CardContent>
-             <CollapsibleTrigger className="flex justify-end cursor-pointer w-full pr-2">
-                <span className="text-xs flex items-center gap-2">
-                  View Hatchlings
-                    {openClutches[clutch.id] ? 
-                      <ChevronUp className="h-4 w-4" /> : 
-                      <ChevronDown className="h-4 w-4" />
-                    }
-                  </span>
-              </CollapsibleTrigger>
           </Card>
-          
-          <CollapsibleContent>
-            <div className="px-6 pb-6 pt-2 border-t">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-medium">Hatchlings</h3>
-                <Button 
-                  size="sm" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddHatchling(clutch.id);
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-1" /> Add Hatchling
-                </Button>
-              </div>
-              
-              <HatchlingsList hatchlings={hatchlings[clutch.id] || []} />
+
+          <div className="px-6 pb-6 pt-2 border-t">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-medium">Hatchlings</h3>
+              <Button 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddHatchling(clutch.id);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-1" /> Add Hatchling
+              </Button>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
-      ))}
-      
-      {clutches.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          No clutches found. Add one to get started!
+            
+            <HatchlingsList hatchlings={hatchlings[clutch.id] || []} />
+          </div>
         </div>
-      )}
+      
+     
     </div>
   );
 }

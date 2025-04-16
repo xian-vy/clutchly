@@ -22,7 +22,7 @@ export function HatchlingsList({
   const { morphs } = useMorphsStore();
 
   return (
-    <div className="rounded-md border">
+    <div>
       <Table>
         <TableHeader>
           <TableRow>

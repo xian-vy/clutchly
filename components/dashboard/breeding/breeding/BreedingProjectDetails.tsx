@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BreedingProject, Clutch, NewClutch, IncubationStatus } from '@/lib/types/breeding';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +18,7 @@ import { STATUS_COLORS } from '@/lib/constants/colors';
 import { ClutchForm } from './clutch/ClutchForm';
 import { HatchlingForm } from './hatchling/HatchlingForm';
 import { ClutchesList } from './clutch/ClutchesList';
+import { Plus } from 'lucide-react';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
@@ -195,17 +197,36 @@ export function BreedingProjectDetails({
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-base font-semibold">Clutches & Hatchlings</h2>
-          <Button onClick={() => setIsAddClutchDialogOpen(true)}>
-            Add Clutch
+          <Button size="sm"  onClick={() => setIsAddClutchDialogOpen(true)}>
+           <Plus />  Add Clutch
           </Button>
         </div>
 
-        <ClutchesList 
-          clutches={clutches}
-          hatchlings={allHatchlings}
-          onAddHatchling={handleAddHatchlingClick}
-          onUpdateIncubationStatus={handleUpdateIncubationStatus}
-        />
+        {clutches.length > 0 ? (
+          <Tabs defaultValue={clutches[0]?.id} className="w-full">
+            <TabsList className="w-full justify-start">
+              {clutches.map((clutch) => (
+                <TabsTrigger key={clutch.id} value={clutch.id} className="min-w-[120px]">
+                  {format(new Date(clutch.lay_date), 'MMM d, yyyy')}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {clutches.map((clutch) => (
+              <TabsContent key={clutch.id} value={clutch.id}>
+                <ClutchesList 
+                  clutch={clutch}
+                  hatchlings={{ [clutch.id]: allHatchlings[clutch.id] || [] }}
+                  onAddHatchling={handleAddHatchlingClick}
+                  onUpdateIncubationStatus={handleUpdateIncubationStatus}
+                />
+              </TabsContent>
+            ))}
+          </Tabs>
+        ) : (
+          <Card className="p-8 text-center text-muted-foreground">
+            <p>No clutches added yet. Click "Add Clutch" to get started.</p>
+          </Card>
+        )}
       </div>
 
       <Dialog open={isAddClutchDialogOpen} onOpenChange={setIsAddClutchDialogOpen}>
