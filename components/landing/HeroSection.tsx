@@ -6,7 +6,7 @@ export function HeroSection() {
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/15%_0%,transparent_65%)]" />
       <div className="container relative z-10 py-24 md:py-32">
-        <div className="mx-auto max-w-[800px] text-center">
+        <div className="mx-auto max-w-[800px] 3xl:max-w-[900px] text-center">
           <div className="relative mb-8">
             <div className="absolute -top-8 left-1/2 -translate-x-1/2">
               <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
@@ -15,7 +15,7 @@ export function HeroSection() {
               Welcome to Clutchly
             </span>
           </div>
-          <h1 className="font-bold tracking-tighter text-4xl md:text-6xl lg:text-7xl">
+          <h1 className="font-bold tracking-tighter text-4xl md:text-6xl lg:text-7xl 3xl:!text-[5rem]">
             The Reptile Data
             <br />
             <span className="text-primary">
