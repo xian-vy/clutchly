@@ -105,9 +105,9 @@ export function Navigation() {
 
         {/* Collapse toggle button */}
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="absolute right-0 top-10 translate-x-1/2 rounded-full border border-sidebar-border bg-background"
+          className="absolute right-0 top-11 translate-x-1/2 rounded-full border border-sidebar-border !bg-white dark:!bg-background hover:text-foreground"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? (
