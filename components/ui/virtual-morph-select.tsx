@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 import { ReptileFilters } from "../dashboard/reptiles/reptiles/ReptileFilterDialog";
 import { useSpeciesStore } from "@/lib/stores/speciesStore";
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface Props {
   field: ControllerRenderProps<ReptileFilters, "morphs">;
@@ -108,57 +109,56 @@ export function VirtualizedMorphSelect({ field }: Props) {
             <CommandEmpty>No morphs found.</CommandEmpty>
             {filteredMorphs.length > 0 && (
               <CommandGroup>
-                <div 
-                  ref={scrollableRef} 
-                  className="h-60 overflow-auto"
-                >
-                  <div
-                    style={{
-                      height: `${rowVirtualizer.getTotalSize()}px`,
-                      width: '100%',
-                      position: 'relative',
-                    }}
-                  >
-                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                      const morph = filteredMorphs[virtualRow.index];
-                      if (!morph) return null;
-                      
-                      return (
-                        <CommandItem
-                          key={morph.id}
-                          value={morph.uniqueValue}
-                          onSelect={() => {
-                            const morphId = morph.id.toString();
-                            const newValue = field.value?.includes(morphId)
-                              ? field.value.filter((id: string)  => id !== morphId)
-                              : [...(field.value || []), morphId];
-                            field.onChange(newValue);
-                          }}
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: `${virtualRow.size}px`,
-                            transform: `translateY(${virtualRow.start}px)`,
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              field.value?.includes(morph.id.toString()) 
-                                ? "opacity-100" 
-                                : "opacity-0"
-                            )}
-                          />
-                          <span className="flex-1 truncate">
-                            {morph.name}{" "}({morph.speciesName})
-                          </span>
-                        </CommandItem>
-                      );
-                    })}
-                  </div>
-                </div>
+                <ScrollArea    
+                 ref={scrollableRef} 
+                 className="h-[300px]">
+                    <div
+                      style={{
+                        height: `${rowVirtualizer.getTotalSize()}px`,
+                        width: '100%',
+                        position: 'relative',
+                      }}
+                    >
+                      {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                        const morph = filteredMorphs[virtualRow.index];
+                        if (!morph) return null;
+                        
+                        return (
+                          <CommandItem
+                            key={morph.id}
+                            value={morph.uniqueValue}
+                            onSelect={() => {
+                              const morphId = morph.id.toString();
+                              const newValue = field.value?.includes(morphId)
+                                ? field.value.filter((id: string)  => id !== morphId)
+                                : [...(field.value || []), morphId];
+                              field.onChange(newValue);
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: `${virtualRow.size}px`,
+                              transform: `translateY(${virtualRow.start}px)`,
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                field.value?.includes(morph.id.toString()) 
+                                  ? "opacity-100" 
+                                  : "opacity-0"
+                              )}
+                            />
+                            <span className="flex-1 truncate">
+                              {morph.name}{" "}({morph.speciesName})
+                            </span>
+                          </CommandItem>
+                        );
+                      })}
+                    </div>
+                </ScrollArea>
               </CommandGroup>
             )}
           </Command>
