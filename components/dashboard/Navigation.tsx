@@ -100,7 +100,7 @@ export function Navigation() {
                   'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors',
                   isCollapsed ? 'justify-center px-2 py-2' : 'px-3 py-2',
                   pathname === item.href
-                    ? 'bg-slate-100 dark:bg-slate-800/50 text-primary'
+                    ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
                     : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 )}
               >

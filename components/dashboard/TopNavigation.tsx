@@ -27,7 +27,7 @@ const TopNavigation = () => {
         </Button>
 
         <div className="flex items-center gap-3 2xl:gap-5 ml-auto">
-             <Badge variant="default" className="flex items-center gap-1 font-medium bg-slate-100 dark:bg-slate-800/50 text-primary">
+             <Badge variant="default" className="flex items-center gap-1 font-medium bg-primary dark:bg-slate-800/50 text-white dark:text-primary">
                 <Crown className="h-3 w-3" />
                  Premium
              </Badge>

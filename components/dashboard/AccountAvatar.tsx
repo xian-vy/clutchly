@@ -39,7 +39,7 @@ const AccountAvatar =   () => {
                     <div className="flex items-center gap-2 w-full">
                         <div className="flex items-center gap-2 w-full flex-1">
                                 <Avatar className="cursor-pointer">
-                                    <AvatarFallback className='bg-slate-100 dark:bg-slate-800/90 text-primary'> {userEmail?.charAt(0).toUpperCase()}</AvatarFallback>
+                                    <AvatarFallback className='bg-primary dark:bg-slate-800/90 text-white dark:text-primary'> {userEmail?.charAt(0).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex flex-col items-start">
                                     <span className='text-xs'>User X</span>

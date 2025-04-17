@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-slate-100 shadow-md dark:bg-slate-800/50 text-primary  shadow-xs cursor-pointer",
+          "bg-primary shadow-md dark:bg-slate-800/50 text-white dark:text-primary  shadow-xs cursor-pointer",
         primary:
             "bg-white dark:bg-[#111] text-black dark:text-slate-200 shadow-sm border cursor-pointer",
         destructive:
