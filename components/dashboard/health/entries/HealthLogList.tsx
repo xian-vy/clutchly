@@ -1,16 +1,18 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Edit, Trash, MoreHorizontal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Edit, Trash, MoreHorizontal, Filter } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { HealthLogEntry } from "@/lib/types/health";
-import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { useHealthStore } from '@/lib/stores/healthStore';
 import { useQuery } from '@tanstack/react-query';
 import { HEALTH_STATUS_COLORS, SEVERITY_COLORS } from "@/lib/constants/colors";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useState, useMemo } from "react";
+import { HealthFilterDialog, HealthFilters } from "./HealthFilterDialog";
 
 interface HealthLogListProps {
   healthLogs: HealthLogEntry[];
@@ -20,8 +22,13 @@ interface HealthLogListProps {
 }
 
 export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: HealthLogListProps) {
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [filters, setFilters] = useState<HealthFilters>({});
+
   const { 
     categories, 
+    subcategories,
+    types,
     getSubcategoriesByCategory,
     getTypesBySubcategory,
     fetchAllData,
@@ -46,6 +53,81 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
     // Don't consider data stale
     staleTime: Infinity,
   });
+
+  // Apply filters to the health logs list
+  const filteredHealthLogs = useMemo(() => {
+    return healthLogs.filter(log => {
+      // Category filter
+      if (filters.category?.length && !filters.category.includes(log.category_id)) {
+        return false;
+      }
+
+      // Subcategory filter
+      if (filters.subcategory?.length && !filters.subcategory.includes(log.subcategory_id)) {
+        return false;
+      }
+
+      // Type filter
+      if (filters.type?.length && log.type_id && !filters.type.includes(log.type_id)) {
+        return false;
+      }
+
+      // Severity filter
+      if (filters.severity?.length && log.severity && !filters.severity.includes(log.severity)) {
+        return false;
+      }
+
+      // Resolved filter
+      if (filters.resolved !== null && filters.resolved !== undefined) {
+        if (filters.resolved !== log.resolved) {
+          return false;
+        }
+      }
+
+      // Has notes filter
+      if (filters.hasNotes !== null && filters.hasNotes !== undefined) {
+        const hasNotes = !!(log.notes && log.notes.length > 0);
+        if (filters.hasNotes !== hasNotes) {
+          return false;
+        }
+      }
+
+      // Date range filter
+      if (filters.dateRange) {
+        const [startDate, endDate] = filters.dateRange;
+        if (startDate && log.date < startDate) {
+          return false;
+        }
+        if (endDate && log.date > endDate) {
+          return false;
+        }
+      }
+
+      // Has attachments filter
+      if (filters.hasAttachments !== null && filters.hasAttachments !== undefined) {
+        const hasAttachments = log.attachments.length > 0;
+        if (filters.hasAttachments !== hasAttachments) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [healthLogs, filters]);
+
+  // Get active filter count for the badge
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.category?.length) count++;
+    if (filters.subcategory?.length) count++;
+    if (filters.type?.length) count++;
+    if (filters.severity?.length) count++;
+    if (filters.resolved !== null && filters.resolved !== undefined) count++;
+    if (filters.hasNotes !== null && filters.hasNotes !== undefined) count++;
+    if (filters.dateRange) count++;
+    if (filters.hasAttachments !== null && filters.hasAttachments !== undefined) count++;
+    return count;
+  }, [filters]);
 
   const columns: ColumnDef<HealthLogEntry>[] = [
     {
@@ -167,5 +249,45 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
     return <div>Loading...</div>;
   }
 
-  return <DataTable columns={columns} data={healthLogs} onAddNew={onAddNew} />;
+  // Custom filter button for the DataTable
+  const CustomFilterButton = () => (
+    <Button 
+      variant="outline" 
+      size="sm" 
+      onClick={() => setIsFilterDialogOpen(true)}
+      className="relative"
+    >
+      <Filter className="h-4 w-4 mr-1" />
+      Filter
+      {activeFilterCount > 0 && (
+        <Badge 
+          variant="destructive" 
+          className="absolute text-white rounded-sm -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 font-normal text-[0.65rem]"
+        >
+          {activeFilterCount}
+        </Badge>
+      )}
+    </Button>
+  );
+
+  return (
+    <>
+      <DataTable 
+        columns={columns} 
+        data={filteredHealthLogs} 
+        onAddNew={onAddNew} 
+        filterButton={<CustomFilterButton />}
+      />
+      
+      <HealthFilterDialog
+        open={isFilterDialogOpen}
+        onOpenChange={setIsFilterDialogOpen}
+        onApplyFilters={setFilters}
+        currentFilters={filters}
+        categories={categories}
+        subcategories={subcategories}
+        types={types}
+      />
+    </>
+  );
 } 

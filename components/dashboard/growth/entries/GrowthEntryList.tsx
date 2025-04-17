@@ -1,11 +1,14 @@
 'use client';
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { GrowthEntry } from "@/lib/types/growth";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from 'date-fns';
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Filter, Trash2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { GrowthFilterDialog, GrowthFilters } from "./GrowthFilterDialog";
 
 interface GrowthEntryListProps {
   growthEntries: GrowthEntry[];
@@ -15,7 +18,69 @@ interface GrowthEntryListProps {
 }
 
 export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: GrowthEntryListProps) {
-  
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [filters, setFilters] = useState<GrowthFilters>({});
+
+  // Apply filters to the growth entries list
+  const filteredGrowthEntries = useMemo(() => {
+    return growthEntries.filter(entry => {
+      // Weight range filter
+      if (filters.weightRange) {
+        const [min, max] = filters.weightRange;
+        if (entry.weight < min || entry.weight > max) {
+          return false;
+        }
+      }
+
+      // Length range filter
+      if (filters.lengthRange) {
+        const [min, max] = filters.lengthRange;
+        if (entry.length < min || entry.length > max) {
+          return false;
+        }
+      }
+
+      // Date range filter
+      if (filters.dateRange) {
+        const [startDate, endDate] = filters.dateRange;
+        if (startDate && entry.date < startDate) {
+          return false;
+        }
+        if (endDate && entry.date > endDate) {
+          return false;
+        }
+      }
+
+      // Has notes filter
+      if (filters.hasNotes !== null && filters.hasNotes !== undefined) {
+        const hasNotes = !!(entry.notes && entry.notes.length > 0);
+        if (filters.hasNotes !== hasNotes) {
+          return false;
+        }
+      }
+
+      // Has attachments filter
+      if (filters.hasAttachments !== null && filters.hasAttachments !== undefined) {
+        const hasAttachments = entry.attachments.length > 0;
+        if (filters.hasAttachments !== hasAttachments) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [growthEntries, filters]);
+
+  // Get active filter count for the badge
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.weightRange) count++;
+    if (filters.lengthRange) count++;
+    if (filters.dateRange) count++;
+    if (filters.hasNotes !== null && filters.hasNotes !== undefined) count++;
+    if (filters.hasAttachments !== null && filters.hasAttachments !== undefined) count++;
+    return count;
+  }, [filters]);
 
   const columns: ColumnDef<GrowthEntry>[] = [
     {
@@ -89,7 +154,42 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
     },
   ];
 
+  // Custom filter button for the DataTable
+  const CustomFilterButton = () => (
+    <Button 
+      variant="outline" 
+      size="sm" 
+      onClick={() => setIsFilterDialogOpen(true)}
+      className="relative"
+    >
+      <Filter className="h-4 w-4 mr-1" />
+      Filter
+      {activeFilterCount > 0 && (
+        <Badge 
+          variant="destructive" 
+          className="absolute text-white rounded-sm -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 font-normal text-[0.65rem]"
+        >
+          {activeFilterCount}
+        </Badge>
+      )}
+    </Button>
+  );
 
-
-  return <DataTable columns={columns} data={growthEntries} onAddNew={onAddNew} />;
+  return (
+    <>
+      <DataTable 
+        columns={columns} 
+        data={filteredGrowthEntries} 
+        onAddNew={onAddNew} 
+        filterButton={<CustomFilterButton />}
+      />
+      
+      <GrowthFilterDialog
+        open={isFilterDialogOpen}
+        onOpenChange={setIsFilterDialogOpen}
+        onApplyFilters={setFilters}
+        currentFilters={filters}
+      />
+    </>
+  );
 } 
