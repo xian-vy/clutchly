@@ -108,17 +108,18 @@ export function BreedingProjectList({
   // Get active filter count for the badge
   const activeFilterCount = useMemo(() => {
     let count = 0;
+    
+    // Array filters - only count if there are actually items selected
     if (filters.species?.length) count++;
     if (filters.breedingStatus?.length) count++;
-    if (filters.incubationStatus?.length) count++;
-    if (filters.startDateRange) count++;
-    if (filters.layDateRange) count++;
-    if (filters.hatchDateRange) count++;
-    if (filters.eggCountRange) count++;
-    if (filters.fertileCountRange) count++;
-    if (filters.incubationTempRange) count++;
-    if (filters.incubationHumidityRange) count++;
-    if (filters.hasNotes !== null && filters.hasNotes !== undefined) count++;
+    
+    // Date ranges - only count if at least one date is set
+    if (filters.startDateRange && (filters.startDateRange[0] || filters.startDateRange[1])) count++;
+    if (filters.hatchDateRange && (filters.hatchDateRange[0] || filters.hatchDateRange[1])) count++;
+    
+    // Boolean filters - only count if true
+    if (filters.hasNotes === true) count++;
+    
     return count;
   }, [filters]);
 

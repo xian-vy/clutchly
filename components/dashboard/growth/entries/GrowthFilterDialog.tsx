@@ -81,6 +81,15 @@ export function GrowthFilterDialog({
     });
     setWeightRange([0, 1000]);
     setLengthRange([0, 200]);
+    
+    // Ensure filters are immediately applied after reset
+    onApplyFilters({
+      weightRange: null,
+      lengthRange: null,
+      dateRange: null,
+      hasNotes: null,
+      hasAttachments: null,
+    });
   }
 
   return (

@@ -74,11 +74,26 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
   // Get active filter count for the badge
   const activeFilterCount = useMemo(() => {
     let count = 0;
-    if (filters.weightRange) count++;
-    if (filters.lengthRange) count++;
-    if (filters.dateRange) count++;
+    
+    // Only count weight range if it's not default value
+    if (filters.weightRange) {
+      const [min, max] = filters.weightRange;
+      if (min > 0 || max < 1000) count++;
+    }
+    
+    // Only count length range if it's not default value
+    if (filters.lengthRange) {
+      const [min, max] = filters.lengthRange;
+      if (min > 0 || max < 200) count++;
+    }
+    
+    // Date range checks both start and end dates
+    if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1])) count++;
+    
+    // Boolean filters
     if (filters.hasNotes !== null && filters.hasNotes !== undefined) count++;
     if (filters.hasAttachments !== null && filters.hasAttachments !== undefined) count++;
+    
     return count;
   }, [filters]);
 
