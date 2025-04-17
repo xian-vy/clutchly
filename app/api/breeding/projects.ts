@@ -64,4 +64,36 @@ export async function deleteBreedingProject(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
-} 
+}
+
+export async function getBreedingProjectsByDate(dateRange?: { 
+  startDate?: string; 
+  endDate?: string;
+  dateField?: 'start_date' | 'end_date' | 'expected_hatch_date' | 'created_at';
+}): Promise<BreedingProject[]> {
+  const supabase = await createClient()
+  
+  let query = supabase
+    .from('breeding_projects')
+    .select('*')
+    
+  // Apply date filtering if range is provided
+  if (dateRange) {
+    const dateField = dateRange.dateField || 'start_date'
+    
+    if (dateRange.startDate) {
+      query = query.gte(dateField, dateRange.startDate)
+    }
+    if (dateRange.endDate) {
+      query = query.lte(dateField, dateRange.endDate)
+    }
+  }
+  
+  // Order by start date by default
+  query = query.order('start_date', { ascending: false })
+  
+  const { data, error } = await query
+
+  if (error) throw error
+  return data
+}

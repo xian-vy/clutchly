@@ -81,4 +81,30 @@ export async function deleteHealthLog(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
-} 
+}
+
+export async function getHealthLogsByDate(dateRange?: { startDate?: string; endDate?: string }) {
+  const supabase = await createClient()
+  
+  let query = supabase
+    .from('health_log_entries')
+    .select('*')
+    
+  // Apply date filtering if range is provided
+  if (dateRange) {
+    if (dateRange.startDate) {
+      query = query.gte('date', dateRange.startDate)
+    }
+    if (dateRange.endDate) {
+      query = query.lte('date', dateRange.endDate)
+    }
+  }
+  
+  // Order by date
+  query = query.order('date', { ascending: false })
+  
+  const { data: healthLogs, error } = await query
+
+  if (error) throw error
+  return healthLogs as HealthLogEntry[]
+}

@@ -119,3 +119,29 @@ export async function deleteGrowthEntry(id: string): Promise<void> {
 
   if (error) throw error
 }
+
+export async function getGrowthEntriesByDate(dateRange?: { startDate?: string; endDate?: string }) {
+  const supabase = await createClient()
+  
+  let query = supabase
+    .from('growth_entries')
+    .select('*')
+    
+  // Apply date filtering if range is provided
+  if (dateRange) {
+    if (dateRange.startDate) {
+      query = query.gte('date', dateRange.startDate)
+    }
+    if (dateRange.endDate) {
+      query = query.lte('date', dateRange.endDate)
+    }
+  }
+  
+  // Order by date
+  query = query.order('date', { ascending: false })
+  
+  const { data: growthEntries, error } = await query
+
+  if (error) throw error
+  return growthEntries as GrowthEntry[]
+}

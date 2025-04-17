@@ -45,28 +45,34 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
       value: activeReptiles.toString(),
       icon: Turtle,
       description: "Active reptiles in your collection",
-      link: "/reptiles"
+      link: "/reptiles",
+      color: "bg-blue-50 dark:bg-blue-950"
     },
     {
       title: "Health Issues",
       value: unresolvedHealthIssues.toString(),
       icon: Heart,
       description: "Unresolved health issues",
-      link: "/health"
+      link: "/health",
+      color: "bg-red-50 dark:bg-red-950",
+      iconColor: unresolvedHealthIssues > 0 ? "text-red-500" : "text-muted-foreground"
     },
     {
       title: "Growth Records",
       value: reptilesDueForMeasurement.toString(),
       icon: LineChart,
       description: "Reptiles needing measurement",
-      link: "/growth"
+      link: "/growth",
+      color: "bg-green-50 dark:bg-green-950",
+      iconColor: reptilesDueForMeasurement > 0 ? "text-green-500" : "text-muted-foreground"
     },
     {
       title: "Breeding Projects",
       value: breedingPairs.toString(),
       icon: Users,
       description: "Active breeding projects",
-      link: "/breeding"
+      link: "/breeding",
+      color: "bg-purple-50 dark:bg-purple-950"
     },
   ];
 
@@ -76,18 +82,22 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
         const Icon = stat.icon;
         return (
           <Link href={stat.link} key={index}>
-            <Card className="hover:bg-muted/50 transition-colors cursor-pointer h-full">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-muted-foreground pt-1">
-                  {stat.description}
-                </p>
+            <Card className={`hover:shadow-md transition-all cursor-pointer h-full border ${stat.color}`}>
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">
+                      {stat.title}
+                    </p>
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {stat.description}
+                    </p>
+                  </div>
+                  <div className={`rounded-full p-2 ${stat.color}`}>
+                    <Icon className={`h-5 w-5 ${stat.iconColor || "text-muted-foreground"}`} />
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </Link>
