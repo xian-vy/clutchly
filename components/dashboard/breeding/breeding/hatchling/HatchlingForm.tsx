@@ -92,7 +92,7 @@ export function HatchlingForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-      <Alert variant="success">
+      <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
           Adding a hatchling will add a new reptile record to your collection.
