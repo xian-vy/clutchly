@@ -36,22 +36,34 @@ export function BreedingProjectDetails({
   const queryClient = useQueryClient();
   const {morphs} = useMorphsStore()
 
-  const {
-    resources: reptiles,
-    isLoading: reptilesLoading,
-    selectedResource: selectedReptile,
-    setSelectedResource: setSelectedReptile,
-    handleCreate,
-    handleUpdate,
-    handleDelete,
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
+  const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    getResources: getReptiles,
+    queryFn: getReptiles,
+  });
+
+  const {
+    resources: allHatchlings,
+    handleCreate: handleCreateHatchling,
+  } = useResource<Reptile, NewReptile>({
+    resourceName: 'Hatchling',
+    queryKey: ['all-hatchlings', project.id],
+    getResources: async () => {
+      const result: Reptile[] = [];
+      const clutchesData = await getClutches(project.id);
+      for (const clutch of clutchesData) {
+        const hatchlings = await getReptileByClutchId(clutch.id);
+        if (Array.isArray(hatchlings)) {
+          result.push(...hatchlings);
+        } else if (hatchlings) {
+          result.push(hatchlings);
+        }
+      }
+      return result;
+    },
     createResource: createReptile,
     updateResource: updateReptile,
     deleteResource: deleteReptile,
-  })
+  });
 
   // Create a map of reptile IDs to names for quick lookup
   const reptileMap = new Map<string, { name: string; morphName: string, hets : HetTrait[] | null, visuals : string[] | null }>();
@@ -70,21 +82,7 @@ export function BreedingProjectDetails({
     queryFn: () => getClutches(project.id),
   });
 
-  // Fetch hatchlings for all clutches
-  const { data: allHatchlings = {} } = useQuery<Record<string, Reptile[]>>({
-    queryKey: ['all-hatchlings', project.id],
-    queryFn: async () => {
-      const result: Record<string, Reptile[]> = {};
-      
-      for (const clutch of clutches) {
-        const hatchlings = await getReptileByClutchId(clutch.id);
-        result[clutch.id] = Array.isArray(hatchlings) ? hatchlings : [hatchlings];
-      }
-      
-      return result;
-    },
-    enabled: clutches.length > 0,
-  });
+
 
   const handleAddClutch = async (data: NewClutch) => {
     try {
@@ -126,17 +124,19 @@ export function BreedingProjectDetails({
   };
 
   const handleAddHatchling = async (data: NewReptile) => {
-    if (!selectedClutchId) return;
     
+      if (!handleCreateHatchling) {
+        throw new Error('Create operation not available');
+      }
+
     try {
-       handleCreate({
+      await  handleCreateHatchling({
         ...data,
         parent_clutch_id: selectedClutchId,
       });
-      
-      // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
-      
+
+      queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+
       toast.success('Hatchling added successfully');
       setIsAddHatchlingDialogOpen(false);
     } catch (error) {
@@ -162,7 +162,13 @@ export function BreedingProjectDetails({
 
   const selectedClutch = clutches.find(c => c.id === selectedClutchId) || null;
 
-
+  const hatchlingsByClutch = allHatchlings.reduce((acc, hatchling) => {
+    if (hatchling.parent_clutch_id) {
+      acc[hatchling.parent_clutch_id] = acc[hatchling.parent_clutch_id] || [];
+      acc[hatchling.parent_clutch_id].push(hatchling);
+    }
+    return acc;
+  }, {} as Record<string, Reptile[]>);
   return (
     <div className="space-y-6">
       <Card className='shadow-none border'>
@@ -255,7 +261,7 @@ export function BreedingProjectDetails({
               <TabsContent key={clutch.id} value={clutch.id}>
                 <ClutchesList 
                   clutch={clutch}
-                  hatchlings={{ [clutch.id]: allHatchlings[clutch.id] || [] }}
+                  hatchlings={{ [clutch.id]: hatchlingsByClutch[clutch.id] || [] }}
                   onAddHatchling={handleAddHatchlingClick}
                   onUpdateIncubationStatus={handleUpdateIncubationStatus}
                 />
