@@ -108,7 +108,7 @@ export function BreedingReportsTab() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">Breeding Reports</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-start">Breeding Reports</h2>
           <p className="text-sm text-muted-foreground">
             Comprehensive analysis of your breeding projects and outcomes
           </p>
@@ -132,17 +132,17 @@ export function BreedingReportsTab() {
       />
 
       <Tabs defaultValue="statistics" value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList>
           <TabsTrigger value="statistics" className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
+            <TrendingUp className="h-4 w-4 mr-2" />
             Statistics
           </TabsTrigger>
           <TabsTrigger value="projects" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
+            <Database className="h-4 w-4 mr-2" />
             Project Analysis
           </TabsTrigger>
           <TabsTrigger value="genetics" className="flex items-center gap-2">
-            <PieChart className="h-4 w-4" />
+            <PieChart className="h-4 w-4 mr-2" />
             Genetic Outcomes
           </TabsTrigger>
         </TabsList>

@@ -36,7 +36,7 @@ export default async function BreedingPage() {
           </TabsContent>
           
           <TabsContent value="reports">
-            <div className="text-center text-muted-foreground py-8">
+            <div className="text-center text-muted-foreground">
               <BreedingReportsTab />
             </div>
           </TabsContent>

@@ -181,7 +181,12 @@ export function HealthReportsTab() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Health Reports</h2>
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-start text-muted-foreground">Health Reports</h2>
+          <p className="text-sm text-muted-foreground">
+            Comprehensive analysis of your health and events.
+          </p>
+          </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportToCSV}>
             <FileSpreadsheet className="h-4 w-4 mr-1" />
