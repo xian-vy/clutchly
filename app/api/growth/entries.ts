@@ -9,7 +9,7 @@ export async function getGrowthEntries() {
   const { data: growthEntries, error } = await supabase
     .from('growth_entries')
     .select('*')
-    .order('created_at', { ascending: false })
+    .order('date', { ascending: false })
 
   if (error) throw error
   return growthEntries as GrowthEntry[]
