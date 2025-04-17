@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import AccountAvatar from './AccountAvatar';
+import { useTheme } from 'next-themes';
 
 const navItems = [
   {
@@ -55,6 +56,7 @@ export function Navigation() {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { theme } = useTheme();
 
   return (
     <>
@@ -78,7 +80,7 @@ export function Navigation() {
           isCollapsed ? "justify-center px-2" : "gap-2 px-4"
         )}>
           <Image
-            src="/logo_white.png"
+            src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'}
             width={35}
             height={35}
             alt="lutchly"
