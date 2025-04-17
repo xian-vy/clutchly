@@ -100,8 +100,7 @@ export async function getReptileByClutchId(clutch_id: string) {
     .from('reptiles')
     .select('*')
     .eq('parent_clutch_id', clutch_id)
-    .single()
 
   if (error) throw error
-  return reptile as Reptile
+  return reptile as Reptile[]
 }
