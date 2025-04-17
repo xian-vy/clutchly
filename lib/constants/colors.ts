@@ -7,7 +7,7 @@ export const STATUS_COLORS = {
 
 export const SEX_COLORS = {
   male: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  female: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  female: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400',
   unknown: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
 } as const; 
 
