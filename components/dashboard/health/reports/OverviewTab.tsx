@@ -104,7 +104,7 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
           <div className="h-80 flex items-center justify-center">
             <div className="grid grid-cols-3 gap-4 w-full">
               <div className="space-y-2">
-                <div className="h-40 bg-red-100 rounded-md flex items-center justify-center">
+                <div className="h-40 bg-red-100 dark:bg-red-950 rounded-md flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-red-600">{stats.highSeverityIssues}</div>
                     <div className="text-sm text-red-600">High</div>
@@ -112,7 +112,7 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="h-40 bg-yellow-100 rounded-md flex items-center justify-center">
+                <div className="h-40 bg-yellow-100 dark:bg-yellow-950 rounded-md flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-yellow-600">{stats.moderateSeverityIssues}</div>
                     <div className="text-sm text-yellow-600">Moderate</div>
@@ -120,7 +120,7 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="h-40 bg-green-100 rounded-md flex items-center justify-center">
+                <div className="h-40 bg-green-100 dark:bg-green-950 rounded-md flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-green-600">{stats.lowSeverityIssues}</div>
                     <div className="text-sm text-green-600">Low</div>
