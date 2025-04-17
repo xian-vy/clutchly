@@ -202,7 +202,7 @@ export function BreedingProjectDetails({
                     </div>
               </div>
               <div className="my-auto">
-                 <X className='text-muted-foreground'/>
+                 <X strokeWidth={1.5} className='text-muted-foreground'/>
               </div>                        
               <div  className='flex flex-col items-center  gap-1'>
                     <p className='text-sm flex gap-1 font-semibold'>

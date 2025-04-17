@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Reptile } from '@/lib/types/reptile';
 import { format } from 'date-fns';
@@ -22,16 +23,16 @@ export function HatchlingsList({
   const { morphs } = useMorphsStore();
 
   return (
-    <div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Morph</TableHead>
-            <TableHead>Sex</TableHead>
-            <TableHead>Hatched</TableHead>
-          </TableRow>
-        </TableHeader>
+    <div className="h-[160px] rounded-md border px-2 lg:px-4 overflow-y-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Morph</TableHead>
+              <TableHead>Sex</TableHead>
+              <TableHead>Hatched</TableHead>
+            </TableRow>
+          </TableHeader>
         <TableBody>
           {hatchlings.map((hatchling) => {
             const morphName = morphs.find((morph) => morph.id.toString() === hatchling.morph_id)?.name;
