@@ -271,7 +271,7 @@ export function BreedingProjectDetails({
       </Dialog>
 
       <Dialog open={isAddHatchlingDialogOpen} onOpenChange={setIsAddHatchlingDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[700px]">
           <DialogTitle>Add Hatchling</DialogTitle>
           {selectedClutch && (
             <HatchlingForm
