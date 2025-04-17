@@ -12,14 +12,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getClutches } from '@/app/api/breeding/clutches';
 import { createClutch, updateClutch } from '@/app/api/breeding/clutches';
 import { toast } from 'sonner';
-import { createReptile, getReptileByClutchId, getReptiles } from '@/app/api/reptiles/reptiles';
+import { createReptile, deleteReptile, getReptileByClutchId, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles';
 import { HetTrait, NewReptile, Reptile } from '@/lib/types/reptile';
-import { STATUS_COLORS } from '@/lib/constants/colors';
 import { ClutchForm } from './clutch/ClutchForm';
 import { HatchlingForm } from './hatchling/HatchlingForm';
 import { ClutchesList } from './clutch/ClutchesList';
 import { Mars, Plus, Venus, X } from 'lucide-react';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useResource } from '@/lib/hooks/useResource';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
@@ -36,11 +36,22 @@ export function BreedingProjectDetails({
   const queryClient = useQueryClient();
   const {morphs} = useMorphsStore()
 
-  // Fetch reptiles to get parent names
-  const { data: reptiles = [] } = useQuery<Reptile[]>({
+  const {
+    resources: reptiles,
+    isLoading: reptilesLoading,
+    selectedResource: selectedReptile,
+    setSelectedResource: setSelectedReptile,
+    handleCreate,
+    handleUpdate,
+    handleDelete,
+  } = useResource<Reptile, NewReptile>({
+    resourceName: 'Reptile',
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  });
+    getResources: getReptiles,
+    createResource: createReptile,
+    updateResource: updateReptile,
+    deleteResource: deleteReptile,
+  })
 
   // Create a map of reptile IDs to names for quick lookup
   const reptileMap = new Map<string, { name: string; morphName: string, hets : HetTrait[] | null, visuals : string[] | null }>();
@@ -118,7 +129,7 @@ export function BreedingProjectDetails({
     if (!selectedClutchId) return;
     
     try {
-      await createReptile({
+       handleCreate({
         ...data,
         parent_clutch_id: selectedClutchId,
       });
