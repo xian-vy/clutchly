@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useGroupedReptiles } from '@/lib/hooks/useGroupedReptiles';
 import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -33,6 +34,7 @@ interface GrowthEntryFormProps {
 export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntryFormProps) {
 
   const { ReptileSelect } = useGroupedReptiles()
+  const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -50,6 +52,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
   const handleSubmit = async (data: FormValues) => {
     const { ...formData } = data;
     await onSubmit(formData as CreateGrowthEntryInput);
+    queryClient.invalidateQueries({ queryKey: ['reptiles'] });
   };
 
 
