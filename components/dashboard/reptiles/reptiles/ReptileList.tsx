@@ -170,7 +170,7 @@ export function ReptileList({
         return (
           <Badge
             variant="custom"
-            className={SEX_COLORS[sex.toLowerCase() as keyof typeof SEX_COLORS]}
+            className={`${SEX_COLORS[sex.toLowerCase() as keyof typeof SEX_COLORS]} capitalize`}
           >
             {sex}
           </Badge>
@@ -185,7 +185,7 @@ export function ReptileList({
         return (
           <Badge
             variant="custom"
-            className={STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]}
+            className={`${STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]} capitalize`}
           >
             {status}
           </Badge>
@@ -201,7 +201,7 @@ export function ReptileList({
         return (
           <Badge
             variant="custom"
-            className={YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]}
+            className={`${YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]} capitalize`}
           >
             {label}
           </Badge>
@@ -218,7 +218,7 @@ export function ReptileList({
         return (
           <Badge
             variant="custom"
-            className={YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]}
+            className={`${YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]} capitalize`}
           >
             {label}
           </Badge>
