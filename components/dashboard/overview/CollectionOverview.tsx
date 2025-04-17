@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { BreedingProject } from "@/lib/types/breeding";
 import { HealthLogEntry } from "@/lib/types/health";
 import { Morph } from "@/lib/types/morph";
@@ -29,17 +30,19 @@ export function CollectionOverview({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Collection Overview</CardTitle>
+        <CardTitle className="text-lg font-medium">Collection Overview</CardTitle>
         <CardDescription>Quick insights about your reptile collection</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="species">
-          <TabsList className="mb-4">
-            <TabsTrigger value="species">Species Breakdown</TabsTrigger>
-            <TabsTrigger value="morphs">Morphs</TabsTrigger>
-            <TabsTrigger value="breeding">Breeding Status</TabsTrigger>
-            <TabsTrigger value="health">Health Status</TabsTrigger>
-          </TabsList>
+          <ScrollArea className="w-full -mx-1 px-1">
+            <TabsList className="mb-4 w-full flex justify-start">
+              <TabsTrigger value="species">Species</TabsTrigger>
+              <TabsTrigger value="morphs">Morphs</TabsTrigger>
+              <TabsTrigger value="breeding">Breeding</TabsTrigger>
+              <TabsTrigger value="health">Health</TabsTrigger>
+            </TabsList>
+          </ScrollArea>
           
           <TabsContent value="species" className="space-y-4">
             <div className="grid gap-2">
@@ -52,15 +55,17 @@ export function CollectionOverview({
                 const speciesInfo = species.find(s => s.id.toString() === speciesId);
                 return (
                   <div key={i} className="flex items-center justify-between">
-                    <span className="text-sm">
-                      {speciesInfo?.name || 'Unknown species'} 
+                    <div className="overflow-hidden">
+                      <span className="text-sm truncate block">
+                        {speciesInfo?.name || 'Unknown species'} 
+                      </span>
                       {speciesInfo?.scientific_name && 
-                        <span className="text-xs text-muted-foreground ml-1 italic">
+                        <span className="text-xs text-muted-foreground italic truncate block">
                           ({speciesInfo.scientific_name})
                         </span>
                       }
-                    </span>
-                    <Badge variant="outline">{count} specimens</Badge>
+                    </div>
+                    <Badge variant="outline" className="flex-shrink-0 ml-2">{count} specimens</Badge>
                   </div>
                 );
               })}
@@ -83,15 +88,17 @@ export function CollectionOverview({
                   const morphInfo = morphs.find(m => m.id.toString() === morphId);
                   return (
                     <div key={i} className="flex items-center justify-between">
-                      <span className="text-sm">
-                        {morphInfo?.name || 'Unknown morph'} 
+                      <div className="overflow-hidden">
+                        <span className="text-sm truncate block">
+                          {morphInfo?.name || 'Unknown morph'} 
+                        </span>
                         {morphInfo?.species && 
-                          <span className="text-xs text-muted-foreground ml-1">
+                          <span className="text-xs text-muted-foreground truncate block">
                             ({morphInfo.species.name})
                           </span>
                         }
-                      </span>
-                      <Badge variant="outline">{count} specimens</Badge>
+                      </div>
+                      <Badge variant="outline" className="flex-shrink-0 ml-2">{count} specimens</Badge>
                     </div>
                   );
                 })}
@@ -110,10 +117,10 @@ export function CollectionOverview({
                     const male = reptiles.find(r => r.id === project.male_id);
                     return (
                       <div key={i} className="flex items-center justify-between">
-                        <span className="text-sm">
+                        <span className="text-sm truncate">
                           {male?.name || 'Unknown'} × {female?.name || 'Unknown'}
                         </span>
-                        <Badge>{project.status}</Badge>
+                        <Badge className="flex-shrink-0 ml-2">{project.status}</Badge>
                       </div>
                     );
                   })
@@ -129,10 +136,10 @@ export function CollectionOverview({
                   const reptile = reptiles.find(r => r.id === health.reptile_id);
                   return (
                     <div key={i} className="flex items-center justify-between">
-                      <span className="text-sm">
+                      <span className="text-sm truncate">
                         {reptile?.name || 'Unknown reptile'}
                       </span>
-                      <Badge variant={health.severity === 'high' ? 'destructive' : 'outline'}>
+                      <Badge variant={health.severity === 'high' ? 'destructive' : 'outline'} className="flex-shrink-0 ml-2">
                         {health.severity || 'unknown'} severity
                       </Badge>
                     </div>

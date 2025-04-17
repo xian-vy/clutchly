@@ -23,6 +23,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function DashboardOverviewTab() {
   const [allClutches, setAllClutches] = useState<Clutch[]>([]);
@@ -134,13 +135,13 @@ export function DashboardOverviewTab() {
   }
   
   return (
-    <div className="space-y-6 max-w-screen-xl mx-auto">
+    <div className="space-y-6 max-w-screen-2xl mx-auto px-4 sm:px-6">
       <Card className="border-none shadow-none">
         <CardHeader className="px-0 pt-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-3xl font-bold">Dashboard</CardTitle>
+            <CardTitle className="text-2xl sm:text-3xl font-bold">Overview</CardTitle>
             
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <DateRangePicker 
                 dateRange={dateRange}
                 onDateRangeChange={handleDateRangeChange}
@@ -162,18 +163,33 @@ export function DashboardOverviewTab() {
         </CardHeader>
       </Card>
       
-      {/* Stats cards */}
-      <StatsCards 
-        reptiles={reptiles} 
-        healthLogs={healthLogs} 
-        breedingProjects={breedingProjects} 
-        growthEntries={growthEntries} 
-      />
+      {/* Stats cards - responsive grid */}
+      <ScrollArea className="w-full -mx-4 px-4 sm:mx-0 sm:px-0 pb-4 sm:pb-0">
+        <div className="min-w-[640px]">
+          <StatsCards 
+            reptiles={reptiles} 
+            healthLogs={healthLogs} 
+            breedingProjects={breedingProjects} 
+            growthEntries={growthEntries} 
+          />
+        </div>
+      </ScrollArea>
       
-      {/* Main dashboard content */}
-      <div className="grid lg:grid-cols-12 gap-6">
-        {/* Left column for action items and recent activity */}
-        <div className="lg:col-span-5 space-y-6">
+      {/* Collection overview */}
+      <div className="w-full">
+        <CollectionOverview 
+          reptiles={reptiles}
+          healthLogs={healthLogs}
+          breedingProjects={breedingProjects}
+          species={species}
+          morphs={morphs}
+        />
+      </div>
+      
+      {/* Main dashboard content - stacked layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Action items */}
+        <div>
           <ActionItems 
             reptiles={reptiles}
             healthLogs={healthLogs}
@@ -181,25 +197,18 @@ export function DashboardOverviewTab() {
             growthEntries={growthEntries}
             clutches={allClutches}
           />
-          
+        </div>
+        
+        {/* Recent activity */}
+        <div>
           <RecentActivity 
             reptiles={reptiles}
             healthLogs={healthLogs}
             growthEntries={growthEntries}
           />
         </div>
-        
-        {/* Right column for collection overview */}
-        <div className="lg:col-span-7">
-          <CollectionOverview 
-            reptiles={reptiles}
-            healthLogs={healthLogs}
-            breedingProjects={breedingProjects}
-            species={species}
-            morphs={morphs}
-          />
-        </div>
       </div>
+    
     </div>
   );
 }

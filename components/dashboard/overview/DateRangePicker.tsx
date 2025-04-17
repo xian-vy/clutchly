@@ -58,6 +58,7 @@ export function DateRangePicker({
     const start = addDays(end, -days);
     setTempRange({ from: start, to: end });
     onDateRangeChange({ from: start, to: end });
+    setIsOpen(false);
   };
 
   // Handle applying the selected date range
@@ -66,6 +67,23 @@ export function DateRangePicker({
       onDateRangeChange(tempRange);
     }
     setIsOpen(false);
+  };
+
+  // Format the date range for display
+  const formatDateRangeDisplay = () => {
+    if (!dateRange?.from) return <span>Pick a date range</span>;
+    
+    if (dateRange.to) {
+      // If it's a complete range
+      return (
+        <>
+          {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd, yyyy")}
+        </>
+      );
+    }
+    
+    // If only start date is selected
+    return format(dateRange.from, "MMM dd, yyyy");
   };
 
   return (
@@ -77,23 +95,12 @@ export function DateRangePicker({
             variant={"outline"}
             size="sm"
             className={cn(
-              "justify-start text-left font-normal",
+              "justify-start text-left font-normal min-w-[180px] truncate",
               !dateRange && "text-muted-foreground"
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {dateRange?.from ? (
-              dateRange.to ? (
-                <>
-                  {format(dateRange.from, "LLL dd, y")} -{" "}
-                  {format(dateRange.to, "LLL dd, y")}
-                </>
-              ) : (
-                format(dateRange.from, "LLL dd, y")
-              )
-            ) : (
-              <span>Pick a date range</span>
-            )}
+            <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+            <span className="truncate">{formatDateRangeDisplay()}</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -113,7 +120,7 @@ export function DateRangePicker({
                   Clear
                 </Button>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 <Select 
                   onValueChange={(value) => handlePresetChange(parseInt(value))}
                   defaultValue="30"
@@ -138,7 +145,8 @@ export function DateRangePicker({
             defaultMonth={tempRange?.from ?? new Date()}
             selected={tempRange}
             onSelect={setTempRange}
-            numberOfMonths={2}
+            numberOfMonths={1}
+            className="max-w-full overflow-auto"
           />
           <div className="p-3 border-t flex justify-end">
             <Button 

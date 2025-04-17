@@ -1,13 +1,13 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Turtle, Heart, LineChart, Users } from "lucide-react";
-import Link from "next/link";
-import { Reptile } from "@/lib/types/reptile";
-import { HealthLogEntry } from "@/lib/types/health";
+import { Card, CardContent } from "@/components/ui/card";
 import { BreedingProject } from "@/lib/types/breeding";
 import { GrowthEntry } from "@/lib/types/growth";
+import { HealthLogEntry } from "@/lib/types/health";
+import { Reptile } from "@/lib/types/reptile";
 import { differenceInDays, parseISO } from "date-fns";
+import { Dna, Heart, LineChart, Turtle } from "lucide-react";
+import Link from "next/link";
 
 interface StatsCardsProps {
   reptiles: Reptile[];
@@ -46,7 +46,8 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
       icon: Turtle,
       description: "Active reptiles in your collection",
       link: "/reptiles",
-      color: "bg-blue-50 dark:bg-blue-950"
+      color: "bg-blue-50 dark:bg-blue-950",
+      iconColor: "text-blue-500"
     },
     {
       title: "Health Issues",
@@ -69,33 +70,36 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
     {
       title: "Breeding Projects",
       value: breedingPairs.toString(),
-      icon: Users,
+      icon: Dna,
       description: "Active breeding projects",
       link: "/breeding",
-      color: "bg-purple-50 dark:bg-purple-950"
+      color: "bg-purple-50 dark:bg-purple-950",
+      iconColor: "text-purple-500"
     },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid  grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-5 3xl:gap-10">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
           <Link href={stat.link} key={index}>
             <Card className={`hover:shadow-md transition-all cursor-pointer h-full border ${stat.color}`}>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-1">
-                      {stat.title}
-                    </p>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
+              <CardContent className="p-3 sm:p-4 lg:p-6">
+                <div className="flex justify-between items-center">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className={`rounded-full flex-shrink-0 ${stat.color}`}>
+                          <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.iconColor}`} />
+                        </div>
+                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium text-muted-foreground  truncate">
+                         {stat.title}
+                        </p>
+                    </div>  
+                    <div className="text-xl sm:text-2xl xl:text-3xl font-bold">{stat.value}</div>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
                       {stat.description}
                     </p>
-                  </div>
-                  <div className={`rounded-full p-2 ${stat.color}`}>
-                    <Icon className={`h-5 w-5 ${stat.iconColor || "text-muted-foreground"}`} />
                   </div>
                 </div>
               </CardContent>
