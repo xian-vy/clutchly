@@ -36,6 +36,12 @@ export function GrowthReportsTab() {
     }
   }, [entries.length, fetchEntries]);
 
+  useEffect(() => {
+    if (selectedReptileId) {
+      fetchEntries();
+    }
+  }, [selectedReptileId, fetchEntries]);
+
   // Get entries for the selected reptile
   const reptileEntries = selectedReptileId 
     ? getEntriesByReptile(selectedReptileId)
