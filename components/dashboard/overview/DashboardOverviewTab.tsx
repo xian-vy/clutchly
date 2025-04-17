@@ -135,8 +135,8 @@ export function DashboardOverviewTab() {
   }
   
   return (
-    <div className="space-y-6 max-w-screen-2xl mx-auto px-4 sm:px-6">
-      <Card className="border-none shadow-none">
+    <div className="space-y-6 max-w-screen-2xl mx-auto">
+      <Card className="border-none shadow-none !py-0">
         <CardHeader className="px-0 pt-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <CardTitle className="text-2xl sm:text-3xl font-bold">Overview</CardTitle>
