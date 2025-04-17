@@ -12,14 +12,16 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import {
     ChevronDown,
-    CircleChevronDown,
     LogOut,
     Moon,
     Sun
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
-const AccountAvatar =   () => {
+interface Props {
+    isCollapsed : boolean
+}
+const AccountAvatar =   ({isCollapsed } : Props) => {
     const { theme, setTheme } = useTheme();
     const supabase = createClient();
     const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -32,21 +34,25 @@ const AccountAvatar =   () => {
         getUser();
     }, []);
   return (
-    <div className='absolute bottom-10 left-2'>
+    <div className='mb-5 w-full'>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer">
-                    <div className="flex items-center gap-2 w-full">
+                <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full">
+                    <div className="flex items-center w-full">
                         <div className="flex items-center gap-2 w-full flex-1">
                                 <Avatar className="cursor-pointer">
                                     <AvatarFallback className='bg-primary dark:bg-slate-800/90 text-white dark:text-primary'> {userEmail?.charAt(0).toUpperCase()}</AvatarFallback>
                                 </Avatar>
-                                <div className="flex flex-col items-start">
-                                    <span className='text-xs'>User X</span>
-                                    <span className='text-xs text-muted-foreground'>{userEmail}</span>
-                                </div>
+                                {!isCollapsed &&
+                                    <div className="flex flex-col items-start">
+                                        <span className='text-xs'>User X</span>
+                                        <span className='text-xs text-muted-foreground'>{userEmail}</span>
+                                    </div>
+                                }
                         </div>
-                        <ChevronDown className="ml-4 text-muted-foreground" />
+                        {!isCollapsed &&
+                             <ChevronDown className="ml-4 text-muted-foreground" />
+                        }
                     </div>
                 </Button>
             </DropdownMenuTrigger>

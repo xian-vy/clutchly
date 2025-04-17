@@ -70,7 +70,7 @@ export function Navigation() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0 lg:static",
+          "fixed flex flex-col h-[100vh] inset-y-0 left-0 z-50 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0 lg:static",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "w-16" : "w-64 3xl:w-72"
         )}
@@ -91,7 +91,7 @@ export function Navigation() {
           )}
         </div>
 
-        <nav className="p-3 space-y-1 pt-5">
+        <nav className="p-3 space-y-1 pt-5 flex-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -113,7 +113,7 @@ export function Navigation() {
           })}
         </nav>
 
-        <AccountAvatar />
+        <AccountAvatar isCollapsed ={isCollapsed}/>
 
         {/* Collapse toggle button */}
         <Button
