@@ -1,0 +1,14 @@
+:root {
+  --sidebar-width: 16rem; /* 64px * 0.25 = 16rem (default expanded) */
+  --sidebar-width-3xl: 18rem; /* 72px * 0.25 = 18rem (default expanded at 3xl) */
+}
+
+/* Make sure scrollbar behavior is consistent across browsers */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Apply transition when the sidebar is changing state */
+.sidebar-transitioning * {
+  transition: margin 0.2s ease-out, padding 0.2s ease-out;
+} 

@@ -9,13 +9,14 @@ import {
     Heart,
     LayoutDashboard,
     LineChart,
+    Menu,
     Settings,
     Turtle
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { useTheme } from 'next-themes';
 
@@ -58,9 +59,44 @@ export function Navigation() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { theme } = useTheme();
 
+  // Update CSS variable when sidebar is collapsed/expanded
+  useEffect(() => {
+    // First set the transition on the document
+    document.documentElement.classList.add('sidebar-transitioning');
+    
+    // Then update the CSS variable
+    document.documentElement.style.setProperty(
+      '--sidebar-width', 
+      isCollapsed ? '4rem' : '16rem'
+    );
+    
+    // Update for 3xl screens
+    document.documentElement.style.setProperty(
+      '--sidebar-width-3xl', 
+      isCollapsed ? '4rem' : '18rem'
+    );
+    
+    // Remove the transition class after the transition completes
+    const timer = setTimeout(() => {
+      document.documentElement.classList.remove('sidebar-transitioning');
+    }, 250);
+    
+    return () => clearTimeout(timer);
+  }, [isCollapsed]);
+
   return (
     <>
-       {isSidebarOpen && (
+      {/* Mobile menu button */}
+      <Button
+        variant="outline"
+        size="icon"
+        className="fixed top-4 left-4 z-40 lg:hidden"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        <Menu className="h-4 w-4" />
+      </Button>
+
+      {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
@@ -70,7 +106,7 @@ export function Navigation() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed flex flex-col h-[100vh] inset-y-0 left-0 z-50 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0 lg:static",
+          "fixed flex flex-col h-[100vh] inset-y-0 left-0 z-50 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "w-16" : "w-64 3xl:w-72"
         )}
@@ -113,7 +149,7 @@ export function Navigation() {
           })}
         </nav>
 
-        <AccountAvatar isCollapsed ={isCollapsed}/>
+        <AccountAvatar isCollapsed={isCollapsed}/>
 
         {/* Collapse toggle button */}
         <Button
