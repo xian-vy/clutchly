@@ -53,7 +53,8 @@ export async function createGrowthEntry(growthEntry: CreateGrowthEntryInput) {
     .from('reptiles')
     .update({ 
       weight: data.weight,
-      length: data.length
+      length: data.length,
+      last_modified: new Date().toISOString()
      })
     .eq('id', data.reptile_id)
 
@@ -76,6 +77,35 @@ export async function updateGrowthEntry(id: string, updates: Partial<CreateGrowt
     .single()
 
   if (error) throw error
+
+  // Add reptile update if weight or length changed
+  if (updates.weight || updates.length) {
+    // Get the latest growth entry for this reptile
+    const { data: latestEntry, error: latestError } = await supabase
+      .from('growth_entries')
+      .select('*')
+      .eq('reptile_id', data.reptile_id)
+      .order('date', { ascending: false })
+      .limit(1)
+      .single()
+
+    if (latestError) throw latestError
+
+    // Only update reptile if this entry is the latest
+    if (latestEntry.id === id) {
+      const { error: reptileError } = await supabase
+        .from('reptiles')
+        .update({ 
+          ...(updates.weight && { weight: updates.weight }),
+          ...(updates.length && { length: updates.length }),
+          last_modified: new Date().toISOString()
+        })
+        .eq('id', data.reptile_id)
+
+      if (reptileError) throw reptileError
+    }
+  }
+
   return data as GrowthEntry
 }
 
@@ -88,4 +118,4 @@ export async function deleteGrowthEntry(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
-} 
+}
