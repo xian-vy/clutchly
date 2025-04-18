@@ -15,10 +15,11 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect, useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { useTheme } from 'next-themes';
+import { TopLoader } from '../ui/TopLoader';
 
 const navItems = [
   {
@@ -58,6 +59,8 @@ export function Navigation() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { theme } = useTheme();
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   // Update CSS variable when sidebar is collapsed/expanded
   useEffect(() => {
@@ -84,8 +87,19 @@ export function Navigation() {
     return () => clearTimeout(timer);
   }, [isCollapsed]);
 
+  const handleNavigation = (href: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (href !== pathname) {
+      startTransition(() => {
+        router.push(href);
+      });
+    }
+  };
+
   return (
     <>
+    { isPending && <TopLoader />}
+
       {/* Mobile menu button */}
       <Button
         variant="outline"
@@ -131,11 +145,11 @@ export function Navigation() {
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
-              <Link
+              <p
                 key={item.href}
-                href={item.href}
+                onClick={handleNavigation(item.href)}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer',
                   isCollapsed ? 'justify-center px-2 py-2' : 'px-3 py-2',
                   pathname === item.href
                     ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
@@ -144,7 +158,7 @@ export function Navigation() {
               >
                 <Icon className="w-5 h-5" />
                 {!isCollapsed && item.name}
-              </Link>
+              </p>
             );
           })}
         </nav>
