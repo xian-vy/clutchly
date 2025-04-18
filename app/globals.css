@@ -77,27 +77,6 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.67 0.2 142); /* Nuxt green */
   
-  /* Chart colors */
-  --color-chart-1: #0ea5e9;
-  --color-chart-2: #6366f1;
-  --color-chart-3: #a855f7;
-  --color-chart-4: #ec4899;
-  --color-chart-5: #22c55e;
-  --color-chart-6: #eab308;
-  --color-chart-7: #ef4444;
-  --color-chart-8: #8b5cf6;
-  
-  --color-chart-blue: #3b82f6;
-  --color-chart-green: #22c55e;
-  --color-chart-red: #ef4444;
-  --color-chart-muted: #94a3b8;
-  --color-chart-blue-transparent: rgba(59, 130, 246, 0.2);
-  
-  --color-border: hsl(var(--border));
-  --color-card: hsl(var(--card));
-  --color-foreground: hsl(var(--foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
 }
 
 .dark {
