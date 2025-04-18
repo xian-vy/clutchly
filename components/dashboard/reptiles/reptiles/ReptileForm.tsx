@@ -156,7 +156,6 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
         <Tabs defaultValue="basic" >
           <TabsList >
             <TabsTrigger value="basic">Basic Information</TabsTrigger>
-            <TabsTrigger value="location">Location</TabsTrigger>
             <TabsTrigger value="visual-traits">Visual Traits</TabsTrigger>
             <TabsTrigger value="het-traits">Het Traits</TabsTrigger>
           </TabsList>
@@ -347,31 +346,6 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                   </FormItem>
                 )}
               />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} value={field.value || ''} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TabsContent>
-          
-          <TabsContent value="location" className="mt-4">
-            <Card className="p-4 shadow-none">
-              <h3 className="text-lg font-medium mb-4">Housing Location</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Assign this reptile to a specific housing location. 
-                Only available locations are shown.
-              </p>
-              
               <FormField
                 control={form.control}
                 name="location_id"
@@ -389,8 +363,25 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                   </FormItem>
                 )}
               />
-            </Card>
+            </div>
+
+
+
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </TabsContent>
+          
           
           <TabsContent value="visual-traits" className="mt-4">
             <Card className="p-4 shadow-none">
