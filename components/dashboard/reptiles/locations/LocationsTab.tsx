@@ -1,23 +1,24 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RoomsManagement } from "./RoomsManagement";
-import { RacksManagement } from "./RacksManagement";
-import { LocationsManagement } from "./LocationsManagement";
 import { Card } from "@/components/ui/card";
 import { Building2, Info, LayoutGrid, MapPin } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+import { LocationsManagement } from "./locations";
+import { RoomsManagement } from "./rooms";
+import { RacksManagement } from "./racks";
 
 export function LocationsTab() {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
           Reptile Housing Management
         </h2>
         
-        <Alert className="mb-3">
+        <Alert className="mb-6">
           <Info className="h-4 w-4" />
           <AlertTitle>Organize Your Collection Efficiently</AlertTitle>
           <AlertDescription>
@@ -25,7 +26,7 @@ export function LocationsTab() {
             <ol className="list-decimal pl-5 mt-2 space-y-1">
               <li>Create <strong>Rooms</strong> first to define the physical spaces where your animals are kept</li>
               <li>Add <strong>Racks</strong> to each room with the appropriate number of rows (shelf levels)</li>
-              <li>Generate <strong>Locations</strong> individually or in bulk for precise enclosure tracking</li>
+              <li>Generate <strong>Locations</strong> individually or in bulk with the visual grid generator for precise enclosure tracking</li>
             </ol>
           </AlertDescription>
         </Alert>
@@ -37,11 +38,11 @@ export function LocationsTab() {
               Rooms
             </TabsTrigger>
             <TabsTrigger value="racks" className="flex items-center gap-1">
-              <LayoutGrid className="h-4 w-4  mr-2" />
+              <LayoutGrid className="h-4 w-4 mr-2" />
               Racks
             </TabsTrigger>
             <TabsTrigger value="locations" className="flex items-center gap-1">
-              <MapPin className="h-4 w-4  mr-2" />
+              <MapPin className="h-4 w-4 mr-2" />
               Locations
             </TabsTrigger>
           </TabsList>
@@ -58,8 +59,8 @@ export function LocationsTab() {
             <div className="space-y-4">
               <p className="text-muted-foreground mb-2">
                 Locations represent individual enclosure positions within your racks. 
-                Use the <strong>Bulk Generate</strong> feature to quickly create multiple locations 
-                at once based on your rack configuration.
+                Use the <strong>Bulk Generate</strong> feature with grid visualization to quickly create 
+                multiple locations at once. The table view provides easy filtering and searching.
               </p>
               <LocationsManagement />
             </div>
