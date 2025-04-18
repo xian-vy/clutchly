@@ -17,6 +17,7 @@ import { MapPin, PlusCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { Resolver } from 'react-hook-form';
 
 // Define form schema
 const locationFormSchema = z.object({
@@ -79,9 +80,8 @@ export function LocationsManagement() {
     deleteResource: deleteLocation,
   });
 
-  // Form setup with explicit typing
   const form = useForm<LocationFormValues>({
-    resolver: zodResolver(locationFormSchema),
+    resolver: zodResolver(locationFormSchema) as Resolver<LocationFormValues>,
     defaultValues: {
       room_id: '',
       rack_id: '',
@@ -257,7 +257,7 @@ export function LocationsManagement() {
           </DialogTitle>
           
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="room_id"
