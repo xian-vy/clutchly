@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { FiMail, FiLock } from 'react-icons/fi'
+import { FiMail, FiLock, FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi'
 import { AuthLayout } from './AuthLayout'
 import { signup } from '@/app/auth/signup/actions'
 import { useFormStatus } from 'react-dom'
+import { TopLoader } from '@/components/ui/TopLoader'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -37,28 +38,51 @@ function SubmitButton() {
   )
 }
 
+interface StatusMessage {
+  type: 'error' | 'success' | 'info';
+  message: string;
+}
+
 export function SignUpForm() {
-  const [error, setError] = useState<string | null>(null)
+  const [status, setStatus] = useState<StatusMessage | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   async function handleSignUp(formData: FormData) {
+    setIsLoading(true)
     try {
       const result = await signup(formData)
       
       if (result?.error) {
-        setError(result.error)
-        return
+        setStatus({
+          type: 'error',
+          message: result.error
+        })
+      } else if (result?.message) {
+        setStatus({
+          type: 'success', 
+          message: result.message
+        })
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setError(error.message)
+        setStatus({
+          type: 'error',
+          message: error.message
+        })
       } else {
-        setError('An unexpected error occurred')
+        setStatus({
+          type: 'error',
+          message: 'An unexpected error occurred'
+        })
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
     <AuthLayout mode="signup">
+      {isLoading && <TopLoader />}
       <div className="w-full max-w-md space-y-8">
         <div>
           <h2 className="text-3xl font-bold">Create Account</h2>
@@ -110,13 +134,28 @@ export function SignUpForm() {
             </div>
           </div>
 
-          {error && (
+          {status && (
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-lg bg-destructive/10 border border-destructive/20"
+              className={`p-4 rounded-lg flex items-start gap-3 ${
+                status.type === 'error' 
+                  ? 'bg-destructive/10 border border-destructive/20' 
+                  : status.type === 'success'
+                    ? 'bg-green-500/10 border border-green-500/20'
+                    : 'bg-blue-500/10 border border-blue-500/20'
+              }`}
             >
-              <p className="text-sm text-destructive">{error}</p>
+              {status.type === 'error' && <FiAlertCircle className="text-destructive shrink-0 mt-0.5" />}
+              {status.type === 'success' && <FiCheckCircle className="text-green-500 shrink-0 mt-0.5" />}
+              {status.type === 'info' && <FiInfo className="text-blue-500 shrink-0 mt-0.5" />}
+              <p className={`text-sm ${
+                status.type === 'error' 
+                  ? 'text-destructive' 
+                  : status.type === 'success'
+                    ? 'text-green-500'
+                    : 'text-blue-500'
+              }`}>{status.message}</p>
             </motion.div>
           )}
 

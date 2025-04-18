@@ -37,6 +37,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // If user is authenticated and trying to access the landing page,
+  // redirect to overview
+  if (user && request.nextUrl.pathname === '/') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/overview'
+    return NextResponse.redirect(url)
+  }
+
+  // If user is not authenticated and trying to access protected routes,
+  // redirect to landing page
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/auth') &&
@@ -48,7 +58,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
+  // IMPORTANT: You *must* return the supabaseResponse object as is.
   // If you're creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:
   //    const myNewResponse = NextResponse.next({ request })

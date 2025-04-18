@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { FiMail, FiLock } from 'react-icons/fi'
+import { FiMail, FiLock, FiAlertCircle } from 'react-icons/fi'
 import { AuthLayout } from './AuthLayout'
 import { login } from '@/app/auth/signin/actions'
 import { useFormStatus } from 'react-dom'
+import { TopLoader } from '@/components/ui/TopLoader'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -39,14 +40,15 @@ function SubmitButton() {
 
 export function SignInForm() {
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   async function handleSignIn(formData: FormData) {
+    setIsLoading(true)
     try {
       const result = await login(formData)
       
       if (result?.error) {
         setError(result.error)
-        return
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -54,11 +56,14 @@ export function SignInForm() {
       } else {
         setError('An unexpected error occurred')
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
     <AuthLayout mode="signin">
+      {isLoading && <TopLoader />}
       <div className="w-full max-w-md space-y-8">
         <div>
           <h2 className="text-3xl font-bold">Sign In</h2>
@@ -114,8 +119,9 @@ export function SignInForm() {
             <motion.div 
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-lg bg-destructive/10 border border-destructive/20"
+              className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-start gap-3"
             >
+              <FiAlertCircle className="text-destructive shrink-0 mt-0.5" />
               <p className="text-sm text-destructive">{error}</p>
             </motion.div>
           )}
