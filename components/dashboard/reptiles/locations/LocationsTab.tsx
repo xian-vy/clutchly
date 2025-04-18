@@ -13,12 +13,12 @@ export function LocationsTab() {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+        <h2 className="text-xl font-semibold flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
           Reptile Housing Management
         </h2>
         
-        <Alert className="mb-6">
+        <Alert className="mb-3">
           <Info className="h-4 w-4" />
           <AlertTitle>Organize Your Collection Efficiently</AlertTitle>
           <AlertDescription>
@@ -43,7 +43,7 @@ export function LocationsTab() {
             </TabsTrigger>
             <TabsTrigger value="locations" className="flex items-center gap-1">
               <MapPin className="h-4 w-4 mr-2" />
-              Locations
+              Housing
             </TabsTrigger>
           </TabsList>
           

@@ -351,7 +351,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                 name="location_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Location (Optional)</FormLabel>
+                    <FormLabel>Housing (Optional)</FormLabel>
                     <FormControl>
                       <LocationSelect 
                         value={field.value || ''} 
