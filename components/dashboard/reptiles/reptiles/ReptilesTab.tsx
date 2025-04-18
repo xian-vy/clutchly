@@ -10,10 +10,13 @@ import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { useMemo, useState, useEffect } from 'react';
 import { ReptileForm } from './ReptileForm';
 import { ReptileList } from './ReptileList';
-import { Loader2 } from 'lucide-react';
+import { ImportReptileDialog } from './ImportReptileDialog';
+import { Button } from '@/components/ui/button';
+import { FileSpreadsheet, Loader2, Plus } from 'lucide-react';
 
 export function ReptilesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   
   const {
     resources: reptiles,
@@ -23,6 +26,7 @@ export function ReptilesTab() {
     handleCreate,
     handleUpdate,
     handleDelete,
+    refetch: refetchReptiles
   } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
     queryKey: ['reptiles'],
@@ -116,8 +120,27 @@ export function ReptilesTab() {
     setSelectedReptile(undefined); 
   }
 
+  const handleImportComplete = () => {
+    // Refetch reptiles data after successful import
+    refetchReptiles();
+  }
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Herp Management</h2>
+        <div className="flex space-x-2">
+          <Button 
+            variant="default" 
+            onClick={() => setIsImportDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            Import
+          </Button>
+        </div>
+      </div>
+      
       <ReptileList 
         reptiles={enrichedReptiles}
         onEdit={(reptile) => {
@@ -149,6 +172,13 @@ export function ReptilesTab() {
           />
         </DialogContent>
       </Dialog>
+      
+      {/* Import Dialog */}
+      <ImportReptileDialog 
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        onImportComplete={handleImportComplete}
+      />
     </div>
   );
 }
