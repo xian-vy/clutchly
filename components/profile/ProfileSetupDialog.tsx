@@ -184,7 +184,7 @@ export function ProfileSetupDialog() {
           {step === 1 ? (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="full_name" className="block text-sm font-medium flex items-center gap-2">
+                <label htmlFor="full_name" className=" text-sm font-medium flex items-center gap-2">
                   <User className="h-4 w-4 text-primary" />
                   Your Name
                 </label>
@@ -200,7 +200,7 @@ export function ProfileSetupDialog() {
               </div>
               
               <div className="space-y-2">
-                <label htmlFor="collection_size" className="block text-sm font-medium flex items-center gap-2">
+                <label htmlFor="collection_size" className=" text-sm font-medium flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
                   Approximate Collection Size
                 </label>
