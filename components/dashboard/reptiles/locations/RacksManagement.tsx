@@ -11,10 +11,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { useResource } from '@/lib/hooks/useResource';
 import { NewRack, Rack, Room } from '@/lib/types/location';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PlusCircle } from 'lucide-react';
+import { LayoutGrid, Edit, PlusCircle, Building2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const rackFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -128,55 +130,107 @@ export function RacksManagement() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Racks</h3>
+        <div className="flex items-center gap-2">
+          <LayoutGrid className="h-5 w-5 text-primary" />
+          <h3 className="text-xl font-semibold">Racks</h3>
+          <Badge variant="outline" className="ml-2">
+            {racks.length} {racks.length === 1 ? 'rack' : 'racks'}
+          </Badge>
+        </div>
         <Button 
           onClick={() => onDialogChange(true)}
-          size="sm"
+          className="gap-1"
           disabled={rooms.length === 0}
         >
-          <PlusCircle className="h-4 w-4 mr-2" />
+          <PlusCircle className="h-4 w-4" />
           Add Rack
         </Button>
       </div>
       
       {rooms.length === 0 && (
-        <div className="p-4 bg-yellow-50 text-yellow-800 rounded-md">
-          Please create at least one room before adding racks.
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardContent className="pt-6">
+            <div className="flex gap-2 items-center text-yellow-800">
+              <Building2 className="h-5 w-5" />
+              <CardTitle className="text-yellow-800 text-base">Room Required</CardTitle>
+            </div>
+            <CardDescription className="text-yellow-700 mt-2">
+              Please create at least one room before adding racks.
+            </CardDescription>
+          </CardContent>
+        </Card>
+      )}
+      
+      {!isLoading && racks.length === 0 && rooms.length > 0 ? (
+        <Card className="bg-muted/40">
+          <CardContent className="pt-6 text-center">
+            <div className="mx-auto rounded-full w-12 h-12 flex items-center justify-center bg-primary/10 mb-4">
+              <LayoutGrid className="h-6 w-6 text-primary" />
+            </div>
+            <CardTitle className="text-xl mb-2">No Racks Yet</CardTitle>
+            <CardDescription className="max-w-md mx-auto mb-4">
+              Create your first rack to start organizing your enclosures.
+            </CardDescription>
+            <Button onClick={() => onDialogChange(true)}>
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Add Rack
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {racks.map((rack) => (
+            <Card key={rack.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2">
+                  <LayoutGrid className="h-4 w-4 text-primary" /> 
+                  {rack.name}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Building2 className="h-3.5 w-3.5" /> {getRoomName(rack.room_id)}
+                </p>
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-2 gap-y-1 text-sm mt-2">
+                  <div className="text-muted-foreground">Type:</div>
+                  <div>{rack.type}</div>
+                  
+                  <div className="text-muted-foreground">Size:</div>
+                  <div>{rack.rows} rows {rack.columns ? `× ${rack.columns} columns` : ''}</div>
+                </div>
+                {rack.notes && (
+                  <div className="mt-3 pt-3 border-t text-sm text-muted-foreground">
+                    {rack.notes}
+                  </div>
+                )}
+              </CardContent>
+              
+              <CardFooter className="pt-2 border-t flex justify-end">
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                  onClick={() => {
+                    setSelectedRack(rack);
+                    onDialogChange(true);
+                  }}
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                  Edit Rack
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {racks.map((rack) => (
-          <div 
-            key={rack.id}
-            className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => {
-              setSelectedRack(rack);
-              onDialogChange(true);
-            }}
-          >
-            <h4 className="font-medium">{rack.name}</h4>
-            <div className="mt-1 space-y-1 text-sm">
-              <p><span className="text-muted-foreground">Room:</span> {getRoomName(rack.room_id)}</p>
-              <p><span className="text-muted-foreground">Type:</span> {rack.type}</p>
-              <p><span className="text-muted-foreground">Size:</span> {rack.rows} rows {rack.columns ? `× ${rack.columns} columns` : ''}</p>
-              {rack.notes && <p className="text-muted-foreground mt-2">{rack.notes}</p>}
-            </div>
-          </div>
-        ))}
-        
-        {racks.length === 0 && !isLoading && rooms.length > 0 && (
-          <div className="col-span-full p-8 text-center text-muted-foreground">
-            No racks found. Click "Add Rack" to create your first rack.
-          </div>
-        )}
-      </div>
-      
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
         <DialogContent>
-          <DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <LayoutGrid className="h-5 w-5" />
             {selectedRack ? 'Edit Rack' : 'Add New Rack'}
           </DialogTitle>
           
@@ -258,9 +312,12 @@ export function RacksManagement() {
                         <Input 
                           type="number" 
                           min="0" 
-                          {...field} 
-                          value={field.value || ''} 
-                          onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                          placeholder="Leave empty if not applicable"
+                          value={field.value === null ? '' : field.value}
+                          onChange={(e) => {
+                            const value = e.target.value === '' ? null : parseInt(e.target.value);
+                            field.onChange(value);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -279,7 +336,7 @@ export function RacksManagement() {
                       <Textarea 
                         {...field} 
                         value={field.value || ''} 
-                        placeholder="Rack setup details, heating, etc." 
+                        placeholder="Additional information about this rack..." 
                       />
                     </FormControl>
                     <FormMessage />

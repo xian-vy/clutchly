@@ -1,11 +1,11 @@
 'use client';
 
-import { getLocations, createLocation, updateLocation, deleteLocation } from '@/app/api/locations/locations';
+import { getLocations, createLocation, updateLocation, deleteLocation, bulkCreateLocations } from '@/app/api/locations/locations';
 import { getRooms } from '@/app/api/locations/rooms';
 import { getRacks } from '@/app/api/locations/racks';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -18,6 +18,10 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Resolver } from 'react-hook-form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from 'sonner';
+import { InfoIcon, AlertCircle } from 'lucide-react';
 
 // Define form schema
 const locationFormSchema = z.object({
@@ -32,9 +36,25 @@ const locationFormSchema = z.object({
 // Define the form values type from the schema
 type LocationFormValues = z.infer<typeof locationFormSchema>;
 
+// Define form schema for bulk location creator
+const bulkLocationFormSchema = z.object({
+  room_id: z.string().min(1, 'Room is required'),
+  rack_id: z.string().min(1, 'Rack is required'),
+  start_level: z.coerce.number().min(1, 'Start level must be at least 1'),
+  end_level: z.coerce.number().min(1, 'End level must be at least 1'),
+  positions_per_level: z.coerce.number().min(1, 'Must have at least 1 position per level'),
+  notes: z.string().nullable().optional(),
+  is_available: z.boolean().default(true),
+});
+
+type BulkLocationFormValues = z.infer<typeof bulkLocationFormSchema>;
+
 export function LocationsManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [filteredRacks, setFilteredRacks] = useState<Rack[]>([]);
+  const [isGeneratingLocations, setIsGeneratingLocations] = useState(false);
+  const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("single");
   
   // Fetch rooms for the dropdown
   const {
@@ -188,18 +208,136 @@ export function LocationsManagement() {
     };
   };
 
+  // Bulk location form
+  const bulkForm = useForm<BulkLocationFormValues>({
+    resolver: zodResolver(bulkLocationFormSchema) as Resolver<BulkLocationFormValues>,
+    defaultValues: {
+      room_id: '',
+      rack_id: '',
+      start_level: 1,
+      end_level: 3,
+      positions_per_level: 4,
+      notes: null,
+      is_available: true,
+    },
+  });
+  
+  // Get selected room_id for bulk form
+  const bulkSelectedRoomId = bulkForm.watch('room_id');
+  
+  // Filter racks when room changes in bulk form
+  useEffect(() => {
+    if (!bulkSelectedRoomId) {
+      setFilteredRacks([]);
+      return;
+    }
+    
+    const racksInRoom = racks.filter(rack => rack.room_id === bulkSelectedRoomId);
+    setFilteredRacks(racksInRoom);
+    
+    // If current rack doesn't belong to this room, reset it
+    const currentRackId = bulkForm.getValues('rack_id');
+    if (currentRackId && !racksInRoom.some(rack => rack.id === currentRackId)) {
+      bulkForm.setValue('rack_id', '');
+    }
+  }, [bulkSelectedRoomId, racks, bulkForm]);
+
+  const onBulkDialogChange = (open: boolean) => {
+    setIsBulkDialogOpen(open);
+    if (!open) {
+      // Reset form when dialog closes
+      bulkForm.reset({
+        room_id: '',
+        rack_id: '',
+        start_level: 1,
+        end_level: 3,
+        positions_per_level: 4,
+        notes: null,
+        is_available: true,
+      });
+    }
+  };
+
+  // Handle bulk location generation
+  const onBulkSubmit = async (data: BulkLocationFormValues) => {
+    setIsGeneratingLocations(true);
+    
+    try {
+      // Validate input
+      if (data.end_level < data.start_level) {
+        toast.error("End level must be greater than or equal to start level");
+        setIsGeneratingLocations(false);
+        return;
+      }
+      
+      // Generate locations in bulk
+      const locationsToCreate: NewLocation[] = [];
+      const room = rooms.find(r => r.id === data.room_id);
+      const rack = racks.find(r => r.id === data.rack_id);
+      const roomName = room?.name || 'Unknown Room';
+      const rackName = rack?.name || 'Unknown Rack';
+      
+      // For each level in the range
+      for (let level = data.start_level; level <= data.end_level; level++) {
+        // For each position in the level
+        for (let position = 1; position <= data.positions_per_level; position++) {
+          const label = `${roomName} > ${rackName} > Level ${level} > Position ${position}`;
+          
+          locationsToCreate.push({
+            room_id: data.room_id,
+            rack_id: data.rack_id,
+            shelf_level: level.toString(),
+            position: position.toString(),
+            label,
+            notes: data.notes || null,
+            is_available: data.is_available,
+          });
+        }
+      }
+      
+      // Create all locations at once
+      await bulkCreateLocations(locationsToCreate);
+      
+      // Refresh locations data
+      window.location.reload(); // Temporary solution to refresh data
+      
+      // Success message
+      const totalLocations = locationsToCreate.length;
+      toast.success(`Successfully created ${totalLocations} locations`);
+      
+      // Close dialog
+      onBulkDialogChange(false);
+    } catch (error) {
+      console.error("Error creating bulk locations:", error);
+      toast.error("Failed to create locations");
+    } finally {
+      setIsGeneratingLocations(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Locations</h3>
-        <Button 
-          onClick={() => onDialogChange(true)}
-          size="sm"
-          disabled={racks.length === 0}
-        >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Location
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setIsBulkDialogOpen(true)}
+            size="sm"
+            variant="outline"
+            disabled={racks.length === 0}
+          >
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Bulk Generate
+          </Button>
+          <Button 
+            onClick={() => onDialogChange(true)}
+            size="sm"
+            disabled={racks.length === 0}
+          >
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Add Single Location
+          </Button>
+        </div>
       </div>
       
       {rooms.length === 0 && (
@@ -394,6 +532,175 @@ export function LocationsManagement() {
                 <Button type="submit">
                   {selectedLocation ? 'Update' : 'Create'}
                 </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Bulk Location Generator Dialog */}
+      <Dialog open={isBulkDialogOpen} onOpenChange={onBulkDialogChange}>
+        <DialogContent className="max-w-lg">
+          <DialogTitle>Generate Multiple Locations</DialogTitle>
+          
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Bulk Creation</AlertTitle>
+            <AlertDescription>
+              This will create multiple locations at once based on the configuration below.
+            </AlertDescription>
+          </Alert>
+          
+          <Form {...bulkForm}>
+            <form onSubmit={bulkForm.handleSubmit(onBulkSubmit)} className="space-y-4">
+              <FormField
+                control={bulkForm.control}
+                name="room_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Room</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a room" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {rooms.map((room) => (
+                          <SelectItem key={room.id} value={room.id}>{room.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={bulkForm.control}
+                name="rack_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rack</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={filteredRacks.length === 0}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={filteredRacks.length === 0 ? "Select a room first" : "Select a rack"} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredRacks.map((rack) => (
+                          <SelectItem key={rack.id} value={rack.id}>{rack.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={bulkForm.control}
+                  name="start_level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Level</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="1" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={bulkForm.control}
+                  name="end_level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Level</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="1" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={bulkForm.control}
+                name="positions_per_level"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Positions Per Level</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="1" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={bulkForm.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        value={field.value || ''} 
+                        placeholder="These notes will be applied to all created locations" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={bulkForm.control}
+                name="is_available"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Available for Use</FormLabel>
+                      <FormDescription>
+                        Mark all created locations as available for housing animals
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex justify-between items-center pt-4">
+                <p className="text-sm text-muted-foreground">
+                  Will create{' '}
+                  <span className="font-semibold">
+                    {bulkForm.watch('positions_per_level') && bulkForm.watch('end_level') && bulkForm.watch('start_level')
+                      ? (bulkForm.watch('end_level') - bulkForm.watch('start_level') + 1) * bulkForm.watch('positions_per_level')
+                      : 0}
+                  </span>{' '}
+                  locations
+                </p>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => onBulkDialogChange(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isGeneratingLocations}>
+                    {isGeneratingLocations ? "Generating..." : "Generate Locations"}
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>

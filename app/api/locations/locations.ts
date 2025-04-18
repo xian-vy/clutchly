@@ -116,4 +116,25 @@ export async function getLocationDetails(locationId: string) {
 
   if (error) throw error
   return data
+}
+
+export async function bulkCreateLocations(locations: NewLocation[]) {
+  const supabase = await createClient()
+  const currentUser = await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
+
+  // Add user_id to each location
+  const locationsWithUserId = locations.map(location => ({
+    ...location,
+    user_id: userId
+  }))
+
+  // Insert all locations at once
+  const { data, error } = await supabase
+    .from('locations')
+    .insert(locationsWithUserId)
+    .select()
+
+  if (error) throw error
+  return data as Location[]
 } 
