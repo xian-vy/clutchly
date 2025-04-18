@@ -43,7 +43,7 @@ export function LocationsTab() {
             </TabsTrigger>
             <TabsTrigger value="locations" className="flex items-center gap-1">
               <MapPin className="h-4 w-4 mr-2" />
-              Housing
+              Locations
             </TabsTrigger>
           </TabsList>
           

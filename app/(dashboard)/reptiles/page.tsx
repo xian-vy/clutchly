@@ -23,7 +23,7 @@ export default async function ReptilesPage() {
               <TabsTrigger value="reptiles">Herps</TabsTrigger>
               <TabsTrigger value="morphs">Morphs</TabsTrigger>
               <TabsTrigger value="species">Species</TabsTrigger>
-              <TabsTrigger value="locations">Locations</TabsTrigger>
+              <TabsTrigger value="locations">Housing</TabsTrigger>
             </TabsList>
             <hr className='mt-[1px]'/>
         </div>
