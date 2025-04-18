@@ -1,7 +1,7 @@
-
 import { MorphsTab } from '@/components/dashboard/reptiles/morphs/MorphsTab';
 import { ReptilesTab } from '@/components/dashboard/reptiles/reptiles/ReptilesTab';
 import { SpeciesTab } from '@/components/dashboard/reptiles/species/SpeciesTab';
+import { LocationsTab } from '@/components/dashboard/reptiles/locations/LocationsTab';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings } from 'lucide-react';
@@ -23,6 +23,7 @@ export default async function ReptilesPage() {
               <TabsTrigger value="reptiles">Herps</TabsTrigger>
               <TabsTrigger value="morphs">Morphs</TabsTrigger>
               <TabsTrigger value="species">Species</TabsTrigger>
+              <TabsTrigger value="locations">Locations</TabsTrigger>
             </TabsList>
             <hr className='mt-[1px]'/>
         </div>
@@ -37,6 +38,10 @@ export default async function ReptilesPage() {
 
         <TabsContent value="morphs">
           <MorphsTab />
+        </TabsContent>
+
+        <TabsContent value="locations">
+          <LocationsTab />
         </TabsContent>
       </Tabs>
     </div>

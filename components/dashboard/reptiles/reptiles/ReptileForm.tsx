@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
+import { LocationSelect } from '@/components/dashboard/reptiles/locations/LocationSelect'
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
 import { useResource } from '@/lib/hooks/useResource'
 import { useSelectList } from '@/lib/hooks/useSelectList'
@@ -40,6 +41,7 @@ const formSchema = z.object({
     source: z.enum(['visual_parent', 'genetic_test', 'breeding_odds']).optional(),
     verified: z.boolean().optional()
   })).nullable(),
+  location_id: z.string().nullable(),
 })
 
 // Extended Reptile type with species_name and morph_name
@@ -95,6 +97,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       length: initialData?.length || 0,
       visual_traits: initialData?.visual_traits || [],
       het_traits: initialData?.het_traits || [],
+      location_id: initialData?.location_id || null,
     }
   })
 
@@ -104,7 +107,8 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       hatch_date: data.hatch_date || null,
       notes: data.notes || null,
       visual_traits: visualTraits,
-      het_traits: hetTraits
+      het_traits: hetTraits,
+      location_id: data.location_id || null,
     }
     await onSubmit(formattedData)
   }
@@ -152,6 +156,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
         <Tabs defaultValue="basic" >
           <TabsList >
             <TabsTrigger value="basic">Basic Information</TabsTrigger>
+            <TabsTrigger value="location">Location</TabsTrigger>
             <TabsTrigger value="visual-traits">Visual Traits</TabsTrigger>
             <TabsTrigger value="het-traits">Het Traits</TabsTrigger>
           </TabsList>
@@ -357,6 +362,34 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                 </FormItem>
               )}
             />
+          </TabsContent>
+          
+          <TabsContent value="location" className="mt-4">
+            <Card className="p-4 shadow-none">
+              <h3 className="text-lg font-medium mb-4">Housing Location</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Assign this reptile to a specific housing location. 
+                Only available locations are shown.
+              </p>
+              
+              <FormField
+                control={form.control}
+                name="location_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location (Optional)</FormLabel>
+                    <FormControl>
+                      <LocationSelect 
+                        value={field.value || ''} 
+                        onChange={field.onChange}
+                        currentLocationId={initialData?.location_id}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Card>
           </TabsContent>
           
           <TabsContent value="visual-traits" className="mt-4">

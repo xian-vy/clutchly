@@ -66,11 +66,33 @@ export async function createReptile(reptile: NewReptile) {
     console.error("Error creating growth after reptile :", growthError.message)
     throw error
   }
+  
+  // If a location is assigned, update the location availability status
+  if (data.location_id) {
+    const { error: locationError } = await supabase
+      .from('locations')
+      .update({ is_available: false })
+      .eq('id', data.location_id)
+    
+    if (locationError) {
+      console.error("Error updating location availability:", locationError.message)
+    }
+  }
+  
   return data as Reptile
 }
 
 export async function updateReptile(id: string, updates: Partial<NewReptile>) {
   const supabase = await createClient()
+  
+  // First, get the current reptile to check for location changes
+  const { data: currentReptile, error: fetchError } = await supabase
+    .from('reptiles')
+    .select('location_id')
+    .eq('id', id)
+    .single()
+    
+  if (fetchError) throw fetchError
   
   const { data, error } = await supabase
     .from('reptiles')
@@ -80,11 +102,40 @@ export async function updateReptile(id: string, updates: Partial<NewReptile>) {
     .single()
 
   if (error) throw error
+  
+  // Handle location changes if needed
+  if (updates.location_id !== undefined && currentReptile.location_id !== updates.location_id) {
+    // If the old location exists, mark it as available
+    if (currentReptile.location_id) {
+      await supabase
+        .from('locations')
+        .update({ is_available: true })
+        .eq('id', currentReptile.location_id)
+    }
+    
+    // If a new location is assigned, mark it as unavailable
+    if (updates.location_id) {
+      await supabase
+        .from('locations')
+        .update({ is_available: false })
+        .eq('id', updates.location_id)
+    }
+  }
+  
   return data as Reptile
 }
 
 export async function deleteReptile(id: string): Promise<void> {
   const supabase = await createClient()
+  
+  // First, get the reptile's location ID if it exists
+  const { data: reptile, error: fetchError } = await supabase
+    .from('reptiles')
+    .select('location_id')
+    .eq('id', id)
+    .single()
+    
+  if (fetchError) throw fetchError
   
   const { error } = await supabase
     .from('reptiles')
@@ -92,6 +143,14 @@ export async function deleteReptile(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
+  
+  // If the reptile had a location, mark it as available again
+  if (reptile.location_id) {
+    await supabase
+      .from('locations')
+      .update({ is_available: true })
+      .eq('id', reptile.location_id)
+  }
 } 
 export async function getReptileByClutchId(clutch_id: string) {
   const supabase = await createClient()

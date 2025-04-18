@@ -7,14 +7,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { SEX_COLORS, STATUS_COLORS, YES_NO_COLORS } from "@/lib/constants/colors";
 import { Reptile } from "@/lib/types/reptile";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, Filter, MoreHorizontal, Star, Trash } from "lucide-react";
+import { Edit, Eye, Filter, MapPin, MoreHorizontal, Star, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ReptileFilterDialog, ReptileFilters } from "./ReptileFilterDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Extended Reptile type with species_name and morph_name
 interface EnrichedReptile extends Reptile {
   species_name: string;
   morph_name: string;
+  location_label?: string;
 }
 
 interface ReptileListProps {
@@ -207,6 +209,38 @@ export function ReptileList({
           </Badge>
         );
       },
+    },
+    {
+      id: "location",
+      header: "Location",
+      cell: ({ row }) => {
+        const reptile = row.original;
+        const hasLocation = !!reptile.location_id && !!reptile.location_label;
+        
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center">
+                  <MapPin className={`h-4 w-4 mr-1 ${hasLocation ? 'text-green-500' : 'text-gray-300'}`} />
+                  {hasLocation ? (
+                    <span className="text-sm truncate max-w-[150px]">
+                      {reptile.location_label}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-400">Not assigned</span>
+                  )}
+                </div>
+              </TooltipTrigger>
+              {hasLocation && (
+                <TooltipContent>
+                  <p>{reptile.location_label}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
     {
       id: "notes",

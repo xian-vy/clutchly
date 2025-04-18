@@ -35,6 +35,7 @@ export interface Reptile {
   primary_genetics?: string[]  
   lineage_path?: string  
   project_ids?: string[]
+  location_id?: string | null
 }
 
 export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'user_id' | 'last_modified'>
