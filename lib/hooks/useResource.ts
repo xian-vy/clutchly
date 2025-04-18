@@ -32,10 +32,15 @@ export function useResource<T extends Resource, N>({
   const queryClient = useQueryClient()
 
   // Query for fetching resources
-  const { data: resources = [], isLoading } = useQuery({
+  const { data: resources = [], isLoading, refetch: queryRefetch } = useQuery({
     queryKey,
     queryFn: getResources,
   })
+
+  // Provide a way to refetch data
+  const refetch = async () => {
+    return queryRefetch();
+  }
 
   // Mutation for creating resource
   const createMutation = useMutation({
@@ -114,5 +119,6 @@ export function useResource<T extends Resource, N>({
     handleCreate,
     handleUpdate,
     handleDelete,
+    refetch,
   }
 }
