@@ -48,20 +48,34 @@ export async function POST(request: NextRequest) {
     }
     
     // Read and parse file based on type
-    let parsedData
+    let parsedData: Record<string, any>[] = []
     if (file.type === 'text/csv') {
       const text = await file.text()
       const result = Papa.parse(text, {
         header: true,
         skipEmptyLines: true,
       })
-      parsedData = result.data
+      // Make sure parsed data is properly formatted as Record<string, any>[] 
+      parsedData = (result.data as any[]).map(item => {
+        // Ensure each row is a proper object with string keys
+        if (typeof item === 'object' && item !== null) {
+          return Object.fromEntries(
+            Object.entries(item).map(([key, value]) => [
+              String(key), 
+              value
+            ])
+          );
+        }
+        return {} as Record<string, any>;
+      });
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
       const buffer = await file.arrayBuffer()
       const workbook = XLSX.read(buffer, { type: 'array' })
       const firstSheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[firstSheetName]
-      parsedData = XLSX.utils.sheet_to_json(worksheet)
+      // Convert Excel data and ensure it's the right format
+      const rawData = XLSX.utils.sheet_to_json(worksheet)
+      parsedData = (rawData as any[]).map(row => ({ ...row }));
     } else {
       return NextResponse.json(
         { error: 'Unsupported file type. Please upload CSV or Excel file.' },

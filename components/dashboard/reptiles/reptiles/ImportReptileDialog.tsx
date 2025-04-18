@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { ImportPreviewResponse, ImportResponse } from '@/app/api/reptiles/import'
 import { CheckCircle, AlertCircle, FileSpreadsheet, Upload, Info, Download } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 interface ImportReptileDialogProps {
   open: boolean
@@ -39,13 +40,21 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
   // Reset state when dialog closes
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setStep(ImportStep.SELECT_FILE)
-      setFile(null)
-      setPreviewData(null)
-      setSelectedRows([])
-      setImportResult(null)
-      setError(null)
-      setIsLoading(false)
+      // Don't reset if we're in the importing step
+      if (step !== ImportStep.IMPORTING) {
+        setStep(ImportStep.SELECT_FILE)
+        setFile(null)
+        setPreviewData(null)
+        setSelectedRows([])
+        setImportResult(null)
+        setError(null)
+        setIsLoading(false)
+      } else {
+        // If importing, prevent dialog from closing
+        onOpenChange(true)
+        toast.info("Please wait for the import to complete before closing")
+        return
+      }
     }
     onOpenChange(open)
   }
@@ -66,6 +75,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
     const validTypes = ['text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
     if (!validTypes.includes(selectedFile.type)) {
       setError('Invalid file type. Please upload a CSV or Excel file.')
+      toast.error('Invalid file type. Please upload a CSV or Excel file.')
       return
     }
     
@@ -73,6 +83,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
     const maxSize = 2 * 1024 * 1024 // 2MB in bytes
     if (selectedFile.size > maxSize) {
       setError('File size exceeds the 2MB limit.')
+      toast.error('File size exceeds the 2MB limit.')
       return
     }
     
@@ -107,6 +118,8 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
       const formData = new FormData()
       formData.append('file', file)
       
+      toast.loading('Processing file preview...')
+      
       // Send to API for preview
       const response = await fetch('/api/reptiles/import', {
         method: 'POST',
@@ -126,9 +139,13 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
       
       // Move to preview step
       setStep(ImportStep.PREVIEW)
+      toast.dismiss()
+      toast.success(`Found ${data.validRows.length} valid entries out of ${data.totalRows} total`)
     } catch (err: any) {
       console.error('Preview error:', err)
       setError(err.message || 'Failed to preview file')
+      toast.dismiss()
+      toast.error(err.message || 'Failed to preview file')
     } finally {
       setIsLoading(false)
     }
@@ -149,11 +166,13 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
   const selectAllValidRows = () => {
     if (!previewData) return
     setSelectedRows([...previewData.validRows])
+    toast.success(`Selected all ${previewData.validRows.length} valid rows`)
   }
 
   // Clear all selections
   const clearAllSelections = () => {
     setSelectedRows([])
+    toast.info('All selections cleared')
   }
 
   // Process the import
@@ -163,6 +182,8 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
     setIsLoading(true)
     setError(null)
     setStep(ImportStep.IMPORTING)
+    
+    const importToastId = toast.loading(`Importing ${selectedRows.length} reptiles...`)
     
     try {
       // Send to API for processing
@@ -190,11 +211,32 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
       // Notify parent component about successful import
       if (result.success) {
         onImportComplete()
+        toast.dismiss(importToastId)
+        toast.success(`Successfully imported ${result.reptiles.length} reptiles`)
+        
+        if (result.speciesAdded > 0) {
+          toast.success(`Added ${result.speciesAdded} new species`)
+        }
+        
+        if (result.morphsAdded > 0) {
+          toast.success(`Added ${result.morphsAdded} new morphs`)
+        }
+        
+        if (result.errors.length > 0) {
+          toast.warning(`${result.errors.length} records had issues`, {
+            description: 'See details in the summary panel'
+          })
+        }
+      } else {
+        toast.dismiss(importToastId)
+        toast.error('Import completed with errors')
       }
     } catch (err: any) {
       console.error('Import error:', err)
       setError(err.message || 'Failed to import data')
       setStep(ImportStep.PREVIEW) // Go back to preview step on error
+      toast.dismiss(importToastId)
+      toast.error(err.message || 'Failed to import data')
     } finally {
       setIsLoading(false)
     }
@@ -364,6 +406,13 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                             <AlertCircle 
                               className="h-5 w-5 text-red-500" 
                               aria-label={errorMessage || 'Error'} 
+                              onClick={() => {
+                                if (errorMessage) {
+                                  toast.error(errorMessage, {
+                                    description: `Error in row ${index + 1}`
+                                  })
+                                }
+                              }}
                             />
                           )}
                         </TableCell>
