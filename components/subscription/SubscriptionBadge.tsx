@@ -1,6 +1,12 @@
 'use client';
 
-import { useSubscription } from '@/lib/hooks/useSubscription';
+import { useResource } from '@/lib/hooks/useResource';
+import { Subscription, SubscriptionPlan } from '@/lib/types/subscription';
+import { 
+  getSubscription, 
+  updateSubscription, 
+  cancelSubscription 
+} from '@/app/api/subscriptions/subscriptions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,15 +21,53 @@ import {
 import { Crown, Clock, Sparkles, Zap, ExternalLink } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
+// Adapter functions to match useResource interface
+async function getSubscriptions(): Promise<Subscription[]> {
+  try {
+    const subscription = await getSubscription();
+    return subscription ? [subscription] : [];
+  } catch (error) {
+    console.error('Error fetching subscription:', error);
+    return [];
+  }
+}
+
+async function updateSubscriptionWithId(id: string, plan: SubscriptionPlan): Promise<Subscription> {
+  return updateSubscription(plan);
+}
+
+// Dummy delete function to match interface (we don't actually delete subscriptions)
+async function dummyDelete(id: string): Promise<void> {
+  await cancelSubscription();
+  return;
+}
+
 export function SubscriptionBadge() {
+  // Use the generic resource hook
   const {
-    subscription,
+    resources: subscriptions,
     isLoading,
-    isPremium,
-    isTrialing,
-    trialDaysLeft,
-    trialEndDate
-  } = useSubscription();
+  } = useResource<Subscription, SubscriptionPlan>({
+    resourceName: 'Subscription',
+    queryKey: ['subscription'],
+    getResources: getSubscriptions,
+    createResource: (plan) => updateSubscription(plan),
+    updateResource: updateSubscriptionWithId,
+    deleteResource: dummyDelete,
+  });
+
+  // Get the single subscription
+  const subscription = subscriptions[0];
+
+  // Calculate derived states
+  const isPremium = subscription?.plan === 'Starter' || subscription?.plan === 'Pro';
+  const isTrialing = subscription?.status === 'trialing';
+  const trialDaysLeft = subscription?.trial_end
+    ? Math.max(0, Math.ceil((new Date(subscription.trial_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 0;
+  const trialEndDate = subscription?.trial_end
+    ? new Date(subscription.trial_end).toLocaleDateString()
+    : null;
 
   if (isLoading) {
     return <Badge variant="outline" className="animate-pulse">Loading...</Badge>;
