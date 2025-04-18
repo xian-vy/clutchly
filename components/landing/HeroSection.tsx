@@ -1,9 +1,24 @@
-import Link from 'next/link'
+'use client'
+import { useRouter } from 'next/navigation'
+import { useTransition, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { TopLoader } from '@/components/ui/TopLoader'
 
 export function HeroSection() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleNavigation = (path: string) => {
+    setIsLoading(true)
+    startTransition(() => {
+      router.push(path)
+    })
+  }
+
   return (
     <section className="relative overflow-hidden">
+      {isLoading && <TopLoader />}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/15%_0%,transparent_65%)]" />
       <div className="container relative z-10 py-24 md:py-32">
         <div className="mx-auto max-w-[800px] 3xl:max-w-[900px] text-center">
@@ -27,19 +42,29 @@ export function HeroSection() {
             platform that makes reptile data management intuitive.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/auth/signup"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary  px-8 py-3 text-lg font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            <button
+              onClick={() => handleNavigation('/auth/signup')}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+              disabled={isPending}
             >
-              Get Started
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-            <Link
-              href="/auth/signin"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background/50 backdrop-blur-sm px-8 py-3 text-lg font-medium transition-colors hover:bg-secondary"
+              {isPending ? (
+                <>
+                  <span className="animate-pulse">Loading...</span>
+                </>
+              ) : (
+                <>
+                  Get Started
+                  <ArrowRight className="h-5 w-5" />
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => handleNavigation('/auth/signin')}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background/50 backdrop-blur-sm px-8 py-3 text-lg font-medium transition-all hover:bg-secondary hover:scale-[1.02] active:scale-[0.98]"
+              disabled={isPending}
             >
-              Sign In
-            </Link>
+              {isPending ? 'Loading...' : 'Sign In'}
+            </button>
           </div>
         </div>
       </div>

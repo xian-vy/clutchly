@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi'
@@ -44,11 +45,15 @@ interface StatusMessage {
 }
 
 export function SignUpForm() {
+  const router = useRouter()
   const [status, setStatus] = useState<StatusMessage | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false)
+  
+  const isLoading = isPending || isFormSubmitting
 
   async function handleSignUp(formData: FormData) {
-    setIsLoading(true)
+    setIsFormSubmitting(true)
     try {
       const result = await signup(formData)
       
@@ -57,13 +62,22 @@ export function SignUpForm() {
           type: 'error',
           message: result.error
         })
+        setIsFormSubmitting(false)
       } else if (result?.message) {
         setStatus({
           type: 'success', 
           message: result.message
         })
+        setIsFormSubmitting(false)
+      } else {
+        // If no error or message, we'll be redirected by the server action
+        // Keep loading state active for the transition
+        startTransition(() => {
+          router.push('/auth/verify-email')
+        })
       }
     } catch (error: unknown) {
+      setIsFormSubmitting(false)
       if (error instanceof Error) {
         setStatus({
           type: 'error',
@@ -75,8 +89,6 @@ export function SignUpForm() {
           message: 'An unexpected error occurred'
         })
       }
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -94,7 +106,7 @@ export function SignUpForm() {
         <motion.form 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.2 }}
           action={handleSignUp}
           className="space-y-6"
         >

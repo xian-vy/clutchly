@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiAlertCircle } from 'react-icons/fi'
@@ -39,25 +40,35 @@ function SubmitButton() {
 }
 
 export function SignInForm() {
+  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false)
+  
+  const isLoading = isPending || isFormSubmitting
 
   async function handleSignIn(formData: FormData) {
-    setIsLoading(true)
+    setIsFormSubmitting(true)
     try {
       const result = await login(formData)
       
       if (result?.error) {
         setError(result.error)
+        setIsFormSubmitting(false)
+      } else {
+        // If no error, we'll be redirected by the server action
+        // Keep loading state active for the transition
+        startTransition(() => {
+          router.push('/overview')
+        })
       }
     } catch (error: unknown) {
+      setIsFormSubmitting(false)
       if (error instanceof Error) {
         setError(error.message)
       } else {
         setError('An unexpected error occurred')
       }
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -75,7 +86,7 @@ export function SignInForm() {
         <motion.form 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.2 }}
           action={handleSignIn}
           className="space-y-6"
         >
