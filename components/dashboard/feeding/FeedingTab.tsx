@@ -7,11 +7,12 @@ import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
 import { FeedingEventsList } from './FeedingEventsList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp, Info, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { generateFeedingEvents } from '@/app/api/feeding/events';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function FeedingTab() {
   const [schedules, setSchedules] = useState<FeedingScheduleWithTargets[]>([]);
@@ -76,16 +77,26 @@ export function FeedingTab() {
     );
 
     return (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-col gap-1 mt-1">
         {locationTargets.length > 0 && (
-          <Badge variant="secondary" className="text-xs">
-            {locationTargets.length} Location{locationTargets.length > 1 ? 's' : ''}
-          </Badge>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">Locations:</div>
+            {locationTargets.map((target, idx) => (
+              <Badge key={idx} variant="secondary" className="text-xs mr-1 mb-1">
+                {target.location_label || "Unknown location"}
+              </Badge>
+            ))}
+          </div>
         )}
         {reptileTargets.length > 0 && (
-          <Badge variant="outline" className="text-xs">
-            {reptileTargets.length} Reptile{reptileTargets.length > 1 ? 's' : ''}
-          </Badge>
+          <div>
+            <div className="text-xs text-muted-foreground mb-1">Reptiles:</div>
+            {reptileTargets.map((target, idx) => (
+              <Badge key={idx} variant="outline" className="text-xs mr-1 mb-1">
+                {target.reptile_name || "Unknown reptile"}
+              </Badge>
+            ))}
+          </div>
         )}
       </div>
     );
@@ -141,78 +152,88 @@ export function FeedingTab() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {schedules.map((schedule) => (
-        <Collapsible
-          key={schedule.id}
-          open={expandedScheduleIds.has(schedule.id)}
-          onOpenChange={() => toggleExpanded(schedule.id)}
-          className="border rounded-lg overflow-hidden"
-        >
-          <Card className="border-0 shadow-none">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl">{schedule.name}</CardTitle>
-                  {schedule.description && (
-                    <CardDescription className="mt-1">{schedule.description}</CardDescription>
-                  )}
+    <div className="space-y-6">
+      <Alert variant="default" className="bg-muted/50 border-muted">
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          View and manage your feeding schedules. Click on a schedule to expand and see upcoming feeding events. 
+          Generate feeding events for the next 30 days with the button at the bottom of each card.
+        </AlertDescription>
+      </Alert>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {schedules.map((schedule) => (
+          <Collapsible
+            key={schedule.id}
+            open={expandedScheduleIds.has(schedule.id)}
+            onOpenChange={() => toggleExpanded(schedule.id)}
+            className="border rounded-lg overflow-hidden"
+          >
+            <Card className="border-0 shadow-none">
+              <CardHeader className="pb-0 px-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-xl">{schedule.name}</CardTitle>
+                    {schedule.description && (
+                      <CardDescription className="mt-1">{schedule.description}</CardDescription>
+                    )}
+                  </div>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      {expandedScheduleIds.has(schedule.id) ? 
+                        <ChevronUp className="h-4 w-4" /> : 
+                        <ChevronDown className="h-4 w-4" />
+                      }
+                    </Button>
+                  </CollapsibleTrigger>
                 </div>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    {expandedScheduleIds.has(schedule.id) ? 
-                      <ChevronUp className="h-4 w-4" /> : 
-                      <ChevronDown className="h-4 w-4" />
-                    }
-                  </Button>
-                </CollapsibleTrigger>
-              </div>
-            </CardHeader>
-            <CardContent className="pb-4">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Frequency:</span>
-                  <div className="font-medium">{getRecurrenceDisplay(schedule)}</div>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Targets:</span>
-                  <div>{getTargetsDisplay(schedule)}</div>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Start Date:</span>
-                  <div className="font-medium flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {format(new Date(schedule.start_date), 'MMM d, yyyy')}
+              </CardHeader>
+              <CardContent className="pb-4 px-6">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Frequency:</span>
+                    <div className="font-medium">{getRecurrenceDisplay(schedule)}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Start Date:</span>
+                    <div className="font-medium flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {format(new Date(schedule.start_date), 'MMM d, yyyy')}
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">End Date:</span>
+                    <div className="font-medium">
+                      {schedule.end_date ? format(new Date(schedule.end_date), 'MMM d, yyyy') : 'None'}
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">Targets:</span>
+                    {getTargetsDisplay(schedule)}
                   </div>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">End Date:</span>
-                  <div className="font-medium">
-                    {schedule.end_date ? format(new Date(schedule.end_date), 'MMM d, yyyy') : 'None'}
-                  </div>
-                </div>
+              </CardContent>
+              <CardFooter className="pt-0 pb-4 px-6">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => handleGenerateEvents(schedule)}
+                  disabled={isGeneratingEvents[schedule.id]}
+                >
+                  {isGeneratingEvents[schedule.id] && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                  Generate Feeding Events
+                </Button>
+              </CardFooter>
+            </Card>
+            <CollapsibleContent>
+              <div className="px-4 pt-0 pb-4 bg-muted/20">
+                <FeedingEventsList scheduleId={schedule.id} />
               </div>
-            </CardContent>
-            <CardFooter className="pt-0">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full"
-                onClick={() => handleGenerateEvents(schedule)}
-                disabled={isGeneratingEvents[schedule.id]}
-              >
-                {isGeneratingEvents[schedule.id] && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
-                Generate Feeding Events
-              </Button>
-            </CardFooter>
-          </Card>
-          <CollapsibleContent>
-            <div className="p-4 pt-0 bg-muted/20">
-              <FeedingEventsList scheduleId={schedule.id} />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      ))}
+            </CollapsibleContent>
+          </Collapsible>
+        ))}
+      </div>
     </div>
   );
 } 

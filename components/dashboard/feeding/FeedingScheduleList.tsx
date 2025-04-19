@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
-import { Plus, Pencil, Trash2, Calendar, MoreHorizontal } from 'lucide-react';
+import { Plus, Pencil, Trash2, Calendar, MoreHorizontal, MapPin, Footprints } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -20,6 +20,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface FeedingScheduleListProps {
   schedules: FeedingScheduleWithTargets[];
@@ -64,16 +70,48 @@ export function FeedingScheduleList({
     );
 
     return (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-col gap-1.5">
         {locationTargets.length > 0 && (
-          <Badge variant="secondary" className="text-xs">
-            {locationTargets.length} Location{locationTargets.length > 1 ? 's' : ''}
-          </Badge>
+          <div className="flex items-start gap-1.5">
+            <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <div className="flex flex-wrap gap-1">
+              {locationTargets.map((target, index) => (
+                <TooltipProvider key={index}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="secondary" className="text-xs cursor-default">
+                        {target.location_label || "Unknown location"}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Location: {target.location_label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ))}
+            </div>
+          </div>
         )}
         {reptileTargets.length > 0 && (
-          <Badge variant="outline" className="text-xs">
-            {reptileTargets.length} Reptile{reptileTargets.length > 1 ? 's' : ''}
-          </Badge>
+          <div className="flex items-start gap-1.5">
+            <Footprints className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <div className="flex flex-wrap gap-1">
+              {reptileTargets.map((target, index) => (
+                <TooltipProvider key={index}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="text-xs cursor-default">
+                        {target.reptile_name || "Unknown reptile"}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Reptile: {target.reptile_name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     );
@@ -82,92 +120,94 @@ export function FeedingScheduleList({
   return (
     <Card>
       <CardContent className="p-0">
-        <Table className="border-b">
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Name</TableHead>
-              <TableHead>Recurrence</TableHead>
-              <TableHead>Targets</TableHead>
-              <TableHead>Dates</TableHead>
-              <TableHead className="w-[100px] text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {schedules.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
-                  No feeding schedules found. Create your first schedule!
-                </TableCell>
+        <div className="overflow-x-auto">
+          <Table className="border-b">
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="py-3 px-4 md:px-6">Name</TableHead>
+                <TableHead className="py-3 px-4 md:px-6">Recurrence</TableHead>
+                <TableHead className="py-3 px-4 md:px-6">Targets</TableHead>
+                <TableHead className="py-3 px-4 md:px-6">Dates</TableHead>
+                <TableHead className="w-[100px] py-3 px-4 md:px-6 text-right">Actions</TableHead>
               </TableRow>
-            ) : (
-              schedules.map((schedule) => (
-                <TableRow key={schedule.id} className="hover:bg-muted/50">
-                  <TableCell>
-                    <div className="font-medium">{schedule.name}</div>
-                    {schedule.description && (
-                      <div className="text-sm text-muted-foreground truncate max-w-[250px]">
-                        {schedule.description}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>{getRecurrenceDisplay(schedule)}</TableCell>
-                  <TableCell>{getTargetsDisplay(schedule)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-muted-foreground" />
-                      <span>
-                        {format(new Date(schedule.start_date), 'MMM d, yyyy')}
-                      </span>
-                    </div>
-                    {schedule.end_date && (
-                      <div className="text-xs text-muted-foreground">
-                        Until {format(new Date(schedule.end_date), 'MMM d, yyyy')}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="h-8 w-8"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {onViewEvents && (
-                          <DropdownMenuItem 
-                            onClick={() => onViewEvents(schedule)}
-                            className="cursor-pointer"
-                          >
-                            <Calendar className="mr-2 h-4 w-4" />
-                            View Events
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem 
-                          onClick={() => onEdit(schedule)}
-                          className="cursor-pointer"
-                        >
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => onDelete(schedule.id)}
-                          className="cursor-pointer text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+            </TableHeader>
+            <TableBody>
+              {schedules.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-16 text-muted-foreground">
+                    No feeding schedules found. Create your first schedule!
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                schedules.map((schedule) => (
+                  <TableRow key={schedule.id} className="hover:bg-muted/50">
+                    <TableCell className="py-3 px-4 md:px-6">
+                      <div className="font-medium">{schedule.name}</div>
+                      {schedule.description && (
+                        <div className="text-sm text-muted-foreground truncate max-w-[250px]">
+                          {schedule.description}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-3 px-4 md:px-6">{getRecurrenceDisplay(schedule)}</TableCell>
+                    <TableCell className="py-3 px-4 md:px-6">{getTargetsDisplay(schedule)}</TableCell>
+                    <TableCell className="py-3 px-4 md:px-6">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-muted-foreground" />
+                        <span>
+                          {format(new Date(schedule.start_date), 'MMM d, yyyy')}
+                        </span>
+                      </div>
+                      {schedule.end_date && (
+                        <div className="text-xs text-muted-foreground">
+                          Until {format(new Date(schedule.end_date), 'MMM d, yyyy')}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right py-3 px-4 md:px-6">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="h-8 w-8"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {onViewEvents && (
+                            <DropdownMenuItem 
+                              onClick={() => onViewEvents(schedule)}
+                              className="cursor-pointer"
+                            >
+                              <Calendar className="mr-2 h-4 w-4" />
+                              View Events
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem 
+                            onClick={() => onEdit(schedule)}
+                            className="cursor-pointer"
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => onDelete(schedule.id)}
+                            className="cursor-pointer text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );

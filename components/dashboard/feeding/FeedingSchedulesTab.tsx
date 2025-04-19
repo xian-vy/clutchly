@@ -8,11 +8,12 @@ import { useState } from 'react';
 import { FeedingScheduleForm } from './FeedingScheduleForm';
 import { FeedingScheduleList } from './FeedingScheduleList';
 import { Button } from '@/components/ui/button';
-import { Loader2, Plus } from 'lucide-react';
+import { Info, Loader2, Plus } from 'lucide-react';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { getLocations } from '@/app/api/locations/locations';
 import { toast } from 'sonner';
-import { Card, CardContent, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function FeedingSchedulesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -80,13 +81,11 @@ export function FeedingSchedulesTab() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <Card>
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center">
-            <CardDescription className="text-sm">
-              Create feeding schedules based on locations or specific reptiles with customizable recurrence patterns.
-            </CardDescription>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl">Feeding Schedules</CardTitle>
             <Button 
               onClick={() => onDialogChange(true)}
               className="flex items-center gap-1"
@@ -96,18 +95,30 @@ export function FeedingSchedulesTab() {
               New Schedule
             </Button>
           </div>
+          <CardDescription className="text-sm">
+            Create and manage feeding schedules for your reptiles.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <Alert variant="default" className="bg-muted/50 border-muted mb-4">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Create schedules based on specific locations or reptiles with customizable recurrence patterns. 
+              After creating a schedule, you can generate feeding events from the Feeding tab.
+            </AlertDescription>
+          </Alert>
+          
+          <FeedingScheduleList 
+            schedules={schedules}
+            onEdit={(schedule) => {
+              setSelectedSchedule(schedule);
+              onDialogChange(true);
+            }}
+            onDelete={handleDelete}
+            onAddNew={() => onDialogChange(true)}
+          />
         </CardContent>
       </Card>
-      
-      <FeedingScheduleList 
-        schedules={schedules}
-        onEdit={(schedule) => {
-          setSelectedSchedule(schedule);
-          onDialogChange(true);
-        }}
-        onDelete={handleDelete}
-        onAddNew={() => onDialogChange(true)}
-      />
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
         <DialogContent className="sm:max-w-[800px]">
