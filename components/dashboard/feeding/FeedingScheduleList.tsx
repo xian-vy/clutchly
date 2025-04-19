@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
-import { Plus, Pencil, Trash2, Calendar, Eye, MoreHorizontal } from 'lucide-react';
+import { Plus, Pencil, Trash2, Calendar, MoreHorizontal } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -19,14 +19,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface FeedingScheduleListProps {
   schedules: FeedingScheduleWithTargets[];
   onEdit: (schedule: FeedingScheduleWithTargets) => void;
   onDelete: (id: string) => void;
   onAddNew: () => void;
-  onViewEvents: (schedule: FeedingScheduleWithTargets) => void;
+  onViewEvents?: (schedule: FeedingScheduleWithTargets) => void;
 }
 
 export function FeedingScheduleList({
@@ -101,9 +101,7 @@ export function FeedingScheduleList({
               </TableRow>
             ) : (
               schedules.map((schedule) => (
-                <TableRow key={schedule.id} className="hover:bg-muted/50 cursor-pointer"
-                  onClick={() => onViewEvents(schedule)}
-                >
+                <TableRow key={schedule.id} className="hover:bg-muted/50">
                   <TableCell>
                     <div className="font-medium">{schedule.name}</div>
                     {schedule.description && (
@@ -133,38 +131,30 @@ export function FeedingScheduleList({
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={(e) => e.stopPropagation()}
                           className="h-8 w-8"
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {onViewEvents && (
+                          <DropdownMenuItem 
+                            onClick={() => onViewEvents(schedule)}
+                            className="cursor-pointer"
+                          >
+                            <Calendar className="mr-2 h-4 w-4" />
+                            View Events
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onViewEvents(schedule);
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Events
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(schedule);
-                          }}
+                          onClick={() => onEdit(schedule)}
                           className="cursor-pointer"
                         >
                           <Pencil className="mr-2 h-4 w-4" />
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(schedule.id);
-                          }}
+                          onClick={() => onDelete(schedule.id)}
                           className="cursor-pointer text-destructive focus:text-destructive"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
