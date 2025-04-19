@@ -105,7 +105,7 @@ export function ReptilesTab() {
     }
   }, [reptiles, reptilesLoading]);
 
-  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations;
+  const isLoading = reptilesLoading || speciesLoading || morphsLoading ;
 
   if (isLoading) {
     return (
