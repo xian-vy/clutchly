@@ -3,7 +3,6 @@
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph, NewMorph } from '@/lib/types/morph';
-import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { MorphForm } from './MorphForm';
 import { MorphList } from './MorphList';
@@ -19,11 +18,11 @@ export function MorphsTab() {
     addMorph,
     updateMorph,
     deleteMorph,
-    fetchMorphs
   } = useMorphsStore()
   
   const [selectedMorph, setSelectedMorph] = useState<MorphWithSpecies | undefined>(undefined)
 
+  /*
   // Use TanStack Query only for the initial load
   const { isLoading: queryLoading } = useQuery({
     queryKey: ['morphs-initial-load'],
@@ -42,7 +41,7 @@ export function MorphsTab() {
     // Don't consider data stale
     staleTime: Infinity,
   });
-
+*/
   const handleCreate = async (data: NewMorph) => {
     const result = await addMorph(data)
     if (result) {
@@ -68,7 +67,7 @@ export function MorphsTab() {
     await deleteMorph(id)
   }
 
-  const isLoading = storeLoading || queryLoading;
+  const isLoading = storeLoading;
 
   if (isLoading) {
     return <div>Loading...</div>
