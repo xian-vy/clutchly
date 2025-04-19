@@ -1,6 +1,7 @@
 'use client';
 
 import { SubscriptionBadge } from '@/components/subscription/SubscriptionBadge';
+import { InstallDialog } from '@/components/navigation/InstallDialog';
 
 const TopNavigation = () => {
   return (
@@ -9,9 +10,7 @@ const TopNavigation = () => {
             <button className="text-sm text-muted-foreground hover:text-primary transition">
                 Feedback
             </button>
-            <button className="text-sm text-muted-foreground hover:text-primary transition">
-                Install Mobile
-            </button>
+            <InstallDialog />
             <button className="text-sm text-muted-foreground hover:text-primary transition">
                 Help
             </button>
