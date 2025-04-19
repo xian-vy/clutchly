@@ -128,7 +128,7 @@ export function ReptilesTab() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Herp Management</h2>
+        <h2 className="text-2xl font-bold">Herp List</h2>
         <div className="flex space-x-2">
           <Button 
             variant="default" 
