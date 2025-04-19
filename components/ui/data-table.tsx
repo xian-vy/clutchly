@@ -21,7 +21,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table"
-import { Filter, Plus, Search } from "lucide-react"
+import { FileSpreadsheet, Filter, Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 import Paginator from "./paginator"
 import { DownloadCommonMorphs } from "../dashboard/reptiles/morphs/DownloadCommonMorphs"
@@ -32,6 +32,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   onAddNew?: () => void
   onDownload?: () => void
+  onImport?: () => void
   filterButton?: React.ReactNode
 }
 
@@ -40,6 +41,7 @@ export function DataTable<TData, TValue>({
   data,
   onAddNew,
   onDownload,
+  onImport,
   filterButton,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -88,6 +90,16 @@ export function DataTable<TData, TValue>({
               <Filter className="h-4 w-4 mr-1" />
               Filter
             </Button>
+          )}
+          {onImport && (
+              <Button 
+                variant="outline" 
+                onClick={onImport}
+                className="flex items-center gap-2"
+              >
+                <FileSpreadsheet className="h-4 w-4" />
+                Import
+              </Button>
           )}
           {onAddNew && (
             <Button variant="default" size="sm" onClick={onAddNew}>

@@ -11,6 +11,7 @@ import { Edit, Eye, Filter, MapPin, MoreHorizontal, Star, Trash } from "lucide-r
 import { useMemo, useState } from "react";
 import { ReptileFilterDialog, ReptileFilters } from "./ReptileFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ImportReptileDialog } from "./ImportReptileDialog";
 
 // Extended Reptile type with species_name and morph_name
 interface EnrichedReptile extends Reptile {
@@ -24,6 +25,7 @@ interface ReptileListProps {
   onEdit?: (reptile: EnrichedReptile) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
+  onImportSuccess : () => void;
 }
 
 export function ReptileList({ 
@@ -31,10 +33,11 @@ export function ReptileList({
   onEdit, 
   onDelete, 
   onAddNew,
-
+  onImportSuccess
 }: ReptileListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<ReptileFilters>({});
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
 
   // Apply filters to the reptiles list
   const filteredReptiles = useMemo(() => {
@@ -328,6 +331,7 @@ export function ReptileList({
         data={filteredReptiles} 
         onAddNew={onAddNew} 
         filterButton={<CustomFilterButton />}
+        onImport={() => setIsImportDialogOpen(true)}
       />
       
       <ReptileFilterDialog
@@ -335,6 +339,12 @@ export function ReptileList({
         onOpenChange={setIsFilterDialogOpen}
         onApplyFilters={setFilters}
         currentFilters={filters}
+      />
+      
+      <ImportReptileDialog 
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        onImportComplete={onImportSuccess}
       />
     </>
   );
