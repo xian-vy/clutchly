@@ -208,6 +208,17 @@ export function FeedingScheduleList({
             </TableBody>
           </Table>
         </div>
+        {schedules.length === 0 && (
+          <div className="flex justify-center p-6">
+            <Button
+              onClick={onAddNew}
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add Feeding Schedule
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
