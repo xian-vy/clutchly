@@ -250,52 +250,48 @@ export function FeedingLogsTab() {
           <TabsTrigger value="logs">Event Logs</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
-
+        
         <TabsContent value="logs" className="space-y-4">
+          {/* Filters */}
           <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row gap-4 md:items-end">
-                {/* Search */}
+            <CardContent className="p-4">
+              <div className="flex flex-col md:flex-row gap-4 items-end">
                 <div className="flex-1">
-                  <Label htmlFor="search" className="text-sm mb-2">Search</Label>
+                  <Label htmlFor="search" className="mb-2 block text-sm">Search</Label>
                   <div className="relative">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="search"
-                      placeholder="Search by reptile, species..."
+                      placeholder="Search reptiles, species, or notes..."
                       className="pl-8"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                 </div>
-
-                {/* Status Filter */}
                 <div className="w-full md:w-[180px]">
-                  <Label htmlFor="status" className="text-sm mb-2">Status</Label>
-                  <Select 
-                    value={filterStatus} 
-                    onValueChange={(value) => setFilterStatus(value as any)}
+                  <Label htmlFor="status" className="mb-2 block text-sm">Status</Label>
+                  <Select
+                    value={filterStatus}
+                    onValueChange={(value) => setFilterStatus(value as 'all' | 'fed' | 'unfed')}
                   >
                     <SelectTrigger id="status">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All events</SelectItem>
-                      <SelectItem value="fed">Fed only</SelectItem>
-                      <SelectItem value="unfed">Unfed only</SelectItem>
+                      <SelectItem value="all">All Events</SelectItem>
+                      <SelectItem value="fed">Fed</SelectItem>
+                      <SelectItem value="unfed">Not Fed</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-
-                {/* Date Range */}
-                <div className="w-full md:w-[240px]">
-                  <Label htmlFor="date" className="text-sm mb-2">Date Range</Label>
+                <div className="w-full md:w-[250px]">
+                  <Label htmlFor="date" className="mb-2 block text-sm">Date Range</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         id="date"
-                        variant="outline"
+                        variant={"outline"}
                         className={cn(
                           "w-full justify-start text-left font-normal",
                           !dateRange.from && !dateRange.to && "text-muted-foreground"
@@ -305,104 +301,84 @@ export function FeedingLogsTab() {
                         {dateRange.from ? (
                           dateRange.to ? (
                             <>
-                              {format(dateRange.from, "LLL dd, y")} -{" "}
-                              {format(dateRange.to, "LLL dd, y")}
+                              {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
                             </>
                           ) : (
                             format(dateRange.from, "LLL dd, y")
                           )
                         ) : (
-                          "All time"
+                          "Select date range"
                         )}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
-                        initialFocus
                         mode="range"
-                        defaultMonth={dateRange.from}
                         selected={dateRange}
-                        onSelect={(range) => {
-                          if (range) {
-                            setDateRange(range);
-                          }
-                        }}
-                        numberOfMonths={2}
+                        onSelect={(range) => setDateRange(range || { from: undefined, to: undefined })}
+                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
-
-                {/* Clear Filters */}
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
+                  size="icon" 
                   onClick={clearFilters}
-                  className="h-10 px-4"
+                  className="h-10 w-10"
                 >
-                  <Filter className="mr-2 h-4 w-4" />
-                  Clear
+                  <Filter className="h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Results Table */}
+          {/* Event Logs Table */}
           <Card>
-            <CardHeader className="py-4">
-              <CardTitle className="text-lg">Feeding Events</CardTitle>
-              <CardDescription>
-                Showing {filteredEvents.length} events
-                {searchTerm && ` matching "${searchTerm}"`}
-                {filterStatus !== 'all' && ` with status "${filterStatus}"`}
-              </CardDescription>
-            </CardHeader>
             <CardContent className="p-0">
-              {filteredEvents.length === 0 ? (
-                <div className="flex justify-center items-center py-12">
-                  <div className="text-center">
-                    <div className="text-muted-foreground mb-2">No events found</div>
-                    <div className="text-sm text-muted-foreground">
-                      Try adjusting your filters to see more results.
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Reptile</TableHead>
+                    <TableHead>Species</TableHead>
+                    <TableHead>Morph</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Notes</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredEvents.length === 0 ? (
                     <TableRow>
-                      <TableHead className="w-[100px]">Date</TableHead>
-                      <TableHead>Reptile</TableHead>
-                      <TableHead>Species</TableHead>
-                      <TableHead>Morph</TableHead>
-                      <TableHead>Notes</TableHead>
-                      <TableHead className="text-right">Status</TableHead>
+                      <TableCell colSpan={6} className="h-24 text-center">
+                        No feeding events found that match your filters.
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredEvents.map((event) => (
-                      <TableRow key={event.id}>
-                        <TableCell className="font-medium">
-                          {format(new Date(event.scheduled_date), "MMM d, yyyy")}
+                  ) : (
+                    filteredEvents.map((event) => (
+                      <TableRow key={event.id} className={event.fed ? "bg-muted/30" : ""}>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <CalendarIcon className="h-3 w-3 text-muted-foreground" />
+                            {format(new Date(event.scheduled_date), 'MMM d, yyyy')}
+                          </div>
                         </TableCell>
-                        <TableCell>{event.reptile_name}</TableCell>
+                        <TableCell className="font-medium">{event.reptile_name}</TableCell>
                         <TableCell>{event.species_name}</TableCell>
-                        <TableCell>{event.morph_name || "-"}</TableCell>
-                        <TableCell className="max-w-[300px] truncate">
-                          {event.notes || "-"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Badge 
-                            variant={event.fed ? "default" : "outline"}
-                            className={event.fed ? "bg-green-500" : ""}
-                          >
+                        <TableCell>{event.morph_name || '-'}</TableCell>
+                        <TableCell>
+                          <Badge variant={event.fed ? "outline" : "secondary"}>
                             {event.fed ? "Fed" : "Not Fed"}
                           </Badge>
                         </TableCell>
+                        <TableCell className="max-w-[250px] truncate">
+                          {event.notes || '-'}
+                        </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
+                    ))
+                  )}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>
@@ -412,41 +388,73 @@ export function FeedingLogsTab() {
             <CardHeader>
               <CardTitle>Feeding Reports</CardTitle>
               <CardDescription>
-                Generate and export feeding data reports
+                Generate comprehensive reports on feeding patterns and completion rates.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="text-sm font-medium mb-1">Feeding Summary Report</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Generate a summary of all feeding events for the selected period.
-                  </p>
+                  <Label htmlFor="report-type" className="mb-2 block">Report Type</Label>
+                  <Select defaultValue="summary">
+                    <SelectTrigger id="report-type">
+                      <SelectValue placeholder="Select report type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="summary">Summary Report</SelectItem>
+                      <SelectItem value="detailed">Detailed Log</SelectItem>
+                      <SelectItem value="reptile">Per-Reptile Stats</SelectItem>
+                      <SelectItem value="species">Per-Species Stats</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Button 
-                  onClick={handleGenerateReport}
-                  disabled={isGeneratingReport}
-                >
-                  {isGeneratingReport ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="mr-2 h-4 w-4" />
-                      Generate Report
-                    </>
-                  )}
-                </Button>
+                <div>
+                  <Label htmlFor="report-format" className="mb-2 block">Format</Label>
+                  <Select defaultValue="pdf">
+                    <SelectTrigger id="report-format">
+                      <SelectValue placeholder="Select format" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pdf">PDF Document</SelectItem>
+                      <SelectItem value="excel">Excel Spreadsheet</SelectItem>
+                      <SelectItem value="csv">CSV File</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground border-t pt-4">
-                The report will use the same filters you've applied in the Event Logs tab.
+
+              <div className="bg-muted p-4 rounded-lg">
+                <h3 className="text-sm font-medium mb-2">Applied Filters</h3>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p>Status: {filterStatus === 'all' ? 'All Events' : filterStatus === 'fed' ? 'Fed Only' : 'Unfed Only'}</p>
+                  <p>Date Range: {dateRange.from 
+                    ? `${format(dateRange.from, 'MMM d, yyyy')} - ${dateRange.to ? format(dateRange.to, 'MMM d, yyyy') : 'Present'}`
+                    : 'All time'
+                  }</p>
+                  <p>Matching Events: {filteredEvents.length}</p>
+                </div>
               </div>
+
+              <Button 
+                className="w-full" 
+                onClick={handleGenerateReport}
+                disabled={isGeneratingReport || filteredEvents.length === 0}
+              >
+                {isGeneratingReport ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Report...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Generate Report
+                  </>
+                )}
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
     </div>
   );
-} 
+}

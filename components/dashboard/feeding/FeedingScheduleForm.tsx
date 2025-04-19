@@ -15,14 +15,22 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
-import { FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
-import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
+import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 
 // Define form schema
 const feedingScheduleSchema = z.object({
@@ -113,7 +121,7 @@ export function FeedingScheduleForm({
         name: values.name,
         description: values.description || null,
         recurrence: values.recurrence,
-        custom_days: values.recurrence === 'custom' ? values.custom_days || [] : null,
+        custom_days: values.recurrence === 'custom' ? values.custom_days : null,
         start_date: format(values.start_date, 'yyyy-MM-dd'),
         end_date: values.end_date ? format(values.end_date, 'yyyy-MM-dd') : null,
         targets: values.targets,
@@ -192,7 +200,7 @@ export function FeedingScheduleForm({
                     <FormControl>
                       <RadioGroupItem value="custom" />
                     </FormControl>
-                    <FormLabel className="font-normal">Custom</FormLabel>
+                    <FormLabel className="font-normal">Custom Days</FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
@@ -206,59 +214,44 @@ export function FeedingScheduleForm({
           <FormField
             control={form.control}
             name="custom_days"
-            render={() => (
+            render={({ field }) => (
               <FormItem>
-                <div className="mb-4">
-                  <FormLabel className="text-base">Select Days</FormLabel>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {[
-                    { label: 'Sunday', value: 0 },
-                    { label: 'Monday', value: 1 },
-                    { label: 'Tuesday', value: 2 },
-                    { label: 'Wednesday', value: 3 },
-                    { label: 'Thursday', value: 4 },
-                    { label: 'Friday', value: 5 },
-                    { label: 'Saturday', value: 6 },
-                  ].map((day) => (
-                    <FormField
-                      key={day.value}
-                      control={form.control}
-                      name="custom_days"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={day.value}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(day.value)}
-                                onCheckedChange={(checked) => {
-                                  const currentValue = field.value || [];
-                                  const newValue = checked
-                                    ? [...currentValue, day.value]
-                                    : currentValue.filter((value) => value !== day.value);
-                                  field.onChange(newValue);
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {day.label}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                </div>
+                <FormLabel>Select Days</FormLabel>
+                <FormControl>
+                  <div className="flex flex-wrap gap-2">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                      <div key={day} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`day-${index}`}
+                          checked={field.value?.includes(index)}
+                          onCheckedChange={(checked) => {
+                            const currentValue = field.value || [];
+                            if (checked) {
+                              field.onChange([...currentValue, index]);
+                            } else {
+                              field.onChange(
+                                currentValue.filter((day) => day !== index)
+                              );
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor={`day-${index}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {day}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         )}
         
-        {/* Start Date */}
+        {/* Start and End Dates */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -270,7 +263,7 @@ export function FeedingScheduleForm({
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
-                        variant="outline"
+                        variant={"outline"}
                         className={cn(
                           "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
@@ -299,7 +292,6 @@ export function FeedingScheduleForm({
             )}
           />
           
-          {/* End Date (Optional) */}
           <FormField
             control={form.control}
             name="end_date"
@@ -310,7 +302,7 @@ export function FeedingScheduleForm({
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
-                        variant="outline"
+                        variant={"outline"}
                         className={cn(
                           "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
@@ -331,6 +323,7 @@ export function FeedingScheduleForm({
                       selected={field.value || undefined}
                       onSelect={field.onChange}
                       initialFocus
+                      disabled={(date) => date < form.getValues().start_date}
                     />
                   </PopoverContent>
                 </Popover>
@@ -340,111 +333,127 @@ export function FeedingScheduleForm({
           />
         </div>
         
-        {/* Target Selection - Reptile vs Location */}
+        {/* Target Selection */}
         <div className="space-y-4">
-          <div className="flex flex-col gap-2">
-            <FormLabel>Apply Schedule To</FormLabel>
-            <div className="flex gap-4">
-              <Button
-                type="button"
-                variant={targetType === 'reptile' ? 'default' : 'outline'}
-                onClick={() => setTargetType('reptile')}
-              >
-                Reptiles
-              </Button>
-              <Button
-                type="button"
-                variant={targetType === 'location' ? 'default' : 'outline'}
-                onClick={() => setTargetType('location')}
-              >
-                Locations
-              </Button>
-            </div>
+          <div>
+            <FormLabel className="block mb-2">Feeding Target Type</FormLabel>
+            <Select
+              value={targetType}
+              onValueChange={(value: 'reptile' | 'location') => {
+                setTargetType(value);
+                form.setValue('targets', []); // Clear current targets when switching types
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select target type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="location">Feed by Location</SelectItem>
+                <SelectItem value="reptile">Feed Specific Reptiles</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
-          {/* Target Selection */}
           <FormField
             control={form.control}
             name="targets"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {targetType === 'reptile' ? 'Select Reptiles' : 'Select Locations'}
+                  {targetType === 'location' ? 'Select Locations' : 'Select Reptiles'}
                 </FormLabel>
                 <FormControl>
-                  <div className="grid grid-cols-1 gap-4">
-                    {targetType === 'reptile' ? (
-                      // Reptile Selection
-                      <div className="space-y-2">
-                        {reptiles.map(reptile => (
-                          <div
-                            key={reptile.id}
-                            className="flex items-center space-x-3 border p-3 rounded-md"
+                  {targetType === 'location' ? (
+                    <div className="flex flex-wrap gap-2">
+                      {locations.map((location) => (
+                        <div key={location.id} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`location-${location.id}`}
+                            checked={field.value.some(target => 
+                              target.target_type === 'location' && target.target_id === location.id
+                            )}
+                            onCheckedChange={(checked) => {
+                              const currentValue = [...field.value];
+                              if (checked) {
+                                field.onChange([
+                                  ...currentValue,
+                                  { target_type: 'location', target_id: location.id }
+                                ]);
+                              } else {
+                                field.onChange(
+                                  currentValue.filter(
+                                    target => !(target.target_type === 'location' && target.target_id === location.id)
+                                  )
+                                );
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`location-${location.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
-                            <Checkbox
-                              checked={field.value.some(
-                                t => t.target_type === 'reptile' && t.target_id === reptile.id
-                              )}
-                              onCheckedChange={checked => {
-                                const currentValue = [...field.value];
-                                if (checked) {
-                                  // Add reptile to targets
-                                  if (!currentValue.some(t => t.target_id === reptile.id && t.target_type === 'reptile')) {
-                                    currentValue.push({ target_type: 'reptile', target_id: reptile.id });
-                                  }
-                                } else {
-                                  // Remove reptile from targets
-                                  const index = currentValue.findIndex(
-                                    t => t.target_type === 'reptile' && t.target_id === reptile.id
-                                  );
-                                  if (index !== -1) {
-                                    currentValue.splice(index, 1);
-                                  }
-                                }
-                                field.onChange(currentValue);
-                              }}
-                            />
-                            <span>{reptile.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      // Location Selection
-                      <div className="space-y-2">
-                        {locations.map(location => (
-                          <div
-                            key={location.id}
-                            className="flex items-center space-x-3 border p-3 rounded-md"
+                            {location.label}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button 
+                            variant="outline"
+                            className="w-full justify-between font-normal"
                           >
-                            <Checkbox
-                              checked={field.value.some(
-                                t => t.target_type === 'location' && t.target_id === location.id
-                              )}
-                              onCheckedChange={checked => {
-                                const currentValue = [...field.value];
-                                if (checked) {
-                                  // Add location to targets
-                                  if (!currentValue.some(t => t.target_id === location.id && t.target_type === 'location')) {
-                                    currentValue.push({ target_type: 'location', target_id: location.id });
-                                  }
-                                } else {
-                                  // Remove location from targets
-                                  const index = currentValue.findIndex(
-                                    t => t.target_type === 'location' && t.target_id === location.id
-                                  );
-                                  if (index !== -1) {
-                                    currentValue.splice(index, 1);
-                                  }
-                                }
-                                field.onChange(currentValue);
-                              }}
-                            />
-                            <span>{location.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                            {field.value.length === 0 
+                              ? "Select reptiles" 
+                              : `${field.value.length} reptile${field.value.length > 1 ? 's' : ''} selected`}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[400px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Search reptiles..." />
+                            <CommandEmpty>No reptiles found.</CommandEmpty>
+                            <CommandGroup>
+                              {reptiles.map((reptile) => (
+                                <CommandItem
+                                  key={reptile.id}
+                                  value={reptile.id}
+                                  onSelect={() => {
+                                    const currentValue = [...field.value];
+                                    const exists = currentValue.some(
+                                      target => target.target_type === 'reptile' && target.target_id === reptile.id
+                                    );
+                                    
+                                    if (exists) {
+                                      field.onChange(
+                                        currentValue.filter(
+                                          target => !(target.target_type === 'reptile' && target.target_id === reptile.id)
+                                        )
+                                      );
+                                    } else {
+                                      field.onChange([
+                                        ...currentValue,
+                                        { target_type: 'reptile', target_id: reptile.id }
+                                      ]);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-center">
+                                    {field.value.some(
+                                      target => target.target_type === 'reptile' && target.target_id === reptile.id
+                                    ) && <Check className="mr-2 h-4 w-4" />}
+                                    {reptile.name}
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -452,25 +461,14 @@ export function FeedingScheduleForm({
           />
         </div>
         
-        {/* Form Actions */}
-        <div className="flex justify-end gap-2">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
+        {/* Form Buttons */}
+        <div className="flex justify-end space-x-2">
+          <Button variant="outline" type="button" onClick={onCancel}>
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              'Save Schedule'
-            )}
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {initialData ? 'Update' : 'Create'} Schedule
           </Button>
         </div>
       </form>

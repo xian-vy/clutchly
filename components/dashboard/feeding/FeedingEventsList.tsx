@@ -1,9 +1,9 @@
 'use client';
 
+import { FeedingEventWithDetails } from '@/lib/types/feeding';
 import { getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from '@/components/ui/checkbox';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 import {
   Table,
   TableBody,
@@ -12,21 +12,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { FeedingEventWithDetails } from '@/lib/types/feeding';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { Loader2, PlusCircle, Save } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { CheckCircle2, Loader2, PlusCircle, Save } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface FeedingEventsListProps {
   scheduleId: string;
-  date?: string;
-  onStatusChange?: () => void;
+  onEventsUpdated?: () => void;
 }
 
-export function FeedingEventsList({ scheduleId, date, onStatusChange }: FeedingEventsListProps) {
+export function FeedingEventsList({ scheduleId, onEventsUpdated }: FeedingEventsListProps) {
   const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
   const [eventNotes, setEventNotes] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
@@ -74,9 +74,9 @@ export function FeedingEventsList({ scheduleId, date, onStatusChange }: FeedingE
       
       toast.success(`Feeding ${fed ? 'completed' : 'unmarked'}`);
       
-      // Call the onStatusChange callback to refresh the parent component
-      if (onStatusChange) {
-        onStatusChange();
+      // Call the onEventsUpdated callback to refresh the parent component
+      if (onEventsUpdated) {
+        onEventsUpdated();
       }
     } catch (error) {
       console.error('Error updating feeding event:', error);
@@ -114,9 +114,9 @@ export function FeedingEventsList({ scheduleId, date, onStatusChange }: FeedingE
       
       toast.success('Notes saved successfully');
       
-      // Call the onStatusChange callback
-      if (onStatusChange) {
-        onStatusChange();
+      // Call the onEventsUpdated callback
+      if (onEventsUpdated) {
+        onEventsUpdated();
       }
     } catch (error) {
       console.error('Error saving notes:', error);
@@ -150,14 +150,9 @@ export function FeedingEventsList({ scheduleId, date, onStatusChange }: FeedingE
     );
   }
   
-  // Filter events by date if date is provided
-  const filteredEvents = date
-    ? events.filter(event => event.scheduled_date === date)
-    : events;
-  
   // Group events by date
   const eventsByDate: Record<string, FeedingEventWithDetails[]> = {};
-  filteredEvents.forEach(event => {
+  events.forEach(event => {
     const date = event.scheduled_date;
     if (!eventsByDate[date]) {
       eventsByDate[date] = [];

@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
 import { FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
 import { useState } from 'react';
+import { FeedingScheduleForm } from './FeedingScheduleForm';
+import { FeedingScheduleList } from './FeedingScheduleList';
 import { Button } from '@/components/ui/button';
 import { Info, Loader2, Plus } from 'lucide-react';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
@@ -12,8 +14,6 @@ import { getLocations } from '@/app/api/locations/locations';
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { FeedingScheduleForm } from './FeedingScheduleForm';
-import { FeedingScheduleList } from './FeedingScheduleList';
 
 export function FeedingSchedulesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -110,7 +110,7 @@ export function FeedingSchedulesTab() {
           
           <FeedingScheduleList 
             schedules={schedules}
-            onEdit={(schedule: FeedingScheduleWithTargets) => {
+            onEdit={(schedule) => {
               setSelectedSchedule(schedule);
               onDialogChange(true);
             }}
@@ -127,7 +127,7 @@ export function FeedingSchedulesTab() {
           </DialogTitle>
           <FeedingScheduleForm
             initialData={selectedSchedule}
-            onSubmit={async (data: NewFeedingSchedule & { targets: { target_type: 'reptile' | 'location', target_id: string }[] }) => {
+            onSubmit={async (data) => {
               const success = selectedSchedule
                 ? await handleUpdate(data)
                 : await handleCreate(data);
