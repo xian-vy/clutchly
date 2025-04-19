@@ -9,6 +9,7 @@ import {
     Heart,
     LayoutDashboard,
     LineChart,
+    MapPinHouse,
     Menu,
     Settings,
     Turtle,
@@ -31,6 +32,11 @@ const navItems = [
     name: 'Herps',
     href: '/reptiles',
     icon: Turtle,
+  },
+  {
+    name : "Housing",
+    href : '/housing',
+    icon : MapPinHouse
   },
   {
     name: 'Health',

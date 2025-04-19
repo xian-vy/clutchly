@@ -8,8 +8,8 @@ import { getRacks } from '@/app/api/locations/racks';
 import { getLocations, createLocation, updateLocation, deleteLocation, bulkCreateLocations } from '@/app/api/locations/locations';
 import { LocationsList } from './LocationsList';
 import { LocationForm } from './LocationForm';
-import { BulkLocationForm } from './BulkLocationForm';
 import { toast } from 'sonner';
+import { BulkLocationForm } from './BulkLocationForm';
 
 export function LocationsManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
