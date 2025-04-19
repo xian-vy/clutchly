@@ -24,7 +24,7 @@ import {
 import { Filter, Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 import Paginator from "./paginator"
-import { DownloadCommonData } from "../dashboard/reptiles/DownloadCommonData"
+import { DownloadCommonMorphs } from "../dashboard/reptiles/morphs/DownloadCommonMorphs"
 import { useScreenSize } from "@/lib/hooks/useScreenSize"
 
 interface DataTableProps<TData, TValue> {
@@ -97,7 +97,7 @@ export function DataTable<TData, TValue>({
           )}
           {onDownload && (
              <div className="flex items-center gap-2">
-             <DownloadCommonData showInMorphsTab={true} />
+             <DownloadCommonMorphs showInMorphsTab={true} />
            </div> 
           )}
         </div>

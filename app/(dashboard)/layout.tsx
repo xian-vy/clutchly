@@ -1,5 +1,5 @@
-import { Navigation } from '@/components/dashboard/Navigation';
-import TopNavigation from '@/components/dashboard/TopNavigation';
+import { Navigation } from '@/components/navigation/Navigation';
+import TopNavigation from '@/components/navigation/TopNavigation';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ProfileSetupDialog } from '@/components/profile/ProfileSetupDialog';
 import './dashboard.css';

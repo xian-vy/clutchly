@@ -16,7 +16,7 @@ interface DownloadCommonDataProps {
   showInMorphsTab?: boolean;
 }
 
-export function DownloadCommonData({ showInMorphsTab = false }: DownloadCommonDataProps) {
+export function DownloadCommonMorphs({ showInMorphsTab = false }: DownloadCommonDataProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSpecies, setSelectedSpecies] = useState<string[]>([]);
