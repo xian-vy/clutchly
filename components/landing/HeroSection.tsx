@@ -38,8 +38,7 @@ export function HeroSection() {
             </span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Create high-quality reptile breeding records with Clutchly, the open source
-            platform that makes reptile data management intuitive.
+             Create reliable breeding records and manage health, growth, and husbandry with ease—Clutchly makes reptile data management intuitive for keepers and breeders alike.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
