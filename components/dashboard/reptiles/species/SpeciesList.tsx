@@ -1,10 +1,13 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, Filter } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Species } from "@/lib/types/species";
+import { useMemo, useState } from "react";
+import { SpeciesFilterDialog, SpeciesFilters } from "./SpeciesFilterDialog";
+import { Badge } from "@/components/ui/badge";
 
 interface SpeciesListProps {
   species: Species[];
@@ -14,6 +17,52 @@ interface SpeciesListProps {
 }
 
 export function SpeciesList({ species, onEdit, onDelete, onAddNew }: SpeciesListProps) {
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [filters, setFilters] = useState<SpeciesFilters>({});
+
+  // Apply filters to species list
+  const filteredSpecies = useMemo(() => {
+    return species.filter(speciesItem => {
+      if (filters.careLevel && speciesItem.care_level !== filters.careLevel) {
+        return false;
+      }
+      if (filters.isGlobal !== null && filters.isGlobal !== undefined) {
+        if (filters.isGlobal !== speciesItem.is_global) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [species, filters]);
+
+  // Get active filter count
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.careLevel) count++;
+    if (filters.isGlobal !== null && filters.isGlobal !== undefined) count++;
+    return count;
+  }, [filters]);
+
+  // Custom filter button
+  const CustomFilterButton = () => (
+    <Button 
+      variant="outline" 
+      size="sm" 
+      onClick={() => setIsFilterDialogOpen(true)}
+      className="relative"
+    >
+      <Filter className="h-4 w-4 mr-1" />
+      Filter
+      {activeFilterCount > 0 && (
+        <Badge 
+          variant="destructive" 
+          className="absolute text-white rounded-sm -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 font-normal text-[0.65rem]"
+        >
+          {activeFilterCount}
+        </Badge>
+      )}
+    </Button>
+  );
   const columns: ColumnDef<Species>[] = [
     {
       header: "#",
@@ -63,5 +112,21 @@ export function SpeciesList({ species, onEdit, onDelete, onAddNew }: SpeciesList
     },
   ];
 
-  return <DataTable columns={columns} data={species} onAddNew={onAddNew} />;
-} 
+  return (
+    <>
+      <DataTable 
+        columns={columns} 
+        data={filteredSpecies} 
+        onAddNew={onAddNew}
+        filterButton={<CustomFilterButton />}
+      />
+      
+      <SpeciesFilterDialog
+        open={isFilterDialogOpen}
+        onOpenChange={setIsFilterDialogOpen}
+        onApplyFilters={setFilters}
+        currentFilters={filters}
+      />
+    </>
+  );
+}
