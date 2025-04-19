@@ -1,27 +1,34 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { getFeedingSchedules } from '@/app/api/feeding/schedule';
-import { FeedingEventWithDetails, FeedingScheduleWithTargets } from '@/lib/types/feeding';
-import { FeedingEventsList } from './FeedingEventsList';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, ChevronDown, ChevronUp, Info, Loader2, Check, AlertCircle, RefreshCw } from 'lucide-react';
-import { format, isSameDay } from 'date-fns';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { toast } from 'sonner';
 import { generateFeedingEvents, getFeedingEvents } from '@/app/api/feeding/events';
+import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 import { useResource } from '@/lib/hooks/useResource';
+import { FeedingEventWithDetails, FeedingScheduleWithTargets } from '@/lib/types/feeding';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { format, isToday, startOfDay } from 'date-fns';
+import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Footprints, Info, Loader2, MapPin, RefreshCw } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
+import { FeedingEventsList } from './FeedingEventsList';
 
 interface ScheduleStatus {
   totalEvents: number;
   completedEvents: number;
   isComplete: boolean;
   percentage: number;
+  scheduledDate: string;
 }
 
 export function FeedingTab() {
@@ -58,29 +65,59 @@ export function FeedingTab() {
       await Promise.all(schedules.map(async (schedule) => {
         try {
           const events = await getFeedingEvents(schedule.id);
-          const today = new Date();
+          const today = startOfDay(new Date());
           const todayString = format(today, 'yyyy-MM-dd');
           
           let relevantEvents: FeedingEventWithDetails[] = [];
+          let scheduledDate = todayString;
           
           if (schedule.recurrence === 'daily') {
-            // For daily schedules, only use today's events
+            // For daily schedules, use today's events
             relevantEvents = events.filter(event => event.scheduled_date === todayString);
           } else if (schedule.recurrence === 'weekly') {
-            // For weekly schedules, find the most recent feeding day in the current week
+            // For weekly schedules, find the current or most recent feeding day
             const startDate = new Date(schedule.start_date);
-            const dayOfWeek = startDate.getDay(); // 0 = Sunday, 6 = Saturday
-            
-            // Find the most recent occurrence of this day of week (including today)
+            const startDayOfWeek = startDate.getDay();
             const currentDayOfWeek = today.getDay();
-            const daysToSubtract = (currentDayOfWeek - dayOfWeek + 7) % 7;
             
-            const mostRecentFeedingDay = new Date(today);
-            mostRecentFeedingDay.setDate(today.getDate() - daysToSubtract);
-            const mostRecentFeedingDayString = format(mostRecentFeedingDay, 'yyyy-MM-dd');
+            // Calculate the most recent or current feeding day
+            let targetDate: Date;
             
-            // Use events from the most recent feeding day
-            relevantEvents = events.filter(event => event.scheduled_date === mostRecentFeedingDayString);
+            if (startDayOfWeek === currentDayOfWeek) {
+              // Today is a feeding day
+              targetDate = today;
+            } else {
+              // Find most recent feeding day
+              let daysToSubtract = (currentDayOfWeek - startDayOfWeek + 7) % 7;
+              if (daysToSubtract === 0) daysToSubtract = 7; // If we get 0, we want the previous week
+              
+              targetDate = new Date(today);
+              targetDate.setDate(targetDate.getDate() - daysToSubtract);
+            }
+            
+            scheduledDate = format(targetDate, 'yyyy-MM-dd');
+            relevantEvents = events.filter(event => event.scheduled_date === scheduledDate);
+            
+            // If no events found for the calculated date, try using any events from the last 7 days
+            if (relevantEvents.length === 0) {
+              // Look for any feeding events in the past week
+              const oneWeekAgo = new Date(today);
+              oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+              
+              // Sort by date descending to get most recent first
+              const recentEvents = events
+                .filter(event => {
+                  const eventDate = new Date(event.scheduled_date);
+                  return eventDate >= oneWeekAgo && eventDate <= today;
+                })
+                .sort((a, b) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime());
+              
+              if (recentEvents.length > 0) {
+                // Use the most recent event date
+                scheduledDate = recentEvents[0].scheduled_date;
+                relevantEvents = recentEvents.filter(event => event.scheduled_date === scheduledDate);
+              }
+            }
           } else if (schedule.recurrence === 'custom') {
             // For custom schedules, check if today is a feeding day
             const dayOfWeek = today.getDay();
@@ -103,6 +140,7 @@ export function FeedingTab() {
                   
                   if (previousEvents.length > 0) {
                     relevantEvents = previousEvents;
+                    scheduledDate = previousDayString;
                     foundEvents = true;
                   }
                 }
@@ -121,7 +159,8 @@ export function FeedingTab() {
             totalEvents,
             completedEvents,
             isComplete,
-            percentage
+            percentage,
+            scheduledDate
           };
         } catch (error) {
           console.error(`Error loading status for schedule ${schedule.id}:`, error);
@@ -169,39 +208,74 @@ export function FeedingTab() {
     }
   };
 
-  // Format targets display
-  const getTargetsDisplay = (schedule: FeedingScheduleWithTargets) => {
+  // Get next feeding day for the schedule
+  const getNextFeedingDay = (schedule: FeedingScheduleWithTargets): Date => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (schedule.recurrence === 'daily') {
+      return today;
+    } else if (schedule.recurrence === 'weekly') {
+      const startDate = new Date(schedule.start_date);
+      const startDayOfWeek = startDate.getDay();
+      const currentDayOfWeek = today.getDay();
+      
+      if (startDayOfWeek === currentDayOfWeek) {
+        return today;
+      } else {
+        let daysToAdd = (startDayOfWeek - currentDayOfWeek + 7) % 7;
+        if (daysToAdd === 0) daysToAdd = 7; // If we'd get today, we want next week
+        
+        const nextDate = new Date(today);
+        nextDate.setDate(nextDate.getDate() + daysToAdd);
+        return nextDate;
+      }
+    } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
+      const currentDayOfWeek = today.getDay();
+      
+      if (schedule.custom_days.includes(currentDayOfWeek)) {
+        return today;
+      } else {
+        // Find the next day that matches the custom day pattern
+        let nearestDay = 7; // Max days to look ahead
+        
+        for (let i = 1; i <= 7; i++) {
+          const checkDate = new Date(today);
+          checkDate.setDate(checkDate.getDate() + i);
+          const checkDayOfWeek = checkDate.getDay();
+          
+          if (schedule.custom_days.includes(checkDayOfWeek)) {
+            nearestDay = i;
+            break;
+          }
+        }
+        
+        const nextDate = new Date(today);
+        nextDate.setDate(nextDate.getDate() + nearestDay);
+        return nextDate;
+      }
+    }
+    
+    return today;
+  };
+
+  // Calculate schedule stats
+  const getScheduleStats = (schedule: FeedingScheduleWithTargets) => {
     const locationTargets = schedule.targets.filter(
       (target) => target.target_type === 'location'
     );
     const reptileTargets = schedule.targets.filter(
       (target) => target.target_type === 'reptile'
     );
-
-    return (
-      <div className="flex flex-col gap-1 mt-1">
-        {locationTargets.length > 0 && (
-          <div>
-            <div className="text-xs text-muted-foreground mb-1">Locations:</div>
-            {locationTargets.map((target, idx) => (
-              <Badge key={idx} variant="secondary" className="text-xs mr-1 mb-1">
-                {target.location_label || "Unknown location"}
-              </Badge>
-            ))}
-          </div>
-        )}
-        {reptileTargets.length > 0 && (
-          <div>
-            <div className="text-xs text-muted-foreground mb-1">Reptiles:</div>
-            {reptileTargets.map((target, idx) => (
-              <Badge key={idx} variant="outline" className="text-xs mr-1 mb-1">
-                {target.reptile_name || "Unknown reptile"}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-    );
+    
+    // Calculate next feeding date
+    const nextFeedingDate = getNextFeedingDay(schedule);
+    
+    return {
+      locationCount: locationTargets.length,
+      reptileCount: reptileTargets.length,
+      nextFeedingDate
+    };
   };
 
   // Generate feeding events for the next 30 days
@@ -297,107 +371,163 @@ export function FeedingTab() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {schedules.map((schedule) => (
-          <Collapsible
-            key={schedule.id}
-            open={expandedScheduleIds.has(schedule.id)}
-            onOpenChange={() => toggleExpanded(schedule.id)}
-            className="border rounded-lg overflow-hidden"
-          >
-            <Card className="border-0 shadow-none">
-              <CardHeader className="pb-0 px-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-xl">{schedule.name}</CardTitle>
-                      {scheduleStatus[schedule.id] && scheduleStatus[schedule.id].totalEvents > 0 && (
-                        <Badge variant={scheduleStatus[schedule.id].isComplete ? "secondary" : "default"} className={`${scheduleStatus[schedule.id].isComplete ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}`}>
-                          {scheduleStatus[schedule.id].isComplete ? (
-                            <span className="flex items-center gap-1">
-                              <Check className="h-3 w-3" /> Completed
-                            </span>
-                          ) : (
-                            <span>{scheduleStatus[schedule.id].completedEvents}/{scheduleStatus[schedule.id].totalEvents} fed</span>
-                          )}
-                        </Badge>
+        {schedules.map((schedule) => {
+          const stats = getScheduleStats(schedule);
+          const status = scheduleStatus[schedule.id];
+          const isActiveToday = status?.scheduledDate === format(new Date(), 'yyyy-MM-dd');
+          const nextFeedingFormatted = format(stats.nextFeedingDate, 'MMM d, yyyy');
+          const feedingDateString = status?.scheduledDate 
+            ? format(new Date(status.scheduledDate), 'MMM d, yyyy')
+            : null;
+            
+          return (
+            <Collapsible
+              key={schedule.id}
+              open={expandedScheduleIds.has(schedule.id)}
+              onOpenChange={() => toggleExpanded(schedule.id)}
+              className="border rounded-lg overflow-hidden bg-white dark:bg-card"
+            >
+              <Card className="border-0 shadow-none">
+                <CardHeader className="pb-0 px-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-xl">{schedule.name}</CardTitle>
+                        {status && status.totalEvents > 0 && (
+                          <Badge variant={status.isComplete ? "secondary" : "default"} className={`${status.isComplete ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}`}>
+                            {status.isComplete ? (
+                              <span className="flex items-center gap-1">
+                                <Check className="h-3 w-3" /> Completed
+                              </span>
+                            ) : (
+                              <span>{status.completedEvents}/{status.totalEvents} fed</span>
+                            )}
+                          </Badge>
+                        )}
+                      </div>
+                      {schedule.description && (
+                        <CardDescription className="mt-1">{schedule.description}</CardDescription>
                       )}
                     </div>
-                    {schedule.description && (
-                      <CardDescription className="mt-1">{schedule.description}</CardDescription>
-                    )}
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        {expandedScheduleIds.has(schedule.id) ? 
+                          <ChevronUp className="h-4 w-4" /> : 
+                          <ChevronDown className="h-4 w-4" />
+                        }
+                      </Button>
+                    </CollapsibleTrigger>
                   </div>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      {expandedScheduleIds.has(schedule.id) ? 
-                        <ChevronUp className="h-4 w-4" /> : 
-                        <ChevronDown className="h-4 w-4" />
-                      }
-                    </Button>
-                  </CollapsibleTrigger>
+                </CardHeader>
+                <CardContent className="pb-4 px-6 pt-3">
+                  {statusLoading ? (
+                    <div className="h-8 flex items-center justify-center mb-3">
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : status && status.totalEvents > 0 && (
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                        <span>
+                          {isActiveToday ? 'Today\'s progress' : `Progress for ${feedingDateString}`}
+                        </span>
+                        <span>{status.percentage}%</span>
+                      </div>
+                      <Progress value={status.percentage} className="h-2" />
+                    </div>
+                  )}
+                  
+                  <div className="bg-muted/20 rounded-lg p-3 mb-3">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">{getRecurrenceDisplay(schedule)}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {isToday(stats.nextFeedingDate) 
+                              ? 'Feeding today' 
+                              : `Next: ${nextFeedingFormatted}`
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div className="flex items-start gap-1.5">
+                        <div className="flex flex-col items-start gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <div className="font-medium">{stats.locationCount} location{stats.locationCount !== 1 ? 's' : ''}</div>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Footprints className="h-4 w-4 text-muted-foreground" />
+                            <div className="font-medium">{stats.reptileCount} reptile{stats.reptileCount !== 1 ? 's' : ''}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground mb-2">Targets:</div>
+                  <div className="flex flex-wrap gap-1 mb-1">
+                    {schedule.targets
+                      .filter(target => target.target_type === 'location')
+                      .map((target, index) => (
+                        <TooltipProvider key={`loc-${index}`}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge variant="secondary" className="text-xs">
+                                {target.location_label || "Unknown location"}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Location: {target.location_label}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {schedule.targets
+                      .filter(target => target.target_type === 'reptile')
+                      .map((target, index) => (
+                        <TooltipProvider key={`rep-${index}`}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge variant="outline" className="text-xs">
+                                {target.reptile_name || "Unknown reptile"}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Reptile: {target.reptile_name}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))}
+                  </div>
+                </CardContent>
+                <CardFooter className="pt-0 pb-4 px-6">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full"
+                    onClick={() => handleGenerateEvents(schedule)}
+                    disabled={isGeneratingEvents[schedule.id]}
+                  >
+                    {isGeneratingEvents[schedule.id] && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                    Generate Feeding Events
+                  </Button>
+                </CardFooter>
+              </Card>
+              <CollapsibleContent>
+                <div className="px-4 pt-0 pb-4 bg-muted/20">
+                  <FeedingEventsList 
+                    scheduleId={schedule.id} 
+                    onEventsUpdated={refreshStatus} 
+                  />
                 </div>
-              </CardHeader>
-              <CardContent className="pb-4 px-6 pt-4">
-                {statusLoading ? (
-                  <div className="h-8 flex items-center justify-center mb-3">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  </div>
-                ) : scheduleStatus[schedule.id] && scheduleStatus[schedule.id].totalEvents > 0 && (
-                  <div className="mb-4">
-                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                      <span>Today's progress</span>
-                      <span>{scheduleStatus[schedule.id].percentage}%</span>
-                    </div>
-                    <Progress value={scheduleStatus[schedule.id].percentage} className="h-2" />
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Frequency:</span>
-                    <div className="font-medium">{getRecurrenceDisplay(schedule)}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Start Date:</span>
-                    <div className="font-medium flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {format(new Date(schedule.start_date), 'MMM d, yyyy')}
-                    </div>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-muted-foreground">End Date:</span>
-                    <div className="font-medium">
-                      {schedule.end_date ? format(new Date(schedule.end_date), 'MMM d, yyyy') : 'None'}
-                    </div>
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-muted-foreground">Targets:</span>
-                    {getTargetsDisplay(schedule)}
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter className="pt-0 pb-4 px-6">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => handleGenerateEvents(schedule)}
-                  disabled={isGeneratingEvents[schedule.id]}
-                >
-                  {isGeneratingEvents[schedule.id] && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
-                  Generate Feeding Events
-                </Button>
-              </CardFooter>
-            </Card>
-            <CollapsibleContent>
-              <div className="px-4 pt-0 pb-4 bg-muted/20">
-                <FeedingEventsList 
-                  scheduleId={schedule.id} 
-                  onEventsUpdated={refreshStatus} 
-                />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        ))}
+              </CollapsibleContent>
+            </Collapsible>
+          );
+        })}
       </div>
     </div>
   );
