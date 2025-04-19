@@ -7,12 +7,13 @@ import { useResource } from '@/lib/hooks/useResource';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { NewReptile, Reptile } from '@/lib/types/reptile';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import { ReptileForm } from './ReptileForm';
 import { ReptileList } from './ReptileList';
 import { ImportReptileDialog } from './ImportReptileDialog';
 import { Button } from '@/components/ui/button';
-import { FileSpreadsheet, Loader2, Plus } from 'lucide-react';
+import { FileSpreadsheet, Loader2 } from 'lucide-react';
 
 export function ReptilesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -40,38 +41,34 @@ export function ReptilesTab() {
   const { species,  isLoading: speciesLoading } = useSpeciesStore()
   const { morphs, isLoading: morphsLoading } = useMorphsStore()
 
-  // States to track location data loading
-  const [locationData, setLocationData] = useState<Record<string, any>>({});
-  const [loadingLocations, setLoadingLocations] = useState(false);
 
   // Fetch location information for reptiles with location_id
-  const fetchLocationData = async (reptileList: Reptile[]) => {
-    const reptileWithLocations = reptileList.filter(r => r.location_id);
-    
-    if (reptileWithLocations.length === 0) return;
-    
-    setLoadingLocations(true);
-    try {
-      const locationPromises = reptileWithLocations.map(reptile => 
-        reptile.location_id ? getLocationDetails(reptile.location_id) : Promise.resolve(null)
-      );
-      
-      const locationResults = await Promise.all(locationPromises);
-      const newLocationData: Record<string, any> = {};
-      
-      reptileWithLocations.forEach((reptile, index) => {
-        if (reptile.location_id && locationResults[index]) {
-          newLocationData[reptile.location_id] = locationResults[index];
+  // Replace the locationData state and fetchLocationData function with useQueries
+  const locationQueries = useQueries({
+    queries: reptiles
+      .filter(r => r.location_id)
+      .map(reptile => ({
+        queryKey: ['location', reptile.location_id],
+        queryFn: () => getLocationDetails(reptile.location_id!),
+        staleTime: 15 * 60 * 1000, // Consider data fresh for 15 minutes
+        cacheTime: 60 * 60 * 1000, // Keep in cache for 60 minutes
+      }))
+  });
+
+  const locationData = useMemo(() => {
+    const data: Record<string, any> = {};
+    reptiles
+      .filter(r => r.location_id)
+      .forEach((reptile, index) => {
+        if (reptile.location_id && locationQueries[index].data) {
+          data[reptile.location_id] = locationQueries[index].data;
         }
       });
-      
-      setLocationData(newLocationData);
-    } catch (error) {
-      console.error("Error fetching location data:", error);
-    } finally {
-      setLoadingLocations(false);
-    }
-  };
+    return data;
+  }, [reptiles, locationQueries]);
+
+  const loadingLocations = locationQueries.some(query => query.isLoading);
+
   
   // Create enriched reptiles with species, morph, and location names
   const enrichedReptiles = useMemo(() => {
@@ -98,14 +95,7 @@ export function ReptilesTab() {
     });
   }, [reptiles, species, morphs, locationData]);
 
-  // Fetch location data when reptiles change
-  useEffect(() => {
-    if (reptiles.length > 0 && !reptilesLoading) {
-      fetchLocationData(reptiles);
-    }
-  }, [reptiles, reptilesLoading]);
-
-  const isLoading = reptilesLoading || speciesLoading || morphsLoading ;
+  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations;
 
   if (isLoading) {
     return (
@@ -141,15 +131,15 @@ export function ReptilesTab() {
         </div>
       </div>
       
-      <ReptileList 
-        reptiles={enrichedReptiles}
-        onEdit={(reptile) => {
-          setSelectedReptile(reptile);
-          setIsDialogOpen(true);
-        }}
-        onDelete={handleDelete}
-        onAddNew={() => setIsDialogOpen(true)}
-      />
+        <ReptileList 
+          reptiles={enrichedReptiles}
+          onEdit={(reptile) => {
+            setSelectedReptile(reptile);
+            setIsDialogOpen(true);
+          }}
+          onDelete={handleDelete}
+          onAddNew={() => setIsDialogOpen(true)}
+       />
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
         <DialogContent className="sm:max-w-[800px]">
@@ -163,8 +153,6 @@ export function ReptilesTab() {
                 ? await handleUpdate(data)
                 : await handleCreate(data);
               if (success) {
-                // Refetch location data after create/update
-                fetchLocationData(reptiles);
                 onDialogChange(); 
               }
             }}
