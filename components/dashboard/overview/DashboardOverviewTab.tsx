@@ -183,6 +183,10 @@ export function DashboardOverviewTab() {
           />
         </div>
       </ScrollArea>
+
+      <FeedingOverview 
+       schedules={feedingSchedules}
+      />
       
       {/* Collection overview */}
       <div className="w-full">
@@ -195,10 +199,7 @@ export function DashboardOverviewTab() {
         />
       </div>
 
-      <FeedingOverview 
-       schedules={feedingSchedules}
 
-      />
       
       {/* Main dashboard content - stacked layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
