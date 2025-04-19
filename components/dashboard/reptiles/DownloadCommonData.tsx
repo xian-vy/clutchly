@@ -77,11 +77,12 @@ export function DownloadCommonData({ showInMorphsTab = false }: DownloadCommonDa
         <Tooltip>
           <TooltipTrigger asChild>
             <Button 
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={handleDownload} 
               disabled={isLoading}
             >
+              Download
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
