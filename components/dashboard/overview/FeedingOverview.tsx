@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { FeedingScheduleWithTargets } from "@/lib/types/feeding";
 import { format, isToday, isTomorrow, parseISO } from "date-fns";
-import { Calendar, Target, PawPrint, Utensils, MoreHorizontal } from "lucide-react";
+import { Calendar, Target, Check, AlertCircle, Utensils, MoreHorizontal, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { 
@@ -13,12 +13,26 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
+import { getFeedingEvents } from "@/app/api/feeding/events";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface FeedingOverviewProps {
   schedules: FeedingScheduleWithTargets[];
 }
 
+interface UpcomingFeeding {
+  schedule: FeedingScheduleWithTargets;
+  date: Date;
+  isCompleted: boolean;
+  totalEvents: number;
+  completedEvents: number;
+}
+
 export function FeedingOverview({ schedules }: FeedingOverviewProps) {
+  const [upcomingFeedings, setUpcomingFeedings] = useState<UpcomingFeeding[]>([]);
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  
   // Get upcoming feeding days
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -73,20 +87,68 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
     return dates;
   };
   
-  // Get the next feeding dates for all schedules
-  const upcomingFeedings = schedules.flatMap(schedule => {
-    const dates = getUpcomingFeedingDates(schedule);
-    return dates.map(date => ({
-      schedule,
-      date
-    }));
-  });
-  
-  // Sort by date
-  upcomingFeedings.sort((a, b) => a.date.getTime() - b.date.getTime());
-  
-  // Only keep the next 5 upcoming feedings
-  const nearestFeedings = upcomingFeedings.slice(0, 5);
+  useEffect(() => {
+    async function fetchFeedingStatus() {
+      setIsLoadingStatus(true);
+      try {
+        // Get the next feeding dates for all schedules
+        const feedingsWithoutStatus = schedules.flatMap(schedule => {
+          const dates = getUpcomingFeedingDates(schedule);
+          return dates.map(date => ({
+            schedule,
+            date,
+            isCompleted: false,
+            totalEvents: 0,
+            completedEvents: 0
+          }));
+        });
+        
+        // Sort by date
+        feedingsWithoutStatus.sort((a, b) => a.date.getTime() - b.date.getTime());
+        
+        // Only keep the next 5 upcoming feedings
+        const nearestFeedings = feedingsWithoutStatus.slice(0, 5);
+        
+        // Fetch feeding status for each schedule
+        const feedingsWithStatus = await Promise.all(
+          nearestFeedings.map(async (feeding) => {
+            // Only check completion status for today's feedings
+            if (isToday(feeding.date)) {
+              const events = await getFeedingEvents(feeding.schedule.id);
+              const todayEvents = events.filter(
+                event => event.scheduled_date === format(today, 'yyyy-MM-dd')
+              );
+              
+              const totalEvents = todayEvents.length;
+              const completedEvents = todayEvents.filter(event => event.fed).length;
+              
+              return {
+                ...feeding,
+                isCompleted: totalEvents > 0 && completedEvents === totalEvents,
+                totalEvents,
+                completedEvents
+              };
+            }
+            
+            return feeding;
+          })
+        );
+        
+        setUpcomingFeedings(feedingsWithStatus);
+      } catch (error) {
+        console.error("Error fetching feeding status:", error);
+      } finally {
+        setIsLoadingStatus(false);
+      }
+    }
+    
+    if (schedules.length > 0) {
+      fetchFeedingStatus();
+    } else {
+      setUpcomingFeedings([]);
+      setIsLoadingStatus(false);
+    }
+  }, [schedules]);
   
   // Format the date display
   const formatDateDisplay = (date: Date) => {
@@ -112,79 +174,119 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
       return `${locationTargets.length} location${locationTargets.length > 1 ? 's' : ''}, ${reptileTargets.length} reptile${reptileTargets.length > 1 ? 's' : ''}`;
     }
   };
+
+  // Get feeding schedules for today that need attention
+  const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
+  const pendingTodayFeedings = todayFeedings.filter(feeding => !feeding.isCompleted);
+  const hasPendingFeedings = pendingTodayFeedings.length > 0;
   
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-lg font-medium">Upcoming Feedings</CardTitle>
-            <CardDescription>Recent and upcoming feeding schedules</CardDescription>
+    <div className="space-y-4">
+      {hasPendingFeedings && (
+        <Alert className="bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Feeding reminder</AlertTitle>
+          <AlertDescription>
+            You have {pendingTodayFeedings.length} feeding schedule{pendingTodayFeedings.length > 1 ? 's' : ''} that need{pendingTodayFeedings.length === 1 ? 's' : ''} attention today.
+          </AlertDescription>
+        </Alert>
+      )}
+    
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="text-lg font-medium">Upcoming Feedings</CardTitle>
+              <CardDescription>Recent and upcoming feeding schedules</CardDescription>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">More</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/feeding" className="cursor-pointer">
+                    View All Schedules
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/feeding" className="cursor-pointer">
+                    Create New Schedule
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">More</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href="/feeding" className="cursor-pointer">
-                  View All Schedules
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/feeding" className="cursor-pointer">
-                  Create New Schedule
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3 pt-0">
-        {nearestFeedings.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Utensils className="h-10 w-10 text-muted-foreground mb-2" />
-            <p className="text-sm font-medium">No upcoming feedings</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Create a feeding schedule to track your feeding routine
-            </p>
-          </div>
-        ) : (
-          nearestFeedings.map((item, i) => (
-            <Link 
-              href={`/feeding`} 
-              key={i} 
-              className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-            >
-              <div className="p-2 rounded-full bg-amber-50 text-amber-500 dark:bg-amber-950">
-                <Calendar className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">
-                  {item.schedule.name}
-                </p>
-                <div className="flex items-center gap-1 mt-1">
-                  <Target className="h-3 w-3 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground truncate">
-                    {getTargetsDisplay(item.schedule)}
-                  </p>
+        </CardHeader>
+        <CardContent className="space-y-3 pt-0">
+          {isLoadingStatus ? (
+            <div className="flex items-center justify-center p-6">
+              <Clock className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : upcomingFeedings.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 text-center">
+              <Utensils className="h-10 w-10 text-muted-foreground mb-2" />
+              <p className="text-sm font-medium">No upcoming feedings</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Create a feeding schedule to track your feeding routine
+              </p>
+            </div>
+          ) : (
+            upcomingFeedings.map((item, i) => (
+              <Link 
+                href={`/feeding`} 
+                key={i} 
+                className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+              >
+                <div className={`p-2 rounded-full ${isToday(item.date) 
+                  ? item.isCompleted 
+                    ? "bg-green-50 text-green-500 dark:bg-green-950 dark:text-green-400"
+                    : "bg-amber-50 text-amber-500 dark:bg-amber-950 dark:text-amber-400" 
+                  : "bg-muted text-muted-foreground"}`}>
+                  {isToday(item.date) && item.isCompleted ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Calendar className="h-4 w-4" />
+                  )}
                 </div>
-              </div>
-              <Badge variant={isToday(item.date) ? "default" : "outline"} className="ml-auto">
-                {formatDateDisplay(item.date)}
-              </Badge>
-            </Link>
-          ))
-        )}
-      </CardContent>
-      <CardFooter className="pt-0">
-        <Button variant="outline" className="w-full" asChild>
-          <Link href="/feeding">Manage Feeding Schedules</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium">
+                      {item.schedule.name}
+                    </p>
+                    {isToday(item.date) && item.totalEvents > 0 && (
+                      <Badge variant="secondary" className="ml-2 text-xs">
+                        {item.completedEvents}/{item.totalEvents} fed
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 mt-1">
+                    <Target className="h-3 w-3 text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground truncate">
+                      {getTargetsDisplay(item.schedule)}
+                    </p>
+                  </div>
+                </div>
+                <Badge variant={isToday(item.date) 
+                  ? item.isCompleted ? "secondary" : "default"
+                  : "outline"} 
+                  className={`ml-auto ${isToday(item.date) && item.isCompleted ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}`}
+                >
+                  {formatDateDisplay(item.date)}
+                </Badge>
+              </Link>
+            ))
+          )}
+        </CardContent>
+        <CardFooter className="pt-0">
+          <Button variant="outline" className="w-full" asChild>
+            <Link href="/feeding">Manage Feeding Schedules</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   );
 } 
