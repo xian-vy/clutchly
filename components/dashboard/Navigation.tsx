@@ -11,10 +11,10 @@ import {
     LineChart,
     Menu,
     Settings,
-    Turtle
+    Turtle,
+    Utensils
 } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
@@ -46,6 +46,11 @@ const navItems = [
     name: 'Breeding',
     href: '/breeding',
     icon: Dna,
+  },
+  {
+    name: 'Feeding',
+    href: '/feeding',
+    icon: Utensils,
   },
   {
     name: 'Settings',

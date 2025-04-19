@@ -24,6 +24,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { FeedingOverview } from './FeedingOverview';
+import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 
 export function DashboardOverviewTab() {
   const [allClutches, setAllClutches] = useState<Clutch[]>([]);
@@ -84,6 +86,12 @@ export function DashboardOverviewTab() {
         }) 
       : getBreedingProjects(),
   });
+
+  // Fetch feeding schedules using React Query
+  const { data: feedingSchedules = [], isLoading: feedingLoading } = useQuery({
+    queryKey: ['feeding-schedules'],
+    queryFn: getFeedingSchedules
+  });
   
   // Fetch clutches for all breeding projects
   useEffect(() => {
@@ -122,7 +130,8 @@ export function DashboardOverviewTab() {
     morphsLoading || 
     healthLoading || 
     growthLoading || 
-    breedingLoading;
+    breedingLoading ||
+    feedingLoading;
   
   const hasActiveFilters = !!dateRange;
   
@@ -185,6 +194,11 @@ export function DashboardOverviewTab() {
           morphs={morphs}
         />
       </div>
+
+      <FeedingOverview 
+       schedules={feedingSchedules}
+
+      />
       
       {/* Main dashboard content - stacked layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
