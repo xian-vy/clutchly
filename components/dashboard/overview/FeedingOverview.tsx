@@ -3,8 +3,8 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FeedingScheduleWithTargets } from "@/lib/types/feeding";
-import { format, isToday, isTomorrow, parseISO } from "date-fns";
-import { Calendar, Target, Check, AlertCircle, Utensils, MoreHorizontal, Clock } from "lucide-react";
+import { format, isToday, isTomorrow, parseISO, isSameDay } from "date-fns";
+import { Calendar, Target, Check, AlertCircle, Utensils, MoreHorizontal, Clock, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { 
@@ -13,9 +13,10 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { getFeedingEvents } from "@/app/api/feeding/events";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface FeedingOverviewProps {
   schedules: FeedingScheduleWithTargets[];
@@ -30,9 +31,8 @@ interface UpcomingFeeding {
 }
 
 export function FeedingOverview({ schedules }: FeedingOverviewProps) {
-  const [upcomingFeedings, setUpcomingFeedings] = useState<UpcomingFeeding[]>([]);
-  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
-  
+  const queryClient = useQueryClient();
+
   // Get upcoming feeding days
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -86,10 +86,15 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
     
     return dates;
   };
-  
-  useEffect(() => {
-    async function fetchFeedingStatus() {
-      setIsLoadingStatus(true);
+
+  // Use tanstack query for upcoming feedings
+  const { 
+    data: upcomingFeedings = [], 
+    isLoading: isLoadingStatus,
+    refetch: refreshStatus 
+  } = useQuery({
+    queryKey: ['upcoming-feedings', schedules.map(s => s.id).join(',')],
+    queryFn: async () => {
       try {
         // Get the next feeding dates for all schedules
         const feedingsWithoutStatus = schedules.flatMap(schedule => {
@@ -112,43 +117,54 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
         // Fetch feeding status for each schedule
         const feedingsWithStatus = await Promise.all(
           nearestFeedings.map(async (feeding) => {
-            // Only check completion status for today's feedings
-            if (isToday(feeding.date)) {
-              const events = await getFeedingEvents(feeding.schedule.id);
-              const todayEvents = events.filter(
-                event => event.scheduled_date === format(today, 'yyyy-MM-dd')
-              );
-              
-              const totalEvents = todayEvents.length;
-              const completedEvents = todayEvents.filter(event => event.fed).length;
-              
-              return {
-                ...feeding,
-                isCompleted: totalEvents > 0 && completedEvents === totalEvents,
-                totalEvents,
-                completedEvents
-              };
+            // Check completion status for today's feedings and weekly feedings
+            const events = await getFeedingEvents(feeding.schedule.id);
+            
+            let relevantEvents: typeof events = [];
+            const todayString = format(today, 'yyyy-MM-dd');
+            
+            if (feeding.schedule.recurrence === 'daily') {
+              if (isToday(feeding.date)) {
+                relevantEvents = events.filter(event => event.scheduled_date === todayString);
+              }
+            } else if (feeding.schedule.recurrence === 'weekly') {
+              // Get events from the most recent occurrence of feeding day
+              const feedingDateString = format(feeding.date, 'yyyy-MM-dd');
+              relevantEvents = events.filter(event => event.scheduled_date === feedingDateString);
+            } else if (feeding.schedule.recurrence === 'custom') {
+              if (isToday(feeding.date)) {
+                // Today is a feeding day
+                relevantEvents = events.filter(event => event.scheduled_date === todayString);
+              }
             }
             
-            return feeding;
+            const totalEvents = relevantEvents.length;
+            const completedEvents = relevantEvents.filter(event => event.fed).length;
+            
+            return {
+              ...feeding,
+              isCompleted: totalEvents > 0 && completedEvents === totalEvents,
+              totalEvents,
+              completedEvents
+            };
           })
         );
         
-        setUpcomingFeedings(feedingsWithStatus);
+        return feedingsWithStatus;
       } catch (error) {
         console.error("Error fetching feeding status:", error);
-      } finally {
-        setIsLoadingStatus(false);
+        return [];
       }
-    }
-    
-    if (schedules.length > 0) {
-      fetchFeedingStatus();
-    } else {
-      setUpcomingFeedings([]);
-      setIsLoadingStatus(false);
-    }
-  }, [schedules]);
+    },
+    enabled: schedules.length > 0,
+    staleTime: 30000, // 30 seconds
+  });
+  
+  const handleRefreshStatus = useCallback(() => {
+    refreshStatus();
+    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
+    queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
+  }, [refreshStatus, queryClient]);
   
   // Format the date display
   const formatDateDisplay = (date: Date) => {
@@ -199,26 +215,42 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
               <CardTitle className="text-lg font-medium">Upcoming Feedings</CardTitle>
               <CardDescription>Recent and upcoming feeding schedules</CardDescription>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreHorizontal className="h-4 w-4" />
-                  <span className="sr-only">More</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/feeding" className="cursor-pointer">
-                    View All Schedules
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/feeding" className="cursor-pointer">
-                    Create New Schedule
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleRefreshStatus} 
+                className="h-8 w-8"
+                disabled={isLoadingStatus}
+              >
+                {isLoadingStatus ? (
+                  <Clock className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                <span className="sr-only">Refresh</span>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">More</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/feeding" className="cursor-pointer">
+                      View All Schedules
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/feeding" className="cursor-pointer">
+                      Create New Schedule
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3 pt-0">

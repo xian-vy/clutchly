@@ -1,19 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
-import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
+import { FeedingEventWithDetails, FeedingScheduleWithTargets } from '@/lib/types/feeding';
 import { FeedingEventsList } from './FeedingEventsList';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, ChevronDown, ChevronUp, Info, Loader2, Check, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { Calendar, ChevronDown, ChevronUp, Info, Loader2, Check, AlertCircle, RefreshCw } from 'lucide-react';
+import { format, isSameDay } from 'date-fns';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { generateFeedingEvents, getFeedingEvents } from '@/app/api/feeding/events';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { useResource } from '@/lib/hooks/useResource';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface ScheduleStatus {
   totalEvents: number;
@@ -23,69 +25,119 @@ interface ScheduleStatus {
 }
 
 export function FeedingTab() {
-  const [schedules, setSchedules] = useState<FeedingScheduleWithTargets[]>([]);
   const [expandedScheduleIds, setExpandedScheduleIds] = useState<Set<string>>(new Set());
-  const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingEvents, setIsGeneratingEvents] = useState<Record<string, boolean>>({});
-  const [scheduleStatus, setScheduleStatus] = useState<Record<string, ScheduleStatus>>({});
-  const [isStatusLoading, setIsStatusLoading] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    loadSchedules();
-  }, []);
+  // Use the resource hook for schedules
+  const {
+    resources: schedules,
+    isLoading: schedulesLoading,
+    refetch: refetchSchedules,
+  } = useResource<FeedingScheduleWithTargets, any>({
+    resourceName: 'Feeding Schedule',
+    queryKey: ['feeding-schedules'],
+    getResources: getFeedingSchedules,
+    createResource: async () => { return null as any; },
+    updateResource: async () => { return null as any; },
+    deleteResource: async () => {},
+  });
 
-  const loadSchedules = async () => {
-    setIsLoading(true);
-    try {
-      const data = await getFeedingSchedules();
-      setSchedules(data);
+  // Create a query for feeding status
+  const { 
+    data: scheduleStatus = {},
+    isLoading: statusLoading,
+    refetch: refetchStatus
+  } = useQuery({
+    queryKey: ['feeding-status'],
+    queryFn: async () => {
+      const statuses: Record<string, ScheduleStatus> = {};
       
-      // Initialize status loading state for each schedule
-      const initialStatusLoading: Record<string, boolean> = {};
-      data.forEach(schedule => {
-        initialStatusLoading[schedule.id] = true;
-      });
-      setIsStatusLoading(initialStatusLoading);
+      if (schedules.length === 0) return statuses;
       
-      // Load status for each schedule
-      await Promise.all(data.map(schedule => loadScheduleStatus(schedule.id)));
-    } catch (error) {
-      console.error('Error loading feeding schedules:', error);
-      toast.error('Could not load feeding schedules');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const loadScheduleStatus = async (scheduleId: string) => {
-    try {
-      const events = await getFeedingEvents(scheduleId);
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const todayEvents = events.filter(event => event.scheduled_date === today);
-      
-      const totalEvents = todayEvents.length;
-      const completedEvents = todayEvents.filter(event => event.fed).length;
-      const isComplete = totalEvents > 0 && completedEvents === totalEvents;
-      const percentage = totalEvents === 0 ? 0 : Math.round((completedEvents / totalEvents) * 100);
-      
-      setScheduleStatus(prev => ({
-        ...prev,
-        [scheduleId]: {
-          totalEvents,
-          completedEvents,
-          isComplete,
-          percentage
+      await Promise.all(schedules.map(async (schedule) => {
+        try {
+          const events = await getFeedingEvents(schedule.id);
+          const today = new Date();
+          const todayString = format(today, 'yyyy-MM-dd');
+          
+          let relevantEvents: FeedingEventWithDetails[] = [];
+          
+          if (schedule.recurrence === 'daily') {
+            // For daily schedules, only use today's events
+            relevantEvents = events.filter(event => event.scheduled_date === todayString);
+          } else if (schedule.recurrence === 'weekly') {
+            // For weekly schedules, find the most recent feeding day in the current week
+            const startDate = new Date(schedule.start_date);
+            const dayOfWeek = startDate.getDay(); // 0 = Sunday, 6 = Saturday
+            
+            // Find the most recent occurrence of this day of week (including today)
+            const currentDayOfWeek = today.getDay();
+            const daysToSubtract = (currentDayOfWeek - dayOfWeek + 7) % 7;
+            
+            const mostRecentFeedingDay = new Date(today);
+            mostRecentFeedingDay.setDate(today.getDate() - daysToSubtract);
+            const mostRecentFeedingDayString = format(mostRecentFeedingDay, 'yyyy-MM-dd');
+            
+            // Use events from the most recent feeding day
+            relevantEvents = events.filter(event => event.scheduled_date === mostRecentFeedingDayString);
+          } else if (schedule.recurrence === 'custom') {
+            // For custom schedules, check if today is a feeding day
+            const dayOfWeek = today.getDay();
+            
+            if (schedule.custom_days?.includes(dayOfWeek)) {
+              // Today is a feeding day, use today's events
+              relevantEvents = events.filter(event => event.scheduled_date === todayString);
+            } else {
+              // Find the most recent feeding day
+              let daysToLookBack = 1;
+              let foundEvents = false;
+              
+              while (daysToLookBack <= 7 && !foundEvents) {
+                const previousDay = new Date(today);
+                previousDay.setDate(today.getDate() - daysToLookBack);
+                
+                if (schedule.custom_days?.includes(previousDay.getDay())) {
+                  const previousDayString = format(previousDay, 'yyyy-MM-dd');
+                  const previousEvents = events.filter(event => event.scheduled_date === previousDayString);
+                  
+                  if (previousEvents.length > 0) {
+                    relevantEvents = previousEvents;
+                    foundEvents = true;
+                  }
+                }
+                
+                daysToLookBack++;
+              }
+            }
+          }
+          
+          const totalEvents = relevantEvents.length;
+          const completedEvents = relevantEvents.filter(event => event.fed).length;
+          const isComplete = totalEvents > 0 && completedEvents === totalEvents;
+          const percentage = totalEvents === 0 ? 0 : Math.round((completedEvents / totalEvents) * 100);
+          
+          statuses[schedule.id] = {
+            totalEvents,
+            completedEvents,
+            isComplete,
+            percentage
+          };
+        } catch (error) {
+          console.error(`Error loading status for schedule ${schedule.id}:`, error);
         }
       }));
-    } catch (error) {
-      console.error(`Error loading status for schedule ${scheduleId}:`, error);
-    } finally {
-      setIsStatusLoading(prev => ({
-        ...prev,
-        [scheduleId]: false
-      }));
-    }
-  };
+      
+      return statuses;
+    },
+    enabled: schedules.length > 0,
+    staleTime: 30000, // 30 seconds
+  });
+
+  const refreshStatus = useCallback(() => {
+    refetchStatus();
+    queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
+  }, [refetchStatus, queryClient]);
 
   const toggleExpanded = (scheduleId: string) => {
     setExpandedScheduleIds(current => {
@@ -162,8 +214,9 @@ export function FeedingTab() {
       await generateFeedingEvents(schedule.id, startDate, endDate);
       toast.success('Feeding events generated for the next 30 days');
       
-      // Reload status for this schedule
-      await loadScheduleStatus(schedule.id);
+      // Invalidate queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
+      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
       
       // If schedule is expanded, we want to refresh its events
       if (expandedScheduleIds.has(schedule.id)) {
@@ -177,6 +230,8 @@ export function FeedingTab() {
       setIsGeneratingEvents(prev => ({ ...prev, [schedule.id]: false }));
     }
   };
+
+  const isLoading = schedulesLoading || statusLoading;
 
   if (isLoading) {
     return (
@@ -219,14 +274,27 @@ export function FeedingTab() {
         </AlertDescription>
       </Alert>
 
-      {incompleteSchedules > 0 && (
-        <Alert className="bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            You have {incompleteSchedules} feeding schedule{incompleteSchedules > 1 ? 's' : ''} that need{incompleteSchedules === 1 ? 's' : ''} to be completed today.
-          </AlertDescription>
-        </Alert>
-      )}
+      <div className="flex justify-between items-center">
+        {incompleteSchedules > 0 ? (
+          <Alert className="bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800 flex-1 mr-2">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              You have {incompleteSchedules} feeding schedule{incompleteSchedules > 1 ? 's' : ''} that need{incompleteSchedules === 1 ? 's' : ''} to be completed today.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <div className="flex-1" />
+        )}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={refreshStatus} 
+          className="h-9 flex-shrink-0"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh Status
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {schedules.map((schedule) => (
@@ -269,7 +337,7 @@ export function FeedingTab() {
                 </div>
               </CardHeader>
               <CardContent className="pb-4 px-6 pt-4">
-                {isStatusLoading[schedule.id] ? (
+                {statusLoading ? (
                   <div className="h-8 flex items-center justify-center mb-3">
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                   </div>
@@ -322,7 +390,10 @@ export function FeedingTab() {
             </Card>
             <CollapsibleContent>
               <div className="px-4 pt-0 pb-4 bg-muted/20">
-                <FeedingEventsList scheduleId={schedule.id} />
+                <FeedingEventsList 
+                  scheduleId={schedule.id} 
+                  onEventsUpdated={refreshStatus} 
+                />
               </div>
             </CollapsibleContent>
           </Collapsible>

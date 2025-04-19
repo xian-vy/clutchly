@@ -2,7 +2,7 @@
 
 import { FeedingEventWithDetails } from '@/lib/types/feeding';
 import { getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import {
   Table,
@@ -19,23 +19,27 @@ import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { CheckCircle2, Loader2, PlusCircle, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface FeedingEventsListProps {
   scheduleId: string;
+  onEventsUpdated?: () => void;
 }
 
-export function FeedingEventsList({ scheduleId }: FeedingEventsListProps) {
-  const [events, setEvents] = useState<FeedingEventWithDetails[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export function FeedingEventsList({ scheduleId, onEventsUpdated }: FeedingEventsListProps) {
   const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
   const [eventNotes, setEventNotes] = useState<Record<string, string>>({});
+  const queryClient = useQueryClient();
   
-  // Fetch feeding events for this schedule
-  const fetchEvents = useCallback(async () => {
-    setIsLoading(true);
-    try {
+  // Fetch feeding events for this schedule using tanstack query
+  const { 
+    data: events = [], 
+    isLoading,
+    refetch 
+  } = useQuery({
+    queryKey: ['feeding-events', scheduleId],
+    queryFn: async () => {
       const eventsData = await getFeedingEvents(scheduleId);
-      setEvents(eventsData);
       
       // Initialize notes for each event
       const notesMap: Record<string, string> = {};
@@ -43,17 +47,11 @@ export function FeedingEventsList({ scheduleId }: FeedingEventsListProps) {
         notesMap[event.id] = event.notes || '';
       });
       setEventNotes(notesMap);
-    } catch (error) {
-      console.error('Error fetching feeding events:', error);
-      toast.error('Failed to load feeding events');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [scheduleId]);
-  
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+      
+      return eventsData;
+    },
+    staleTime: 30000, // 30 seconds
+  });
   
   // Update a feeding event (mark as fed/unfed)
   const handleUpdateEvent = async (eventId: string, fed: boolean) => {
@@ -65,14 +63,21 @@ export function FeedingEventsList({ scheduleId }: FeedingEventsListProps) {
         notes: notes || null
       });
       
-      // Update the events array
-      setEvents(currentEvents => 
-        currentEvents.map(event => 
-          event.id === eventId ? { ...event, ...updatedEvent } : event
-        )
-      );
+      // Update the cache
+      queryClient.setQueryData(['feeding-events', scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
+        if (!oldData) return [updatedEvent];
+        return oldData.map(event => event.id === eventId ? { ...event, ...updatedEvent } : event);
+      });
+      
+      // Invalidate all related queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
       
       toast.success(`Feeding ${fed ? 'completed' : 'unmarked'}`);
+      
+      // Call the onEventsUpdated callback to refresh the parent component
+      if (onEventsUpdated) {
+        onEventsUpdated();
+      }
     } catch (error) {
       console.error('Error updating feeding event:', error);
       toast.error('Failed to update feeding status');
@@ -98,14 +103,21 @@ export function FeedingEventsList({ scheduleId }: FeedingEventsListProps) {
         notes: notes || null
       });
       
-      // Update the events array
-      setEvents(currentEvents => 
-        currentEvents.map(event => 
-          event.id === eventId ? { ...event, ...updatedEvent } : event
-        )
-      );
+      // Update the cache
+      queryClient.setQueryData(['feeding-events', scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
+        if (!oldData) return [updatedEvent];
+        return oldData.map(event => event.id === eventId ? { ...event, ...updatedEvent } : event);
+      });
+      
+      // Invalidate all related queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
       
       toast.success('Notes saved successfully');
+      
+      // Call the onEventsUpdated callback
+      if (onEventsUpdated) {
+        onEventsUpdated();
+      }
     } catch (error) {
       console.error('Error saving notes:', error);
       toast.error('Failed to save notes');
