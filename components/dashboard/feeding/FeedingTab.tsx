@@ -3,7 +3,7 @@
 import { getFeedingEvents } from '@/app/api/feeding/events';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -383,8 +383,9 @@ export function FeedingTab() {
 
       <div className="flex justify-between items-center">
         {incompleteSchedules > 0 ? (
-          <Alert className="bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800 flex-1 mr-2">
+          <Alert variant="amber" className="flex-1 mr-2">
             <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Feeding reminder</AlertTitle>
             <AlertDescription>
               You have {incompleteSchedules} feeding schedule{incompleteSchedules > 1 ? 's' : ''} that need{incompleteSchedules === 1 ? 's' : ''} to be completed today.
             </AlertDescription>
@@ -398,8 +399,7 @@ export function FeedingTab() {
           onClick={refreshStatus} 
           className="h-9 flex-shrink-0"
         >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh Status
+          <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
 

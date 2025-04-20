@@ -84,13 +84,13 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
         const Icon = stat.icon;
         return (
           <Link href={stat.link} key={index}>
-            <Card className={`hover:shadow-md transition-all cursor-pointer h-full border ${stat.color}`}>
+            <Card className={`hover:shadow-md transition-all cursor-pointer h-full border bg-card`}>
               <CardContent className="p-3 sm:p-4 lg:p-6">
                 <div className="flex justify-between items-center">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                        <div className={`rounded-full flex-shrink-0 ${stat.color}`}>
-                          <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.iconColor}`} />
+                        <div className={`rounded-full flex-shrink-0 `}>
+                          <Icon className={`h-4 w-4 sm:h-5 sm:w-5 `} />
                         </div>
                         <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium text-muted-foreground  truncate">
                          {stat.title}

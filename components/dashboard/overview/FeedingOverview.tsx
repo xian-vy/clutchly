@@ -217,7 +217,7 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
   return (
     <div className="space-y-4">
       {hasPendingFeedings && (
-        <Alert className="bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800">
+        <Alert variant="amber">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Feeding reminder</AlertTitle>
           <AlertDescription>
