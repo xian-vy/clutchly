@@ -259,7 +259,7 @@ function Flow({ reptileId }: { reptileId: string }) {
         const y = generation * Y_SPACING;
         
         // Create the flow node
-        const morphName = morphs.find((m: Morph) => m.id.toString() === reptileNode.morph_id)?.name || 'Unknown';
+        const morphName = morphs.find((m: Morph) => m.id.toString() === reptileNode.morph_id.toString())?.name || 'Unknown';
         
         const isParentOf = highlightedNodes.child && 
           (highlightedNodes.dam === reptileNode.id || highlightedNodes.sire === reptileNode.id) ? 
@@ -274,7 +274,7 @@ function Flow({ reptileId }: { reptileId: string }) {
           type: 'custom',
           data: {
             name: reptileNode.name,
-            species_name: reptileNode.species_id,
+            species_name: reptileNode.species_id.toString(),
             sex: reptileNode.sex,
             generation: reptileNode.generation,
             breeding_line: reptileNode.breeding_line,
