@@ -22,6 +22,7 @@ import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Info, Loader2, Ma
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEventsList } from './FeedingEventsList';
+import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 
 interface ScheduleStatus {
   totalEvents: number;
@@ -260,7 +261,7 @@ export function FeedingTab() {
   };
 
   // Calculate schedule stats
-  const getScheduleStats = (schedule: FeedingScheduleWithTargets) => {
+  const getScheduleStats = async (schedule: FeedingScheduleWithTargets) => {
     // Count location-related targets (location, room, rack, level)
     const locationRelatedTargets = schedule.targets.filter(
       (target) => ['location', 'room', 'rack', 'level'].includes(target.target_type)
@@ -271,15 +272,26 @@ export function FeedingTab() {
       (target) => target.target_type === 'reptile'
     );
     
-    // For room, rack, and level targets, we'd need to estimate the number of reptiles
-    // Since we don't have the exact count, let's make a reasonable estimate
-    // based on the number of targets
     let estimatedReptileCount = reptileTargets.length;
     
-    // Add estimated reptiles from location-related targets
-    // A conservative estimate might be at least 1 reptile per location-related target
-    const locationBasedReptileEstimate = locationRelatedTargets.length > 0 ? locationRelatedTargets.length : 0;
-    estimatedReptileCount += locationBasedReptileEstimate;
+    // Get actual reptile counts from location-related targets
+    try {
+      const reptileCounts = await Promise.all(
+        locationRelatedTargets.map(async (target) => {
+          const reptiles = await getReptilesByLocation(
+            target.target_type as 'room' | 'rack' | 'level' | 'location',
+            target.target_id
+          );
+          return reptiles.length;
+        })
+      );
+      
+      estimatedReptileCount += reptileCounts.reduce((sum, count) => sum + count, 0);
+    } catch (error) {
+      console.error('Error counting reptiles:', error);
+      // Fallback to simple estimation if query fails
+      estimatedReptileCount += locationRelatedTargets.length;
+    }
     
     // Calculate next feeding date
     const nextFeedingDate = getNextFeedingDay(schedule);
@@ -290,6 +302,23 @@ export function FeedingTab() {
       nextFeedingDate
     };
   };
+
+  // Add a new query for schedule stats
+  const { data: scheduleStats = {} } = useQuery({
+    queryKey: ['schedule-stats', schedules],
+    queryFn: async () => {
+      const stats: Record<string, { locationCount: number; reptileCount: number; nextFeedingDate: Date }> = {};
+      
+      await Promise.all(
+        schedules.map(async (schedule) => {
+          stats[schedule.id] = await getScheduleStats(schedule);
+        })
+      );
+      
+      return stats;
+    },
+    enabled: schedules.length > 0
+  });
 
   // Generate feeding events for the next 30 days
   const handleGenerateEvents = async (schedule: FeedingScheduleWithTargets) => {
@@ -386,7 +415,7 @@ export function FeedingTab() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {schedules.map((schedule) => {
-          const stats = getScheduleStats(schedule);
+          const stats = scheduleStats[schedule.id] || { locationCount: 0, reptileCount: 0, nextFeedingDate: new Date() };
           const status = scheduleStatus[schedule.id];
           const isActiveToday = status?.scheduledDate === format(new Date(), 'yyyy-MM-dd');
           const nextFeedingFormatted = format(stats.nextFeedingDate, 'MMM d, yyyy');
@@ -568,4 +597,4 @@ export function FeedingTab() {
       </div>
     </div>
   );
-} 
+}
