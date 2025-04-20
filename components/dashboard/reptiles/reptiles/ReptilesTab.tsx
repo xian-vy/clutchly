@@ -48,7 +48,7 @@ export function ReptilesTab() {
       .map(reptile => ({
         queryKey: ['location', reptile.location_id],
         queryFn: () => getLocationDetails(reptile.location_id!),
-        staleTime: 15 * 60 * 1000, // Consider data fresh for 15 minutes
+        staleTime: 60 * 60 * 1000, // Consider data fresh for 60 minutes
         cacheTime: 60 * 60 * 1000, // Keep in cache for 60 minutes
       }))
   });
