@@ -95,6 +95,7 @@ export function DataTable<TData, TValue>({
               <Button 
                 variant="outline" 
                 onClick={onImport}
+                size="sm"
                 className="flex items-center gap-2"
               >
                 <FileSpreadsheet className="h-4 w-4" />
