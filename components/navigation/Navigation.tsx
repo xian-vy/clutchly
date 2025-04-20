@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import {
     ChevronLeft,
     ChevronRight,
+    DatabaseBackup,
     Dna,
     Heart,
     LayoutDashboard,
@@ -57,6 +58,11 @@ const navItems = [
     name: 'Feeding',
     href: '/feeding',
     icon: Utensils,
+  },
+  {
+    name: 'Backup',
+    href: '/backup',
+    icon: DatabaseBackup,
   },
   {
     name: 'Settings',
