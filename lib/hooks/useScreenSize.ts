@@ -8,7 +8,6 @@ export const useScreenSize = (): ScreenSize => {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      console.log("width",width)
 
       if (width < 768) {
         setScreenSize('mobile');

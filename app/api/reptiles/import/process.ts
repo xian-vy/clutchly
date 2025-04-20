@@ -2,9 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { CreateGrowthEntryInput } from '@/lib/types/growth'
-import { NewMorph } from '@/lib/types/morph'
+import { Morph, NewMorph } from '@/lib/types/morph'
 import { NewReptile, Reptile, Sex, Status } from '@/lib/types/reptile'
-import { NewSpecies } from '@/lib/types/species'
+import { NewSpecies, Species } from '@/lib/types/species'
 
 // Since we couldn't install xlsx and papaparse, we'll use a simpler approach
 // Type for CSV/Excel row from import
@@ -45,8 +45,8 @@ export interface ImportResponse {
   success: boolean
   reptiles: Reptile[]
   errors: string[]
-  speciesAdded: number
-  morphsAdded: number
+  speciesAdded: Species[]
+  morphsAdded: (Morph & { species: { name: string } })[] 
 }
 
 // Validate a single reptile row
@@ -261,8 +261,8 @@ export async function processImport(
     success: false,
     reptiles: [],
     errors: [],
-    speciesAdded: 0,
-    morphsAdded: 0
+    speciesAdded: [],
+    morphsAdded: [] as (Morph & { species: { name: string } })[]
   }
   
   // Only import the selected rows
@@ -327,8 +327,14 @@ export async function processImport(
       if (createdSpecies) {
         createdSpecies.forEach(species => {
           speciesMap[species.name.toLowerCase()] = species.id
+          response.speciesAdded.push({
+            user_id: userId,
+            id : species.id,
+            name: species.name,
+            scientific_name: null,
+            care_level : 'intermediate',
+          })
         })
-        response.speciesAdded = createdSpecies.length
       }
     }
     
@@ -361,7 +367,16 @@ export async function processImport(
         
         if (createdMorph) {
           morphMap[morphKey] = createdMorph.id
-          response.morphsAdded++
+          response.morphsAdded.push({
+            user_id: userId,
+            id: createdMorph.id,
+            name: createdMorph.name,
+            species_id: speciesId,
+            description : "",
+            species: {
+              name: row.species
+            }
+          })
         }
       }
     }

@@ -12,6 +12,8 @@ import { ImportPreviewResponse, ImportResponse } from '@/app/api/reptiles/import
 import { CheckCircle, AlertCircle, FileSpreadsheet, Upload, Info, Download } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { useMorphsStore } from '@/lib/stores/morphsStore'
+import { useSpeciesStore } from '@/lib/stores/speciesStore'
 
 interface ImportReptileDialogProps {
   open: boolean
@@ -36,7 +38,8 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
+  const { addMorphToState } = useMorphsStore()
+  const { addSpeciesToState } = useSpeciesStore()
   // Reset state when dialog closes
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -214,12 +217,21 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         toast.dismiss(importToastId)
         toast.success(`Successfully imported ${result.reptiles.length} reptiles`)
         
-        if (result.speciesAdded > 0) {
-          toast.success(`Added ${result.speciesAdded} new species`)
+        if (result.speciesAdded.length > 0) {
+          // Add new species to store
+          result.speciesAdded.forEach(species => {
+             addSpeciesToState(species)
+             console.log("species", species)
+          })
+          toast.success(`Added ${result.speciesAdded.length} new species`)
         }
         
-        if (result.morphsAdded > 0) {
-          toast.success(`Added ${result.morphsAdded} new morphs`)
+        if (result.morphsAdded.length > 0) {
+          // Add new morphs to store
+          result.morphsAdded.forEach(morph => {
+            addMorphToState(morph)
+          })
+          toast.success(`Added ${result.morphsAdded.length} new morphs`)
         }
         
         if (result.errors.length > 0) {
@@ -499,7 +511,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                   <CardTitle className="text-sm">Species Added</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">{importResult.speciesAdded}</p>
+                  <p className="text-2xl font-bold">{importResult.speciesAdded.length}</p>
                 </CardContent>
               </Card>
               
@@ -508,7 +520,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                   <CardTitle className="text-sm">Morphs Added</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">{importResult.morphsAdded}</p>
+                  <p className="text-2xl font-bold">{importResult.morphsAdded.length}</p>
                 </CardContent>
               </Card>
               

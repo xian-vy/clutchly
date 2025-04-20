@@ -14,6 +14,7 @@ interface SpeciesState {
   deleteSpecies: (id: string) => Promise<boolean>;
   getSpeciesById: (id: string) => Species | undefined;
   getSpeciesByName: (name: string) => Species | undefined;
+  addSpeciesToState: (species: Species) => void; 
 }
 
 export const useSpeciesStore = create<SpeciesState>()(
@@ -124,10 +125,16 @@ export const useSpeciesStore = create<SpeciesState>()(
 
       getSpeciesByName: (name: string) => {
         return get().species.find(s => s.name.toLowerCase() === name.toLowerCase());
-      }
+      },
+      
+      addSpeciesToState: (species) => {
+        set(state => ({ 
+          species: [...state.species, species]
+        }));
+      },
     }),
     {
       name: 'species-storage',
     }
   )
-); 
+);

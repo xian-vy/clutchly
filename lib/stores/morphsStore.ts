@@ -15,6 +15,7 @@ interface MorphsState {
   deleteMorph: (id: string) => Promise<boolean>;
   getMorphById: (id: string) => (Morph & { species: { name: string } }) | undefined;
   getMorphsBySpecies: (speciesId: string) => (Morph & { species: { name: string } })[];
+  addMorphToState: (morph: Morph & { species: { name: string } }) => void; 
 }
 
 export const useMorphsStore = create<MorphsState>()(
@@ -139,10 +140,15 @@ export const useMorphsStore = create<MorphsState>()(
 
       getMorphsBySpecies: (speciesId: string) => {
         return get().morphs.filter(m => m.species_id.toString() === speciesId);
-      }
+      },
+      addMorphToState: (morph) => {
+        set(state => ({ 
+          morphs: [...state.morphs, morph]
+        }));
+      },
     }),
     {
       name: 'morphs-storage',
     }
   )
-); 
+);
