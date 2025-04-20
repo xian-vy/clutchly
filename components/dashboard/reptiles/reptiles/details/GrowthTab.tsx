@@ -56,11 +56,15 @@ export function GrowthTab({ reptileDetails }: ReptileTabProps) {
                 dataKey="date" 
                 tick={{ fontSize: 12 }} 
                 tickFormatter={(value) => value.split(' ')[0]}
+                fontSize={12}
+
               />
               <YAxis 
                 width={30}
+                fontSize={12}
+
               />
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3"   stroke="var(--color-border)"/>
               <RechartsTooltip 
                 contentStyle={{ background: "#1f2937", borderColor: "#374151" }}
                 labelStyle={{ color: "#9ca3af" }}
@@ -91,11 +95,15 @@ export function GrowthTab({ reptileDetails }: ReptileTabProps) {
                 dataKey="date" 
                 tick={{ fontSize: 12 }} 
                 tickFormatter={(value) => value.split(' ')[0]}
+                fontSize={12}
+
               />
               <YAxis 
                 width={30}
+                fontSize={12}
+
               />
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3"   stroke="var(--color-border)"/>
               <RechartsTooltip 
                 contentStyle={{ background: "#1f2937", borderColor: "#374151" }}
                 labelStyle={{ color: "#9ca3af" }}
