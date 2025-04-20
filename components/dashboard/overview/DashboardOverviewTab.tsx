@@ -10,7 +10,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { Reptile, NewReptile } from '@/lib/types/reptile';
 import { Clutch } from '@/lib/types/breeding';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { FilterX, Loader2 } from 'lucide-react';
@@ -59,11 +59,13 @@ export function DashboardOverviewTab() {
   }, [])
   
   // Create date filter params for API calls
-  const dateFilterParams = dateRange ? {
-    startDate: dateRange.from ? formatDateForApi(dateRange.from) : undefined,
-    endDate: dateRange.to ? formatDateForApi(dateRange.to) : undefined,
-  } : undefined;
-  
+  const dateFilterParams = useMemo(() => {
+    if (!dateRange) return undefined;
+    return {
+      startDate: dateRange.from ? formatDateForApi(dateRange.from) : undefined,
+      endDate: dateRange.to ? formatDateForApi(dateRange.to) : undefined,
+    };
+  }, [dateRange]);
   // Fetch health logs using React Query with date filtering
   const { data: healthLogs = [], isLoading: healthLoading } = useQuery({
     queryKey: ['health-logs', dateFilterParams],
