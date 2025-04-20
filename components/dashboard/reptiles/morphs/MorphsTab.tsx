@@ -22,26 +22,6 @@ export function MorphsTab() {
   
   const [selectedMorph, setSelectedMorph] = useState<MorphWithSpecies | undefined>(undefined)
 
-  /*
-  // Use TanStack Query only for the initial load
-  const { isLoading: queryLoading } = useQuery({
-    queryKey: ['morphs-initial-load'],
-    queryFn: async () => {
-      // Only fetch if we don't have morphs in the store
-      if (morphs.length === 0) {
-        await fetchMorphs();
-      }
-      return morphs;
-    },
-    // Only run once on component mount
-    enabled: morphs.length === 0,
-    // Don't refetch on window focus or reconnect
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    // Don't consider data stale
-    staleTime: Infinity,
-  });
-*/
   const handleCreate = async (data: NewMorph) => {
     const result = await addMorph(data)
     if (result) {
@@ -84,7 +64,7 @@ export function MorphsTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
-        onDownload={() => {}}
+        // onDownload={() => {}}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

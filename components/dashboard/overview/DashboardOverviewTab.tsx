@@ -19,10 +19,9 @@ import { ActionItems } from './ActionItems';
 import { RecentActivity } from './RecentActivity';
 import { CollectionOverview } from './CollectionOverview';
 import { DateRangePicker } from './DateRangePicker';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { FeedingOverview } from './FeedingOverview';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
@@ -30,7 +29,6 @@ import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 export function DashboardOverviewTab() {
   const [allClutches, setAllClutches] = useState<Clutch[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
-  const queryClient = useQueryClient();
   
   // Format date string for API calls
   const formatDateForApi = (date: Date) => {
@@ -51,8 +49,14 @@ export function DashboardOverviewTab() {
   });
   
   // Get species and morph data from their respective stores
-  const { species, isLoading: speciesLoading } = useSpeciesStore();
-  const { morphs, isLoading: morphsLoading } = useMorphsStore();
+  const { species, isLoading: speciesLoading,fetchSpecies } = useSpeciesStore();
+  const { morphs, isLoading: morphsLoading, fetchMorphs} = useMorphsStore();
+
+  
+  useEffect(() => {
+    fetchSpecies();
+    fetchMorphs();
+  }, [])
   
   // Create date filter params for API calls
   const dateFilterParams = dateRange ? {
