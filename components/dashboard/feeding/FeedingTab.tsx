@@ -1,6 +1,6 @@
 'use client';
 
-import { generateFeedingEvents, getFeedingEvents } from '@/app/api/feeding/events';
+import {  getFeedingEvents, generateEventsFromSchedule } from '@/app/api/feeding/events';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -285,8 +285,9 @@ export function FeedingTab() {
       const startDate = format(new Date(), 'yyyy-MM-dd');
       const endDate = format(new Date(new Date().setDate(new Date().getDate() + 30)), 'yyyy-MM-dd');
       
-      await generateFeedingEvents(schedule.id, startDate, endDate);
-      toast.success('Feeding events generated for the next 30 days');
+      // Generate events using the proper function
+      const result = await generateEventsFromSchedule(schedule.id, startDate, endDate);
+      toast.success(`${result.count} feeding events generated for the next 30 days`);
       
       // Invalidate queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
@@ -518,9 +519,10 @@ export function FeedingTab() {
                 </CardFooter>
               </Card>
               <CollapsibleContent>
-                <div className="px-4 pt-0 pb-4 bg-muted/20">
+                <div className="mt-2">
                   <FeedingEventsList 
                     scheduleId={schedule.id} 
+                    schedule={schedule}
                     onEventsUpdated={refreshStatus} 
                   />
                 </div>

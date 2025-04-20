@@ -1,5 +1,5 @@
 export type RecurrenceType = 'daily' | 'weekly' | 'custom';
-export type TargetType = 'location' | 'reptile';
+export type TargetType = 'room' | 'rack' | 'level' | 'location' | 'reptile';
 
 export interface FeedingSchedule {
   id: string;
@@ -37,6 +37,9 @@ export type NewFeedingEvent = Omit<FeedingEvent, 'id'>;
 
 export interface FeedingTargetWithDetails extends FeedingTarget {
   location_label?: string;
+  room_name?: string;
+  rack_name?: string;
+  level_number?: string | number;
   reptile_name?: string;
 }
 

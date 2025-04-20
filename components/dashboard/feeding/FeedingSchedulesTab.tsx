@@ -3,7 +3,7 @@
 import { createFeedingSchedule, deleteFeedingSchedule, getFeedingSchedules, updateFeedingSchedule } from '@/app/api/feeding/schedule';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
-import { FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
+import { FeedingScheduleWithTargets, NewFeedingSchedule, TargetType } from '@/lib/types/feeding';
 import { useState } from 'react';
 import { FeedingScheduleForm } from './FeedingScheduleForm';
 import { FeedingScheduleList } from './FeedingScheduleList';
@@ -11,15 +11,37 @@ import { Button } from '@/components/ui/button';
 import { Info, Loader2, Plus } from 'lucide-react';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { getLocations } from '@/app/api/locations/locations';
+import { getRooms } from '@/app/api/locations/rooms';
+import { getRacks } from '@/app/api/locations/racks';
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+
+// Extended types for racks with rows
+interface RackWithDetails {
+  id: string;
+  name: string;
+  room_id: string;
+  rows: number;
+}
 
 export function FeedingSchedulesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [reptiles, setReptiles] = useState<{ id: string; name: string }[]>([]);
   const [locations, setLocations] = useState<{ id: string; label: string }[]>([]);
+  const [rooms, setRooms] = useState<{ id: string; name: string }[]>([]);
+  const [racks, setRacks] = useState<{ id: string; name: string; room_id: string }[]>([]);
+  const [levels, setLevels] = useState<{ rack_id: string; level: number | string }[]>([]);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  
+  // Update the API functions to handle the new target types
+  const createScheduleWithTargetTypes = async (data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => {
+    return await createFeedingSchedule(data as any);
+  };
+  
+  const updateScheduleWithTargetTypes = async (id: string, data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => {
+    return await updateFeedingSchedule(id, data as any);
+  };
   
   // Use the resource hook for CRUD operations
   const {
@@ -31,28 +53,49 @@ export function FeedingSchedulesTab() {
     handleUpdate,
     handleDelete,
     refetch: refetchSchedules
-  } = useResource<FeedingScheduleWithTargets, NewFeedingSchedule & { targets: { target_type: 'reptile' | 'location', target_id: string }[] }>({
+  } = useResource<FeedingScheduleWithTargets, NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }>({
     resourceName: 'Feeding Schedule',
     queryKey: ['feeding-schedules'],
     getResources: getFeedingSchedules,
-    createResource: createFeedingSchedule,
-    updateResource: updateFeedingSchedule,
+    createResource: createScheduleWithTargetTypes,
+    updateResource: updateScheduleWithTargetTypes,
     deleteResource: deleteFeedingSchedule,
   });
 
-  // Load reptiles and locations when dialog opens
+  // Load reptiles, locations, rooms and racks when dialog opens
   const loadOptions = async () => {
-    if (reptiles.length > 0 && locations.length > 0) return;
+    if (reptiles.length > 0 && locations.length > 0 && rooms.length > 0 && racks.length > 0) return;
     
     setIsLoadingOptions(true);
     try {
-      const [reptileData, locationData] = await Promise.all([
+      const [reptileData, locationData, roomData, rackData] = await Promise.all([
         getReptiles(),
-        getLocations()
+        getLocations(),
+        getRooms(),
+        getRacks()
       ]);
       
       setReptiles(reptileData.map(r => ({ id: r.id, name: r.name })));
       setLocations(locationData.map(l => ({ id: l.id, label: l.label })));
+      setRooms(roomData.map(r => ({ id: r.id, name: r.name })));
+      
+      const racksWithDetails = rackData.map(r => ({ 
+        id: r.id, 
+        name: r.name, 
+        room_id: r.room_id 
+      }));
+      setRacks(racksWithDetails);
+      
+      // Generate level data from racks
+      const levelData: { rack_id: string; level: number | string }[] = [];
+      rackData.forEach(rack => {
+        if (rack.rows) {
+          for (let i = 1; i <= rack.rows; i++) {
+            levelData.push({ rack_id: rack.id, level: i });
+          }
+        }
+      });
+      setLevels(levelData);
     } catch (error) {
       console.error('Error loading options:', error);
       toast.error('Failed to load reptiles and locations');
@@ -139,6 +182,9 @@ export function FeedingSchedulesTab() {
             onCancel={() => onDialogChange(false)}
             reptiles={reptiles}
             locations={locations}
+            rooms={rooms}
+            racks={racks}
+            levels={levels}
           />
         </DialogContent>
       </Dialog>

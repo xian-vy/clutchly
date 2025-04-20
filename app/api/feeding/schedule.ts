@@ -48,7 +48,7 @@ export async function getFeedingSchedules(): Promise<FeedingScheduleWithTargets[
   }));
 }
 
-// Enrich targets with details (reptile name or location label)
+// Enrich targets with details (reptile name, location label, room name, rack name, level number)
 async function enrichTargets(targets: FeedingTarget[]): Promise<FeedingTarget[]> {
   if (targets.length === 0) return [];
   
@@ -57,6 +57,9 @@ async function enrichTargets(targets: FeedingTarget[]): Promise<FeedingTarget[]>
   // Separate targets by type
   const reptileTargets = targets.filter(t => t.target_type === 'reptile');
   const locationTargets = targets.filter(t => t.target_type === 'location');
+  const roomTargets = targets.filter(t => t.target_type === 'room');
+  const rackTargets = targets.filter(t => t.target_type === 'rack');
+  const levelTargets = targets.filter(t => t.target_type === 'level');
   
   // Get reptile details
   const reptileIds = reptileTargets.map(t => t.target_id);
@@ -94,6 +97,74 @@ async function enrichTargets(targets: FeedingTarget[]): Promise<FeedingTarget[]>
     }
   }
   
+  // Get room details
+  const roomIds = roomTargets.map(t => t.target_id);
+  let roomData: Record<string, string> = {};
+  
+  if (roomIds.length > 0) {
+    const { data: rooms, error } = await supabase
+      .from('rooms')
+      .select('id, name')
+      .in('id', roomIds);
+    
+    if (!error && rooms) {
+      roomData = rooms.reduce((acc: Record<string, string>, room: { id: string; name: string }) => {
+        acc[room.id] = room.name;
+        return acc;
+      }, {});
+    }
+  }
+  
+  // Get rack details
+  const rackIds = rackTargets.map(t => t.target_id);
+  let rackData: Record<string, string> = {};
+  
+  if (rackIds.length > 0) {
+    const { data: racks, error } = await supabase
+      .from('racks')
+      .select('id, name')
+      .in('id', rackIds);
+    
+    if (!error && racks) {
+      rackData = racks.reduce((acc: Record<string, string>, rack: { id: string; name: string }) => {
+        acc[rack.id] = rack.name;
+        return acc;
+      }, {});
+    }
+  }
+  
+  // Process level targets (these use a composite ID format: "rackId-levelNumber")
+  const levelData: Record<string, { rack_name: string, level_number: string | number }> = {};
+  
+  if (levelTargets.length > 0) {
+    // Extract rack IDs from composite level IDs (format: "rackId-levelNumber")
+    const rackIdsFromLevels = [...new Set(levelTargets.map(t => t.target_id.split('-')[0]))];
+    
+    // Get rack names for these IDs
+    if (rackIdsFromLevels.length > 0) {
+      const { data: levelRacks, error } = await supabase
+        .from('racks')
+        .select('id, name')
+        .in('id', rackIdsFromLevels);
+      
+      if (!error && levelRacks) {
+        const levelRackData = levelRacks.reduce((acc: Record<string, string>, rack: { id: string; name: string }) => {
+          acc[rack.id] = rack.name;
+          return acc;
+        }, {});
+        
+        // Build level data with rack name and level number
+        levelTargets.forEach(target => {
+          const [rackId, levelNumber] = target.target_id.split('-');
+          levelData[target.target_id] = {
+            rack_name: levelRackData[rackId] || 'Unknown Rack',
+            level_number: levelNumber
+          };
+        });
+      }
+    }
+  }
+  
   // Combine targets with details
   return targets.map(target => {
     if (target.target_type === 'reptile') {
@@ -101,11 +172,30 @@ async function enrichTargets(targets: FeedingTarget[]): Promise<FeedingTarget[]>
         ...target,
         reptile_name: reptileData[target.target_id] || 'Unknown'
       };
-    } else {
+    } else if (target.target_type === 'location') {
       return {
         ...target,
         location_label: locationData[target.target_id] || 'Unknown'
       };
+    } else if (target.target_type === 'room') {
+      return {
+        ...target,
+        room_name: roomData[target.target_id] || 'Unknown'
+      };
+    } else if (target.target_type === 'rack') {
+      return {
+        ...target,
+        rack_name: rackData[target.target_id] || 'Unknown'
+      };
+    } else if (target.target_type === 'level') {
+      const levelInfo = levelData[target.target_id] || { rack_name: 'Unknown', level_number: 'Unknown' };
+      return {
+        ...target,
+        rack_name: levelInfo.rack_name,
+        level_number: levelInfo.level_number
+      };
+    } else {
+      return target;
     }
   });
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
+import { FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Plus, Pencil, Trash2, Calendar, MoreHorizontal, MapPin, Footprints } from 'lucide-react';
 import {
   Table,
@@ -60,62 +60,77 @@ export function FeedingScheduleList({
     }
   };
 
-  // Format targets display
-  const getTargetsDisplay = (schedule: FeedingScheduleWithTargets) => {
-    const locationTargets = schedule.targets.filter(
-      (target) => target.target_type === 'location'
-    );
-    const reptileTargets = schedule.targets.filter(
-      (target) => target.target_type === 'reptile'
-    );
-
+  // Function to render target details
+  function renderTargets(targets: FeedingTargetWithDetails[]) {
+    if (!targets || targets.length === 0) return 'No targets';
+    
+    // Group targets by type
+    const reptileTargets = targets.filter(t => t.target_type === 'reptile');
+    const locationTargets = targets.filter(t => t.target_type === 'location');
+    const roomTargets = targets.filter(t => t.target_type === 'room');
+    const rackTargets = targets.filter(t => t.target_type === 'rack');
+    const levelTargets = targets.filter(t => t.target_type === 'level');
+    
+    const targetSections = [];
+    
+    // Add reptiles section if there are reptile targets
+    if (reptileTargets.length > 0) {
+      targetSections.push(
+        <div key="reptiles" className="mb-1">
+          <span className="font-medium">Reptiles: </span>
+          <span>{reptileTargets.map(t => t.reptile_name).join(', ')}</span>
+        </div>
+      );
+    }
+    
+    // Add locations section if there are location targets
+    if (locationTargets.length > 0) {
+      targetSections.push(
+        <div key="locations" className="mb-1">
+          <span className="font-medium">Enclosures: </span>
+          <span>{locationTargets.map(t => t.location_label).join(', ')}</span>
+        </div>
+      );
+    }
+    
+    // Add rooms section if there are room targets
+    if (roomTargets.length > 0) {
+      targetSections.push(
+        <div key="rooms" className="mb-1">
+          <span className="font-medium">Rooms: </span>
+          <span>{roomTargets.map(t => t.room_name).join(', ')}</span>
+        </div>
+      );
+    }
+    
+    // Add racks section if there are rack targets
+    if (rackTargets.length > 0) {
+      targetSections.push(
+        <div key="racks" className="mb-1">
+          <span className="font-medium">Racks: </span>
+          <span>{rackTargets.map(t => t.rack_name).join(', ')}</span>
+        </div>
+      );
+    }
+    
+    // Add levels section if there are level targets
+    if (levelTargets.length > 0) {
+      targetSections.push(
+        <div key="levels" className="mb-1">
+          <span className="font-medium">Rack Levels: </span>
+          <span>
+            {levelTargets.map(t => `${t.rack_name} - Level ${t.level_number}`).join(', ')}
+          </span>
+        </div>
+      );
+    }
+    
     return (
-      <div className="flex flex-col gap-1.5">
-        {locationTargets.length > 0 && (
-          <div className="flex items-start gap-1.5">
-            <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-            <div className="flex flex-wrap gap-1">
-              {locationTargets.map((target, index) => (
-                <TooltipProvider key={index}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Badge variant="secondary" className="text-xs cursor-default">
-                        {target.location_label || "Unknown location"}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Location: {target.location_label}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
-            </div>
-          </div>
-        )}
-        {reptileTargets.length > 0 && (
-          <div className="flex items-start gap-1.5">
-            <Footprints className="h-4 w-4 text-muted-foreground mt-0.5" />
-            <div className="flex flex-wrap gap-1">
-              {reptileTargets.map((target, index) => (
-                <TooltipProvider key={index}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Badge variant="outline" className="text-xs cursor-default">
-                        {target.reptile_name || "Unknown reptile"}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Reptile: {target.reptile_name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="text-sm text-muted-foreground">
+        {targetSections}
       </div>
     );
-  };
+  }
 
   return (
     <Card>
@@ -150,7 +165,7 @@ export function FeedingScheduleList({
                       )}
                     </TableCell>
                     <TableCell className="py-3 px-4 md:px-6">{getRecurrenceDisplay(schedule)}</TableCell>
-                    <TableCell className="py-3 px-4 md:px-6">{getTargetsDisplay(schedule)}</TableCell>
+                    <TableCell className="py-3 px-4 md:px-6">{renderTargets(schedule.targets)}</TableCell>
                     <TableCell className="py-3 px-4 md:px-6">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 text-muted-foreground" />

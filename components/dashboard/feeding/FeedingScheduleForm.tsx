@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
+import { FeedingScheduleWithTargets, NewFeedingSchedule, TargetType } from '@/lib/types/feeding';
 import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -42,7 +42,7 @@ const feedingScheduleSchema = z.object({
   end_date: z.date().optional().nullable(),
   targets: z.array(
     z.object({
-      target_type: z.enum(['location', 'reptile']),
+      target_type: z.enum(['room', 'rack', 'level', 'location', 'reptile']),
       target_id: z.string(),
     })
   ).min(1, 'At least one target is required'),
@@ -52,10 +52,13 @@ type FeedingScheduleFormValues = z.infer<typeof feedingScheduleSchema>;
 
 interface FeedingScheduleFormProps {
   initialData?: FeedingScheduleWithTargets;
-  onSubmit: (data: NewFeedingSchedule & { targets: { target_type: 'reptile' | 'location', target_id: string }[] }) => Promise<void>;
+  onSubmit: (data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => Promise<void>;
   onCancel: () => void;
   reptiles: { id: string; name: string }[];
   locations: { id: string; label: string }[];
+  rooms: { id: string; name: string }[];
+  racks: { id: string; name: string; room_id: string }[];
+  levels: { rack_id: string; level: number | string }[];
 }
 
 export function FeedingScheduleForm({
@@ -64,6 +67,9 @@ export function FeedingScheduleForm({
   onCancel,
   reptiles,
   locations,
+  rooms,
+  racks,
+  levels,
 }: FeedingScheduleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -95,11 +101,26 @@ export function FeedingScheduleForm({
   });
   
   // Handle target type change
-  const [targetType, setTargetType] = useState<'reptile' | 'location'>(
-    form.getValues().targets.length > 0 && form.getValues().targets[0]?.target_type === 'location'
-      ? 'location'
+  const [targetType, setTargetType] = useState<TargetType>(
+    form.getValues().targets.length > 0 
+      ? form.getValues().targets[0]?.target_type 
       : 'reptile'
   );
+
+  // For filtering rack and level selections
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedRackId, setSelectedRackId] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+  
+  // Filter racks by selected room
+  const filteredRacks = selectedRoomId 
+    ? racks.filter(rack => rack.room_id === selectedRoomId)
+    : racks;
+  
+  // Filter levels by selected rack
+  const filteredLevels = selectedRackId
+    ? levels.filter(level => level.rack_id === selectedRackId)
+    : levels;
   
   // Get recurrence value from form
   const recurrence = form.watch('recurrence');
@@ -121,7 +142,7 @@ export function FeedingScheduleForm({
         name: values.name,
         description: values.description || null,
         recurrence: values.recurrence,
-        custom_days: values.recurrence === 'custom' ? values.custom_days : null,
+        custom_days: values.recurrence === 'custom' ? values.custom_days || [] : null,
         start_date: format(values.start_date, 'yyyy-MM-dd'),
         end_date: values.end_date ? format(values.end_date, 'yyyy-MM-dd') : null,
         targets: values.targets,
@@ -339,16 +360,26 @@ export function FeedingScheduleForm({
             <FormLabel className="block mb-2">Feeding Target Type</FormLabel>
             <Select
               value={targetType}
-              onValueChange={(value: 'reptile' | 'location') => {
+              onValueChange={(value: TargetType) => {
                 setTargetType(value);
                 form.setValue('targets', []); // Clear current targets when switching types
+                // Reset selected room and rack when changing target type
+                if (value !== 'level' && value !== 'rack') {
+                  setSelectedRackId(null);
+                }
+                if (value !== 'rack' && value !== 'room') {
+                  setSelectedRoomId(null);
+                }
               }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select target type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="location">Feed by Location</SelectItem>
+                <SelectItem value="room">Feed by Room</SelectItem>
+                <SelectItem value="rack">Feed by Rack</SelectItem>
+                <SelectItem value="level">Feed by Rack Level</SelectItem>
+                <SelectItem value="location">Feed by Specific Enclosure</SelectItem>
                 <SelectItem value="reptile">Feed Specific Reptiles</SelectItem>
               </SelectContent>
             </Select>
@@ -360,101 +391,255 @@ export function FeedingScheduleForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  {targetType === 'location' ? 'Select Locations' : 'Select Reptiles'}
+                  {targetType === 'room' ? 'Select Rooms' : 
+                   targetType === 'rack' ? 'Select Racks' :
+                   targetType === 'level' ? 'Select Levels' :
+                   targetType === 'location' ? 'Select Enclosures' : 'Select Reptiles'}
                 </FormLabel>
-                <FormControl>
-                  {targetType === 'location' ? (
+                <div>
+                  {targetType === 'room' && (
                     <div className="flex flex-wrap gap-2">
-                      {locations.map((location) => (
-                        <div key={location.id} className="flex items-center space-x-2">
+                      {rooms.map((room) => (
+                        <div key={room.id} className="flex items-center space-x-2">
                           <Checkbox 
-                            id={`location-${location.id}`}
+                            id={`room-${room.id}`}
                             checked={field.value.some(target => 
-                              target.target_type === 'location' && target.target_id === location.id
+                              target.target_type === 'room' && target.target_id === room.id
                             )}
                             onCheckedChange={(checked) => {
                               const currentValue = [...field.value];
                               if (checked) {
                                 field.onChange([
                                   ...currentValue,
-                                  { target_type: 'location', target_id: location.id }
+                                  { target_type: 'room', target_id: room.id }
                                 ]);
                               } else {
                                 field.onChange(
                                   currentValue.filter(
-                                    target => !(target.target_type === 'location' && target.target_id === location.id)
+                                    target => !(target.target_type === 'room' && target.target_id === room.id)
                                   )
                                 );
                               }
                             }}
                           />
                           <label
-                            htmlFor={`location-${location.id}`}
+                            htmlFor={`room-${room.id}`}
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
-                            {location.label}
+                            {room.name}
                           </label>
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <div className="relative">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button 
-                            variant="outline"
-                            className="w-full justify-between font-normal"
-                          >
-                            {field.value.length === 0 
-                              ? "Select reptiles" 
-                              : `${field.value.length} reptile${field.value.length > 1 ? 's' : ''} selected`}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[400px] p-0">
-                          <Command>
-                            <CommandInput placeholder="Search reptiles..." />
-                            <CommandEmpty>No reptiles found.</CommandEmpty>
-                            <CommandGroup>
-                              {reptiles.map((reptile) => (
-                                <CommandItem
-                                  key={reptile.id}
-                                  value={reptile.id}
-                                  onSelect={() => {
-                                    const currentValue = [...field.value];
-                                    const exists = currentValue.some(
-                                      target => target.target_type === 'reptile' && target.target_id === reptile.id
-                                    );
-                                    
-                                    if (exists) {
-                                      field.onChange(
-                                        currentValue.filter(
-                                          target => !(target.target_type === 'reptile' && target.target_id === reptile.id)
-                                        )
-                                      );
-                                    } else {
-                                      field.onChange([
-                                        ...currentValue,
-                                        { target_type: 'reptile', target_id: reptile.id }
-                                      ]);
-                                    }
-                                  }}
-                                >
-                                  <div className="flex items-center">
-                                    {field.value.some(
-                                      target => target.target_type === 'reptile' && target.target_id === reptile.id
-                                    ) && <Check className="mr-2 h-4 w-4" />}
-                                    {reptile.name}
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
                   )}
-                </FormControl>
+                  
+                  {targetType === 'rack' && (
+                    <>
+                      {/* Room Filter for Racks */}
+                      <div className="mb-4">
+                        <FormLabel className="text-sm text-muted-foreground">Filter by Room (Optional)</FormLabel>
+                        <Select
+                          value={selectedRoomId || "all"}
+                          onValueChange={(value) => setSelectedRoomId(value === "all" ? null : value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="All Rooms" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Rooms</SelectItem>
+                            {rooms.map((room) => (
+                              <SelectItem key={room.id} value={room.id}>
+                                {room.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Show Rack filter only if a room is selected */}
+                      {selectedRoomId && (
+                        <div className="mb-4">
+                          <FormLabel className="text-sm text-muted-foreground">Filter by Rack (Optional)</FormLabel>
+                          <Select
+                            value={selectedRackId || "all"}
+                            onValueChange={(value) => setSelectedRackId(value === "all" ? null : value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="All Racks" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">All Racks</SelectItem>
+                              {filteredRacks.map((rack) => (
+                                <SelectItem key={rack.id} value={rack.id}>
+                                  {rack.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  
+                  {targetType === 'level' && (
+                    <>
+                      {/* Rack Filter for Levels */}
+                      <div className="mb-4">
+                        <FormLabel className="text-sm text-muted-foreground">Select Rack</FormLabel>
+                        <Select
+                          value={selectedRackId || ""}
+                          onValueChange={(value) => setSelectedRackId(value || null)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a Rack" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {racks.map((rack) => (
+                              <SelectItem key={rack.id} value={rack.id}>
+                                {rack.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Show Level filter only if a rack is selected */}
+                      {selectedRackId && (
+                        <div className="mb-4">
+                          <FormLabel className="text-sm text-muted-foreground">Filter by Level (Optional)</FormLabel>
+                          <Select
+                            value={selectedLevel || "all"}
+                            onValueChange={(value) => setSelectedLevel(value === "all" ? null : value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="All Levels" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">All Levels</SelectItem>
+                              {filteredLevels.map((levelObj) => (
+                                <SelectItem key={`${levelObj.rack_id}-${levelObj.level}`} value={`${levelObj.level}`}>
+                                  Level {levelObj.level}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  
+                  {targetType === 'location' && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline"
+                          className="w-full justify-between font-normal"
+                        >
+                          {field.value.length === 0 
+                            ? "Select enclosures" 
+                            : `${field.value.length} enclosure${field.value.length > 1 ? 's' : ''} selected`}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search enclosures..." />
+                          <CommandEmpty>No enclosures found.</CommandEmpty>
+                          <CommandGroup>
+                            {locations.map((location) => (
+                              <CommandItem
+                                key={location.id}
+                                value={location.id}
+                                onSelect={() => {
+                                  const currentValue = [...field.value];
+                                  const exists = currentValue.some(
+                                    target => target.target_type === 'location' && target.target_id === location.id
+                                  );
+                                  
+                                  if (exists) {
+                                    field.onChange(
+                                      currentValue.filter(
+                                        target => !(target.target_type === 'location' && target.target_id === location.id)
+                                      )
+                                    );
+                                  } else {
+                                    field.onChange([
+                                      ...currentValue,
+                                      { target_type: 'location', target_id: location.id }
+                                    ]);
+                                  }
+                                }}
+                              >
+                                <div className="flex items-center">
+                                  {field.value.some(
+                                    target => target.target_type === 'location' && target.target_id === location.id
+                                  ) && <Check className="mr-2 h-4 w-4" />}
+                                  {location.label}
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                  
+                  {targetType === 'reptile' && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline"
+                          className="w-full justify-between font-normal"
+                        >
+                          {field.value.length === 0 
+                            ? "Select reptiles" 
+                            : `${field.value.length} reptile${field.value.length > 1 ? 's' : ''} selected`}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search reptiles..." />
+                          <CommandEmpty>No reptiles found.</CommandEmpty>
+                          <CommandGroup>
+                            {reptiles.map((reptile) => (
+                              <CommandItem
+                                key={reptile.id}
+                                value={reptile.id}
+                                onSelect={() => {
+                                  const currentValue = [...field.value];
+                                  const exists = currentValue.some(
+                                    target => target.target_type === 'reptile' && target.target_id === reptile.id
+                                  );
+                                  
+                                  if (exists) {
+                                    field.onChange(
+                                      currentValue.filter(
+                                        target => !(target.target_type === 'reptile' && target.target_id === reptile.id)
+                                      )
+                                    );
+                                  } else {
+                                    field.onChange([
+                                      ...currentValue,
+                                      { target_type: 'reptile', target_id: reptile.id }
+                                    ]);
+                                  }
+                                }}
+                              >
+                                <div className="flex items-center">
+                                  {field.value.some(
+                                    target => target.target_type === 'reptile' && target.target_id === reptile.id
+                                  ) && <Check className="mr-2 h-4 w-4" />}
+                                  {reptile.name}
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                </div>
                 <FormMessage />
               </FormItem>
             )}

@@ -154,127 +154,264 @@ export async function deleteFeedingEvent(id: string): Promise<void> {
 }
 
 // Generate feeding events for a schedule
-export async function generateFeedingEvents(scheduleId: string, startDate: string, endDate: string): Promise<FeedingEvent[]> {
+export async function generateEventsFromSchedule(
+  scheduleId: string,
+  startDate: string,
+  endDate?: string | null
+): Promise<{ count: number }> {
   const supabase = createClient();
   
-  // Get schedule details
+  // Get user ID
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+  
+  // 1. Get the schedule details
   const { data: schedule, error: scheduleError } = await supabase
     .from('feeding_schedules')
     .select('*')
     .eq('id', scheduleId)
+    .eq('user_id', user.id)
     .single();
   
   if (scheduleError) throw scheduleError;
   if (!schedule) throw new Error('Schedule not found');
   
-  // Get feeding targets
+  // 2. Get schedule targets
   const { data: targets, error: targetsError } = await supabase
     .from('feeding_targets')
     .select('*')
     .eq('schedule_id', scheduleId);
   
   if (targetsError) throw targetsError;
-  if (!targets || targets.length === 0) throw new Error('No feeding targets found');
-  
-  // Get all reptiles that should be fed
-  let reptileIds: string[] = [];
-  
-  // Directly add reptile targets
-  const reptileTargets = targets.filter(t => t.target_type === 'reptile');
-  reptileIds = reptileIds.concat(reptileTargets.map(t => t.target_id));
-  
-  // Get reptiles from location targets
-  const locationTargets = targets.filter(t => t.target_type === 'location');
-  const locationIds = locationTargets.map(t => t.target_id);
-  
-  if (locationIds.length > 0) {
-    const { data: reptiles, error: reptilesError } = await supabase
-      .from('reptiles')
-      .select('id')
-      .in('location_id', locationIds)
-      .eq('status', 'active'); // Only active reptiles
-    
-    if (reptilesError) throw reptilesError;
-    if (reptiles) {
-      reptileIds = reptileIds.concat(reptiles.map(r => r.id));
-    }
+  if (!targets || targets.length === 0) {
+    return { count: 0 }; // No targets to generate events for
   }
   
-  // Remove duplicates
-  reptileIds = [...new Set(reptileIds)];
+  // 3. Get reptile IDs based on targets
+  const reptileIds = await getReptilesFromTargets(targets);
   
   if (reptileIds.length === 0) {
-    throw new Error('No reptiles found for the selected targets');
+    return { count: 0 }; // No reptiles to generate events for
   }
   
-  // Generate dates based on recurrence
-  const dates = generateDates(schedule.recurrence, schedule.custom_days, startDate, endDate);
+  // 4. Generate dates based on recurrence pattern
+  // Use provided date range, or fallback to schedule's start/end dates
+  const actualStartDate = startDate || schedule.start_date;
+  const actualEndDate = endDate || schedule.end_date || generateDefaultEndDate(actualStartDate);
   
-  // Create feeding events
-  const events: NewFeedingEvent[] = [];
+  const feedingDates = generateFeedingDates(
+    schedule.recurrence,
+    schedule.custom_days || [],
+    actualStartDate,
+    actualEndDate
+  );
   
-  for (const date of dates) {
-    for (const reptileId of reptileIds) {
-      events.push({
-        schedule_id: scheduleId,
-        reptile_id: reptileId,
-        scheduled_date: date,
-        fed: false,
-        fed_at: null,
-        notes: null
-      });
+  if (feedingDates.length === 0) {
+    return { count: 0 }; // No dates to generate events for
+  }
+  
+  // 5. Generate events (one per reptile per date)
+  const events = [];
+  
+  for (const reptileId of reptileIds) {
+    for (const date of feedingDates) {
+      // Check if event already exists
+      const { data: existingEvent } = await supabase
+        .from('feeding_events')
+        .select('id')
+        .eq('reptile_id', reptileId)
+        .eq('schedule_id', scheduleId)
+        .eq('scheduled_date', date)
+        .maybeSingle();
+      
+      if (!existingEvent) {
+        events.push({
+          schedule_id: scheduleId,
+          reptile_id: reptileId,
+          scheduled_date: date,
+          fed: false,
+          fed_at: null,
+          notes: null
+        });
+      }
     }
   }
   
-  // Save events to database
-  if (events.length === 0) return [];
+  // 6. Insert events
+  if (events.length > 0) {
+    const { error: insertError } = await supabase
+      .from('feeding_events')
+      .insert(events);
+    
+    if (insertError) throw insertError;
+  }
   
-  const { data, error } = await supabase
-    .from('feeding_events')
-    .insert(events)
-    .select();
-  
-  if (error) throw error;
-  
-  return data || [];
+  return { count: events.length };
 }
 
-// Helper function to generate dates based on recurrence
-function generateDates(recurrence: string, customDays: number[] | null, startDate: string, endDate: string): string[] {
-  const dates: string[] = [];
+// Helper function to get reptiles from targets
+async function getReptilesFromTargets(targets: { target_type: string; target_id: string }[]): Promise<string[]> {
+  const supabase = createClient();
+  let reptileIds: string[] = [];
+
+  // Extract targets by type
+  const reptileTargets = targets.filter(t => t.target_type === 'reptile').map(t => t.target_id);
+  const locationTargets = targets.filter(t => t.target_type === 'location').map(t => t.target_id);
+  const roomTargets = targets.filter(t => t.target_type === 'room').map(t => t.target_id);
+  const rackTargets = targets.filter(t => t.target_type === 'rack').map(t => t.target_id);
+  const levelTargets = targets.filter(t => t.target_type === 'level');
+  
+  // Add direct reptile targets
+  if (reptileTargets.length > 0) {
+    reptileIds.push(...reptileTargets);
+  }
+  
+  // Get reptiles from locations
+  if (locationTargets.length > 0) {
+    const { data: reptiles, error } = await supabase
+      .from('reptiles')
+      .select('id')
+      .in('location_id', locationTargets);
+    
+    if (!error && reptiles) {
+      reptileIds.push(...reptiles.map(r => r.id));
+    }
+  }
+  
+  // Get reptiles from rooms
+  if (roomTargets.length > 0) {
+    // First get all locations in these rooms
+    const { data: locationsInRooms, error: locationsError } = await supabase
+      .from('locations')
+      .select('id')
+      .in('room_id', roomTargets);
+    
+    if (!locationsError && locationsInRooms && locationsInRooms.length > 0) {
+      // Then get reptiles in those locations
+      const locationIds = locationsInRooms.map(loc => loc.id);
+      
+      const { data: reptiles, error } = await supabase
+        .from('reptiles')
+        .select('id')
+        .in('location_id', locationIds);
+      
+      if (!error && reptiles) {
+        reptileIds.push(...reptiles.map(r => r.id));
+      }
+    }
+  }
+  
+  // Get reptiles from racks
+  if (rackTargets.length > 0) {
+    // First get all locations in these racks
+    const { data: locationsInRacks, error: locationsError } = await supabase
+      .from('locations')
+      .select('id')
+      .in('rack_id', rackTargets);
+    
+    if (!locationsError && locationsInRacks && locationsInRacks.length > 0) {
+      // Then get reptiles in those locations
+      const locationIds = locationsInRacks.map(loc => loc.id);
+      
+      const { data: reptiles, error } = await supabase
+        .from('reptiles')
+        .select('id')
+        .in('location_id', locationIds);
+      
+      if (!error && reptiles) {
+        reptileIds.push(...reptiles.map(r => r.id));
+      }
+    }
+  }
+  
+  // Get reptiles from rack levels (format: "rackId-levelNumber")
+  if (levelTargets.length > 0) {
+    // Group level targets by rack to optimize queries
+    const levelsByRack: Record<string, (string | number)[]> = {};
+    
+    levelTargets.forEach(target => {
+      const [rackId, levelNumber] = target.target_id.split('-');
+      levelsByRack[rackId] = levelsByRack[rackId] || [];
+      levelsByRack[rackId].push(levelNumber);
+    });
+    
+    for (const [rackId, levels] of Object.entries(levelsByRack)) {
+      // Get locations for this rack at the specified levels
+      const { data: locationsAtLevels, error: locationsError } = await supabase
+        .from('locations')
+        .select('id')
+        .eq('rack_id', rackId)
+        .in('shelf_level', levels);
+      
+      if (!locationsError && locationsAtLevels && locationsAtLevels.length > 0) {
+        // Get reptiles in those locations
+        const locationIds = locationsAtLevels.map(loc => loc.id);
+        
+        const { data: reptiles, error } = await supabase
+          .from('reptiles')
+          .select('id')
+          .in('location_id', locationIds);
+        
+        if (!error && reptiles) {
+          reptileIds.push(...reptiles.map(r => r.id));
+        }
+      }
+    }
+  }
+  
+  // Remove duplicates and return unique reptile IDs
+  return [...new Set(reptileIds)];
+}
+
+// Generate default end date (30 days after start date)
+function generateDefaultEndDate(startDate: string): string {
+  const date = new Date(startDate);
+  date.setDate(date.getDate() + 30);
+  return date.toISOString().split('T')[0];
+}
+
+// Generate feeding dates based on recurrence pattern
+function generateFeedingDates(
+  recurrence: string,
+  customDays: number[],
+  startDate: string,
+  endDate: string
+): string[] {
   const start = new Date(startDate);
   const end = new Date(endDate);
+  const dates: string[] = [];
   
-  // Adjust to midnight for consistent date comparisons
+  // Set time to midnight to avoid timezone issues
   start.setHours(0, 0, 0, 0);
   end.setHours(23, 59, 59, 999);
   
-  const current = new Date(start);
-  
-  while (current <= end) {
-    const dayOfWeek = current.getDay(); // 0 = Sunday, 6 = Saturday
-    
-    let shouldAddDate = false;
-    
-    switch (recurrence) {
-      case 'daily':
-        shouldAddDate = true;
-        break;
-      case 'weekly':
-        // Weekly recurrence uses the day of the week from the start date
-        shouldAddDate = dayOfWeek === start.getDay();
-        break;
-      case 'custom':
-        shouldAddDate = customDays?.includes(dayOfWeek) || false;
-        break;
-    }
-    
-    if (shouldAddDate) {
+  // Daily recurrence
+  if (recurrence === 'daily') {
+    const current = new Date(start);
+    while (current <= end) {
       dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
     }
-    
-    // Move to next day
-    current.setDate(current.getDate() + 1);
+  }
+  // Weekly recurrence (same day of week as start date)
+  else if (recurrence === 'weekly') {
+    const dayOfWeek = start.getDay();
+    const current = new Date(start);
+    while (current <= end) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 7);
+    }
+  }
+  // Custom days recurrence
+  else if (recurrence === 'custom' && customDays.length > 0) {
+    const current = new Date(start);
+    while (current <= end) {
+      const dayOfWeek = current.getDay();
+      if (customDays.includes(dayOfWeek)) {
+        dates.push(current.toISOString().split('T')[0]);
+      }
+      current.setDate(current.getDate() + 1);
+    }
   }
   
   return dates;
