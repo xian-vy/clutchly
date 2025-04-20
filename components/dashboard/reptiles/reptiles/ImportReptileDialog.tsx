@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
-import { ImportPreviewResponse, ImportResponse } from '@/app/api/reptiles/import'
+import { ImportPreviewResponse, ImportResponse } from '@/app/api/reptiles/import/process'
 import { CheckCircle, AlertCircle, FileSpreadsheet, Upload, Info, Download } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'

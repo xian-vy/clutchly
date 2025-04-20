@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { previewImportData, processImport, checkRateLimit, logImport } from '@/app/api/reptiles/import'
+import { previewImportData, processImport, checkRateLimit, logImport } from '@/app/api/reptiles/import/process'
 import { createClient } from '@/lib/supabase/server'
 import * as XLSX from 'xlsx-js-style'
 import Papa from 'papaparse'
