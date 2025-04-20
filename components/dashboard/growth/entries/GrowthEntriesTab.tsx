@@ -57,8 +57,8 @@ export function GrowthEntriesTab() {
   const enrichedGrowthEntries = useMemo(() => {
     return growthEntries.map(growth => {
       const reptile = reptiles.find(reptile => reptile.id === growth.reptile_id);
-      const speciesName = species.find(s => s.id.toString() === reptile?.species_id);
-      const morphName = morphs.find(m => m.id.toString() === reptile?.morph_id);
+      const speciesName = species.find(s => s.id.toString() === reptile?.species_id.toString());
+      const morphName = morphs.find(m => m.id.toString() === reptile?.morph_id.toString());
       return {
         ...growth,
         reptile: reptile?.name || 'Unknown',
