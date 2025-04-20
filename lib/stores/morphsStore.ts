@@ -135,11 +135,11 @@ export const useMorphsStore = create<MorphsState>()(
       },
 
       getMorphById: (id: string) => {
-        return get().morphs.find(m => m.id.toString() === id);
+        return get().morphs.find(m => m.id.toString() === id.toString() );
       },
 
       getMorphsBySpecies: (speciesId: string) => {
-        return get().morphs.filter(m => m.species_id.toString() === speciesId);
+        return get().morphs.filter(m => m.species_id.toString() === speciesId.toString() );
       },
       addMorphToState: (morph) => {
         set(state => ({ 

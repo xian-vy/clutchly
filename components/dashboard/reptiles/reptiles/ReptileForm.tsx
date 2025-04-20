@@ -84,8 +84,8 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
-      species_id: initialData?.species_id || '',
-      morph_id: initialData?.morph_id || '',
+      species_id: initialData?.species_id.toString() || '',
+      morph_id: initialData?.morph_id.toString() || '',
       sex: initialData?.sex || 'unknown',
       hatch_date: initialData?.hatch_date || null,
       acquisition_date: initialData?.acquisition_date || new Date().toISOString().split('T')[0],

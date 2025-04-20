@@ -23,14 +23,14 @@ export function useReptilesParentsBySpecies({ reptiles, speciesId }: UseReptiles
       setMorphsForSpecies(morphsForSpecies);
       setMaleReptiles(reptiles.filter((r) => 
         r.sex === 'male' && 
-        r.species_id === speciesId &&
-        (!r.morph_id || morphsList.some(m => m.id === r.morph_id))
+        r.species_id.toString() === speciesId.toString() &&
+        (!r.morph_id || morphsList.some(m => m.id.toString() === r.morph_id.toString()))
       ));
 
       setFemaleReptiles(reptiles.filter((r) => 
         r.sex === 'female' && 
-        r.species_id === speciesId &&
-        (!r.morph_id || morphsList.some(m => m.id === r.morph_id))
+        r.species_id.toString() === speciesId.toString() &&
+        (!r.morph_id || morphsList.some(m => m.id.toString() === r.morph_id.toString()))
       ));
     }
   }, [speciesId, getMorphsBySpecies, reptiles]);

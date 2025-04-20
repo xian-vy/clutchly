@@ -120,7 +120,7 @@ export const useSpeciesStore = create<SpeciesState>()(
       },
 
       getSpeciesById: (id: string) => {
-        return get().species.find(s => s.id.toString() === id);
+        return get().species.find(s => s.id.toString() === id.toString() );
       },
 
       getSpeciesByName: (name: string) => {
