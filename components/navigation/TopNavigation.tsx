@@ -2,6 +2,7 @@
 
 import { SubscriptionBadge } from '@/components/subscription/SubscriptionBadge';
 import { InstallDialog } from '@/components/navigation/InstallDialog';
+import { HelpDialog } from '@/components/navigation/HelpDialog';
 
 const TopNavigation = () => {
   return (
@@ -11,9 +12,7 @@ const TopNavigation = () => {
                 Feedback
             </button>
             <InstallDialog />
-            <button className="text-sm text-muted-foreground hover:text-primary transition">
-                Help
-            </button>
+            <HelpDialog />
             <SubscriptionBadge />
         </div>
     </div>
