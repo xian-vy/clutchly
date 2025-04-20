@@ -12,9 +12,9 @@ import { useMemo, useState } from "react";
 import { ReptileFilterDialog, ReptileFilters } from "./ReptileFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ImportReptileDialog } from "./ImportReptileDialog";
+import { ReptileDetailsDialog } from "./ReptileDetailsDialog";
 
-// Extended Reptile type with species_name and morph_name
-interface EnrichedReptile extends Reptile {
+export interface EnrichedReptile extends Reptile {
   species_name: string;
   morph_name: string;
   location_label?: string;
@@ -38,6 +38,8 @@ export function ReptileList({
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<ReptileFilters>({});
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
+  const [selectedReptile, setSelectedReptile] = useState<EnrichedReptile>({} as EnrichedReptile)
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
   // Apply filters to the reptiles list
   const filteredReptiles = useMemo(() => {
@@ -299,7 +301,10 @@ export function ReptileList({
                 <Star className="mr-2 h-4 w-4" />
                 Mark as Favorite
               </DropdownMenuItem>
-              <DropdownMenuItem >
+              <DropdownMenuItem onClick={()=>{
+                setSelectedReptile(reptile);
+                setDetailsDialogOpen(true);
+              }} >
                 <Eye className="mr-2 h-4 w-4" />
                  Full Details
               </DropdownMenuItem>
@@ -361,6 +366,13 @@ export function ReptileList({
         open={isImportDialogOpen}
         onOpenChange={setIsImportDialogOpen}
         onImportComplete={onImportSuccess}
+      />
+
+      <ReptileDetailsDialog
+        reptile={selectedReptile}
+        reptiles={reptiles}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
       />
     </>
   );
