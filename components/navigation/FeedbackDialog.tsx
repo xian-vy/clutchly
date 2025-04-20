@@ -65,7 +65,7 @@ export function FeedbackDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] xl:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Send Feedback</DialogTitle>
+          <DialogTitle className="text-xl md:text-2xl font-bold">Send Feedback</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 xl:space-y-6 mt-2">
           <div className="space-y-2">

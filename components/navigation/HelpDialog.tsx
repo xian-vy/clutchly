@@ -23,7 +23,7 @@ export function HelpDialog() {
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Welcome to Clutchly</DialogTitle>
+          <DialogTitle className="text-xl md:text-2xl font-bold">Welcome to Clutchly</DialogTitle>
         </DialogHeader>
         
         <Accordion type="single" collapsible className="w-full">
