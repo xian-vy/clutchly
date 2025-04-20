@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from 'sonner';
+import { SendHorizonal } from "lucide-react";
 
 export function FeedbackDialog() {
   const [isLoading, setIsLoading] = useState(false);
@@ -108,7 +109,8 @@ export function FeedbackDialog() {
               type="submit"
               disabled={isLoading}
             >
-              {isLoading ? "Sending..." : "Send Feedback"}
+              {isLoading ? "Sending..." : "Send"}
+              <SendHorizonal />
             </Button>
           </DialogFooter>
         </form>
