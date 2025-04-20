@@ -100,7 +100,7 @@ export function SignUpForm() {
         <div>
           <h2 className="text-3xl font-bold">Create Account</h2>
           <p className="mt-2 text-muted-foreground">
-            Join HerpTrack today and start managing your collection.
+            Join Clutchly today and start managing your collection.
           </p>
         </div>
 

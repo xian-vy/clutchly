@@ -169,7 +169,7 @@ export function ProfileSetupDialog() {
         <DialogHeader className="p-6 pb-3">
           <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Welcome to HerpTrack
+            Welcome to Clutchly
             <Sparkles className="h-5 w-5 text-primary" />
           </DialogTitle>
           <DialogDescription className="text-center text-base opacity-90">

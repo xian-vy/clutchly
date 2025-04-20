@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     await transporter.sendMail({
       from: process.env.SMTP_USER,
       to: process.env.FEEDBACK_EMAIL,
-      subject: `[Herptrack Feedback] ${type}: ${subject}`,
+      subject: `[Clutchly Feedback] ${type}: ${subject}`,
       text: message,
       html: `
         <h2>New Feedback Received</h2>

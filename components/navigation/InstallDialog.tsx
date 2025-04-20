@@ -19,11 +19,11 @@ export function InstallDialog() {
       <DialogContent className="sm:max-w-[600px] 2xl:max-w-[900px]">
         <DialogHeader className="space-y-2">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl md:text-2xl font-bold">Install HerpTrack</DialogTitle>
+            <DialogTitle className="text-xl md:text-2xl font-bold">Install Clutchly</DialogTitle>
 
           </div>
           <p className="text-sm text-muted-foreground">
-            Install HerpTrack on your mobile device for the best experience. Choose your platform below:
+            Install Clutchly on your mobile device for the best experience. Choose your platform below:
           </p>
         </DialogHeader>
         
@@ -43,7 +43,7 @@ export function InstallDialog() {
                 <div className="space-y-5">
                   {[
                     { icon: null, text: "Open Safari browser on your iOS device" },
-                    { icon: null, text: "Visit HerpTrack website" },
+                    { icon: null, text: "Visit Clutchly website" },
                     { icon: Share2, text: "Tap the Share button at the bottom" },
                     { icon: Plus, text: "Scroll and tap Add to Home Screen" },
                     { icon: Smartphone, text: "Tap Add to install the app" }
@@ -78,7 +78,7 @@ export function InstallDialog() {
                 <div className="space-y-5">
                   {[
                     { icon: null, text: "Open Chrome browser on your Android device" },
-                    { icon: null, text: "Visit HerpTrack website" },
+                    { icon: null, text: "Visit Clutchly website" },
                     { icon: Share2, text: "Tap the three dots menu (⋮) in the top-right" },
                     { icon: Plus, text: "Select Install app from the menu" },
                     { icon: Smartphone, text: "Tap Install in the prompt" }
