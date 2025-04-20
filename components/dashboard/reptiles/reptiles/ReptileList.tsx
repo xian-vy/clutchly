@@ -126,6 +126,22 @@ export function ReptileList({
           return false;
         }
       }
+       // Age filter
+      if (filters.ageInMonths && reptile.hatch_date) {
+        const [minMonths, maxMonths] = filters.ageInMonths;
+        const hatchDate = new Date(reptile.hatch_date);
+        const today = new Date();
+        const ageInMonths = (today.getFullYear() - hatchDate.getFullYear()) * 12 + 
+          (today.getMonth() - hatchDate.getMonth());
+        
+        // Handle case for less than a month
+        if (minMonths === 0 && ageInMonths === 0) {
+          const daysSinceHatch = Math.floor((today.getTime() - hatchDate.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysSinceHatch > 30) return false;
+        } else if (ageInMonths < minMonths || ageInMonths > maxMonths) {
+          return false;
+        }
+      }
       
       return true;
     });

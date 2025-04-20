@@ -31,6 +31,7 @@ export interface ReptileFilters {
   hatchDateRange?: [string, string] | null;
   visualTraits?: string[];
   hetTraits?: string[];
+  ageInMonths?: [number, number] | null; 
 }
 
 const filterSchema = z.object({
@@ -45,6 +46,7 @@ const filterSchema = z.object({
   hatchDateRange: z.tuple([z.string(), z.string()]).nullable().optional(),
   visualTraits: z.array(z.string()).optional(),
   hetTraits: z.array(z.string()).optional(),
+  ageInMonths: z.tuple([z.number(), z.number()]).nullable().optional(),
 });
 
 interface ReptileFilterDialogProps {
@@ -65,6 +67,9 @@ export function ReptileFilterDialog({
   const [weightRange, setWeightRange] = useState<[number, number]>(
     currentFilters.weightRange || [0, 1000]
   );
+  const [ageRange, setAgeRange] = useState<[number, number]>(
+    currentFilters.ageInMonths || [0, 80] // Default range 0-60 months (5 years)
+  );
 
   const form = useForm<ReptileFilters>({
     resolver: zodResolver(filterSchema),
@@ -76,6 +81,7 @@ export function ReptileFilterDialog({
       status: currentFilters.status || [],
       visualTraits: currentFilters.visualTraits || [],
       hetTraits: currentFilters.hetTraits || [],
+      ageInMonths: currentFilters.ageInMonths || [0, 60],
     },
   });
 
@@ -99,11 +105,17 @@ export function ReptileFilterDialog({
       hatchDateRange: null,
       visualTraits: [],
       hetTraits: [],
+      ageInMonths: [0, 60],
     });
     setWeightRange([0, 1000]);
+    setAgeRange([0, 60]);
   }
 
-  
+  const formatAgeLabel = (months: number) => {
+    if (months === 0) return "< 1 month";
+    if (months === 1) return "1 month";
+    return `${months} months`;
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] 2xl:max-w-[650px] max-h-[95vh] overflow-y-auto">
@@ -329,7 +341,30 @@ export function ReptileFilterDialog({
                 </FormItem>
               )}
             />
-
+            <FormField
+                      control={form.control}
+                      name="ageInMonths"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Age Range: {formatAgeLabel(ageRange[0])} - {formatAgeLabel(ageRange[1])}
+                          </FormLabel>
+                          <FormControl>
+                            <Slider
+                              min={0}
+                              max={60}
+                              step={1}
+                              value={ageRange}
+                              onValueChange={(value) => {
+                                setAgeRange(value as [number, number]);
+                                field.onChange(value as [number, number]);
+                              }}
+                              className="mt-2"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Acquisition Date Range */}
               <FormField
