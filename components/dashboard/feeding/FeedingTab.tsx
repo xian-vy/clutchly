@@ -1,7 +1,8 @@
 'use client';
 
-import { generateEventsFromSchedule, getFeedingEvents } from '@/app/api/feeding/events';
+import { getFeedingEvents } from '@/app/api/feeding/events';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
+import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,6 @@ import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Info, Loader2, Ma
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEventsList } from './FeedingEventsList';
-import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 
 interface ScheduleStatus {
   totalEvents: number;
@@ -34,7 +34,6 @@ interface ScheduleStatus {
 
 export function FeedingTab() {
   const [expandedScheduleIds, setExpandedScheduleIds] = useState<Set<string>>(new Set());
-  const [isGeneratingEvents, setIsGeneratingEvents] = useState<Record<string, boolean>>({});
   const queryClient = useQueryClient();
 
   // Use the resource hook for schedules
@@ -320,34 +319,6 @@ export function FeedingTab() {
     enabled: schedules.length > 0
   });
 
-  // Generate feeding events for the next 30 days
-  const handleGenerateEvents = async (schedule: FeedingScheduleWithTargets) => {
-    setIsGeneratingEvents(prev => ({ ...prev, [schedule.id]: true }));
-    try {
-      const startDate = format(new Date(), 'yyyy-MM-dd');
-      const endDate = format(new Date(new Date().setDate(new Date().getDate() + 30)), 'yyyy-MM-dd');
-      
-      // Generate events using the proper function
-      const result = await generateEventsFromSchedule(schedule.id, startDate, endDate);
-      toast.success(`${result.count} feeding events generated for the next 30 days`);
-      
-      // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
-      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-      
-      // If schedule is expanded, we want to refresh its events
-      if (expandedScheduleIds.has(schedule.id)) {
-        toggleExpanded(schedule.id);
-        setTimeout(() => toggleExpanded(schedule.id), 300);
-      }
-    } catch (error) {
-      console.error('Error generating events:', error);
-      toast.error('Failed to generate feeding events');
-    } finally {
-      setIsGeneratingEvents(prev => ({ ...prev, [schedule.id]: false }));
-    }
-  };
-
   const isLoading = schedulesLoading || statusLoading;
 
   if (isLoading) {
@@ -569,18 +540,6 @@ export function FeedingTab() {
                       ))}
                   </div>
                 </CardContent>
-                <CardFooter className="pt-0 pb-4 px-6">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full"
-                    onClick={() => handleGenerateEvents(schedule)}
-                    disabled={isGeneratingEvents[schedule.id]}
-                  >
-                    {isGeneratingEvents[schedule.id] && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
-                    Generate Feeding Events
-                  </Button>
-                </CardFooter>
               </Card>
               <CollapsibleContent>
                 <div className="mt-2">

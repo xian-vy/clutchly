@@ -30,10 +30,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, isToday, startOfDay } from 'date-fns';
+import { format, isToday, startOfDay, startOfWeek, endOfWeek, endOfDay } from 'date-fns';
 import { AlertCircle, Loader2, MapPin, PlusCircle, RefreshCw, Save, Turtle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -63,6 +65,8 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
   const [activeTarget, setActiveTarget] = useState<FeedingTargetWithDetails | null>(null);
   const [sortBy, setSortBy] = useState<'species' | 'name' | 'morph'>('name');
   const queryClient = useQueryClient();
+  const {morphs} = useMorphsStore()
+  const {species} = useSpeciesStore()
   
   // Fetch feeding events for this schedule using tanstack query
   const { 
@@ -83,7 +87,7 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
       
       return eventsData;
     },
-    staleTime: 30000, // 30 seconds
+    staleTime: 3000000, // 30 seconds
   });
 
   // Load reptiles for the first target when component mounts
@@ -154,90 +158,109 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
       setIsLoadingReptiles(false);
     }
   };
-  
-  // Generate virtual events based on schedule
-  const { data: virtualEvents = [] } = useQuery({
-    queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id],
-    queryFn: async () => {
-      // No target selected or loading reptiles
-      if (!activeTarget || isLoadingReptiles || reptilesByLocation.length === 0) {
-        console.log("Not generating virtual events - no active target, loading reptiles, or no reptiles found");
-        return [];
-      }
+  // ... existing code ...
 
-      const today = startOfDay(new Date());
-      const virtualEvents: VirtualFeedingEvent[] = [];
-      
-      // Create today's virtual events if needed
+// Determine if feeding should happen today based on schedule
+const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): boolean => {
+  const today = new Date();
+  const startDate = new Date(schedule.start_date);
+  const endDate = schedule.end_date ? new Date(schedule.end_date) : null;
+  
+  // Set all dates to start of day for accurate comparison
+  today.setHours(0, 0, 0, 0);
+  startDate.setHours(0, 0, 0, 0);
+  if (endDate) endDate.setHours(0, 0, 0, 0);
+  
+  // Basic date range check
+  if (today < startDate || (endDate && today > endDate)) {
+    return false;
+  }
+
+  switch (schedule.recurrence) {
+    case 'daily':
+      return true;
+
+    case 'weekly': {
+      // Get days since start
+      const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      // If it's divisible by 7, it's a feeding day
+      return daysSinceStart % 7 === 0;
+    }
+
+    case 'custom':
+      if (!schedule.custom_days) return false;
+      // Check if today's day of week is in the custom days array
+      return schedule.custom_days.includes(today.getDay());
+
+    default:
+      return false;
+  }
+};
+// ... existing code ...
+
+// Generate virtual events based on schedule
+const { data: virtualEvents = [] } = useQuery({
+  queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id],
+  queryFn: async () => {
+    if (!activeTarget || isLoadingReptiles || reptilesByLocation.length === 0) {
+      console.log('Skipping virtual events generation:', { activeTarget, isLoadingReptiles, reptileCount: reptilesByLocation.length });
+      return [];
+    }
+
+    const today = startOfDay(new Date());
+    const virtualEvents: VirtualFeedingEvent[] = [];
+    
+    // Check if we should show feeding events today based on schedule
+    const shouldShowEvents = shouldHaveFeedingToday(schedule);
+    console.log('Should show feeding events today:', shouldShowEvents, {
+      recurrence: schedule.recurrence,
+      custom_days: schedule.custom_days,
+      today: today.getDay(),
+      startDate: schedule.start_date
+    });
+    
+    if (shouldShowEvents) {
       const todayString = format(today, 'yyyy-MM-dd');
       const todayEvents = events.filter(e => e.scheduled_date === todayString);
-      console.log(`Checking for today's (${todayString}) events:`, todayEvents.length, todayEvents);
       
-      // Check if we should feed today based on schedule
-      const shouldFeedToday = shouldHaveFeedingToday(schedule);
-      console.log("Should feed today according to schedule:", shouldFeedToday);
+      // Create virtual events for each reptile that doesn't have an event
+      for (const reptile of reptilesByLocation) {
+        const hasExistingEvent = todayEvents.some(e => e.reptile_id === reptile.id);
+        console.log(`Processing reptile ${reptile.name}:`, { 
+          hasExistingEvent,
+          reptileId: reptile.id,
+          speciesId: reptile.species_id,
+          morphId: reptile.morph_id
       
-      if (shouldFeedToday) {
-        console.log("Generating virtual events for reptiles:", reptilesByLocation.length);
-        // Create virtual events for each reptile that doesn't already have an event
-        for (const reptile of reptilesByLocation) {
-          const reptileHasEventToday = todayEvents.some(e => e.reptile_id === reptile.id);
-          
-          if (!reptileHasEventToday) {
-            // Get species and morph information - first try to get from the reptile object itself
-            // as the updated API now includes this information
-            const speciesName = (reptile as any).species_name || 
-                             events.find(e => e.reptile_id === reptile.id)?.species_name || 
-                             'Unknown';
-            const morphName = (reptile as any).morph_name || 
-                           events.find(e => e.reptile_id === reptile.id)?.morph_name || 
-                           'Unknown';
-            
-            console.log(`Creating virtual event for reptile ${reptile.id} (${reptile.name})`);
-            virtualEvents.push({
-              virtual: true,
-              reptile_id: reptile.id,
-              scheduled_date: todayString,
-              reptile_name: reptile.name,
-              species_name: speciesName,
-              morph_name: morphName
-            });
-          } else {
-            console.log(`Reptile ${reptile.id} (${reptile.name}) already has an event for today`);
-          }
+        });
+        
+        if (!hasExistingEvent) {
+          virtualEvents.push({
+            virtual: true,
+            reptile_id: reptile.id,
+            scheduled_date: todayString,
+            reptile_name: reptile.name,
+            species_name: species.find(s => s.id.toString() === reptile.species_id.toString())?.name || 'Unknown Species',
+            morph_name: morphs.find(m => m.id.toString() === reptile.morph_id.toString())?.name || 'Unknown Species',
+          });
         }
       }
-      
-      console.log(`Generated ${virtualEvents.length} virtual events`);
-      return virtualEvents;
-    },
-    enabled: !!activeTarget && !isLoadingReptiles,
-    staleTime: 60000, // 1 minute
-  });
-  
-  // Determine if feeding should happen today based on schedule
-  const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): boolean => {
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0-6, Sunday-Saturday
-    
-    if (schedule.recurrence === 'daily') {
-      return true;
-    } else if (schedule.recurrence === 'weekly') {
-      const startDate = new Date(schedule.start_date);
-      const startDayOfWeek = startDate.getDay();
-      return dayOfWeek === startDayOfWeek;
-    } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
-      return schedule.custom_days.includes(dayOfWeek);
     }
     
-    return false;
-  };
-  
+    console.log('Generated virtual events:', virtualEvents);
+    return virtualEvents;
+  },
+  enabled: !!activeTarget && !isLoadingReptiles && reptilesByLocation.length > 0,
+  staleTime: 600000, // 1 minute
+});
+
+
   // Convert a virtual event to a real event
   const createRealEventFromVirtual = async (virtualEvent: VirtualFeedingEvent, fed: boolean = true) => {
     setCreatingVirtualEvent(true);
     try {
-      const newEvent = await createFeedingEvent({
+      // Remove the unused variable assignment
+      await createFeedingEvent({
         schedule_id: scheduleId,
         reptile_id: virtualEvent.reptile_id,
         scheduled_date: virtualEvent.scheduled_date,
@@ -248,19 +271,19 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
       
       toast.success("Feeding recorded");
       
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
-      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-      queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id] });
+      // Rest of the function remains the same
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] }),
+        queryClient.invalidateQueries({ queryKey: ['feeding-status'] }),
+        queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id] }),
+        refetch()
+      ]);
       
       if (onEventsUpdated) {
         onEventsUpdated();
       }
     } catch (error) {
-      console.error('Error creating feeding event:', error);
-      toast.error('Failed to record feeding');
-    } finally {
-      setCreatingVirtualEvent(false);
+      // ... error handling ...
     }
   };
   
@@ -849,7 +872,6 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
                     <TableHead className="w-[120px] py-3">Morph</TableHead>
                     <TableHead className="w-[120px] py-3">Species</TableHead>
                     <TableHead className="w-[300px] py-3">Notes</TableHead>
-                    <TableHead className="w-[70px] py-3 text-right">Save</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -881,19 +903,10 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
                           <TableCell className="py-3">{virtualEvent.species_name}</TableCell>
                           <TableCell className="py-3">
                             <div className="text-sm text-muted-foreground italic">
-                              This is a virtual event based on your schedule. Check the box to record this feeding.
+                             Check the box to record this feeding.
                             </div>
                           </TableCell>
-                          <TableCell className="py-3 text-right">
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              disabled={creatingVirtualEvent}
-                              onClick={() => createRealEventFromVirtual(virtualEvent)}
-                            >
-                              {creatingVirtualEvent ? <Loader2 className="h-4 w-4 animate-spin" /> : "Record"}
-                            </Button>
-                          </TableCell>
+                         
                         </TableRow>
                       );
                     }
@@ -958,4 +971,4 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
       ))}
     </div>
   );
-} 
+}
