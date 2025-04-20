@@ -200,7 +200,7 @@ export function SubscriptionBadge() {
         <DropdownMenuGroup>
           {!isPremium && (
             <div className="px-3 py-2">
-              <Button variant="default" className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-white">
+              <Button variant="default" className="w-full ">
                 <Crown className="mr-2 h-3.5 w-3.5" />
                 Upgrade to Premium
               </Button>
