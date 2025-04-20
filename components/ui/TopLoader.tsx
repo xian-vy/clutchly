@@ -43,6 +43,7 @@ export function TopLoader({ isLoading = true }: TopLoaderProps) {
       animate={{ opacity }}
       transition={{ duration: 0.3 }}
     >
+    <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-primary/10 to-transparent h-16 z-50 border-1 border-x-0 border-b-0 border-t-primary/30"/>
       <motion.div 
         className="h-full bg-gradient-to-r from-primary via-primary/90 to-accent"
         initial={{ width: '0%' }}

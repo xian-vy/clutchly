@@ -137,7 +137,7 @@ export function Navigation() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed flex flex-col h-[100vh] inset-y-0 left-0 z-50 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0",
+          "fixed flex flex-col h-[100vh] inset-y-0 left-0 z-40 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "w-16" : "w-64 3xl:w-72"
         )}
