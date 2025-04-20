@@ -90,13 +90,13 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                         <div className={`rounded-full flex-shrink-0 `}>
-                          <Icon className={`h-4 w-4 sm:h-5 sm:w-5 `} />
+                          <Icon className={`h-4 w-4 sm:h-5 sm:w-5 text-primary`} />
                         </div>
-                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium text-muted-foreground  truncate">
+                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium text-primary  truncate">
                          {stat.title}
                         </p>
                     </div>  
-                    <div className="text-xl sm:text-2xl xl:text-3xl font-bold">{stat.value}</div>
+                    <div className="text-xl sm:text-2xl xl:text-3xl font-bold ">{stat.value}</div>
                     <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
                       {stat.description}
                     </p>
