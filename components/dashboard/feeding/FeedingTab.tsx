@@ -1,6 +1,6 @@
 'use client';
 
-import {  getFeedingEvents, generateEventsFromSchedule } from '@/app/api/feeding/events';
+import { generateEventsFromSchedule, getFeedingEvents } from '@/app/api/feeding/events';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +18,7 @@ import { useResource } from '@/lib/hooks/useResource';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets } from '@/lib/types/feeding';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, isToday, startOfDay } from 'date-fns';
-import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Footprints, Info, Loader2, MapPin, RefreshCw } from 'lucide-react';
+import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Info, Loader2, MapPin, RefreshCw, Turtle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEventsList } from './FeedingEventsList';
@@ -261,19 +261,32 @@ export function FeedingTab() {
 
   // Calculate schedule stats
   const getScheduleStats = (schedule: FeedingScheduleWithTargets) => {
-    const locationTargets = schedule.targets.filter(
-      (target) => target.target_type === 'location'
+    // Count location-related targets (location, room, rack, level)
+    const locationRelatedTargets = schedule.targets.filter(
+      (target) => ['location', 'room', 'rack', 'level'].includes(target.target_type)
     );
+    
+    // Count direct reptile targets
     const reptileTargets = schedule.targets.filter(
       (target) => target.target_type === 'reptile'
     );
+    
+    // For room, rack, and level targets, we'd need to estimate the number of reptiles
+    // Since we don't have the exact count, let's make a reasonable estimate
+    // based on the number of targets
+    let estimatedReptileCount = reptileTargets.length;
+    
+    // Add estimated reptiles from location-related targets
+    // A conservative estimate might be at least 1 reptile per location-related target
+    const locationBasedReptileEstimate = locationRelatedTargets.length > 0 ? locationRelatedTargets.length : 0;
+    estimatedReptileCount += locationBasedReptileEstimate;
     
     // Calculate next feeding date
     const nextFeedingDate = getNextFeedingDay(schedule);
     
     return {
-      locationCount: locationTargets.length,
-      reptileCount: reptileTargets.length,
+      locationCount: locationRelatedTargets.length,
+      reptileCount: estimatedReptileCount,
       nextFeedingDate
     };
   };
@@ -459,7 +472,7 @@ export function FeedingTab() {
                             <div className="font-medium">{stats.locationCount} location{stats.locationCount !== 1 ? 's' : ''}</div>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <Footprints className="h-4 w-4 text-muted-foreground" />
+                            <Turtle className="h-4 w-4 text-muted-foreground" />
                             <div className="font-medium">{stats.reptileCount} reptile{stats.reptileCount !== 1 ? 's' : ''}</div>
                           </div>
                         </div>
@@ -470,21 +483,43 @@ export function FeedingTab() {
                   <div className="text-xs text-muted-foreground mb-2">Targets:</div>
                   <div className="flex flex-wrap gap-1 mb-1">
                     {schedule.targets
-                      .filter(target => target.target_type === 'location')
-                      .map((target, index) => (
-                        <TooltipProvider key={`loc-${index}`}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Badge variant="secondary" className="text-xs">
-                                {target.location_label || "Unknown location"}
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Location: {target.location_label}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ))}
+                      .filter(target => ['location', 'room', 'rack', 'level'].includes(target.target_type))
+                      .map((target, index) => {
+                        let label = "Unknown location";
+                        let tooltipContent = "Location";
+                        
+                        if (target.target_type === 'location' && target.location_label) {
+                          label = target.location_label;
+                          tooltipContent = `Location: ${target.location_label}`;
+                        }
+                        else if (target.target_type === 'room' && target.room_name) {
+                          label = `Room: ${target.room_name}`;
+                          tooltipContent = `Room: ${target.room_name}`;
+                        }
+                        else if (target.target_type === 'rack' && target.rack_name) {
+                          label = `Rack: ${target.rack_name}`;
+                          tooltipContent = `Rack: ${target.rack_name}`;
+                        }
+                        else if (target.target_type === 'level' && target.rack_name && target.level_number) {
+                          label = `Level: ${target.level_number}`;
+                          tooltipContent = `Level ${target.level_number} in ${target.rack_name}`;
+                        }
+                        
+                        return (
+                          <TooltipProvider key={`loc-${target.id}-${index}`}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge variant="secondary" className="text-xs">
+                                  {label}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{tooltipContent}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        );
+                      })}
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {schedule.targets
