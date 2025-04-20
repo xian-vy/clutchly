@@ -9,6 +9,7 @@ import { AuthLayout } from './AuthLayout'
 import { login } from '@/app/auth/signin/actions'
 import { useFormStatus } from 'react-dom'
 import { TopLoader } from '@/components/ui/TopLoader'
+import { Input } from '../ui/input'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -97,12 +98,12 @@ export function SignInForm() {
             </label>
             <div className="relative mt-1">
               <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-              <input
+              <Input
                 id="email"
                 name="email"
                 type="email"
                 placeholder="you@example.com"
-                className="w-full px-10 py-3 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/50"
+                className="w-full px-10 py-6 transition-all duration-500"
                 required
               />
             </div>
@@ -115,12 +116,12 @@ export function SignInForm() {
             </label>
             <div className="relative mt-1">
               <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-              <input
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 placeholder="••••••••"
-                className="w-full px-10 py-3 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/50"
+                className="w-full px-10 py-6 transition-all duration-500"
                 required
               />
             </div>
