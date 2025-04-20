@@ -1,22 +1,23 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FeedingScheduleWithTargets } from "@/lib/types/feeding";
-import { format, isToday, isTomorrow, parseISO, isSameDay } from "date-fns";
-import { Calendar, Target, Check, AlertCircle, Utensils, MoreHorizontal, Clock, RefreshCw } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { useState, useCallback } from "react";
 import { getFeedingEvents } from "@/app/api/feeding/events";
+import { getReptilesByLocation } from "@/app/api/reptiles/byLocation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { FeedingScheduleWithTargets } from "@/lib/types/feeding";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format, isToday, isTomorrow, parseISO } from "date-fns";
+import { AlertCircle, Calendar, Check, Clock, MoreHorizontal, RefreshCw, Target, Utensils } from "lucide-react";
+import Link from "next/link";
+import { useCallback } from "react";
 
 interface FeedingOverviewProps {
   schedules: FeedingScheduleWithTargets[];
@@ -117,34 +118,50 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
         // Fetch feeding status for each schedule
         const feedingsWithStatus = await Promise.all(
           nearestFeedings.map(async (feeding) => {
-            // Check completion status for today's feedings and weekly feedings
             const events = await getFeedingEvents(feeding.schedule.id);
             
+            // Get all reptiles that should be fed for this schedule
+            let totalReptilesToFeed = 0;
+            
+            // Count reptiles from all targets
+            await Promise.all(feeding.schedule.targets.map(async (target) => {
+              if (target.target_type === 'reptile') {
+                totalReptilesToFeed += 1;
+              } else {
+                try {
+                  const reptiles = await getReptilesByLocation(
+                    target.target_type as 'room' | 'rack' | 'level' | 'location',
+                    target.target_id
+                  );
+                  totalReptilesToFeed += reptiles.length;
+                } catch (error) {
+                  console.error('Error counting reptiles:', error);
+                }
+              }
+            }));
+  
             let relevantEvents: typeof events = [];
             const todayString = format(today, 'yyyy-MM-dd');
+            const feedingDateString = format(feeding.date, 'yyyy-MM-dd');
             
             if (feeding.schedule.recurrence === 'daily') {
               if (isToday(feeding.date)) {
                 relevantEvents = events.filter(event => event.scheduled_date === todayString);
               }
             } else if (feeding.schedule.recurrence === 'weekly') {
-              // Get events from the most recent occurrence of feeding day
-              const feedingDateString = format(feeding.date, 'yyyy-MM-dd');
               relevantEvents = events.filter(event => event.scheduled_date === feedingDateString);
             } else if (feeding.schedule.recurrence === 'custom') {
               if (isToday(feeding.date)) {
-                // Today is a feeding day
                 relevantEvents = events.filter(event => event.scheduled_date === todayString);
               }
             }
             
-            const totalEvents = relevantEvents.length;
             const completedEvents = relevantEvents.filter(event => event.fed).length;
             
             return {
               ...feeding,
-              isCompleted: totalEvents > 0 && completedEvents === totalEvents,
-              totalEvents,
+              isCompleted: totalReptilesToFeed > 0 && completedEvents === totalReptilesToFeed,
+              totalEvents: totalReptilesToFeed,
               completedEvents
             };
           })
@@ -157,8 +174,9 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
       }
     },
     enabled: schedules.length > 0,
-    staleTime: 30000, // 30 seconds
+    staleTime: 3000000, // 30 seconds
   });
+  
   
   const handleRefreshStatus = useCallback(() => {
     refreshStatus();

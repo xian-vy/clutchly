@@ -35,7 +35,7 @@ import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, isToday, startOfDay, startOfWeek, endOfWeek, endOfDay } from 'date-fns';
+import { format, isToday, startOfDay } from 'date-fns';
 import { AlertCircle, Loader2, MapPin, PlusCircle, RefreshCw, Save, Turtle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';

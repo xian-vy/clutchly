@@ -150,13 +150,32 @@ export function FeedingTab() {
             }
           }
           
-          const totalEvents = relevantEvents.length;
+          // Get all reptiles that should be fed for this schedule
+          let totalReptilesToFeed = 0;
+          
+          // Count reptiles from all targets
+          await Promise.all(schedule.targets.map(async (target) => {
+            if (target.target_type === 'reptile') {
+              totalReptilesToFeed += 1;
+            } else {
+              try {
+                const reptiles = await getReptilesByLocation(
+                  target.target_type as 'room' | 'rack' | 'level' | 'location',
+                  target.target_id
+                );
+                totalReptilesToFeed += reptiles.length;
+              } catch (error) {
+                console.error('Error counting reptiles:', error);
+              }
+            }
+          }));
+          
           const completedEvents = relevantEvents.filter(event => event.fed).length;
-          const isComplete = totalEvents > 0 && completedEvents === totalEvents;
-          const percentage = totalEvents === 0 ? 0 : Math.round((completedEvents / totalEvents) * 100);
+          const isComplete = totalReptilesToFeed > 0 && completedEvents === totalReptilesToFeed;
+          const percentage = totalReptilesToFeed === 0 ? 0 : Math.round((completedEvents / totalReptilesToFeed) * 100);
           
           statuses[schedule.id] = {
-            totalEvents,
+            totalEvents: totalReptilesToFeed,
             completedEvents,
             isComplete,
             percentage,
