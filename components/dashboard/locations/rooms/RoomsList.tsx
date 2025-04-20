@@ -1,10 +1,9 @@
 'use client';
 
 import { Room } from '@/lib/types/location';
-import { Building2, Edit } from 'lucide-react';
+import { Building2, Edit, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 interface RoomsListProps {
   rooms: Room[];
@@ -16,19 +15,12 @@ interface RoomsListProps {
 export function RoomsList({ rooms, isLoading, onEditRoom, onAddRoom }: RoomsListProps) {
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Building2 className="h-5 w-5 text-primary" />
-          <h3 className="text-xl font-semibold">Rooms</h3>
-          <Badge variant="outline" className="ml-2">
-            {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'}
-          </Badge>
-        </div>
+      <div className="flex justify-end items-center">
         <Button 
           onClick={onAddRoom}
           className="gap-1"
         >
-          <Building2 className="h-4 w-4 mr-1" />
+          <Plus className="h-4 w-4 mr-1" />
           Add Room
         </Button>
       </div>

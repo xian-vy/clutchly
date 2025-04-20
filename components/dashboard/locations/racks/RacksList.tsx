@@ -1,10 +1,9 @@
 'use client';
 
 import { Rack, Room } from '@/lib/types/location';
-import { LayoutGrid, Building2, Edit } from 'lucide-react';
+import { LayoutGrid, Building2, Edit, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { CardDescription } from '@/components/ui/card';
 
 interface RacksListProps {
@@ -24,20 +23,13 @@ export function RacksList({ racks, rooms, isLoading, onEditRack, onAddRack }: Ra
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <LayoutGrid className="h-5 w-5 text-primary" />
-          <h3 className="text-xl font-semibold">Racks</h3>
-          <Badge variant="outline" className="ml-2">
-            {racks.length} {racks.length === 1 ? 'rack' : 'racks'}
-          </Badge>
-        </div>
+      <div className="flex justify-end items-center">
         <Button 
           onClick={onAddRack}
           className="gap-1"
           disabled={rooms.length === 0}
         >
-          <LayoutGrid className="h-4 w-4 mr-1" />
+          <Plus className="h-4 w-4 mr-1" />
           Add Rack
         </Button>
       </div>

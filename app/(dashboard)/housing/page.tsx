@@ -20,21 +20,24 @@ export default async function HousingPage() {
       
         
         <Tabs defaultValue="rooms">
-          <TabsList className="mb-4">
-            <TabsTrigger value="rooms" className="flex items-center gap-1">
-              <Building2 className="h-4 w-4 mr-2" />
-              Rooms
-            </TabsTrigger>
-            <TabsTrigger value="racks" className="flex items-center gap-1">
-              <LayoutGrid className="h-4 w-4 mr-2" />
-              Racks
-            </TabsTrigger>
-            <TabsTrigger value="locations" className="flex items-center gap-1">
-              <MapPin className="h-4 w-4 mr-2" />
-              Locations
-            </TabsTrigger>
-          </TabsList>
-          
+         <div className="flex flex-col w-full mb-4">
+              <TabsList>
+                <TabsTrigger value="rooms" className="flex items-center gap-1">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Rooms
+                </TabsTrigger>
+                <TabsTrigger value="racks" className="flex items-center gap-1">
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  Racks
+                </TabsTrigger>
+                <TabsTrigger value="locations" className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  Locations
+                </TabsTrigger>
+              </TabsList>
+              <hr className='mt-[1px]'/>
+          </div>
+
             
         <Alert className="mb-3">
           <Info className="h-4 w-4" />
