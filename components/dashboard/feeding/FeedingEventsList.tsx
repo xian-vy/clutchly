@@ -261,7 +261,7 @@ const { data: virtualEvents = [] } = useQuery({
   const createRealEventFromVirtual = async (virtualEvent: VirtualFeedingEvent, fed: boolean = true, notes: string = '') => {
     setCreatingVirtualEvent(true);
     try {
-      await createFeedingEvent({
+      const newEvent = await createFeedingEvent({
         schedule_id: scheduleId,
         reptile_id: virtualEvent.reptile_id,
         scheduled_date: virtualEvent.scheduled_date,
@@ -272,12 +272,16 @@ const { data: virtualEvents = [] } = useQuery({
       
       toast.success("Feeding recorded");
       
-      // Rest of the function remains the same
+      // Update the cache with the new event
+      queryClient.setQueryData(['feeding-events', scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
+        if (!oldData) return [newEvent];
+        return [...oldData, newEvent];
+      });
+      
+      // Invalidate queries to refresh the data
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] }),
         queryClient.invalidateQueries({ queryKey: ['feeding-status'] }),
-        queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id] }),
-        refetch()
+        queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id] })
       ]);
       
       if (onEventsUpdated) {
@@ -285,6 +289,9 @@ const { data: virtualEvents = [] } = useQuery({
       }
     } catch (error) {
       console.error('Error creating real event from virtual:', error);
+      toast.error("Failed to record feeding");
+    } finally {
+      setCreatingVirtualEvent(false);
     }
   };
   
@@ -334,8 +341,16 @@ const { data: virtualEvents = [] } = useQuery({
     setUpdatingEventId(eventId);
     try {
       const notes = eventNotes[eventId];
+      
+      // Get the current event to preserve its fed status
+      const currentEvent = events.find(e => e.id === eventId);
+      if (!currentEvent) {
+        throw new Error('Event not found');
+      }
+      
       const updatedEvent = await updateFeedingEvent(eventId, {
-        notes: notes || null
+        notes: notes || null,
+        fed: currentEvent.fed // Preserve the current fed status
       });
       
       // Update the cache
@@ -365,11 +380,11 @@ const { data: virtualEvents = [] } = useQuery({
   const getSortedReptiles = (reptiles: (FeedingEventWithDetails | VirtualFeedingEvent)[]) => {
     return [...reptiles].sort((a, b) => {
       if (sortBy === 'name') {
-        return a.reptile_name.localeCompare(b.reptile_name);
+        return (a.reptile_name || '').localeCompare(b.reptile_name || '');
       } else if (sortBy === 'species') {
-        return a.species_name.localeCompare(b.species_name);
+        return (a.species_name || '').localeCompare(b.species_name || '');
       } else {
-        return a.morph_name.localeCompare(b.morph_name);
+        return (a.morph_name || '').localeCompare(b.morph_name || '');
       }
     });
   };
