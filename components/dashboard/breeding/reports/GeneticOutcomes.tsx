@@ -314,10 +314,10 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                       .slice(0, 5)
                       .map((pairing, idx) => (
                         <TableRow key={idx}>
-                          <TableCell>{pairing.pairing}</TableCell>
-                          <TableCell className="font-medium">{pairing.hatch_rate}%</TableCell>
-                          <TableCell>{pairing.total_hatched}</TableCell>
-                          <TableCell>{pairing.projects_count}</TableCell>
+                          <TableCell className='text-start'>{pairing.pairing}</TableCell>
+                          <TableCell className="font-medium text-start">{pairing.hatch_rate}%</TableCell>
+                          <TableCell className='text-start'>{pairing.total_hatched}</TableCell>
+                          <TableCell className='text-start'>{pairing.projects_count}</TableCell>
                         </TableRow>
                       ))}
                   </TableBody>
@@ -347,10 +347,10 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                       .slice(0, 5)
                       .map((pairing, idx) => (
                         <TableRow key={idx}>
-                          <TableCell>{pairing.pairing}</TableCell>
-                          <TableCell className="font-medium">{pairing.fertility_rate}%</TableCell>
-                          <TableCell>{pairing.total_eggs}</TableCell>
-                          <TableCell>{pairing.projects_count}</TableCell>
+                          <TableCell className='text-start'>{pairing.pairing}</TableCell>
+                          <TableCell className="font-medium text-start">{pairing.fertility_rate}%</TableCell>
+                          <TableCell className='text-start'>{pairing.total_eggs}</TableCell>
+                          <TableCell className='text-start'>{pairing.projects_count}</TableCell>
                         </TableRow>
                       ))}
                   </TableBody>
@@ -380,10 +380,10 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                       .slice(0, 5)
                       .map((pairing, idx) => (
                         <TableRow key={idx}>
-                          <TableCell>{pairing.pairing}</TableCell>
-                          <TableCell className="font-medium">{pairing.morph_distribution.length}</TableCell>
-                          <TableCell>{pairing.total_hatched}</TableCell>
-                          <TableCell>{pairing.projects_count}</TableCell>
+                          <TableCell className='text-start'>{pairing.pairing}</TableCell>
+                          <TableCell className="font-medium text-start">{pairing.morph_distribution.length}</TableCell>
+                          <TableCell className='text-start'>{pairing.total_hatched}</TableCell>
+                          <TableCell className='text-start'>{pairing.projects_count}</TableCell>
                         </TableRow>
                       ))}
                   </TableBody>

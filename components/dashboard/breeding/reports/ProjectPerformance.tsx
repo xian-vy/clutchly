@@ -312,16 +312,16 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                                     
                                     return (
                                       <TableRow key={clutch.id} className={index % 2 === 0 ? 'bg-background' : 'bg-muted/10'}>
-                                        <TableCell>
+                                        <TableCell  className='text-start'>
                                           {format(new Date(clutch.lay_date), 'MMM d, yyyy')}
                                         </TableCell>
-                                        <TableCell>{clutch.egg_count || 0}</TableCell>
-                                        <TableCell>
+                                        <TableCell  className='text-start'>{clutch.egg_count || 0}</TableCell>
+                                        <TableCell  className='text-start'>
                                           <span className="font-medium">{clutch.fertile_count || 0}</span>
                                           <span className="text-xs text-muted-foreground ml-1">({fertileRate}%)</span>
                                         </TableCell>
-                                        <TableCell>{hatchlings}</TableCell>
-                                        <TableCell>
+                                        <TableCell  className='text-start'>{hatchlings}</TableCell>
+                                        <TableCell  className='text-start'>
                                           <div className="flex items-center gap-2">
                                             <Progress 
                                               value={hatchRate} 
@@ -330,7 +330,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                                             <span className="text-sm font-medium">{hatchRate}%</span>
                                           </div>
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell  className='text-start'>
                                           <Badge 
                                             variant="outline" 
                                             className={cn(
