@@ -76,22 +76,22 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
             <TableBody>
               {sortedData.map((pairing, index) => (
                 <TableRow key={index}>
-                  <TableCell className="font-medium">{pairing.pairing}</TableCell>
-                  <TableCell>{pairing.projects_count}</TableCell>
-                  <TableCell>{pairing.total_clutches}</TableCell>
-                  <TableCell>
+                  <TableCell className="font-medium text-start">{pairing.pairing}</TableCell>
+                  <TableCell className='text-start'>{pairing.projects_count}</TableCell>
+                  <TableCell className='text-start'>{pairing.total_clutches}</TableCell>
+                  <TableCell className='text-start'>
                     <div className="flex items-center gap-2">
                       <Progress value={pairing.fertility_rate} className="h-2 w-20" />
                       <span className="text-sm">{pairing.fertility_rate}%</span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className='text-start'>
                     <div className="flex items-center gap-2">
                       <Progress value={pairing.hatch_rate} className="h-2 w-20" />
                       <span className="text-sm">{pairing.hatch_rate}%</span>
                     </div>
                   </TableCell>
-                  <TableCell>{pairing.total_hatched}</TableCell>
+                  <TableCell className='text-start'>{pairing.total_hatched}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

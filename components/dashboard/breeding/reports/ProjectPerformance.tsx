@@ -67,7 +67,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
     <div className="space-y-6">
       <Card className="overflow-hidden border-none shadow-md">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl">Project Performance Overview</CardTitle>
+          <CardTitle>Project Performance Overview</CardTitle>
           <CardDescription>
             Detailed analysis of breeding project outcomes and success rates
           </CardDescription>
@@ -88,7 +88,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
               <TableBody>
                 {sortedProjects.map((project, index) => (
                   <TableRow key={project.id} className={index % 2 === 0 ? 'bg-background' : 'bg-muted/10'}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-start">
                       <div className="flex flex-col">
                         <span>{project.name}</span>
                         <span className="text-xs text-muted-foreground">
@@ -96,8 +96,8 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>{project.species?.name || 'Unknown'}</TableCell>
-                    <TableCell>
+                    <TableCell className='text-start'>{project.species?.name || 'Unknown'}</TableCell>
+                    <TableCell className='text-start'>
                       <Badge 
                         variant="custom" 
                         className={`${STATUS_COLORS[project.status.toLowerCase() as keyof typeof STATUS_COLORS]} capitalize`}
@@ -105,7 +105,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                         {project.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className='text-start'>
                       <div className="flex items-center gap-2">
                         <Progress 
                           value={project.metrics.fertilityRate} 
@@ -118,7 +118,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                         <span className="text-sm font-medium">{project.metrics.fertilityRate}%</span>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className='text-start'>
                       <div className="flex items-center gap-2">
                         <Progress 
                           value={project.metrics.hatchRate} 
@@ -131,7 +131,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                         <span className="text-sm font-medium">{project.metrics.hatchRate}%</span>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className='text-start'>
                       <HoverCard>
                         <HoverCardTrigger>
                           <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
       </Card>
       
       <div className="space-y-4">
-        <h3 className="text-lg font-medium ml-1">Detailed Project Performance</h3>
+        <h3 className="text-sm lg:text-base font-medium ml-1">Detailed Project Performance</h3>
         
         <Accordion type="single" collapsible className="space-y-4">
           {sortedProjects.map(project => (
