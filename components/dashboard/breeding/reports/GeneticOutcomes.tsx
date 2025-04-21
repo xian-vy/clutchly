@@ -1,5 +1,6 @@
 'use client';
 
+import { GeneticOutcomeResult, MorphDistribution, ProjectInfo } from '@/app/api/breeding/reports';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +22,7 @@ import {
 } from 'recharts';
 
 interface GeneticOutcomesProps {
-  data?: any[];
+  data?: GeneticOutcomeResult[];
 }
 
 export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
@@ -107,7 +108,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
         <Accordion type="single" collapsible className="space-y-4">
           {sortedData.map((pairing, index) => {
             // Format morph distribution data for pie chart
-            const morphData = pairing.morph_distribution.map((morph: any) => ({
+            const morphData = pairing.morph_distribution.map((morph: MorphDistribution) => ({
               name: morph.morph || 'Unknown',
               value: morph.count,
             }));
@@ -158,7 +159,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                                     `${name}: ${(percent * 100).toFixed(0)}%`
                                   }
                                 >
-                                  {morphData.map((entry: any, index: number) => (
+                                  {morphData.map((_, index: number) => (
                                     <Cell 
                                       key={`cell-${index}`} 
                                       fill={COLORS[index % COLORS.length]} 
@@ -229,7 +230,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {pairing.morph_distribution.map((morph: any, idx: number) => (
+                              {pairing.morph_distribution.map((morph: MorphDistribution, idx: number) => (
                                 <TableRow key={idx}>
                                   <TableCell className="font-medium">
                                     {morph.morph || 'Unknown'}
@@ -256,7 +257,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                   <div>
                     <h4 className="text-sm font-medium mb-2">Projects with this pairing</h4>
                     <div className="flex flex-wrap gap-2">
-                      {pairing.projects.map((project: any) => (
+                      {pairing.projects.map((project: ProjectInfo) => (
                         <Badge key={project.id} variant="secondary">
                           {project.name} ({format(new Date(project.start_date), 'MMM yyyy')})
                         </Badge>

@@ -273,6 +273,8 @@ interface DetailedBreedingProject {
   };
   male: Reptile | null;
   female: Reptile | null;
+  maleMorph : string | null;
+  femaleMorph : string | null;
   clutches: ClutchWithHatchlings[];
 }
 
@@ -412,6 +414,8 @@ export async function getDetailedBreedingProjects(filters?: BreedingReportFilter
         ...project,
         species,
         male: maleWithMorph,
+        maleMorph: maleMorph?.name,
+        femaleMorph: femaleMorph?.name,
         female: femaleWithMorph,
         clutches: clutchesWithHatchlings || []
       }
@@ -422,13 +426,13 @@ export async function getDetailedBreedingProjects(filters?: BreedingReportFilter
 }
 
 // Add these interfaces for genetic outcomes
-interface MorphDistribution {
+export interface MorphDistribution {
   morph: string;
   count: number;
   percentage: number;
 }
 
-interface ProjectInfo {
+export interface ProjectInfo {
   id: string;
   name: string;
   start_date: string;
@@ -446,7 +450,7 @@ interface PairingOutcome {
   projects: ProjectInfo[];
 }
 
-interface GeneticOutcomeResult {
+export interface GeneticOutcomeResult {
   pairing: string;
   male_morph: string;
   female_morph: string;
@@ -474,8 +478,8 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
     }
     
     // Create a key for this pairing type (could be based on morphs)
-    const maleMorph = project.male.morph_id|| 'Unknown'
-    const femaleMorph = project.female.species_id || 'Unknown'
+    const maleMorph = project.maleMorph || 'Unknown'
+    const femaleMorph = project.femaleMorph || 'Unknown'
     const pairingKey = `${maleMorph} × ${femaleMorph}`
     
     if (!acc[pairingKey]) {
