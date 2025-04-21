@@ -13,7 +13,7 @@ import { Chrome, Globe, Plus, Share2, Smartphone } from "lucide-react";
 export function InstallDialog() {
   return (
     <Dialog>
-      <DialogTrigger className="text-sm text-muted-foreground hover:text-primary transition">
+      <DialogTrigger className="text-[0.8rem] 3xl:text-sm text-muted-foreground hover:text-primary transition">
           Install Mobile
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] 2xl:max-w-[900px]">

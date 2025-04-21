@@ -17,7 +17,7 @@ import {
 export function HelpDialog() {
   return (
     <Dialog>
-      <DialogTrigger className="text-sm text-muted-foreground hover:text-primary transition">
+      <DialogTrigger className="text-[0.8rem] 3xl:text-sm text-muted-foreground hover:text-primary transition">
           Help
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">

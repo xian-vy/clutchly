@@ -61,7 +61,7 @@ export function FeedbackDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="text-sm text-muted-foreground hover:text-primary transition">
+      <DialogTrigger className="text-[0.8rem] 3xl:text-sm text-muted-foreground hover:text-primary transition">
         Feedback
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] xl:max-w-[500px]">
