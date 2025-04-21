@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -37,16 +37,13 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { getFeedingEvents } from '@/app/api/feeding/events';
-import { FeedingEventWithDetails } from '@/lib/types/feeding';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
 import { createClient } from '@/lib/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 export function FeedingLogsTab() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [events, setEvents] = useState<FeedingEventWithDetails[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<FeedingEventWithDetails[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'fed' | 'unfed'>('all');
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -55,10 +52,15 @@ export function FeedingLogsTab() {
   });
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
-  // Load all feeding events
-  useEffect(() => {
-    const loadEvents = async () => {
-      setIsLoading(true);
+  // Use TanStack Query to fetch and cache feeding events
+  const { 
+    data: events = [], 
+    isLoading, 
+    error,
+    refetch 
+  } = useQuery({
+    queryKey: ['feeding-events'],
+    queryFn: async () => {
       try {
         // Since we're loading all events, we'll create a workaround 
         // by fetching events for each schedule
@@ -71,63 +73,52 @@ export function FeedingLogsTab() {
           // Fetch events for each schedule and combine them
           const allEventsPromises = schedules.map((s: { id: string }) => getFeedingEvents(s.id));
           const eventsArrays = await Promise.all(allEventsPromises);
-          const allEvents = eventsArrays.flat();
-          
-          setEvents(allEvents);
-          setFilteredEvents(allEvents);
+          return eventsArrays.flat();
         } else {
-          setEvents([]);
-          setFilteredEvents([]);
+          return [];
         }
       } catch (error) {
         console.error('Error loading feeding events:', error);
-        toast.error('Failed to load feeding events');
-      } finally {
-        setIsLoading(false);
+        throw error;
       }
-    };
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+  });
 
-    loadEvents();
-  }, []);
-
-  // Apply filters when they change
-  useEffect(() => {
-    let filtered = [...events];
-
+  // Apply filters to events
+  const filteredEvents = events.filter(event => {
     // Apply search filter
     if (searchTerm) {
-      filtered = filtered.filter(event => 
-        event.reptile_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.species_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.morph_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.notes?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = 
+        event.reptile_name.toLowerCase().includes(searchLower) ||
+        event.species_name.toLowerCase().includes(searchLower) ||
+        (event.morph_name && event.morph_name.toLowerCase().includes(searchLower)) ||
+        (event.notes && event.notes.toLowerCase().includes(searchLower));
+      
+      if (!matchesSearch) return false;
     }
 
     // Apply status filter
     if (filterStatus !== 'all') {
-      filtered = filtered.filter(event => 
-        filterStatus === 'fed' ? event.fed : !event.fed
-      );
+      if (filterStatus === 'fed' && !event.fed) return false;
+      if (filterStatus === 'unfed' && event.fed) return false;
     }
 
     // Apply date range filter
     if (dateRange.from) {
-      filtered = filtered.filter(event => {
-        const eventDate = new Date(event.scheduled_date);
-        return eventDate >= dateRange.from!;
-      });
+      const eventDate = new Date(event.scheduled_date);
+      if (eventDate < dateRange.from) return false;
     }
 
     if (dateRange.to) {
-      filtered = filtered.filter(event => {
-        const eventDate = new Date(event.scheduled_date);
-        return eventDate <= dateRange.to!;
-      });
+      const eventDate = new Date(event.scheduled_date);
+      if (eventDate > dateRange.to) return false;
     }
 
-    setFilteredEvents(filtered);
-  }, [events, searchTerm, filterStatus, dateRange]);
+    return true;
+  });
 
   // Handle report generation
   const handleGenerateReport = async () => {
@@ -192,6 +183,15 @@ export function FeedingLogsTab() {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px] space-y-4">
+        <p className="text-destructive">Failed to load feeding events</p>
+        <Button onClick={() => refetch()}>Retry</Button>
       </div>
     );
   }

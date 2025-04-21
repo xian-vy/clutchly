@@ -30,7 +30,7 @@ import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithD
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, isToday, startOfDay } from 'date-fns';
-import { AlertCircle, Loader2, PlusCircle, RefreshCw, Save } from 'lucide-react';
+import { AlertCircle, Loader2, PlusCircle, RefreshCw, Save, ChevronDown, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -58,6 +58,7 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
   const [isLoadingReptiles, setIsLoadingReptiles] = useState<boolean>(false);
   const [activeTarget, setActiveTarget] = useState<FeedingTargetWithDetails | null>(null);
   const [sortBy, setSortBy] = useState<'species' | 'name' | 'morph'>('name');
+  const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
   const queryClient = useQueryClient();
   const {morphs} = useMorphsStore()
   const {species} = useSpeciesStore()
@@ -558,16 +559,30 @@ const { data: virtualEvents = [] } = useQuery({
     <div className="space-y-6">
       {sortedDates.map(date => (
         <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none mb-5 pt-0 gap-0">
-          <CardHeader className="py-3 px-4 md:px-6 ">
+          <CardHeader className="py-3 px-4 md:px-6">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
-              <span className='flex flex-col items-start gap-1'>
-                {format(new Date(date), 'EEEE, MMMM d, yyyy')}
-                {isToday(new Date(date)) && (
-                  <Badge variant="secondary" className=" bg-blue-50 text-blue-700 hover:bg-blue-50 dark:bg-blue-900 dark:text-blue-300">
-                    Today
-                  </Badge>
-                )}
-              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={() => setExpandedDates(prev => ({ ...prev, [date]: !prev[date] }))}
+                >
+                  {expandedDates[date] ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+                <span className='flex flex-col items-start gap-1'>
+                  {format(new Date(date), 'EEEE, MMMM d, yyyy')}
+                  {isToday(new Date(date)) && (
+                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 dark:bg-blue-900 dark:text-blue-300">
+                      Today
+                    </Badge>
+                  )}
+                </span>
+              </div>
               <div className="flex items-center">
                 <Select 
                   value={sortBy}
@@ -585,131 +600,135 @@ const { data: virtualEvents = [] } = useQuery({
               </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="py-0 px-4">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-[60px] py-3 text-center">Fed</TableHead>
-                    <TableHead className="w-[160px] py-3">Reptile</TableHead>
-                    <TableHead className="w-[120px] py-3">Morph</TableHead>
-                    <TableHead className="w-[120px] py-3">Species</TableHead>
-                    <TableHead className="w-[300px] py-3">Notes</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {getSortedReptiles(eventsByDate[date]).map((event, index) => {
-                    // Check if this is a virtual event
-                    const isVirtual = 'virtual' in event;
-                    
-                    if (isVirtual) {
-                      const virtualEvent = event as VirtualFeedingEvent;
-                      return (
-                        <TableRow key={`virtual-${virtualEvent.reptile_id}-${date}-${index}`}>
-                          <TableCell className="text-center py-3">
-                            <div className="flex justify-center">
-                              <Checkbox 
-                                checked={false}
-                                disabled={creatingVirtualEvent}
-                                onCheckedChange={(checked) => 
-                                  createRealEventFromVirtual(virtualEvent, !!checked)
-                                }
-                              />
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <div className="font-normal">
-                              {virtualEvent.reptile_name}
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-3">{virtualEvent.morph_name}</TableCell>
-                          <TableCell className="py-3">{virtualEvent.species_name}</TableCell>
-                          <TableCell className="py-3">
-                            <Textarea 
-                              placeholder="Add notes (optional)"
-                              value={eventNotes[`virtual-${virtualEvent.reptile_id}`] || ''}
-                              onChange={(e) => handleNotesChange(`virtual-${virtualEvent.reptile_id}`, e.target.value)}
-                              className="min-h-[30px] text-xs"
-                            />
-                          </TableCell>
-                          <TableCell className="py-3 text-right">
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              disabled={creatingVirtualEvent}
-                              onClick={() => {
-                                // When creating a real event from virtual, include the notes
-                                const notes = eventNotes[`virtual-${virtualEvent.reptile_id}`] || '';
-                                createRealEventFromVirtual(virtualEvent, true, notes);
-                              }}
-                            >
-                              {creatingVirtualEvent ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Save className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    }
-                    
-                    // Real event handling
-                    const realEvent = event as FeedingEventWithDetails;
-                    return (
-                      <TableRow key={realEvent.id} className={realEvent.fed ? "bg-muted/30" : ""}>
-                        <TableCell className="text-center py-3">
-                          <div className="flex justify-center">
-                            <Checkbox 
-                              checked={realEvent.fed}
-                              disabled={updatingEventId === realEvent.id}
-                              onCheckedChange={(checked) => 
-                                handleUpdateEvent(realEvent.id, !!checked)
-                              }
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3">
-                          <div className="font-normal">
-                            {realEvent.reptile_name}
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3">{realEvent.morph_name}</TableCell>
-                        <TableCell className="py-3">{realEvent.species_name}</TableCell>
-                        <TableCell className="py-3">
-                          <Textarea 
-                            placeholder="Add notes (optional)"
-                            value={eventNotes[realEvent.id] || ''}
-                            onChange={(e) => handleNotesChange(realEvent.id, e.target.value)}
-                            className="min-h-[30px] text-xs"
-                          />
-                        </TableCell>
-                        <TableCell className="py-3 text-right">
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
-                            disabled={updatingEventId === realEvent.id}
-                            onClick={() => handleSaveNotes(realEvent.id)}
-                          >
-                            {updatingEventId === realEvent.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Save className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </TableCell>
+          {expandedDates[date] && (
+            <div>
+              <CardContent className="py-0 px-4">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="w-[60px] py-3 text-center">Fed</TableHead>
+                        <TableHead className="w-[160px] py-3">Reptile</TableHead>
+                        <TableHead className="w-[120px] py-3">Morph</TableHead>
+                        <TableHead className="w-[120px] py-3">Species</TableHead>
+                        <TableHead className="w-[300px] py-3">Notes</TableHead>
                       </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {getSortedReptiles(eventsByDate[date]).map((event, index) => {
+                        // Check if this is a virtual event
+                        const isVirtual = 'virtual' in event;
+                        
+                        if (isVirtual) {
+                          const virtualEvent = event as VirtualFeedingEvent;
+                          return (
+                            <TableRow key={`virtual-${virtualEvent.reptile_id}-${date}-${index}`}>
+                              <TableCell className="text-center py-3">
+                                <div className="flex justify-center">
+                                  <Checkbox 
+                                    checked={false}
+                                    disabled={creatingVirtualEvent}
+                                    onCheckedChange={(checked) => 
+                                      createRealEventFromVirtual(virtualEvent, !!checked)
+                                    }
+                                  />
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-3">
+                                <div className="font-normal">
+                                  {virtualEvent.reptile_name}
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-3">{virtualEvent.morph_name}</TableCell>
+                              <TableCell className="py-3">{virtualEvent.species_name}</TableCell>
+                              <TableCell className="py-3">
+                                <Textarea 
+                                  placeholder="Add notes (optional)"
+                                  value={eventNotes[`virtual-${virtualEvent.reptile_id}`] || ''}
+                                  onChange={(e) => handleNotesChange(`virtual-${virtualEvent.reptile_id}`, e.target.value)}
+                                  className="min-h-[30px] text-xs"
+                                />
+                              </TableCell>
+                              <TableCell className="py-3 text-right">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  disabled={creatingVirtualEvent}
+                                  onClick={() => {
+                                    // When creating a real event from virtual, include the notes
+                                    const notes = eventNotes[`virtual-${virtualEvent.reptile_id}`] || '';
+                                    createRealEventFromVirtual(virtualEvent, true, notes);
+                                  }}
+                                >
+                                  {creatingVirtualEvent ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Save className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        }
+                        
+                        // Real event handling
+                        const realEvent = event as FeedingEventWithDetails;
+                        return (
+                          <TableRow key={realEvent.id} className={realEvent.fed ? "bg-muted/30" : ""}>
+                            <TableCell className="text-center py-3">
+                              <div className="flex justify-center">
+                                <Checkbox 
+                                  checked={realEvent.fed}
+                                  disabled={updatingEventId === realEvent.id}
+                                  onCheckedChange={(checked) => 
+                                    handleUpdateEvent(realEvent.id, !!checked)
+                                  }
+                                />
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3">
+                              <div className="font-normal">
+                                {realEvent.reptile_name}
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3">{realEvent.morph_name}</TableCell>
+                            <TableCell className="py-3">{realEvent.species_name}</TableCell>
+                            <TableCell className="py-3">
+                              <Textarea 
+                                placeholder="Add notes (optional)"
+                                value={eventNotes[realEvent.id] || ''}
+                                onChange={(e) => handleNotesChange(realEvent.id, e.target.value)}
+                                className="min-h-[30px] text-xs"
+                              />
+                            </TableCell>
+                            <TableCell className="py-3 text-right">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                disabled={updatingEventId === realEvent.id}
+                                onClick={() => handleSaveNotes(realEvent.id)}
+                              >
+                                {updatingEventId === realEvent.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Save className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+              <CardFooter className="bg-muted/30 py-2 px-4 border-t">
+                <div className="text-xs text-muted-foreground w-full text-right">
+                  {eventsByDate[date].length} reptile{eventsByDate[date].length !== 1 ? 's' : ''}
+                </div>
+              </CardFooter>
             </div>
-          </CardContent>
-          <CardFooter className="bg-muted/30 py-2 px-4 border-t">
-            <div className="text-xs text-muted-foreground w-full text-right">
-              {eventsByDate[date].length} reptile{eventsByDate[date].length !== 1 ? 's' : ''}
-            </div>
-          </CardFooter>
+          )}
         </Card>
       ))}
     </div>
