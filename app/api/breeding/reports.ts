@@ -2,6 +2,11 @@ import { createClient } from '@/lib/supabase/client'
 import { IncubationStatus } from '@/lib/types/breeding'
 import { Reptile } from '@/lib/types/reptile'
 
+// Extended reptile interface that includes the morph_name 
+interface ReptileWithMorph extends Reptile {
+  morph_name?: string | null;
+}
+
 type projectsBySpecies  = {
   species_id: string
   species_name: string
@@ -255,7 +260,7 @@ export interface ClutchWithHatchlings {
   lay_date: string;
   egg_count: number;
   fertile_count: number;
-  hatchlings: Reptile[];
+  hatchlings: ReptileWithMorph[];
   incubation_status : IncubationStatus
 }
 
@@ -350,9 +355,40 @@ export async function getDetailedBreedingProjects(filters?: BreedingReportFilter
           
           if (hatchlingsError) throw hatchlingsError
           
+          // Fetch morph information for each hatchling
+          const hatchlingsWithMorphs = await Promise.all(
+            (hatchlings || []).map(async (hatchling) => {
+              if (!hatchling.morph_id) {
+                return {
+                  ...hatchling,
+                  morph_name: null
+                }
+              }
+              
+              // Get morph data
+              const { data: morphData, error: morphError } = await supabase
+                .from('morphs')
+                .select('name')
+                .eq('id', hatchling.morph_id)
+                .single()
+              
+              if (morphError) {
+                return {
+                  ...hatchling,
+                  morph_name: null
+                }
+              }
+              
+              return {
+                ...hatchling,
+                morph_name: morphData.name
+              }
+            })
+          )
+          
           return {
             ...clutch,
-            hatchlings: hatchlings || []
+            hatchlings: hatchlingsWithMorphs || []
           }
         })
       )
@@ -471,6 +507,7 @@ export interface GeneticOutcomeResult {
 
 // Get data for genetic outcome analysis
 export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promise<GeneticOutcomeResult[]> {
+  const supabase = createClient()
   // Get detailed projects first
   const detailedProjects = await getDetailedBreedingProjects(filters)
   
@@ -500,7 +537,6 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
       }
     }
     
-    // In getGeneticOutcomes function:
     // Count clutches and eggs
     project.clutches.forEach((clutch: ClutchWithHatchlings) => {
       acc[pairingKey].total_clutches++
@@ -509,8 +545,24 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
       acc[pairingKey].total_hatched += clutch.hatchlings.length
       
       // Count morphs in offspring
-      clutch.hatchlings.forEach((hatchling: Reptile) => {
-        const hatchlingMorph = hatchling.visual_traits?.join(', ') || 'Unknown'
+      clutch.hatchlings.forEach((hatchling: ReptileWithMorph) => {
+        // Use morph_name if available from the database, otherwise fallback to visual_traits
+        // This will prevent the Unknown values in the chart
+        let hatchlingMorph = 'Unknown'
+        
+        if (hatchling.morph_name) {
+          // If we already have the morph name from the detailedProjects query
+          hatchlingMorph = hatchling.morph_name
+        } else if (hatchling.visual_traits && hatchling.visual_traits.length > 0) {
+          // Otherwise use visual traits if available
+          hatchlingMorph = hatchling.visual_traits.join(', ')
+        }
+        
+        // Ensure we don't have empty morph names
+        if (!hatchlingMorph || hatchlingMorph.trim() === '') {
+          hatchlingMorph = 'Normal'
+        }
+        
         if (!acc[pairingKey].hatched_morphs[hatchlingMorph]) {
           acc[pairingKey].hatched_morphs[hatchlingMorph] = 0
         }
