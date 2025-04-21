@@ -16,10 +16,10 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { useResource } from '@/lib/hooks/useResource';
-import { FeedingEventWithDetails, FeedingScheduleWithTargets } from '@/lib/types/feeding';
+import { FeedingEventWithDetails, FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, isToday, startOfDay } from 'date-fns';
-import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Info, Loader2, MapPin, RefreshCw, Turtle } from 'lucide-react';
+import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Loader2, MapPin, RefreshCw, Turtle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEventsList } from './FeedingEventsList';
@@ -40,14 +40,13 @@ export function FeedingTab() {
   const {
     resources: schedules,
     isLoading: schedulesLoading,
-    refetch: refetchSchedules,
-  } = useResource<FeedingScheduleWithTargets, any>({
+  } = useResource<FeedingScheduleWithTargets, NewFeedingSchedule>({
     resourceName: 'Feeding Schedule',
     queryKey: ['feeding-schedules'],
     getResources: getFeedingSchedules,
-    createResource: async () => { return null as any; },
-    updateResource: async () => { return null as any; },
-    deleteResource: async () => {},
+    createResource: async () => { throw new Error('Not implemented'); },
+    updateResource: async () => { throw new Error('Not implemented'); },
+    deleteResource: async () => { throw new Error('Not implemented'); },
   });
 
   // Create a query for feeding status
@@ -367,20 +366,13 @@ export function FeedingTab() {
   }
 
   // Check if there are incomplete schedules for today
-  const incompleteSchedules = Object.entries(scheduleStatus)
-    .filter(([_, status]) => status.totalEvents > 0 && !status.isComplete)
+    const incompleteSchedules = Object.entries(scheduleStatus)
+    .filter(entry => entry[1].totalEvents > 0 && !entry[1].isComplete)
     .length;
 
   return (
     <div className="space-y-6">
-      <Alert variant="default" className="bg-muted/50 border-muted">
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          View and manage your feeding schedules. Click on a schedule to expand and see upcoming feeding events. 
-          Generate feeding events for the next 30 days with the button at the bottom of each card.
-        </AlertDescription>
-      </Alert>
-
+   
       <div className="flex justify-between items-center">
         {incompleteSchedules > 0 ? (
           <Alert variant="amber" className="flex-1 mr-2">
