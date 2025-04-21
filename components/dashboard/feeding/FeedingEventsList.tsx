@@ -511,13 +511,13 @@ const { data: virtualEvents = [] } = useQuery({
   return (
     <div className="space-y-6">
       {sortedDates.map(date => (
-        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none mb-5 pt-0">
+        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none mb-5 pt-0 gap-0">
           <CardHeader className="py-3 px-4 md:px-6 ">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
-              <span>
+              <span className='flex flex-col items-start gap-1'>
                 {format(new Date(date), 'EEEE, MMMM d, yyyy')}
                 {isToday(new Date(date)) && (
-                  <Badge variant="secondary" className="ml-2 bg-blue-50 text-blue-700 hover:bg-blue-50 dark:bg-blue-900 dark:text-blue-300">
+                  <Badge variant="secondary" className=" bg-blue-50 text-blue-700 hover:bg-blue-50 dark:bg-blue-900 dark:text-blue-300">
                     Today
                   </Badge>
                 )}
@@ -544,7 +544,7 @@ const { data: virtualEvents = [] } = useQuery({
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-[50px] py-3 text-center">Fed</TableHead>
+                    <TableHead className="w-[60px] py-3 text-center">Fed</TableHead>
                     <TableHead className="w-[160px] py-3">Reptile</TableHead>
                     <TableHead className="w-[120px] py-3">Morph</TableHead>
                     <TableHead className="w-[120px] py-3">Species</TableHead>
@@ -572,7 +572,7 @@ const { data: virtualEvents = [] } = useQuery({
                             </div>
                           </TableCell>
                           <TableCell className="py-3">
-                            <div className="font-medium">
+                            <div className="font-normal">
                               {virtualEvent.reptile_name}
                             </div>
                           </TableCell>
@@ -583,7 +583,7 @@ const { data: virtualEvents = [] } = useQuery({
                               placeholder="Add notes (optional)"
                               value={eventNotes[`virtual-${virtualEvent.reptile_id}`] || ''}
                               onChange={(e) => handleNotesChange(`virtual-${virtualEvent.reptile_id}`, e.target.value)}
-                              className="min-h-[60px] text-sm"
+                              className="min-h-[30px] text-xs"
                             />
                           </TableCell>
                           <TableCell className="py-3 text-right">
@@ -624,7 +624,7 @@ const { data: virtualEvents = [] } = useQuery({
                           </div>
                         </TableCell>
                         <TableCell className="py-3">
-                          <div className="font-medium">
+                          <div className="font-normal">
                             {realEvent.reptile_name}
                           </div>
                         </TableCell>
@@ -635,7 +635,7 @@ const { data: virtualEvents = [] } = useQuery({
                             placeholder="Add notes (optional)"
                             value={eventNotes[realEvent.id] || ''}
                             onChange={(e) => handleNotesChange(realEvent.id, e.target.value)}
-                            className="min-h-[60px] text-sm"
+                            className="min-h-[30px] text-xs"
                           />
                         </TableCell>
                         <TableCell className="py-3 text-right">
