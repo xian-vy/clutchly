@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { IncubationStatus } from '@/lib/types/breeding'
-import { Reptile } from '@/lib/types/reptile'
+import { HetTrait, Reptile } from '@/lib/types/reptile'
 
 // Extended reptile interface that includes the morph_name 
 interface ReptileWithMorph extends Reptile {
@@ -470,6 +470,8 @@ export interface MorphDistribution {
   morph: string;
   count: number;
   percentage: number;
+  visual_traits: string[] | null
+  het_traits: HetTrait[] | null
 }
 
 export interface ProjectInfo {
@@ -593,13 +595,41 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
       : 0
     
     // Convert morph distribution to percentages
-    const morph_distribution = Object.entries(data.hatched_morphs).map(([morph, count]: [string, number]) => ({
-      morph,
-      count,
-      percentage: data.total_hatched > 0 
-        ? Math.round((count / data.total_hatched) * 100) 
-        : 0
-    }))
+    const morph_distribution = Object.entries(data.hatched_morphs).map(([morph, count]: [string, number]) => {
+      // Find a hatchling with this morph to get its traits
+      let visualTraits: string[] | null = null;
+      let hetTraits: HetTrait[] | null = null;
+      
+      // Look through all projects for this pairing to find a hatchling with this morph
+      for (const project of detailedProjects) {
+        if (project.maleMorph === data.male_morph && project.femaleMorph === data.female_morph) {
+          for (const clutch of project.clutches) {
+            for (const hatchling of clutch.hatchlings) {
+              if (hatchling.morph_name === morph || 
+                  ((!hatchling.morph_name || hatchling.morph_name === 'Unknown') && 
+                   hatchling.visual_traits?.join(', ') === morph) || 
+                  morph === 'Normal') {
+                visualTraits = hatchling.visual_traits;
+                hetTraits = hatchling.het_traits;
+                break;
+              }
+            }
+            if (visualTraits !== null) break;
+          }
+        }
+        if (visualTraits !== null) break;
+      }
+      
+      return {
+        morph,
+        count,
+        percentage: data.total_hatched > 0 
+          ? Math.round((count / data.total_hatched) * 100) 
+          : 0,
+        visual_traits: visualTraits,
+        het_traits: hetTraits
+      }
+    })
     
     return {
       pairing: key,

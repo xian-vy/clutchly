@@ -100,7 +100,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
       </Card>
       
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
+        <h3 className="text-sm lg:text-base font-semibold flex items-center gap-2">
           <Dna className="h-4 w-4" />
           Detailed Genetic Analysis
         </h3>
@@ -224,7 +224,9 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead>Phenotype</TableHead>
+                              <TableHead>Morphs</TableHead>
+                                <TableHead>Visual Traits</TableHead>
+                                <TableHead>Het Traits</TableHead>
                                 <TableHead>Count</TableHead>
                                 <TableHead>Percentage</TableHead>
                               </TableRow>
@@ -232,11 +234,15 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                             <TableBody>
                               {pairing.morph_distribution.map((morph: MorphDistribution, idx: number) => (
                                 <TableRow key={idx}>
-                                  <TableCell className="font-medium">
+                                  <TableCell className="font-medium text-start">
                                     {morph.morph || 'Unknown'}
                                   </TableCell>
-                                  <TableCell>{morph.count}</TableCell>
-                                  <TableCell>
+                                  <TableCell className='text-start'>{morph.visual_traits}</TableCell>
+                                  <TableCell className='text-start'>{morph.het_traits?.map((trait) => 
+                                    `${trait.trait}${trait.percentage !== 100 ? ` (${trait.percentage}%)` : ''}`
+                                  ).join(", ")}</TableCell>
+                                  <TableCell className='text-start'>{morph.count}</TableCell>
+                                  <TableCell className='text-start'>
                                     <div className="flex items-center gap-2">
                                       <Progress 
                                         value={morph.percentage} 
