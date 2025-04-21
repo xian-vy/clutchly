@@ -410,7 +410,7 @@ export function FeedingTab() {
                   <div className="flex  items-center gap-5 2xl:gap-7">
                     <div>
                       <div className="flex items-center gap-2">
-                        <CardTitle className="text-xl flex flex-col items-start">
+                        <CardTitle className="text-base lg:text-lg 3xl:text-xl flex flex-col items-start">
                           {schedule.name}
                           <div className="flex items-center gap-1">
                               <Calendar strokeWidth={1.5} className="h-3 w-3 text-muted-foreground" />

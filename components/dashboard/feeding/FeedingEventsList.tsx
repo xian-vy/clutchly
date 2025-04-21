@@ -634,9 +634,9 @@ const { data: virtualEvents = [] } = useQuery({
                 <span className='flex flex-col items-start gap-1'>
                   {format(new Date(date), 'EEEE, MMMM d, yyyy')}
                   {isToday(new Date(date)) && (
-                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 dark:bg-blue-900 dark:text-blue-300">
+                    <small className='text-muted-foreground'>
                       Today
-                    </Badge>
+                    </small>
                   )}
                 </span>
               </div>
