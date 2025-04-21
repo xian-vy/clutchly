@@ -36,7 +36,7 @@ import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithD
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, isToday, startOfDay } from 'date-fns';
-import { AlertCircle, Loader2, MapPin, PlusCircle, RefreshCw, Save, Turtle } from 'lucide-react';
+import { AlertCircle, Loader2, PlusCircle, RefreshCw, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -484,48 +484,7 @@ const { data: virtualEvents = [] } = useQuery({
           </div>
         </div>
         
-        <Card className="mb-4 bg-muted/20">
-          <CardContent className="py-3 px-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div>
-                <span className="text-sm font-medium">Current Target:</span>{' '}
-                <Badge variant="outline">
-                  {activeTarget?.target_type === 'room' && activeTarget.room_name && (
-                    <>Room: {activeTarget.room_name}</>
-                  )}
-                  {activeTarget?.target_type === 'rack' && activeTarget.rack_name && (
-                    <>Rack: {activeTarget.rack_name}</>
-                  )}
-                  {activeTarget?.target_type === 'level' && activeTarget.rack_name && (
-                    <>Level: {activeTarget.rack_name} - {activeTarget.level_number}</>
-                  )}
-                  {activeTarget?.target_type === 'location' && activeTarget.location_label && (
-                    <>Location: {activeTarget.location_label}</>
-                  )}
-                  {activeTarget?.target_type === 'reptile' && activeTarget.reptile_name && (
-                    <>Reptile: {activeTarget.reptile_name}</>
-                  )}
-                  {!activeTarget && <>None selected</>}
-                </Badge>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    {activeTarget ? "1 location" : "0 locations"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Turtle className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    {reptilesByLocation.length} reptile
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
+        
         <Card className="border-0 shadow-none bg-transparent">
           <CardContent className="flex flex-col items-center justify-center text-center py-12">
             <PlusCircle className="h-8 w-8 text-muted-foreground mb-2 opacity-70" />
@@ -636,48 +595,7 @@ const { data: virtualEvents = [] } = useQuery({
           </div>
         </div>
         
-        <Card className="mb-4 bg-muted/20">
-          <CardContent className="py-3 px-4">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div>
-                <span className="text-sm font-medium">Current Target:</span>{' '}
-                <Badge variant="outline">
-                  {activeTarget?.target_type === 'room' && activeTarget.room_name && (
-                    <>Room: {activeTarget.room_name}</>
-                  )}
-                  {activeTarget?.target_type === 'rack' && activeTarget.rack_name && (
-                    <>Rack: {activeTarget.rack_name}</>
-                  )}
-                  {activeTarget?.target_type === 'level' && activeTarget.rack_name && (
-                    <>Level: {activeTarget.rack_name} - {activeTarget.level_number}</>
-                  )}
-                  {activeTarget?.target_type === 'location' && activeTarget.location_label && (
-                    <>Location: {activeTarget.location_label}</>
-                  )}
-                  {activeTarget?.target_type === 'reptile' && activeTarget.reptile_name && (
-                    <>Reptile: {activeTarget.reptile_name}</>
-                  )}
-                  {!activeTarget && <>None selected</>}
-                </Badge>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    {activeTarget ? "1 location" : "0 locations"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Turtle className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    {reptilesByLocation.length} reptile{reptilesByLocation.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
+    
         <Card className="border-0 shadow-none bg-transparent">
           <CardContent className="flex flex-col items-center justify-center text-center py-12">
             <PlusCircle className="h-8 w-8 text-muted-foreground mb-2 opacity-70" />
@@ -800,51 +718,10 @@ const { data: virtualEvents = [] } = useQuery({
         </div>
       </div>
 
-      {/* Add a summary card showing current active target */}
-      <Card className="mb-4 bg-muted/20">
-        <CardContent className="py-3 px-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <div>
-              <span className="text-sm font-medium">Current Target:</span>{' '}
-              <Badge variant="outline">
-                {activeTarget?.target_type === 'room' && activeTarget.room_name && (
-                  <>Room: {activeTarget.room_name}</>
-                )}
-                {activeTarget?.target_type === 'rack' && activeTarget.rack_name && (
-                  <>Rack: {activeTarget.rack_name}</>
-                )}
-                {activeTarget?.target_type === 'level' && activeTarget.rack_name && (
-                  <>Level: {activeTarget.rack_name} - {activeTarget.level_number}</>
-                )}
-                {activeTarget?.target_type === 'location' && activeTarget.location_label && (
-                  <>Location: {activeTarget.location_label}</>
-                )}
-                {activeTarget?.target_type === 'reptile' && activeTarget.reptile_name && (
-                  <>Reptile: {activeTarget.reptile_name}</>
-                )}
-                {!activeTarget && <>None selected</>}
-              </Badge>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  {activeTarget ? "1 location" : "0 locations"}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Turtle className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  {reptilesByLocation.length} reptile{reptilesByLocation.length !== 1 ? 's' : ''}
-                </span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+   
 
       {sortedDates.map(date => (
-        <Card key={date} className="overflow-hidden border shadow-sm">
+        <Card key={date} className="overflow-hidden border shadow-none mb-5 pt-0">
           <CardHeader className="py-3 px-4 md:px-6 bg-muted/50">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
               <span>
@@ -862,7 +739,7 @@ const { data: virtualEvents = [] } = useQuery({
               )}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="py-0 px-4">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>

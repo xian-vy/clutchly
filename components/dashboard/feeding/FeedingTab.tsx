@@ -553,7 +553,7 @@ export function FeedingTab() {
                 </CardContent>
               </Card>
               <CollapsibleContent>
-                <div className="mt-2">
+                <div className="mt-2 px-4">
                   <FeedingEventsList 
                     scheduleId={schedule.id} 
                     schedule={schedule}
