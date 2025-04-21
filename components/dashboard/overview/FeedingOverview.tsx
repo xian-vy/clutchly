@@ -23,13 +23,6 @@ interface FeedingOverviewProps {
   schedules: FeedingScheduleWithTargets[];
 }
 
-interface UpcomingFeeding {
-  schedule: FeedingScheduleWithTargets;
-  date: Date;
-  isCompleted: boolean;
-  totalEvents: number;
-  completedEvents: number;
-}
 
 export function FeedingOverview({ schedules }: FeedingOverviewProps) {
   const queryClient = useQueryClient();
@@ -307,11 +300,7 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
                     <p className="text-sm font-medium">
                       {item.schedule.name}
                     </p>
-                    {isToday(item.date) && item.totalEvents > 0 && (
-                      <Badge variant="secondary" className="ml-2 text-xs">
-                        {item.completedEvents}/{item.totalEvents} fed
-                      </Badge>
-                    )}
+                   
                   </div>
                   <div className="flex items-center gap-1 mt-1">
                     <Target className="h-3 w-3 text-muted-foreground" />
@@ -320,12 +309,19 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
                     </p>
                   </div>
                 </div>
+                <div >
+                   {isToday(item.date) && item.totalEvents > 0 && (
+                      <Badge variant="secondary" className="ml-2 text-xs">
+                        {item.completedEvents}/{item.totalEvents} fed
+                      </Badge>
+                    )}
+                </div>
                 <Badge variant={isToday(item.date) 
                   ? item.isCompleted ? "secondary" : "default"
                   : "outline"} 
                   className={`ml-auto ${isToday(item.date) && item.isCompleted ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}`}
                 >
-                  {formatDateDisplay(item.date)}
+                  {item.isCompleted ? "Complete" : formatDateDisplay(item.date)}
                 </Badge>
               </Link>
             ))
