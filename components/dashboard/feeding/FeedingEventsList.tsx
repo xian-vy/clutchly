@@ -278,10 +278,12 @@ const { data: virtualEvents = [] } = useQuery({
         return [...oldData, newEvent];
       });
       
-      // Invalidate queries to refresh the data
+      // Force invalidate the virtual events query to remove the virtual event
+      queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id] });
+      
+      // Invalidate other queries to refresh the data
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['feeding-status'] }),
-        queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id] })
+        queryClient.invalidateQueries({ queryKey: ['feeding-status'] })
       ]);
       
       if (onEventsUpdated) {
@@ -472,12 +474,33 @@ const { data: virtualEvents = [] } = useQuery({
   
   // Group events by date
   const eventsByDate: Record<string, (FeedingEventWithDetails | VirtualFeedingEvent)[]> = {};
-  allEvents.forEach(event => {
+
+  // First add real events
+  events.forEach(event => {
     const date = event.scheduled_date;
     if (!eventsByDate[date]) {
       eventsByDate[date] = [];
     }
     eventsByDate[date].push(event);
+  });
+
+  // Then add virtual events, but only if there's no real event for that reptile on that date
+  virtualEvents.forEach(virtualEvent => {
+    const date = virtualEvent.scheduled_date;
+    if (!eventsByDate[date]) {
+      eventsByDate[date] = [];
+    }
+    
+    // Check if there's already a real event for this reptile on this date
+    const hasRealEvent = events.some(event => 
+      event.reptile_id === virtualEvent.reptile_id && 
+      event.scheduled_date === virtualEvent.scheduled_date
+    );
+    
+    // Only add the virtual event if there's no real event for this reptile
+    if (!hasRealEvent) {
+      eventsByDate[date].push(virtualEvent);
+    }
   });
   
   // Sort dates
