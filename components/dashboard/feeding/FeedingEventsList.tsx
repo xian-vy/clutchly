@@ -616,7 +616,7 @@ const { data: virtualEvents = [] } = useQuery({
     <div className="space-y-6">
       {sortedDates.map(date => (
         <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none mb-5 pt-0 gap-0">
-          <CardHeader className="py-3 px-4 md:px-6">
+          <CardHeader className="py-3 px-4 ">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Button

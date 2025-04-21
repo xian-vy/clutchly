@@ -512,7 +512,7 @@ export function FeedingTab() {
                   </Badge>
                 </CardContent>
               </Card>
-                <div className=" px-4">
+                <div className=" px-2">
                   <FeedingEventsList 
                     scheduleId={schedule.id} 
                     schedule={schedule}
