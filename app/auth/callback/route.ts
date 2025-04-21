@@ -37,12 +37,12 @@ export async function GET(request: Request) {
 
     // If user is already registered and verified, redirect to dashboard
     return NextResponse.redirect(new URL(next, request.url))
-  } catch (error : any) {
+  } catch (error : unknown) {
     console.error('Auth callback error:', error)
     
     const errorUrl = new URL('/auth/error', request.url)
     errorUrl.searchParams.set('error', 'server_error')
-    errorUrl.searchParams.set('error_description', error.message || 'An unexpected error occurred')
+    errorUrl.searchParams.set('error_description',  error instanceof Error ? error.message : 'An unexpected error occurred')
     return NextResponse.redirect(errorUrl)
   }
 } 

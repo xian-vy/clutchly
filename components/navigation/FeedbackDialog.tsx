@@ -51,7 +51,8 @@ export function FeedbackDialog() {
 
       toast.message( "Thank you for your feedback!");
       setOpen(false);
-    } catch (error) {
+    } catch (error  : unknown) {
+      console.error(error);
       toast.error("Failed to send feedback. Please try again.");
     } finally {
       setIsLoading(false);

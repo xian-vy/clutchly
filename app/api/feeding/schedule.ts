@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import { FeedingSchedule, FeedingTarget, NewFeedingSchedule, FeedingScheduleWithTargets } from '@/lib/types/feeding';
+import { FeedingTarget, NewFeedingSchedule, FeedingScheduleWithTargets } from '@/lib/types/feeding';
 
 // Get all feeding schedules for the current user
 export async function getFeedingSchedules(): Promise<FeedingScheduleWithTargets[]> {
@@ -35,7 +35,7 @@ export async function getFeedingSchedules(): Promise<FeedingScheduleWithTargets[
   const enrichedTargets = await enrichTargets(targets || []);
   
   // Group targets by schedule_id
-  const targetsBySchedule = enrichedTargets.reduce((acc: Record<string, any[]>, target) => {
+  const targetsBySchedule = enrichedTargets.reduce((acc: Record<string, FeedingTarget[]>, target) => {
     acc[target.schedule_id] = acc[target.schedule_id] || [];
     acc[target.schedule_id].push(target);
     return acc;

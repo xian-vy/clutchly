@@ -1,8 +1,15 @@
 import { createClient } from '@/lib/supabase/client'
 import { Reptile } from '@/lib/types/reptile'
 
-const supabase = createClient()
-
+type projectsBySpecies  = {
+  species_id: string
+  species_name: string
+  count: number
+}
+type speciesToProject = {
+   species_id:string
+   species_name: string
+}
 // Interfaces for breeding reports
 export interface BreedingStats {
   totalProjects: number
@@ -13,11 +20,7 @@ export interface BreedingStats {
   totalFertileEggs: number
   totalHatchlings: number
   successRate: number // percentage of fertile eggs that hatched
-  projectsBySpecies: {
-    species_id: string
-    species_name: string
-    count: number
-  }[]
+  projectsBySpecies: projectsBySpecies[]
   fertileRateByMonth: {
     month: string // format: "YYYY-MM"
     fertile_rate: number
@@ -92,7 +95,7 @@ export async function getBreedingStats(filters?: BreedingReportFilters): Promise
   // Fetch all clutches related to these projects
   const projectIds = projectsData.map(p => p.id)
   
-  let clutchesQuery = supabase
+  const clutchesQuery = supabase
     .from('clutches')
     .select('*')
     .in('breeding_project_id', projectIds)
@@ -104,7 +107,7 @@ export async function getBreedingStats(filters?: BreedingReportFilters): Promise
   // Fetch all hatchlings based on clutches
   const clutchIds = clutchesData.map(c => c.id)
   
-  let hatchlingsQuery = supabase
+  const hatchlingsQuery = supabase
     .from('reptiles')
     .select('*')
     .in('parent_clutch_id', clutchIds)
@@ -129,7 +132,7 @@ export async function getBreedingStats(filters?: BreedingReportFilters): Promise
   
   // Projects grouped by species
   const projectsBySpecies = Object.values(
-    projectsWithSpecies.reduce((acc: Record<string, any>, project) => {
+    projectsWithSpecies.reduce((acc: Record<string, projectsBySpecies>, project) => {
       const speciesId = project.species_id
       const speciesName = project.species?.name || 'Unknown'
       
@@ -176,7 +179,7 @@ export async function getBreedingStats(filters?: BreedingReportFilters): Promise
   }> = {}
   
   // First, map clutches to their projects to get species information
-  const clutchToProject = projectsWithSpecies.reduce((acc: Record<string, any>, project) => {
+  const clutchToProject = projectsWithSpecies.reduce((acc: Record<string, speciesToProject>, project) => {
     acc[project.id] = {
       species_id: project.species_id,
       species_name: project.species?.name || 'Unknown'
@@ -244,8 +247,37 @@ export async function getBreedingStats(filters?: BreedingReportFilters): Promise
   }
 }
 
+// Define interface for clutch with hatchlings
+interface ClutchWithHatchlings {
+  id: string;
+  breeding_project_id: string;
+  lay_date: string;
+  egg_count: number;
+  fertile_count: number;
+  hatchlings: Reptile[];
+  // Add other clutch properties as needed
+}
+
+// Define interface for detailed breeding project
+interface DetailedBreedingProject {
+  id: string;
+  name: string;
+  species_id: string;
+  male_id: string;
+  female_id: string;
+  start_date: string;
+  status: string;
+  species: {
+    id?: string;
+    name: string;
+  };
+  male: Reptile | null;
+  female: Reptile | null;
+  clutches: ClutchWithHatchlings[];
+}
+
 // Get detailed breeding project data with clutches and hatchlings
-export async function getDetailedBreedingProjects(filters?: BreedingReportFilters): Promise<any[]> {
+export async function getDetailedBreedingProjects(filters?: BreedingReportFilters): Promise<DetailedBreedingProject[]> {
   const supabase = createClient()
   
   // Fetch all breeding projects based on filters
@@ -389,21 +421,61 @@ export async function getDetailedBreedingProjects(filters?: BreedingReportFilter
   return projectsWithDetails
 }
 
+// Add these interfaces for genetic outcomes
+interface MorphDistribution {
+  morph: string;
+  count: number;
+  percentage: number;
+}
+
+interface ProjectInfo {
+  id: string;
+  name: string;
+  start_date: string;
+}
+
+interface PairingOutcome {
+  male_morph: string;
+  female_morph: string;
+  total_clutches: number;
+  total_eggs: number;
+  total_fertile: number;
+  total_hatched: number;
+  hatched_morphs: Record<string, number>;
+  projects_count: number;
+  projects: ProjectInfo[];
+}
+
+interface GeneticOutcomeResult {
+  pairing: string;
+  male_morph: string;
+  female_morph: string;
+  total_clutches: number;
+  total_eggs: number;
+  total_fertile: number;
+  total_hatched: number;
+  fertility_rate: number;
+  hatch_rate: number;
+  morph_distribution: MorphDistribution[];
+  projects_count: number;
+  projects: ProjectInfo[];
+}
+
 // Get data for genetic outcome analysis
-export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promise<any> {
+export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promise<GeneticOutcomeResult[]> {
   // Get detailed projects first
   const detailedProjects = await getDetailedBreedingProjects(filters)
   
   // Analyze genetic outcomes by pairing types
-  const outcomes = detailedProjects.reduce((acc: Record<string, any>, project) => {
+  const outcomes = detailedProjects.reduce((acc: Record<string, PairingOutcome>, project) => {
     // Skip projects without both parents or clutches
     if (!project.male || !project.female || project.clutches.length === 0) {
       return acc
     }
     
     // Create a key for this pairing type (could be based on morphs)
-    const maleMorph = project.male.morph?.name || 'Unknown'
-    const femaleMorph = project.female.morph?.name || 'Unknown'
+    const maleMorph = project.male.morph_id|| 'Unknown'
+    const femaleMorph = project.female.species_id || 'Unknown'
     const pairingKey = `${maleMorph} × ${femaleMorph}`
     
     if (!acc[pairingKey]) {
@@ -420,8 +492,9 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
       }
     }
     
+    // In getGeneticOutcomes function:
     // Count clutches and eggs
-    project.clutches.forEach((clutch: any) => {
+    project.clutches.forEach((clutch: ClutchWithHatchlings) => {
       acc[pairingKey].total_clutches++
       acc[pairingKey].total_eggs += clutch.egg_count || 0
       acc[pairingKey].total_fertile += clutch.fertile_count || 0
@@ -449,7 +522,7 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
   }, {})
   
   // Convert to array and calculate percentages
-  const outcomesArray = Object.entries(outcomes).map(([key, data]: [string, any]) => {
+  const outcomesArray = Object.entries(outcomes).map(([key, data]: [string, PairingOutcome]): GeneticOutcomeResult => {
     // Calculate success percentages
     const fertility_rate = data.total_eggs > 0 
       ? Math.round((data.total_fertile / data.total_eggs) * 100) 
@@ -460,7 +533,7 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
       : 0
     
     // Convert morph distribution to percentages
-    const morph_distribution = Object.entries(data.hatched_morphs).map(([morph, count]: [string, any]) => ({
+    const morph_distribution = Object.entries(data.hatched_morphs).map(([morph, count]: [string, number]) => ({
       morph,
       count,
       percentage: data.total_hatched > 0 
@@ -485,4 +558,4 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
   })
   
   return outcomesArray
-} 
+}

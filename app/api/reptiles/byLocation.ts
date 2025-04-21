@@ -2,7 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { Reptile } from '@/lib/types/reptile';
-import { TargetType } from '@/lib/types/feeding';
 
 interface ReptileWithDetails extends Reptile {
   species_name?: string;

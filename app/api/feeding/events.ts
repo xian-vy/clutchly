@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { FeedingEvent, FeedingEventWithDetails, NewFeedingEvent } from '@/lib/types/feeding';
+import { Morph } from '@/lib/types/morph';
+import { Species } from '@/lib/types/species';
 
 // Get feeding events for a specific schedule
 export async function getFeedingEvents(scheduleId: string): Promise<FeedingEventWithDetails[]> {
@@ -35,8 +37,8 @@ export async function getFeedingEvents(scheduleId: string): Promise<FeedingEvent
   const speciesIds = reptiles.map(reptile => reptile.species_id).filter(Boolean);
   const morphIds = reptiles.map(reptile => reptile.morph_id).filter(Boolean);
   
-  let species: any[] = [];
-  let morphs: any[] = [];
+  let species: Species[] = [];
+  let morphs: Morph[] = [];
   
   if (speciesIds.length > 0) {
     const { data: speciesData, error: speciesError } = await supabase
@@ -45,7 +47,7 @@ export async function getFeedingEvents(scheduleId: string): Promise<FeedingEvent
       .in('id', speciesIds);
     
     if (!speciesError && speciesData) {
-      species = speciesData;
+      species = speciesData as Species[];
     }
   }
   
@@ -56,22 +58,22 @@ export async function getFeedingEvents(scheduleId: string): Promise<FeedingEvent
       .in('id', morphIds);
     
     if (!morphsError && morphsData) {
-      morphs = morphsData;
+      morphs = morphsData as Morph[];
     }
   }
   
   // Create lookup maps
-  const reptileMap = reptiles.reduce((acc: Record<string, any>, reptile: any) => {
+  const reptileMap = reptiles.reduce((acc: Record<string, typeof reptiles[0]>, reptile) => {
     acc[reptile.id] = reptile;
     return acc;
   }, {});
   
-  const speciesMap = species.reduce((acc: Record<string, string>, species: any) => {
+  const speciesMap = species.reduce((acc: Record<string, string>, species: Species) => {
     acc[species.id] = species.name;
     return acc;
   }, {});
   
-  const morphMap = morphs.reduce((acc: Record<string, string>, morph: any) => {
+  const morphMap = morphs.reduce((acc: Record<string, string>, morph: Morph) => {
     acc[morph.id] = morph.name;
     return acc;
   }, {});
@@ -252,7 +254,7 @@ export async function generateEventsFromSchedule(
 // Helper function to get reptiles from targets
 async function getReptilesFromTargets(targets: { target_type: string; target_id: string }[]): Promise<string[]> {
   const supabase = createClient();
-  let reptileIds: string[] = [];
+  const reptileIds: string[] = [];
 
   // Extract targets by type
   const reptileTargets = targets.filter(t => t.target_type === 'reptile').map(t => t.target_id);
@@ -395,7 +397,6 @@ function generateFeedingDates(
   }
   // Weekly recurrence (same day of week as start date)
   else if (recurrence === 'weekly') {
-    const dayOfWeek = start.getDay();
     const current = new Date(start);
     while (current <= end) {
       dates.push(current.toISOString().split('T')[0]);

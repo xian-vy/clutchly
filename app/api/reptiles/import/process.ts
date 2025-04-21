@@ -50,7 +50,7 @@ export interface ImportResponse {
 }
 
 // Validate a single reptile row
-function validateReptileRow(row: Record<string, any>, rowIndex: number): { valid: boolean; error?: string } {
+function validateReptileRow(row: Record<string, any>): { valid: boolean; error?: string } {
   // Required fields validation
   if (!row.name || row.name.trim() === '') {
     return { valid: false, error: 'Name is required' }
@@ -116,7 +116,7 @@ function validateReptileRow(row: Record<string, any>, rowIndex: number): { valid
 
 // For simplicity, since we can't directly access xlsx and papaparse libraries
 // we'll use a simplified approach that assumes the data is already parsed
-export async function previewImportData(parsedData: Record<string, any>[], fileType: string): Promise<ImportPreviewResponse> {
+export async function previewImportData(parsedData: Record<string, any>[]): Promise<ImportPreviewResponse> {
   const rows = parsedData
 
   if (rows.length === 0) {

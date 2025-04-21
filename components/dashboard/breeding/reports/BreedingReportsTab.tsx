@@ -1,20 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useQuery } from '@tanstack/react-query';
-import { Loader2, TrendingUp, Database, LineChart, PieChart, Calendar } from 'lucide-react';
 import { BreedingReportFilters, getBreedingStats, getDetailedBreedingProjects, getGeneticOutcomes } from '@/app/api/breeding/reports';
-import { BreedingReportFilters as FilterComponent } from './BreedingReportFilters';
-import { BreedingStatistics } from './BreedingStatistics';
-import { ProjectPerformance } from './ProjectPerformance';
-import { GeneticOutcomes } from './GeneticOutcomes';
 import { Button } from '@/components/ui/button';
 import { DatePickerWithRange } from '@/components/ui/date-picker-range';
-import { format } from 'date-fns';
-import { DateRange } from 'react-day-picker';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { Database, Loader2, PieChart, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { DateRange } from 'react-day-picker';
+import { BreedingReportFilters as FilterComponent } from './BreedingReportFilters';
+import { BreedingStatistics } from './BreedingStatistics';
+import { GeneticOutcomes } from './GeneticOutcomes';
+import { ProjectPerformance } from './ProjectPerformance';
 
 export function BreedingReportsTab() {
   const [activeTab, setActiveTab] = useState('statistics');
@@ -35,7 +34,7 @@ export function BreedingReportsTab() {
       }));
     } else {
       // Remove startDate if from is cleared
-      const { startDate, ...rest } = filters;
+      const {  ...rest } = filters;
       setFilters(rest);
     }
     
@@ -48,7 +47,7 @@ export function BreedingReportsTab() {
       }));
     } else {
       // Remove endDate if to is cleared
-      const { endDate, ...rest } = filters;
+      const { ...rest } = filters;
       setFilters(rest);
     }
   };
@@ -72,7 +71,6 @@ export function BreedingReportsTab() {
   const { 
     data: detailedData, 
     isLoading: detailedLoading,
-    isError: detailedError,
     refetch: fetchDetailedData
   } = useQuery({
     queryKey: ['detailed-breeding-projects', filters],
@@ -84,7 +82,6 @@ export function BreedingReportsTab() {
   const { 
     data: geneticData, 
     isLoading: geneticLoading,
-    isError: geneticError,
     refetch: fetchGeneticData
   } = useQuery({
     queryKey: ['genetic-outcomes', filters],

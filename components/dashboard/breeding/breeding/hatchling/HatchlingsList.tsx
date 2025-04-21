@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Reptile } from '@/lib/types/reptile';
 import { format } from 'date-fns';

@@ -270,7 +270,7 @@ export function BreedingProjectDetails({
           </Tabs>
         ) : (
           <Card className="p-8 text-center text-muted-foreground">
-            <p>No clutches added yet. Click "Add Clutch" to get started.</p>
+            <p>No clutches added yet. Click Add Clutch to get started.</p>
           </Card>
         )}
       </div>
