@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import { FeedingTarget, NewFeedingSchedule, FeedingScheduleWithTargets } from '@/lib/types/feeding';
+import { FeedingTarget, NewFeedingSchedule, FeedingScheduleWithTargets, TargetType } from '@/lib/types/feeding';
 
 // Get all feeding schedules for the current user
 export async function getFeedingSchedules(): Promise<FeedingScheduleWithTargets[]> {
@@ -202,7 +202,7 @@ async function enrichTargets(targets: FeedingTarget[]): Promise<FeedingTarget[]>
 
 // Create a new feeding schedule
 export async function createFeedingSchedule(
-  data: NewFeedingSchedule & { targets: { target_type: 'reptile' | 'location', target_id: string }[] }
+  data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }
 ): Promise<FeedingScheduleWithTargets> {
   const supabase = createClient();
   
@@ -255,7 +255,7 @@ export async function createFeedingSchedule(
 // Update an existing feeding schedule
 export async function updateFeedingSchedule(
   id: string,
-  data: NewFeedingSchedule & { targets: { target_type: 'reptile' | 'location', target_id: string }[] }
+  data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }
 ): Promise<FeedingScheduleWithTargets> {
   const supabase = createClient();
   

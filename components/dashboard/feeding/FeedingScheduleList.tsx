@@ -1,8 +1,13 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
-import { Plus, Pencil, Trash2, Calendar, MoreHorizontal, MapPin, Footprints } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -11,27 +16,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { format } from 'date-fns';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Calendar, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 
 interface FeedingScheduleListProps {
   schedules: FeedingScheduleWithTargets[];
   onEdit: (schedule: FeedingScheduleWithTargets) => void;
   onDelete: (id: string) => void;
-  onAddNew: () => void;
   onViewEvents?: (schedule: FeedingScheduleWithTargets) => void;
 }
 
@@ -39,7 +31,6 @@ export function FeedingScheduleList({
   schedules,
   onEdit,
   onDelete,
-  onAddNew,
   onViewEvents,
 }: FeedingScheduleListProps) {
   // Format recurrence display

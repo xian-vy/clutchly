@@ -17,13 +17,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-// Extended types for racks with rows
-interface RackWithDetails {
-  id: string;
-  name: string;
-  room_id: string;
-  rows: number;
-}
+
 
 export function FeedingSchedulesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -36,11 +30,11 @@ export function FeedingSchedulesTab() {
   
   // Update the API functions to handle the new target types
   const createScheduleWithTargetTypes = async (data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => {
-    return await createFeedingSchedule(data as any);
+    return await createFeedingSchedule(data);
   };
   
   const updateScheduleWithTargetTypes = async (id: string, data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => {
-    return await updateFeedingSchedule(id, data as any);
+    return await updateFeedingSchedule(id, data);
   };
   
   // Use the resource hook for CRUD operations
@@ -52,7 +46,6 @@ export function FeedingSchedulesTab() {
     handleCreate,
     handleUpdate,
     handleDelete,
-    refetch: refetchSchedules
   } = useResource<FeedingScheduleWithTargets, NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }>({
     resourceName: 'Feeding Schedule',
     queryKey: ['feeding-schedules'],
@@ -158,7 +151,6 @@ export function FeedingSchedulesTab() {
               onDialogChange(true);
             }}
             onDelete={handleDelete}
-            onAddNew={() => onDialogChange(true)}
           />
         </CardContent>
       </Card>
