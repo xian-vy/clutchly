@@ -340,32 +340,32 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         if (!previewData) return null
         
         return (
-          <div className="space-y-6">
+          <div className="space-y-5 3xl:space-y-6">
             <div className="grid grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
+              <Card  className='gap-0'>
+                <CardHeader>
                   <CardTitle className="text-lg">Total Rows</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{previewData.totalRows}</p>
+                  <p className="text-2xl 3xl:text-3xl font-bold">{previewData.totalRows}</p>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader className="pb-2">
+              <Card  className='gap-0'>
+                <CardHeader>
                   <CardTitle className="text-lg">Valid Rows</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold text-green-600">{previewData.validRows.length}</p>
+                  <p className="text-2xl 3xl:text-3xl font-bold text-green-600">{previewData.validRows.length}</p>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardHeader className="pb-2">
+              <Card  className='gap-0'>
+                <CardHeader>
                   <CardTitle className="text-lg">Selected</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold text-blue-600">{selectedRows.length}</p>
+                  <p className="text-2xl 3xl:text-3xl font-bold text-blue-600">{selectedRows.length}</p>
                 </CardContent>
               </Card>
             </div>
@@ -380,12 +380,12 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                 </Button>
               </div>
               
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-muted-foreground">
                 {previewData.speciesCount} unique species, {previewData.morphCount} morphs will be processed
               </div>
             </div>
             
-            <div className="border rounded-md">
+            <div className="border rounded-md max-h-[200px] overflow-y-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
