@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
-import { AlertCircle, SlidersHorizontal } from 'lucide-react';
+import { AlertCircle, Dna } from 'lucide-react';
 
 // Import recharts
 import {
@@ -101,7 +101,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
       
       <div className="space-y-4">
         <h3 className="text-lg font-semibold flex items-center gap-2">
-          <SlidersHorizontal className="h-4 w-4" />
+          <Dna className="h-4 w-4" />
           Detailed Genetic Analysis
         </h3>
         
