@@ -14,7 +14,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -37,7 +36,7 @@ async function updateSubscriptionWithId(id: string, plan: SubscriptionPlan): Pro
 }
 
 // Dummy delete function to match interface (we don't actually delete subscriptions)
-async function dummyDelete(id: string): Promise<void> {
+async function dummyDelete(): Promise<void> {
   await cancelSubscription();
   return;
 }
@@ -79,7 +78,7 @@ export function SubscriptionBadge() {
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false} >
       <DropdownMenuTrigger asChild>
         {isPremium ? (
           <Badge 
