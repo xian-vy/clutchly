@@ -264,17 +264,16 @@ const { data: virtualEvents = [] } = useQuery({
 
 
   // Convert a virtual event to a real event
-  const createRealEventFromVirtual = async (virtualEvent: VirtualFeedingEvent, fed: boolean = true) => {
+  const createRealEventFromVirtual = async (virtualEvent: VirtualFeedingEvent, fed: boolean = true, notes: string = '') => {
     setCreatingVirtualEvent(true);
     try {
-      // Remove the unused variable assignment
       await createFeedingEvent({
         schedule_id: scheduleId,
         reptile_id: virtualEvent.reptile_id,
         scheduled_date: virtualEvent.scheduled_date,
         fed,
         fed_at: fed ? new Date().toISOString() : null,
-        notes: null
+        notes: notes || null
       });
       
       toast.success("Feeding recorded");
@@ -602,7 +601,7 @@ const { data: virtualEvents = [] } = useQuery({
                     if (isVirtual) {
                       const virtualEvent = event as VirtualFeedingEvent;
                       return (
-                        <TableRow key={`virtual-${virtualEvent.reptile_id}-${date}-${index}`} className="bg-amber-50/30 dark:bg-amber-950/20">
+                        <TableRow key={`virtual-${virtualEvent.reptile_id}-${date}-${index}`}>
                           <TableCell className="text-center py-3">
                             <div className="flex justify-center">
                               <Checkbox 
@@ -622,11 +621,31 @@ const { data: virtualEvents = [] } = useQuery({
                           <TableCell className="py-3">{virtualEvent.morph_name}</TableCell>
                           <TableCell className="py-3">{virtualEvent.species_name}</TableCell>
                           <TableCell className="py-3">
-                            <div className="text-sm text-muted-foreground italic">
-                             Check the box to record this feeding.
-                            </div>
+                            <Textarea 
+                              placeholder="Add notes (optional)"
+                              value={eventNotes[`virtual-${virtualEvent.reptile_id}`] || ''}
+                              onChange={(e) => handleNotesChange(`virtual-${virtualEvent.reptile_id}`, e.target.value)}
+                              className="min-h-[60px] text-sm"
+                            />
                           </TableCell>
-                         
+                          <TableCell className="py-3 text-right">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              disabled={creatingVirtualEvent}
+                              onClick={() => {
+                                // When creating a real event from virtual, include the notes
+                                const notes = eventNotes[`virtual-${virtualEvent.reptile_id}`] || '';
+                                createRealEventFromVirtual(virtualEvent, true, notes);
+                              }}
+                            >
+                              {creatingVirtualEvent ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Save className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       );
                     }
