@@ -199,9 +199,9 @@ export function FeedingLogsTab() {
       />
 
       <Tabs defaultValue="logs" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList >
           <TabsTrigger value="logs">Event Logs</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
+          {/* <TabsTrigger value="reports">Reports</TabsTrigger> */}
         </TabsList>
         
         <TabsContent value="logs" className="space-y-4">
