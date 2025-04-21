@@ -143,7 +143,7 @@ export function Navigation() {
         )}
       >
         <div className={cn(
-          "flex h-16 items-center border-b border-sidebar-border ml-2",
+          "flex h-16 items-center border-b border-sidebar-border ",
           isCollapsed ? "justify-center px-2" : "gap-2 px-4"
         )}>
           <Image
