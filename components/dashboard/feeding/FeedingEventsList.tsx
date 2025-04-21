@@ -442,7 +442,7 @@ const { data: virtualEvents = [] } = useQuery({
     return (
       <Card className="min-h-[200px] border-0 shadow-none">
         <CardContent className="flex justify-center items-center h-full py-10">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
         </CardContent>
       </Card>
     );
