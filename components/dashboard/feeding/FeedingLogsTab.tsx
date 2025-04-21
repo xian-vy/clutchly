@@ -1,53 +1,37 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  Table, 
-  TableHeader, 
-  TableRow, 
-  TableHead, 
-  TableBody, 
-  TableCell 
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Calendar as CalendarIcon, 
-  FileText, 
-  Filter, 
-  Loader2, 
-  Search, 
-} from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { getFeedingEvents } from '@/app/api/feeding/events';
+import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
 import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { getFeedingEvents } from '@/app/api/feeding/events';
+import { format } from 'date-fns';
+
+// Import our new modular components
+import { SummaryCards } from './logs/SummaryCards';
+import { FeedingEventsTable } from './logs/FeedingEventsTable';
+import { ReportsPanel } from './logs/ReportsPanel';
+
+// Define the FeedingEvent interface to match the data structure
+interface FeedingEvent {
+  id: string;
+  scheduled_date: string;
+  reptile_name: string;
+  species_name: string;
+  morph_name?: string | null;
+  fed: boolean;
+  notes?: string | null;
+}
 
 export function FeedingLogsTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'fed' | 'unfed'>('all');
   const [dateRange, setDateRange] = useState<DateRange>({
-    from: undefined,
+    from: new Date(), // Set today as default date
     to: undefined,
   });
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
@@ -73,7 +57,7 @@ export function FeedingLogsTab() {
           // Fetch events for each schedule and combine them
           const allEventsPromises = schedules.map((s: { id: string }) => getFeedingEvents(s.id));
           const eventsArrays = await Promise.all(allEventsPromises);
-          return eventsArrays.flat();
+          return eventsArrays.flat() as FeedingEvent[];
         } else {
           return [];
         }
@@ -155,7 +139,7 @@ export function FeedingLogsTab() {
   const clearFilters = () => {
     setSearchTerm('');
     setFilterStatus('all');
-    setDateRange({ from: undefined, to: undefined });
+    setDateRange({ from: new Date(), to: undefined }); // Reset to today
   };
 
   // Get the current date
@@ -179,6 +163,11 @@ export function FeedingLogsTab() {
     ? Math.round((last7DaysCompleted / last7DaysEvents.length) * 100) 
     : 0;
 
+  // Get today's events
+  const todayEvents = events.filter(e => 
+    e.scheduled_date === format(today, 'yyyy-MM-dd')
+  ).length;
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
@@ -199,260 +188,44 @@ export function FeedingLogsTab() {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Feeding Events
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalEvents}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {completedEvents} completed ({completionRate}%)
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Last 7 Days
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{last7DaysEvents.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {last7DaysCompleted} completed ({last7DaysRate}%)
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Today&apos; Feedings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {events.filter(e => e.scheduled_date === format(today, 'yyyy-MM-dd')).length}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {format(today, 'EEEE, MMM d')}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <SummaryCards 
+        totalEvents={totalEvents}
+        completedEvents={completedEvents}
+        completionRate={completionRate}
+        last7DaysEvents={last7DaysEvents.length}
+        last7DaysCompleted={last7DaysCompleted}
+        last7DaysRate={last7DaysRate}
+        todayEvents={todayEvents}
+      />
 
       <Tabs defaultValue="logs" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="logs">Event Logs</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
         
         <TabsContent value="logs" className="space-y-4">
-          {/* Filters */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex flex-col md:flex-row gap-4 items-end">
-                <div className="flex-1">
-                  <Label htmlFor="search" className="mb-2 block text-sm">Search</Label>
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="search"
-                      placeholder="Search reptiles, species, or notes..."
-                      className="pl-8"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="w-full md:w-[180px]">
-                  <Label htmlFor="status" className="mb-2 block text-sm">Status</Label>
-                  <Select
-                    value={filterStatus}
-                    onValueChange={(value) => setFilterStatus(value as 'all' | 'fed' | 'unfed')}
-                  >
-                    <SelectTrigger id="status">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Events</SelectItem>
-                      <SelectItem value="fed">Fed</SelectItem>
-                      <SelectItem value="unfed">Not Fed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="w-full md:w-[250px]">
-                  <Label htmlFor="date" className="mb-2 block text-sm">Date Range</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        id="date"
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !dateRange.from && !dateRange.to && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateRange.from ? (
-                          dateRange.to ? (
-                            <>
-                              {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
-                            </>
-                          ) : (
-                            format(dateRange.from, "LLL dd, y")
-                          )
-                        ) : (
-                          "Select date range"
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="range"
-                        selected={dateRange}
-                        onSelect={(range) => setDateRange(range || { from: undefined, to: undefined })}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  onClick={clearFilters}
-                  className="h-10 w-10"
-                >
-                  <Filter className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Event Logs Table */}
-          <Card>
-            <CardContent className="py-0 px-4">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Reptile</TableHead>
-                    <TableHead>Species</TableHead>
-                    <TableHead>Morph</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Notes</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredEvents.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="h-24 text-center">
-                        No feeding events found that match your filters.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredEvents.map((event) => (
-                      <TableRow key={event.id} className={event.fed ? "bg-muted/30" : ""}>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <CalendarIcon className="h-3 w-3 text-muted-foreground" />
-                            {format(new Date(event.scheduled_date), 'MMM d, yyyy')}
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-medium">{event.reptile_name}</TableCell>
-                        <TableCell>{event.species_name}</TableCell>
-                        <TableCell>{event.morph_name || '-'}</TableCell>
-                        <TableCell>
-                          <Badge variant={event.fed ? "outline" : "secondary"}>
-                            {event.fed ? "Fed" : "Not Fed"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="max-w-[250px] truncate">
-                          {event.notes || '-'}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          {/* Combined FilterBar and FeedingEventsTable */}
+          <FeedingEventsTable 
+            events={filteredEvents}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            filterStatus={filterStatus}
+            setFilterStatus={setFilterStatus}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            clearFilters={clearFilters}
+          />
         </TabsContent>
 
         <TabsContent value="reports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Feeding Reports</CardTitle>
-              <CardDescription>
-                Generate comprehensive reports on feeding patterns and completion rates.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="report-type" className="mb-2 block">Report Type</Label>
-                  <Select defaultValue="summary">
-                    <SelectTrigger id="report-type">
-                      <SelectValue placeholder="Select report type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="summary">Summary Report</SelectItem>
-                      <SelectItem value="detailed">Detailed Log</SelectItem>
-                      <SelectItem value="reptile">Per-Reptile Stats</SelectItem>
-                      <SelectItem value="species">Per-Species Stats</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="report-format" className="mb-2 block">Format</Label>
-                  <Select defaultValue="pdf">
-                    <SelectTrigger id="report-format">
-                      <SelectValue placeholder="Select format" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pdf">PDF Document</SelectItem>
-                      <SelectItem value="excel">Excel Spreadsheet</SelectItem>
-                      <SelectItem value="csv">CSV File</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="bg-muted p-4 rounded-lg">
-                <h3 className="text-sm font-medium mb-2">Applied Filters</h3>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p>Status: {filterStatus === 'all' ? 'All Events' : filterStatus === 'fed' ? 'Fed Only' : 'Unfed Only'}</p>
-                  <p>Date Range: {dateRange.from 
-                    ? `${format(dateRange.from, 'MMM d, yyyy')} - ${dateRange.to ? format(dateRange.to, 'MMM d, yyyy') : 'Present'}`
-                    : 'All time'
-                  }</p>
-                  <p>Matching Events: {filteredEvents.length}</p>
-                </div>
-              </div>
-
-              <Button 
-                className="w-full" 
-                onClick={handleGenerateReport}
-                disabled={isGeneratingReport || filteredEvents.length === 0}
-              >
-                {isGeneratingReport ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating Report...
-                  </>
-                ) : (
-                  <>
-                    <FileText className="mr-2 h-4 w-4" />
-                    Generate Report
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+          <ReportsPanel 
+            filterStatus={filterStatus}
+            dateRange={dateRange}
+            filteredEventsCount={filteredEvents.length}
+            isGeneratingReport={isGeneratingReport}
+            onGenerateReport={handleGenerateReport}
+          />
         </TabsContent>
       </Tabs>
     </div>
