@@ -458,7 +458,7 @@ export function FeedingTab() {
                       )}
                   </div>
                 </CardHeader>
-                <CardContent className="pb-0 px-6">        
+                <CardContent className="pb-0 px-6 flex justify-between w-full items-center">        
 
                   <div className="flex flex-wrap gap-1 mb-1">
                     {schedule.targets[0] && schedule.targets[0].target_type === 'reptile' &&
@@ -505,6 +505,9 @@ export function FeedingTab() {
                         );
                       })}             
                   </div>
+                  <Badge variant="secondary" className="text-xs">
+                        {stats.reptileCount || 0} reptiles
+                  </Badge>
                 </CardContent>
               </Card>
                 <div className=" px-4">
@@ -512,7 +515,6 @@ export function FeedingTab() {
                     scheduleId={schedule.id} 
                     schedule={schedule}
                     onEventsUpdated={refreshStatus} 
-                    totalReptile={stats.reptileCount || 0}
                   />
                 </div>
             </Collapsible>

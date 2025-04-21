@@ -38,7 +38,6 @@ interface FeedingEventsListProps {
   scheduleId: string;
   schedule: FeedingScheduleWithTargets;
   onEventsUpdated?: () => void;
-  totalReptile : number
 }
 
 // Interface for virtual events that don't exist in the DB yet
@@ -51,7 +50,7 @@ interface VirtualFeedingEvent {
   morph_name: string;
 }
 
-export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated ,totalReptile}: FeedingEventsListProps) {
+export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: FeedingEventsListProps) {
   const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
   const [eventNotes, setEventNotes] = useState<Record<string, string>>({});
   const [creatingVirtualEvent, setCreatingVirtualEvent] = useState<boolean>(false);
