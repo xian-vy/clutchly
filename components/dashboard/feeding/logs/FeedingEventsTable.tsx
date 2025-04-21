@@ -1,35 +1,27 @@
-import { 
-  Table, 
-  TableHeader, 
-  TableRow, 
-  TableHead, 
-  TableBody, 
-  TableCell 
-} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar as CalendarIcon, ChevronDown, ChevronUp, ArrowUp, Search, X } from 'lucide-react';
-import { format } from 'date-fns';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { 
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { DateRange } from 'react-day-picker';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { Calendar as CalendarIcon, Search, X } from 'lucide-react';
+import { useState } from 'react';
+import { DateRange } from 'react-day-picker';
+import { VirtualTable } from './VirtualTable';
 
 interface FeedingEvent {
   id: string;
@@ -62,7 +54,6 @@ export function FeedingEventsTable({
   setDateRange,
   clearFilters
 }: FeedingEventsTableProps) {
-  const tableContainerRef = useRef<HTMLDivElement>(null);
   const [sortField, setSortField] = useState<keyof FeedingEvent>('scheduled_date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   
@@ -86,12 +77,7 @@ export function FeedingEventsTable({
     return 0;
   });
   
-  const rowVirtualizer = useVirtualizer({
-    count: sortedEvents.length,
-    getScrollElement: () => tableContainerRef.current,
-    estimateSize: () => 50, // Estimated row height
-    overscan: 5, // Number of items to render outside of the visible area
-  });
+
 
   const handleSort = (field: keyof FeedingEvent) => {
     if (field === sortField) {
@@ -102,10 +88,6 @@ export function FeedingEventsTable({
     }
   };
 
-  const SortIcon = ({ field }: { field: keyof FeedingEvent }) => {
-    if (field !== sortField) return null;
-    return sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
-  };
 
   // Check if any filters are active
   const hasActiveFilters = 
@@ -259,117 +241,12 @@ export function FeedingEventsTable({
         )}
 
         {/* Table */}
-        <div 
-          ref={tableContainerRef} 
-          className="h-[400px] overflow-auto border rounded-md"
-        >
-          <Table>
-            <TableHeader className="sticky top-0 bg-background z-10">
-              <TableRow>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleSort('scheduled_date')}
-                >
-                  <div className="flex items-center gap-1">
-                    Date
-                    <SortIcon field="scheduled_date" />
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleSort('reptile_name')}
-                >
-                  <div className="flex items-center gap-1">
-                    Reptile
-                    <SortIcon field="reptile_name" />
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleSort('species_name')}
-                >
-                  <div className="flex items-center gap-1">
-                    Species
-                    <SortIcon field="species_name" />
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleSort('morph_name')}
-                >
-                  <div className="flex items-center gap-1">
-                    Morph
-                    <SortIcon field="morph_name" />
-                  </div>
-                </TableHead>
-                <TableHead 
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleSort('fed')}
-                >
-                  <div className="flex items-center gap-1">
-                    Status
-                    <SortIcon field="fed" />
-                  </div>
-                </TableHead>
-                <TableHead>Notes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedEvents.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    No feeding events found that match your filters.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                  const event = sortedEvents[virtualRow.index];
-                  return (
-                    <TableRow 
-                      key={event.id} 
-                      className={event.fed ? "bg-muted/30 hover:bg-muted/50" : "hover:bg-muted/30"}
-                      style={{
-                        height: `${virtualRow.size}px`,
-                        transform: `translateY(${virtualRow.start}px)`,
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                      }}
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <CalendarIcon className="h-3 w-3 text-muted-foreground" />
-                          {format(new Date(event.scheduled_date), 'MMM d, yyyy')}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{event.reptile_name}</TableCell>
-                      <TableCell>{event.species_name}</TableCell>
-                      <TableCell>{event.morph_name || '-'}</TableCell>
-                      <TableCell>
-                        <Badge variant={event.fed ? "outline" : "secondary"}>
-                          {event.fed ? "Fed" : "Not Fed"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-[250px] truncate">
-                        {event.notes || '-'}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex justify-between items-center mt-4">
-          <p className="text-sm text-muted-foreground">
-            Showing {sortedEvents.length} events
-          </p>
-          <Button variant="outline" size="sm" onClick={() => tableContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <ArrowUp className="h-4 w-4 mr-1" />
-            Back to top
-          </Button>
-        </div>
+       <VirtualTable
+          events={sortedEvents}
+          sortField='scheduled_date'
+          sortDirection='desc'
+          onSort={handleSort}
+        />
       </CardContent>
     </Card>
   );
