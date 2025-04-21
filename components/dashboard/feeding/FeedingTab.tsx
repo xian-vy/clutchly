@@ -18,8 +18,8 @@ import {
 import { useResource } from '@/lib/hooks/useResource';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, isToday, startOfDay } from 'date-fns';
-import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Loader2, MapPin, Turtle } from 'lucide-react';
+import { format, startOfDay } from 'date-fns';
+import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEventsList } from './FeedingEventsList';
@@ -400,7 +400,7 @@ export function FeedingTab() {
           const stats = scheduleStats[schedule.id] || { locationCount: 0, reptileCount: 0, nextFeedingDate: new Date() };
           const status = scheduleStatus[schedule.id];
           const isActiveToday = status?.scheduledDate === format(new Date(), 'yyyy-MM-dd');
-          const nextFeedingFormatted = format(stats.nextFeedingDate, 'MMM d, yyyy');
+          //const nextFeedingFormatted = format(stats.nextFeedingDate, 'MMM d, yyyy');
           const feedingDateString = status?.scheduledDate 
             ? format(new Date(status.scheduledDate), 'MMM d, yyyy')
             : null;
@@ -412,13 +412,41 @@ export function FeedingTab() {
               onOpenChange={() => toggleExpanded(schedule.id)}
               className="border rounded-lg overflow-hidden bg-white dark:bg-card"
             >
-              <Card className="border-0 shadow-none">
+              <Card className="border-0 shadow-none gap-5 3xl:gap-6">
                 <CardHeader className="pb-0 px-6">
-                  <div className="flex justify-between items-start">
+                  <div className="flex  items-center gap-5 2xl:gap-7">
                     <div>
                       <div className="flex items-center gap-2">
-                        <CardTitle className="text-xl">{schedule.name}</CardTitle>
-                        {status && status.totalEvents > 0 && (
+                        <CardTitle className="text-xl flex flex-col items-start">
+                          {schedule.name}
+                          <div className="flex items-center gap-0.5">
+                              <Calendar strokeWidth={1.5} className="h-3 w-3 text-muted-foreground" />
+                              <div className="text-xs font-normal text-muted-foreground">{getRecurrenceDisplay(schedule)}</div>        
+                          </div>
+                        </CardTitle>
+                      
+                      </div>
+
+                    </div>
+                    <div className='flex-1'>
+                    {statusLoading ? (
+                        <div className="h-8 flex items-center justify-center mb-3">
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        </div>
+                        ) : status && status.totalEvents > 0 && (
+                          <div className="mb-4">
+                            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                              <span>
+                                {isActiveToday ? 'Today\'s progress' : `Progress for ${feedingDateString}`}
+                              </span>
+                              <span>{status.percentage}%</span>
+                            </div>
+                            <Progress value={status.percentage} className="h-2" />
+                          </div>
+                        )}
+                    </div>
+                    <div>
+                      {status && status.totalEvents > 0 && (
                           <Badge variant={status.isComplete ? "secondary" : "default"} className={`${status.isComplete ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}`}>
                             {status.isComplete ? (
                               <span className="flex items-center gap-1">
@@ -429,69 +457,18 @@ export function FeedingTab() {
                             )}
                           </Badge>
                         )}
-                      </div>
-                      {schedule.description && (
-                        <CardDescription className="mt-1">{schedule.description}</CardDescription>
-                      )}
                     </div>
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        {expandedScheduleIds.has(schedule.id) ? 
-                          <ChevronUp className="h-4 w-4" /> : 
-                          <ChevronDown className="h-4 w-4" />
-                        }
-                      </Button>
-                    </CollapsibleTrigger>
+                  </div>
+                  <div>
+                     {schedule.description && (
+                        <CardDescription className="mt-2">{schedule.description}</CardDescription>
+                      )}
                   </div>
                 </CardHeader>
                 <CardContent className="pb-4 px-6 pt-3">
-                  {statusLoading ? (
-                    <div className="h-8 flex items-center justify-center mb-3">
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : status && status.totalEvents > 0 && (
-                    <div className="mb-4">
-                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                        <span>
-                          {isActiveToday ? 'Today\'s progress' : `Progress for ${feedingDateString}`}
-                        </span>
-                        <span>{status.percentage}%</span>
-                      </div>
-                      <Progress value={status.percentage} className="h-2" />
-                    </div>
-                  )}
-                  
-                  <div className="bg-muted/20 rounded-lg p-3 mb-3">
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">{getRecurrenceDisplay(schedule)}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {isToday(stats.nextFeedingDate) 
-                              ? 'Feeding today' 
-                              : `Next: ${nextFeedingFormatted}`
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    
-                      <div className="flex items-start gap-1.5">
-                        <div className="flex flex-col items-start gap-1">
-                          <div className="flex items-center gap-1.5">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <div className="font-medium">{stats.locationCount} location{stats.locationCount !== 1 ? 's' : ''}</div>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <Turtle className="h-4 w-4 text-muted-foreground" />
-                            <div className="font-medium">{stats.reptileCount} reptile{stats.reptileCount !== 1 ? 's' : ''}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="text-xs text-muted-foreground mb-2">Targets:</div>
+          
+
+                  <div className="text-xs text-muted-foreground mb-2">Targets: {stats.reptileCount} reptile{stats.reptileCount !== 1 ? 's' : ''}</div>
                   <div className="flex flex-wrap gap-1 mb-1">
                     {schedule.targets
                       .filter(target => ['location', 'room', 'rack', 'level'].includes(target.target_type))
@@ -551,6 +528,16 @@ export function FeedingTab() {
                       ))}
                   </div>
                 </CardContent>
+                <CardFooter className='justify-end'>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        {expandedScheduleIds.has(schedule.id) ? 
+                          <ChevronUp className="h-4 w-4" /> : 
+                          <ChevronDown className="h-4 w-4" />
+                        }
+                      </Button>
+                    </CollapsibleTrigger>
+                </CardFooter>
               </Card>
               <CollapsibleContent>
                 <div className="mt-2 px-4">
