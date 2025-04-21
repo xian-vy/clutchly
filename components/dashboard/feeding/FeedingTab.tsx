@@ -388,7 +388,7 @@ export function FeedingTab() {
 
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 3xl:grid-cols-2 gap-6">
         {schedules.map((schedule) => {
           const stats = scheduleStats[schedule.id] || { locationCount: 0, reptileCount: 0, nextFeedingDate: new Date() };
           const status = scheduleStatus[schedule.id];
