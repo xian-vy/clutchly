@@ -38,6 +38,7 @@ interface FeedingEventsListProps {
   scheduleId: string;
   schedule: FeedingScheduleWithTargets;
   onEventsUpdated?: () => void;
+  totalReptile : number
 }
 
 // Interface for virtual events that don't exist in the DB yet
@@ -50,7 +51,7 @@ interface VirtualFeedingEvent {
   morph_name: string;
 }
 
-export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: FeedingEventsListProps) {
+export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated ,totalReptile}: FeedingEventsListProps) {
   const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
   const [eventNotes, setEventNotes] = useState<Record<string, string>>({});
   const [creatingVirtualEvent, setCreatingVirtualEvent] = useState<boolean>(false);
@@ -511,8 +512,8 @@ const { data: virtualEvents = [] } = useQuery({
   return (
     <div className="space-y-6">
       {sortedDates.map(date => (
-        <Card key={date} className="overflow-hidden border shadow-none mb-5 pt-0">
-          <CardHeader className="py-3 px-4 md:px-6 bg-muted/50">
+        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none mb-5 pt-0">
+          <CardHeader className="py-3 px-4 md:px-6 ">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
               <span>
                 {format(new Date(date), 'EEEE, MMMM d, yyyy')}

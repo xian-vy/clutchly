@@ -7,7 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Collapsible } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
 import {
   Tooltip,
@@ -19,7 +19,7 @@ import { useResource } from '@/lib/hooks/useResource';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfDay } from 'date-fns';
-import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { AlertCircle, Calendar, Check, Loader2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEventsList } from './FeedingEventsList';
@@ -385,14 +385,7 @@ export function FeedingTab() {
         ) : (
           <div className="flex-1" />
         )}
-        {/* <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={refreshStatus} 
-          className="h-9 flex-shrink-0"
-        >
-          <RefreshCw className="h-4 w-4" />
-        </Button> */}
+
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -419,7 +412,7 @@ export function FeedingTab() {
                       <div className="flex items-center gap-2">
                         <CardTitle className="text-xl flex flex-col items-start">
                           {schedule.name}
-                          <div className="flex items-center gap-0.5">
+                          <div className="flex items-center gap-1">
                               <Calendar strokeWidth={1.5} className="h-3 w-3 text-muted-foreground" />
                               <div className="text-xs font-normal text-muted-foreground">{getRecurrenceDisplay(schedule)}</div>        
                           </div>
@@ -465,12 +458,15 @@ export function FeedingTab() {
                       )}
                   </div>
                 </CardHeader>
-                <CardContent className="pb-4 px-6 pt-3">
-          
+                <CardContent className="pb-0 px-6">        
 
-                  <div className="text-xs text-muted-foreground mb-2">Targets: {stats.reptileCount} reptile{stats.reptileCount !== 1 ? 's' : ''}</div>
                   <div className="flex flex-wrap gap-1 mb-1">
-                    {schedule.targets
+                    {schedule.targets[0] && schedule.targets[0].target_type === 'reptile' &&
+                      <Badge variant="secondary" className="text-xs capitalize">
+                        {`Target: Selected ${schedule.targets[0].target_type}`}
+                      </Badge>
+                      }
+                      { schedule.targets
                       .filter(target => ['location', 'room', 'rack', 'level'].includes(target.target_type))
                       .map((target, index) => {
                         let label = "Unknown location";
@@ -481,17 +477,17 @@ export function FeedingTab() {
                           tooltipContent = `Location: ${target.location_label}`;
                         }
                         else if (target.target_type === 'room' && target.room_name) {
-                          label = `Room: ${target.room_name}`;
+                          label = `Target: ${target.room_name}`;
                           tooltipContent = `Room: ${target.room_name}`;
                         }
                         else if (target.target_type === 'rack' && target.rack_name) {
-                          label = `Rack: ${target.rack_name}`;
+                          label = `Target: ${target.rack_name}`;
                           tooltipContent = `Rack: ${target.rack_name}`;
                         }
                         else if (target.target_type === 'level' && target.rack_name && target.level_number) {
-                          label = `Level: ${target.level_number}`;
+                          label = `Target: ${target.level_number}`;
                           tooltipContent = `Level ${target.level_number} in ${target.rack_name}`;
-                        }
+                        } 
                         
                         return (
                           <TooltipProvider key={`loc-${target.id}-${index}`}>
@@ -507,47 +503,18 @@ export function FeedingTab() {
                             </Tooltip>
                           </TooltipProvider>
                         );
-                      })}
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {schedule.targets
-                      .filter(target => target.target_type === 'reptile')
-                      .map((target, index) => (
-                        <TooltipProvider key={`rep-${index}`}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Badge variant="outline" className="text-xs">
-                                {target.reptile_name || "Unknown reptile"}
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Reptile: {target.reptile_name}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ))}
+                      })}             
                   </div>
                 </CardContent>
-                <CardFooter className='justify-end'>
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        {expandedScheduleIds.has(schedule.id) ? 
-                          <ChevronUp className="h-4 w-4" /> : 
-                          <ChevronDown className="h-4 w-4" />
-                        }
-                      </Button>
-                    </CollapsibleTrigger>
-                </CardFooter>
               </Card>
-              <CollapsibleContent>
-                <div className="mt-2 px-4">
+                <div className=" px-4">
                   <FeedingEventsList 
                     scheduleId={schedule.id} 
                     schedule={schedule}
                     onEventsUpdated={refreshStatus} 
+                    totalReptile={stats.reptileCount || 0}
                   />
                 </div>
-              </CollapsibleContent>
             </Collapsible>
           );
         })}
