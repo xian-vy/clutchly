@@ -595,30 +595,39 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
       : 0
     
     // Convert morph distribution to percentages
-    const morph_distribution = Object.entries(data.hatched_morphs).map(([morph, count]: [string, number]) => {
-      // Find a hatchling with this morph to get its traits
-      let visualTraits: string[] | null = null;
-      let hetTraits: HetTrait[] | null = null;
-      
-      // Look through all projects for this pairing to find a hatchling with this morph
-      for (const project of detailedProjects) {
-        if (project.maleMorph === data.male_morph && project.femaleMorph === data.female_morph) {
-          for (const clutch of project.clutches) {
-            for (const hatchling of clutch.hatchlings) {
-              if (hatchling.morph_name === morph || 
-                  ((!hatchling.morph_name || hatchling.morph_name === 'Unknown') && 
-                   hatchling.visual_traits?.join(', ') === morph) || 
-                  morph === 'Normal') {
-                visualTraits = hatchling.visual_traits;
-                hetTraits = hatchling.het_traits;
-                break;
-              }
+    
+    // Create a lookup map to efficiently find traits for each morph
+    const morphTraitsMap = new Map<string, { visual_traits: string[] | null, het_traits: HetTrait[] | null }>();
+    
+    // Pre-process to collect traits data for each morph
+    for (const project of detailedProjects) {
+      if (project.maleMorph === data.male_morph && project.femaleMorph === data.female_morph) {
+        for (const clutch of project.clutches) {
+          for (const hatchling of clutch.hatchlings) {
+            // Determine the morph key for this hatchling
+            let morphKey = hatchling.morph_name || 'Unknown';
+            if ((!morphKey || morphKey === 'Unknown') && hatchling.visual_traits?.length) {
+              morphKey = hatchling.visual_traits.join(', ');
             }
-            if (visualTraits !== null) break;
+            if (!morphKey || morphKey.trim() === '') {
+              morphKey = 'Normal';
+            }
+            
+            // Store traits data if we don't already have it for this morph
+            if (!morphTraitsMap.has(morphKey)) {
+              morphTraitsMap.set(morphKey, {
+                visual_traits: hatchling.visual_traits,
+                het_traits: hatchling.het_traits
+              });
+            }
           }
         }
-        if (visualTraits !== null) break;
       }
+    }
+    
+    const morph_distribution = Object.entries(data.hatched_morphs).map(([morph, count]: [string, number]) => {
+      // Look up traits for this morph from our pre-computed map
+      const traitsData = morphTraitsMap.get(morph) || { visual_traits: null, het_traits: null };
       
       return {
         morph,
@@ -626,10 +635,10 @@ export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promi
         percentage: data.total_hatched > 0 
           ? Math.round((count / data.total_hatched) * 100) 
           : 0,
-        visual_traits: visualTraits,
-        het_traits: hetTraits
+        visual_traits: traitsData.visual_traits,
+        het_traits: traitsData.het_traits
       }
-    })
+    });
     
     return {
       pairing: key,
