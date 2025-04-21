@@ -405,14 +405,26 @@ function generateFeedingDates(
   }
   // Custom days recurrence
   else if (recurrence === 'custom' && customDays.length > 0) {
-    const current = new Date(start);
-    while (current <= end) {
-      const dayOfWeek = current.getDay();
-      if (customDays.includes(dayOfWeek)) {
+    // For each custom day, find all occurrences between start and end dates
+    for (const dayOfWeek of customDays) {
+      // Find the first occurrence of this day after the start date
+      const firstDate = new Date(start);
+      const daysToAdd = (dayOfWeek - firstDate.getDay() + 7) % 7;
+      firstDate.setDate(firstDate.getDate() + daysToAdd);
+      
+      // If the first occurrence is after the end date, skip this day
+      if (firstDate > end) continue;
+      
+      // Add all occurrences of this day between start and end dates
+      const current = new Date(firstDate);
+      while (current <= end) {
         dates.push(current.toISOString().split('T')[0]);
+        current.setDate(current.getDate() + 7);
       }
-      current.setDate(current.getDate() + 1);
     }
+    
+    // Sort dates to ensure they're in chronological order
+    dates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
   }
   
   return dates;
