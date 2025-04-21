@@ -3,7 +3,7 @@ import { getRooms } from '@/app/api/locations/rooms';
 import { getRacks } from '@/app/api/locations/racks';
 import { Location, Rack, Room } from '@/lib/types/location';
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export function useLocations() {
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);

@@ -1,21 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { AlertCircle, MapPin } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Room, Rack, NewLocation } from '@/lib/types/location';
-import { Resolver } from 'react-hook-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { NewLocation, Rack, Room } from '@/lib/types/location';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircle, Package } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Resolver, useForm } from 'react-hook-form';
+import * as z from 'zod';
 import { LocationsVisualizer } from './LocationsVisualizer';
 
 // Define form schema for bulk location creator
@@ -162,8 +161,8 @@ export function BulkLocationForm({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl">
         <DialogTitle className="flex items-center gap-2">
-          <MapPin className="h-5 w-5" />
-          Generate Multiple Locations
+          <Package className="h-5 w-5" />
+          Generate Multiple Enclosures
         </DialogTitle>
         
         <Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
@@ -338,7 +337,7 @@ export function BulkLocationForm({
                       Preview
                     </Button>
                     <Button type="submit" disabled={isLoading}>
-                      {isLoading ? "Generating..." : "Generate Locations"}
+                      {isLoading ? "Generating..." : "Generate Enclosure"}
                     </Button>
                   </div>
                 </div>
@@ -368,7 +367,7 @@ export function BulkLocationForm({
                 onClick={form.handleSubmit(handleSubmit)}
                 disabled={isLoading}
               >
-                {isLoading ? "Generating..." : "Generate Locations"}
+                {isLoading ? "Generating..." : "Generate Enclosures"}
               </Button>
             </div>
           </TabsContent>

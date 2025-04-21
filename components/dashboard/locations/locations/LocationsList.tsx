@@ -1,10 +1,15 @@
 'use client';
 
-import { Location, Room, Rack } from '@/lib/types/location';
-import { MapPin, Plus, Edit, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -13,13 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
+import { TRUE_FALSE_COLORS } from '@/lib/constants/colors';
+import { Location, Rack, Room } from '@/lib/types/location';
+import { Edit, Filter, Loader2, Package, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 interface LocationsListProps {
@@ -69,6 +70,14 @@ export function LocationsList({
     return searchMatch && availabilityMatch;
   });
 
+  if (isLoading) {
+    return  (
+      <div className="flex justify-center items-center h-full"> 
+         <Loader2 className="h-4 w-4 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end items-center">
@@ -79,7 +88,7 @@ export function LocationsList({
             variant="outline"
             disabled={racks.length === 0}
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 " />
             Bulk Generate
           </Button>
           <Button 
@@ -87,8 +96,8 @@ export function LocationsList({
             size="sm"
             disabled={racks.length === 0}
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Location
+            <Plus className="h-4 w-4" />
+            Add Enclosure
           </Button>
         </div>
       </div>
@@ -102,12 +111,12 @@ export function LocationsList({
           <div className="flex justify-between items-center gap-4 mb-4">
             <div className="relative flex-1">
               <Input
-                placeholder="Search locations..."
+                placeholder="Search enclosures..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -167,7 +176,7 @@ export function LocationsList({
                         <TableCell>
                           <Badge 
                             variant={location.is_available ? "outline" : "destructive"} 
-                            className={location.is_available ? "bg-green-100 text-green-800 hover:bg-green-100" : undefined}
+                            className={`${TRUE_FALSE_COLORS[location.is_available ? "true" : "false" as keyof typeof TRUE_FALSE_COLORS]} capitalize`}
                           >
                             {location.is_available ? 'Available' : 'Occupied'}
                           </Badge>

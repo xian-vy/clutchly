@@ -4,7 +4,6 @@ import { createFeedingEvent, getFeedingEvents, updateFeedingEvent } from '@/app/
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from '@/components/ui/checkbox';

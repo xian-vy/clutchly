@@ -1,19 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Location, Room, Rack } from '@/lib/types/location';
-import { Resolver } from 'react-hook-form';
+import { Location, Rack, Room } from '@/lib/types/location';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Package } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Resolver, useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 // Define form schema
 const locationFormSchema = z.object({
@@ -140,8 +139,8 @@ export function LocationForm({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogTitle className="flex items-center gap-2">
-          <MapPin className="h-5 w-5" />
-          {selectedLocation ? 'Edit Location' : 'Add New Location'}
+          <Package className="h-5 w-5" />
+          {selectedLocation ? 'Edit Enclosure' : 'Add New Enclosure'}
         </DialogTitle>
         
         <Form {...form}>

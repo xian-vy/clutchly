@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useResource } from '@/lib/hooks/useResource';
-import { Room, Rack, Location, NewLocation } from '@/lib/types/location';
+import { Room, Rack, Location, NewLocation, NewRoom, NewRack } from '@/lib/types/location';
 import { getRooms } from '@/app/api/locations/rooms';
 import { getRacks } from '@/app/api/locations/racks';
 import { getLocations, createLocation, updateLocation, deleteLocation, bulkCreateLocations } from '@/app/api/locations/locations';
@@ -20,7 +20,7 @@ export function LocationsManagement() {
   const {
     resources: rooms,
     isLoading: roomsLoading,
-  } = useResource<Room, any>({
+  } = useResource<Room, NewRoom>({
     resourceName: 'Room',
     queryKey: ['rooms'],
     getResources: getRooms,
@@ -33,7 +33,7 @@ export function LocationsManagement() {
   const {
     resources: racks,
     isLoading: racksLoading,
-  } = useResource<Rack, any>({
+  } = useResource<Rack, NewRack>({
     resourceName: 'Rack',
     queryKey: ['racks'],
     getResources: getRacks,
