@@ -131,7 +131,7 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
           setReptilesByLocation([reptile]);
         } catch (error) {
           console.error('Error fetching reptile:', error);
-          toast.error(`Failed to fetch reptile: ${(error as any)?.message || 'Unknown error'}`);
+          toast.error(`Failed to fetch reptile: $${error instanceof Error ?  error.message : 'Unknown error'}`);
           setReptilesByLocation([]);
         }
       } else {
@@ -144,9 +144,9 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
           );
           console.log(`Found ${reptiles?.length || 0} reptiles for ${target.target_type}:`, reptiles);
           setReptilesByLocation(reptiles || []);
-        } catch (error) {
+        } catch (error : unknown) {
           console.error(`Error fetching reptiles by ${target.target_type}:`, error);
-          toast.error(`Failed to fetch reptiles by ${target.target_type}: ${(error as any)?.message || 'Unknown error'}`);
+          toast.error(`Failed to fetch reptiles by ${target.target_type}: ${error instanceof Error ?  error.message : 'Unknown error'}`);
           setReptilesByLocation([]);
         }
       }
@@ -283,7 +283,7 @@ const { data: virtualEvents = [] } = useQuery({
         onEventsUpdated();
       }
     } catch (error) {
-      // ... error handling ...
+      console.error('Error creating real event from virtual:', error);
     }
   };
   
@@ -418,7 +418,7 @@ const { data: virtualEvents = [] } = useQuery({
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>No feeding targets defined</AlertTitle>
         <AlertDescription>
-          This schedule doesn't have any targets defined. Add rooms, racks, levels, or specific locations to this schedule.
+          This schedule doesnt have any targets defined. Add rooms, racks, levels, or specific locations to this schedule.
         </AlertDescription>
       </Alert>
     );
