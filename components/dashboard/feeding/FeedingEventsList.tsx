@@ -30,7 +30,7 @@ import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithD
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, isToday, startOfDay } from 'date-fns';
-import { AlertCircle, Loader2, PlusCircle, RefreshCw, Save, ChevronDown, ChevronRight } from 'lucide-react';
+import { AlertCircle, Loader2, PlusCircle, RefreshCw, Save, ChevronDown, ChevronRight, Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -57,7 +57,7 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
   const [reptilesByLocation, setReptilesByLocation] = useState<Reptile[]>([]);
   const [isLoadingReptiles, setIsLoadingReptiles] = useState<boolean>(false);
   const [activeTarget, setActiveTarget] = useState<FeedingTargetWithDetails | null>(null);
-  const [sortBy, setSortBy] = useState<'species' | 'name' | 'morph'>('name');
+  const [sortBy, setSortBy] = useState<'species' | 'name' | 'morph' | 'all'>('all');
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
   const [feedingAll, setFeedingAll] = useState<boolean>(false);
   const queryClient = useQueryClient();
@@ -643,12 +643,13 @@ const { data: virtualEvents = [] } = useQuery({
               <div className="flex items-center gap-2">
                 <Select 
                   value={sortBy}
-                  onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph')}
+                  onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph' | 'all')}
                 >
-                  <SelectTrigger className="w-[140px] h-8 text-xs">
+                  <SelectTrigger className="w-[120px] !h-8 text-xs">
                     <SelectValue placeholder="Sort By" />
                   </SelectTrigger>
                   <SelectContent>
+                   <SelectItem value="all">Sort By</SelectItem>
                     <SelectItem value="name">Reptile Name</SelectItem>
                     <SelectItem value="species">Species</SelectItem>
                     <SelectItem value="morph">Morph</SelectItem>
@@ -669,7 +670,7 @@ const { data: virtualEvents = [] } = useQuery({
                       </>
                     ) : (
                       <>
-                        <PlusCircle className="h-3 w-3 mr-1" />
+                        <Check className="h-3 w-3 mr-1" />
                         Feed All
                       </>
                     )}
