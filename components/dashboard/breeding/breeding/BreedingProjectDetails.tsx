@@ -66,7 +66,7 @@ export function BreedingProjectDetails({
   // Create a map of reptile IDs to names for quick lookup
   const reptileMap = new Map<string, ReptileGeneInfo>();
   reptiles.forEach(reptile => {
-    const morphName = reptile.morph_id ? morphs.find(m => m.id.toString() === reptile.morph_id)?.name || 'Unknown' : 'None';
+    const morphName = reptile.morph_id ? morphs.find(m => m.id.toString() === reptile.morph_id.toString())?.name || 'Unknown' : 'None';
     reptileMap.set(reptile.id, { 
       name: reptile.name,
       morphName: morphName,
