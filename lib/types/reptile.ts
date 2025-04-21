@@ -39,3 +39,6 @@ export interface Reptile {
 }
 
 export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'user_id' | 'last_modified'>
+
+//for breeding
+export type ReptileGeneInfo = { name: string; morphName: string, hets : HetTrait[] | null, visuals : string[] | null }

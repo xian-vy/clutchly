@@ -1,30 +1,28 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BreedingProject, Clutch, NewClutch, IncubationStatus } from '@/lib/types/breeding';
-import { format } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getClutches } from '@/app/api/breeding/clutches';
-import { createClutch, updateClutch } from '@/app/api/breeding/clutches';
-import { toast } from 'sonner';
+import { createClutch, getClutches, updateClutch } from '@/app/api/breeding/clutches';
 import { createReptile, deleteReptile, getReptileByClutchId, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles';
-import { HetTrait, NewReptile, Reptile } from '@/lib/types/reptile';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useResource } from '@/lib/hooks/useResource';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { BreedingProject, Clutch, IncubationStatus, NewClutch } from '@/lib/types/breeding';
+import { NewReptile, Reptile, ReptileGeneInfo } from '@/lib/types/reptile';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { format } from 'date-fns';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import BreedingProjecParentsInfo from './BreedingProjecParentsInfo';
+import { ClutchesList } from './clutch/ClutchesList';
 import { ClutchForm } from './clutch/ClutchForm';
 import { HatchlingForm } from './hatchling/HatchlingForm';
-import { ClutchesList } from './clutch/ClutchesList';
-import { Mars, Plus, Venus, X } from 'lucide-react';
-import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { useResource } from '@/lib/hooks/useResource';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
 }
-
 
 
 export function BreedingProjectDetails({
@@ -66,7 +64,7 @@ export function BreedingProjectDetails({
   });
 
   // Create a map of reptile IDs to names for quick lookup
-  const reptileMap = new Map<string, { name: string; morphName: string, hets : HetTrait[] | null, visuals : string[] | null }>();
+  const reptileMap = new Map<string, ReptileGeneInfo>();
   reptiles.forEach(reptile => {
     const morphName = reptile.morph_id ? morphs.find(m => m.id.toString() === reptile.morph_id)?.name || 'Unknown' : 'None';
     reptileMap.set(reptile.id, { 
@@ -171,109 +169,59 @@ export function BreedingProjectDetails({
   }, {} as Record<string, Reptile[]>);
   return (
     <div className="space-y-6">
-      <Card className='shadow-none border'>
-        <CardContent className="space-y-4 ">
   
+  <Tabs defaultValue="project-details">
+    <TabsList>
+      <TabsTrigger value="project-details">Parents Info</TabsTrigger>
+      <TabsTrigger value="project-info">Clutch and Hatchlings</TabsTrigger>
+      </TabsList>
+      <TabsContent value="project-details">
           {/* Parents Info */}
-          <div className="flex items-start justify-center gap-10 2xl:gap-16">
-              <div className='flex flex-col items-center gap-1'>
-                    <p className='text-sm text-center  flex gap-1 font-semibold'>
-                        {reptileMap.get(project.male_id)?.name || 'Unknown'}
-                        <Mars className="h-4 w-4 text-blue-400"/>
-                    </p>
-                    <p className='text-xs text-center '> {reptileMap.get(project.male_id)?.morphName}</p>
-                    <div className='space-y-1'>
-                        <div className="flex items-center justify-center gap-1.5">
-                            {reptileMap.get(project.male_id)?.visuals?.length === 0  &&
-                              <span className='text-xs text-red-500 dark:text-red-300'>No Visual Traits</span>
-                            }
-                            {reptileMap.get(project.male_id)?.visuals?.map((visualtrait, index) =>
-                              <Badge key={index}  variant="secondary" className='text-[0.7rem]'>{visualtrait}</Badge>
-                            )}
-                        </div>
-                        <div className="flex  items-center justify-center gap-1.5">
-                            {reptileMap.get(project.male_id)?.hets?.length === 0  &&
-                              <span className='text-xs text-red-500 dark:text-red-300'>No Het Traits</span>
-                            }
-                            {reptileMap.get(project.male_id)?.hets?.map((het, index) =>
-                              <Badge key={index}  variant="secondary"  className='text-[0.7rem]'>{het.percentage} {" % ph "}{het.trait}</Badge>
-                            )}
-                        </div>
-                    </div>
-              </div>
-              <div className="my-auto">
-                 <X strokeWidth={1.5} className='text-muted-foreground'/>
-              </div>                        
-              <div  className='flex flex-col items-center  gap-1'>
-                    <p className='text-sm flex gap-1 font-semibold'>
-                        {reptileMap.get(project.female_id)?.name || 'Unknown'}
-                        <Venus className="h-4 w-4 text-red-500"/>
-                    </p>
-                    <p className='text-xs text-center'> {reptileMap.get(project.female_id)?.morphName} </p>
-                    <div className='space-y-1'>
-                      <div className="flex items-center justify-center gap-1.5">
-                          {reptileMap.get(project.female_id)?.visuals?.length === 0  &&
-                            <span className='text-xs text-red-500 dark:text-red-300'>No Visual Traits</span>
-                          }
-                          {reptileMap.get(project.female_id)?.visuals?.map((visualtrait, index) =>
-                            <Badge key={index}  variant="secondary" className='text-[0.7rem]'>{visualtrait}</Badge>
-                          )}
-                      </div>
-                      <div className="flex  items-center justify-center gap-1.5">
-                         {reptileMap.get(project.female_id)?.hets?.length === 0  &&
-                            <span className='text-xs text-red-500 dark:text-red-300'>No Het Traits</span>
-                          }
-                          {reptileMap.get(project.female_id)?.hets?.map((het, index) =>
-                            <Badge key={index}  variant="secondary"  className='text-[0.7rem]'>{het.percentage} {" % ph "}{het.trait}</Badge>
-                          )}
-                      </div>
-                  </div>
-              </div>
-          </div>
+          <BreedingProjecParentsInfo reptileMap={reptileMap} project={project} />
 
           {project.notes && (
             <div>
               <p className="text-sm font-medium text-muted-foreground">Notes</p>
-              <p>{project.notes}</p>
+              <p  className="text-sm">{project.notes}</p>
             </div>
           )}
-        </CardContent>
-      </Card>
+      </TabsContent>
+      <TabsContent value="project-info">
+          <div className="space-y-4">
+            <div className="flex justify-end items-center">
+              <Button size="sm"  onClick={() => setIsAddClutchDialogOpen(true)}>
+              <Plus />  Add Clutch
+              </Button>
+            </div>
 
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-base font-semibold">Clutches & Hatchlings</h2>
-          <Button size="sm"  onClick={() => setIsAddClutchDialogOpen(true)}>
-           <Plus />  Add Clutch
-          </Button>
-        </div>
-
-        {clutches.length > 0 ? (
-          <Tabs defaultValue={clutches[0]?.id} className="w-full">
-            <TabsList className="w-full justify-start">
-              {clutches.map((clutch) => (
-                <TabsTrigger key={clutch.id} value={clutch.id} className="min-w-[120px]">
-                  {format(new Date(clutch.lay_date), 'MMM d, yyyy')}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {clutches.map((clutch) => (
-              <TabsContent key={clutch.id} value={clutch.id}>
-                <ClutchesList 
-                  clutch={clutch}
-                  hatchlings={{ [clutch.id]: hatchlingsByClutch[clutch.id] || [] }}
-                  onAddHatchling={handleAddHatchlingClick}
-                  onUpdateIncubationStatus={handleUpdateIncubationStatus}
-                />
-              </TabsContent>
-            ))}
-          </Tabs>
-        ) : (
-          <Card className="p-8 text-center text-muted-foreground">
-            <p>No clutches added yet. Click Add Clutch to get started.</p>
-          </Card>
-        )}
-      </div>
+            {clutches.length > 0 ? (
+              <Tabs defaultValue={clutches[0]?.id} className="w-full">
+                <TabsList className="w-full justify-start">
+                  {clutches.map((clutch) => (
+                    <TabsTrigger key={clutch.id} value={clutch.id} className="min-w-[120px]">
+                      {format(new Date(clutch.lay_date), 'MMM d, yyyy')}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                {clutches.map((clutch) => (
+                  <TabsContent key={clutch.id} value={clutch.id}>
+                    <ClutchesList 
+                      clutch={clutch}
+                      hatchlings={{ [clutch.id]: hatchlingsByClutch[clutch.id] || [] }}
+                      onAddHatchling={handleAddHatchlingClick}
+                      onUpdateIncubationStatus={handleUpdateIncubationStatus}
+                    />
+                  </TabsContent>
+                ))}
+              </Tabs>
+            ) : (
+              <Card className="p-8 text-center text-muted-foreground">
+                <p>No clutches added yet. Click Add Clutch to get started.</p>
+              </Card>
+            )}
+          </div>
+      </TabsContent>
+      </Tabs>
 
       <Dialog open={isAddClutchDialogOpen} onOpenChange={setIsAddClutchDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">

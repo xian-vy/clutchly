@@ -42,7 +42,7 @@ export function ClutchesList({
             </CardHeader>
             
             <CardContent>
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 border rounded-md p-4">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Egg Count</p>
                   <p className="text-sm font-semibold">{clutch.egg_count}</p>
@@ -88,7 +88,7 @@ export function ClutchesList({
             </CardContent>
           </Card>
 
-          <div className="px-6 pb-6 pt-2 border-t">
+          <div className="px-6 pb-6 pt-2 ">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-medium">Hatchlings</h3>
               <Button 
@@ -98,7 +98,7 @@ export function ClutchesList({
                   onAddHatchling(clutch.id);
                 }}
               >
-                <Plus className="w-4 h-4 mr-1" /> Add Hatchling
+                <Plus className="w-4 h-4" /> Add Hatchling
               </Button>
             </div>
             
