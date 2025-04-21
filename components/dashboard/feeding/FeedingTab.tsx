@@ -453,8 +453,10 @@ export function FeedingTab() {
                     </div>
                   </div>
                   <div>
-                     {schedule.description && (
+                     {schedule.description ? (
                         <CardDescription className="mt-2">{schedule.description}</CardDescription>
+                      ):(
+                        <CardDescription className="mt-2">No Description for this Schedule</CardDescription>
                       )}
                   </div>
                 </CardHeader>
