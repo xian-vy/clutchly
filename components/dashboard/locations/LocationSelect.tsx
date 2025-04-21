@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocations } from '@/lib/hooks/useLocations';
+import { FormattedLocation } from '@/lib/types/location';
 import { cn } from '@/lib/utils';
 import { Check, ChevronsUpDown, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -16,7 +17,7 @@ interface LocationSelectProps {
 
 export function LocationSelect({ value, onChange, disabled, currentLocationId }: LocationSelectProps) {
   const { availableLocations, isLoading, refetchLocations } = useLocations();
-  const [locations, setLocations] = useState<any[]>([]);
+  const [locations, setLocations] = useState<FormattedLocation[]>([]);
   const [open, setOpen] = useState(false);
   
   // Include current location in options even if it's not "available"
@@ -68,8 +69,8 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId }:
   }, []);
   
   // Group locations by room and rack for better organization
-  const groupedLocations = locations.reduce((acc: Record<string, any[]>, location) => {
-    const roomKey = location.roomName || 'Unknown Room';
+  const groupedLocations = locations.reduce((acc: Record<string, FormattedLocation[]>, location) => {
+    const roomKey = location.roomName  || 'Unknown Room';
     if (!acc[roomKey]) {
       acc[roomKey] = [];
     }
@@ -98,7 +99,7 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId }:
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 flex-shrink-0 opacity-70" />
                 <span className="truncate">{selectedLocation.displayName || selectedLocation.label}</span>
-                {selectedLocation.isCurrentLocation && (
+                {selectedLocation && (
                   <Badge variant="outline" className="ml-auto text-xs">Current</Badge>
                 )}
               </div>
@@ -162,7 +163,7 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId }:
                           ) : (
                             <span>{location.displayName || location.label}</span>
                           )}
-                          {location.isCurrentLocation && (
+                          {selectedLocation && (
                             <Badge variant="outline" className="ml-auto text-xs">Current</Badge>
                           )}
                         </div>

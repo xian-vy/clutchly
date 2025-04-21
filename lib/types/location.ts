@@ -28,3 +28,10 @@ export interface Location {
 export type NewRoom = Omit<Room, 'id'>;
 export type NewRack = Omit<Rack, 'id'>;
 export type NewLocation = Omit<Location, 'id'>; 
+
+// useLocations return type
+export interface FormattedLocation extends Location {
+  roomName: string;
+  rackName: string;
+  displayName: string; 
+}
