@@ -59,6 +59,7 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
   const [activeTarget, setActiveTarget] = useState<FeedingTargetWithDetails | null>(null);
   const [sortBy, setSortBy] = useState<'species' | 'name' | 'morph'>('name');
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
+  const [feedingAll, setFeedingAll] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const {morphs} = useMorphsStore()
   const {species} = useSpeciesStore()
@@ -438,6 +439,98 @@ const { data: virtualEvents = [] } = useQuery({
     });
   };
 
+  // Group events by date
+  const eventsByDate: Record<string, (FeedingEventWithDetails | VirtualFeedingEvent)[]> = {};
+
+  // First add real events
+  events.forEach(event => {
+    const date = event.scheduled_date;
+    if (!eventsByDate[date]) {
+      eventsByDate[date] = [];
+    }
+    eventsByDate[date].push(event);
+  });
+
+  // Then add virtual events, but only if there's no real event for that reptile on that date
+  virtualEvents.forEach(virtualEvent => {
+    const date = virtualEvent.scheduled_date;
+    if (!eventsByDate[date]) {
+      eventsByDate[date] = [];
+    }
+    
+    // Check if there's already a real event for this reptile on this date
+    const hasRealEvent = events.some(event => 
+      event.reptile_id === virtualEvent.reptile_id && 
+      event.scheduled_date === virtualEvent.scheduled_date
+    );
+    
+    // Only add the virtual event if there's no real event for this reptile
+    if (!hasRealEvent) {
+      eventsByDate[date].push(virtualEvent);
+    }
+  });
+  
+  // Sort dates
+  const sortedDates = Object.keys(eventsByDate).sort((a, b) => 
+    new Date(b).getTime() - new Date(a).getTime()  // Newest dates first
+  );
+  
+  // Initialize expandedDates with the latest date expanded
+  useEffect(() => {
+    if (sortedDates.length > 0 && Object.keys(expandedDates).length === 0) {
+      setExpandedDates({ [sortedDates[0]]: true });
+    }
+  }, [sortedDates, expandedDates]);
+
+  // Function to feed all reptiles for a specific date
+  const handleFeedAll = async (date: string) => {
+    setFeedingAll(true);
+    try {
+      const dateEvents = eventsByDate[date];
+      const unfedEvents = dateEvents.filter(event => {
+        if ('virtual' in event) {
+          return true; // All virtual events need to be fed
+        } else {
+          return !event.fed; // Only unfed real events
+        }
+      });
+
+      // Process each unfed event
+      for (const event of unfedEvents) {
+        if ('virtual' in event) {
+          // Handle virtual event
+          const virtualEvent = event as VirtualFeedingEvent;
+          const notes = eventNotes[`virtual-${virtualEvent.reptile_id}`] || '';
+          await createRealEventFromVirtual(virtualEvent, true, notes);
+        } else {
+          // Handle real event
+          const realEvent = event as FeedingEventWithDetails;
+          const notes = eventNotes[realEvent.id] || '';
+          await updateFeedingEvent(realEvent.id, {
+            fed: true,
+            notes: notes || null
+          });
+        }
+      }
+
+      // Update the cache
+      queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
+      queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id] });
+      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
+
+      toast.success(`All reptiles for ${format(new Date(date), 'MMMM d, yyyy')} have been fed`);
+      
+      if (onEventsUpdated) {
+        onEventsUpdated();
+      }
+    } catch (error) {
+      console.error('Error feeding all reptiles:', error);
+      toast.error('Failed to feed all reptiles');
+    } finally {
+      setFeedingAll(false);
+    }
+  };
+  
   if (isLoading || isLoadingReptiles) {
     return (
       <Card className="min-h-[200px] border-0 shadow-none">
@@ -519,42 +612,6 @@ const { data: virtualEvents = [] } = useQuery({
     );
   }
   
-  // Group events by date
-  const eventsByDate: Record<string, (FeedingEventWithDetails | VirtualFeedingEvent)[]> = {};
-
-  // First add real events
-  events.forEach(event => {
-    const date = event.scheduled_date;
-    if (!eventsByDate[date]) {
-      eventsByDate[date] = [];
-    }
-    eventsByDate[date].push(event);
-  });
-
-  // Then add virtual events, but only if there's no real event for that reptile on that date
-  virtualEvents.forEach(virtualEvent => {
-    const date = virtualEvent.scheduled_date;
-    if (!eventsByDate[date]) {
-      eventsByDate[date] = [];
-    }
-    
-    // Check if there's already a real event for this reptile on this date
-    const hasRealEvent = events.some(event => 
-      event.reptile_id === virtualEvent.reptile_id && 
-      event.scheduled_date === virtualEvent.scheduled_date
-    );
-    
-    // Only add the virtual event if there's no real event for this reptile
-    if (!hasRealEvent) {
-      eventsByDate[date].push(virtualEvent);
-    }
-  });
-  
-  // Sort dates
-  const sortedDates = Object.keys(eventsByDate).sort((a, b) => 
-    new Date(b).getTime() - new Date(a).getTime()  // Newest dates first
-  );
-  
   return (
     <div className="space-y-6">
       {sortedDates.map(date => (
@@ -583,7 +640,7 @@ const { data: virtualEvents = [] } = useQuery({
                   )}
                 </span>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
                 <Select 
                   value={sortBy}
                   onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph')}
@@ -597,6 +654,27 @@ const { data: virtualEvents = [] } = useQuery({
                     <SelectItem value="morph">Morph</SelectItem>
                   </SelectContent>
                 </Select>
+                {expandedDates[date] && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="h-8 text-xs"
+                    onClick={() => handleFeedAll(date)}
+                    disabled={feedingAll}
+                  >
+                    {feedingAll ? (
+                      <>
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        Feeding All...
+                      </>
+                    ) : (
+                      <>
+                        <PlusCircle className="h-3 w-3 mr-1" />
+                        Feed All
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
             </CardTitle>
           </CardHeader>
