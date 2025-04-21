@@ -231,7 +231,7 @@ export function FeedingLogsTab() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Today's Feedings
+              Today&apos; Feedings
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -335,7 +335,7 @@ export function FeedingLogsTab() {
 
           {/* Event Logs Table */}
           <Card>
-            <CardContent className="p-0">
+            <CardContent className="py-0 px-4">
               <Table>
                 <TableHeader>
                   <TableRow>
