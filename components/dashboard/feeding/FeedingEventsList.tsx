@@ -24,12 +24,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
@@ -436,47 +430,6 @@ const { data: virtualEvents = [] } = useQuery({
   if (allEvents.length === 0 && reptilesByLocation.length > 0) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
-          <div>
-            <h3 className="text-sm font-medium mb-2">Sort By</h3>
-            <Select 
-              value={sortBy}
-              onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph')}
-            >
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name">Reptile Name</SelectItem>
-                <SelectItem value="species">Species</SelectItem>
-                <SelectItem value="morph">Morph</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="flex items-end">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => {
-                      refetch();
-                      if (activeTarget) loadReptilesByTarget(activeTarget);
-                    }}
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Refresh data</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
-        
         <Card className="border-0 shadow-none bg-transparent">
           <CardContent className="flex flex-col items-center justify-center text-center py-12">
             <PlusCircle className="h-8 w-8 text-muted-foreground mb-2 opacity-70" />
@@ -519,49 +472,6 @@ const { data: virtualEvents = [] } = useQuery({
   
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
-        <div>
-          <h3 className="text-sm font-medium mb-2">Sort By</h3>
-          <Select 
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph')}
-          >
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Reptile Name</SelectItem>
-              <SelectItem value="species">Species</SelectItem>
-              <SelectItem value="morph">Morph</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-end">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  onClick={() => {
-                    refetch();
-                    if (activeTarget) loadReptilesByTarget(activeTarget);
-                  }}
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Refresh data</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
-
-   
-
       {sortedDates.map(date => (
         <Card key={date} className="overflow-hidden border shadow-none mb-5 pt-0">
           <CardHeader className="py-3 px-4 md:px-6 bg-muted/50">
@@ -574,11 +484,21 @@ const { data: virtualEvents = [] } = useQuery({
                   </Badge>
                 )}
               </span>
-              {eventsByDate[date].some(e => 'virtual' in e) && (
-                <Badge variant="outline" className="text-xs">
-                  Virtual Events
-                </Badge>
-              )}
+              <div className="flex items-center">
+                <Select 
+                  value={sortBy}
+                  onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph')}
+                >
+                  <SelectTrigger className="w-[140px] h-8 text-xs">
+                    <SelectValue placeholder="Sort By" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Reptile Name</SelectItem>
+                    <SelectItem value="species">Species</SelectItem>
+                    <SelectItem value="morph">Morph</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="py-0 px-4">
