@@ -83,9 +83,9 @@ export function SubscriptionBadge() {
         {isPremium ? (
           <Badge 
             variant="default" 
-            className="flex items-center gap-1.5 font-medium bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-white cursor-pointer transition-all duration-300 py-1.5 pl-1.5 pr-2.5 shadow-sm hover:shadow group"
+            className="flex items-center gap-1.5 font-medium from-primary dark:bg-primary/15 hover:from-amber-600 hover:to-yellow-500 text-white dark:text-primary cursor-pointer transition-all duration-300 py-1.5 px-2.5 shadow-sm hover:shadow group"
           >
-            <span className="bg-white/20 p-1 rounded-full backdrop-blur-sm">
+            <span className="bg-white/20 dark:bg-white/15 p-1 rounded-full backdrop-blur-sm">
               <Crown className="h-3 w-3" />
             </span>
             <span className="group-hover:scale-105 transition-transform">Premium</span>
@@ -206,7 +206,7 @@ export function SubscriptionBadge() {
             </div>
           )}
           
-          <DropdownMenuItem className="cursor-pointer flex items-center px-3 py-2 focus:bg-muted/50">
+          <DropdownMenuItem className="cursor-pointer flex items-center px-3 py-2">
             <ExternalLink className="mr-2 h-4 w-4" />
             <span className="flex-1">View All Plans</span>
           </DropdownMenuItem>
