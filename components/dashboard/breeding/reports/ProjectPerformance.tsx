@@ -1,19 +1,20 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { STATUS_COLORS } from '@/lib/constants/colors';
-import { format } from 'date-fns';
+import { ClutchWithHatchlings, DetailedBreedingProject } from '@/app/api/breeding/reports';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { Info, Mars, Venus, ChevronRight } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { STATUS_COLORS } from '@/lib/constants/colors';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { ChevronRight, Info, Mars, Venus } from 'lucide-react';
 
 interface ProjectPerformanceProps {
-  data?: any[];
+  data?: DetailedBreedingProject[];
 }
 
 export function ProjectPerformance({ data }: ProjectPerformanceProps) {
@@ -29,9 +30,9 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
   
   // Calculate project performance metrics
   const projectStats = data.map(project => {
-    const totalEggs = project.clutches.reduce((sum: number, clutch: any) => sum + (clutch.egg_count || 0), 0);
-    const totalFertile = project.clutches.reduce((sum: number, clutch: any) => sum + (clutch.fertile_count || 0), 0);
-    const totalHatchlings = project.clutches.reduce((sum: number, clutch: any) => 
+    const totalEggs = project.clutches.reduce((sum: number, clutch: ClutchWithHatchlings) => sum + (clutch.egg_count || 0), 0);
+    const totalFertile = project.clutches.reduce((sum: number, clutch: ClutchWithHatchlings) => sum + (clutch.fertile_count || 0), 0);
+    const totalHatchlings = project.clutches.reduce((sum: number, clutch: ClutchWithHatchlings) => 
       sum + (clutch.hatchlings?.length || 0), 0);
     
     const fertilityRate = totalEggs > 0 ? Math.round((totalFertile / totalEggs) * 100) : 0;
@@ -57,21 +58,21 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
   );
 
   const getSuccessColor = (rate: number) => {
-    if (rate >= 70) return 'bg-emerald-100 data-[state=progress]:bg-emerald-500';
-    if (rate >= 40) return 'bg-amber-100 data-[state=progress]:bg-amber-500';
-    return 'bg-rose-100 data-[state=progress]:bg-rose-500';
+    if (rate >= 70) return 'bg-emerald-100 dark:bg-gray-900 data-[state=progress]:bg-emerald-500';
+    if (rate >= 40) return 'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500';
+    return 'bg-gray-100  dark:bg-gray-900  data-[state=progress]:bg-gray-500';
   };
   
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden border-none shadow-md">
-        <CardHeader className="bg-muted/50 pb-4">
+        <CardHeader className="pb-4">
           <CardTitle className="text-xl">Project Performance Overview</CardTitle>
           <CardDescription>
             Detailed analysis of breeding project outcomes and success rates
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="py-0 px-4">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/30">
@@ -110,8 +111,8 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                           value={project.metrics.fertilityRate} 
                           className={cn("h-2 w-20", 
                             project.metrics.fertilityRate >= 70 ? 'bg-emerald-100 data-[state=progress]:bg-emerald-500' : 
-                            project.metrics.fertilityRate >= 40 ? 'bg-amber-100 data-[state=progress]:bg-amber-500' : 
-                            'bg-rose-100 data-[state=progress]:bg-rose-500'
+                            project.metrics.fertilityRate >= 40 ? 'bg-gray-100 data-[state=progress]:bg-gray-500' : 
+                            'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500'
                           )}
                         />
                         <span className="text-sm font-medium">{project.metrics.fertilityRate}%</span>
@@ -123,8 +124,8 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                           value={project.metrics.hatchRate} 
                           className={cn("h-2 w-20", 
                             project.metrics.hatchRate >= 70 ? 'bg-emerald-100 data-[state=progress]:bg-emerald-500' : 
-                            project.metrics.hatchRate >= 40 ? 'bg-amber-100 data-[state=progress]:bg-amber-500' : 
-                            'bg-rose-100 data-[state=progress]:bg-rose-500'
+                            project.metrics.hatchRate >= 40 ? 'bg-gray-100 data-[state=progress]:bg-gray-500' : 
+                            'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500'
                           )}
                         />
                         <span className="text-sm font-medium">{project.metrics.hatchRate}%</span>
@@ -228,7 +229,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                                 {project.male?.name || 'Unknown Male'}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                {project.male?.morph?.name || 'Unknown morph'}
+                                {project.maleMorph || 'Unknown morph'}
                               </div>
                             </div>
                           </div>
@@ -239,7 +240,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                                 {project.female?.name || 'Unknown Female'}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                {project.female?.morph?.name || 'Unknown morph'}
+                                {project.femaleMorph || 'Unknown morph'}
                               </div>
                             </div>
                           </div>
@@ -300,7 +301,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                  {project.clutches.map((clutch: any, index: number) => {
+                                  {project.clutches.map((clutch: ClutchWithHatchlings, index: number) => {
                                     const hatchlings = clutch.hatchlings?.length || 0;
                                     const fertileRate = clutch.egg_count > 0 
                                       ? Math.round((clutch.fertile_count / clutch.egg_count) * 100) 
@@ -335,7 +336,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                                             className={cn(
                                               "capitalize",
                                               clutch.incubation_status === "completed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" :
-                                              clutch.incubation_status === "in_progress" ? "border-amber-200 bg-amber-50 text-amber-700" :
+                                              clutch.incubation_status === "in_progress" ? "border-gray-200 bg-gray-50 text-gray-700" :
                                               "border-muted bg-muted/50"
                                             )}
                                           >

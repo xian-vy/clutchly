@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { IncubationStatus } from '@/lib/types/breeding'
 import { Reptile } from '@/lib/types/reptile'
 
 type projectsBySpecies  = {
@@ -248,24 +249,26 @@ export async function getBreedingStats(filters?: BreedingReportFilters): Promise
 }
 
 // Define interface for clutch with hatchlings
-interface ClutchWithHatchlings {
+export interface ClutchWithHatchlings {
   id: string;
   breeding_project_id: string;
   lay_date: string;
   egg_count: number;
   fertile_count: number;
   hatchlings: Reptile[];
-  // Add other clutch properties as needed
+  incubation_status : IncubationStatus
 }
 
 // Define interface for detailed breeding project
-interface DetailedBreedingProject {
+export interface DetailedBreedingProject {
   id: string;
   name: string;
   species_id: string;
   male_id: string;
   female_id: string;
   start_date: string;
+  end_date: string;
+  expected_hatch_date: string;
   status: string;
   species: {
     id?: string;
@@ -276,6 +279,7 @@ interface DetailedBreedingProject {
   maleMorph : string | null;
   femaleMorph : string | null;
   clutches: ClutchWithHatchlings[];
+  notes : string | null;
 }
 
 // Get detailed breeding project data with clutches and hatchlings
