@@ -144,11 +144,11 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
       setStep(ImportStep.PREVIEW)
       toast.dismiss()
       toast.success(`Found ${data.validRows.length} valid entries out of ${data.totalRows} total`)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Preview error:', err)
-      setError(err.message || 'Failed to preview file')
+      setError(err instanceof Error ? err.message : 'Failed to preview file')
       toast.dismiss()
-      toast.error(err.message || 'Failed to preview file')
+      toast.error(err instanceof Error ? err.message : 'Failed to preview file')
     } finally {
       setIsLoading(false)
     }
@@ -243,12 +243,12 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         toast.dismiss(importToastId)
         toast.error('Import completed with errors')
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Import error:', err)
-      setError(err.message || 'Failed to import data')
+      setError(err instanceof Error ? err.message : 'Failed to import data')
       setStep(ImportStep.PREVIEW) // Go back to preview step on error
       toast.dismiss(importToastId)
-      toast.error(err.message || 'Failed to import data')
+      toast.error(err instanceof Error ? err.message : 'Failed to import data')
     } finally {
       setIsLoading(false)
     }
