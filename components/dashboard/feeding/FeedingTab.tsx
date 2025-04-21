@@ -342,7 +342,7 @@ export function FeedingTab() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
       </div>
     );
   }
