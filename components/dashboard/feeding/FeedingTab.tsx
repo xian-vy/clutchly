@@ -19,7 +19,7 @@ import { useResource } from '@/lib/hooks/useResource';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, isToday, startOfDay } from 'date-fns';
-import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Loader2, MapPin, RefreshCw, Turtle } from 'lucide-react';
+import { AlertCircle, Calendar, Check, ChevronDown, ChevronUp, Loader2, MapPin, Turtle } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEventsList } from './FeedingEventsList';
@@ -385,14 +385,14 @@ export function FeedingTab() {
         ) : (
           <div className="flex-1" />
         )}
-        <Button 
+        {/* <Button 
           variant="outline" 
           size="sm" 
           onClick={refreshStatus} 
           className="h-9 flex-shrink-0"
         >
           <RefreshCw className="h-4 w-4" />
-        </Button>
+        </Button> */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
