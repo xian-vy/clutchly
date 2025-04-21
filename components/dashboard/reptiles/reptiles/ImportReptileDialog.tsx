@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ImportPreviewResponse, ImportResponse } from '@/app/api/reptiles/import/process'
-import { CheckCircle, AlertCircle, FileSpreadsheet, Upload, Info, Download } from 'lucide-react'
+import { CheckCircle, AlertCircle, FileSpreadsheet, Upload, Info, Download, RefreshCcw } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useMorphsStore } from '@/lib/stores/morphsStore'
@@ -277,25 +277,31 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                 onChange={handleFileChange}
               />
               
-              <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-400" />
-              
-              <div className="mt-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Drag and drop a CSV or Excel file, or
-                </p>
-                <Button 
-                  variant="outline" 
-                  className="mt-2"
-                  onClick={onButtonClick}
-                >
-                  Browse Files
-                </Button>
-              </div>
-              
+              {!file && 
+                  <>
+                      <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-400" /> 
+                      <div className="mt-4">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Drag and drop a CSV or Excel file, or
+                            </p>
+                  
+                        <Button 
+                          variant="outline" 
+                          className="mt-2"
+                          onClick={onButtonClick}
+                        >
+                          Browse Files
+                        </Button>
+                  </div>
+                  </>
+               }
               {file && (
-                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
+                <div className="p-3 bg-muted/50 rounded-md">
                   <p className="font-medium text-sm">Selected file:</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{file.name}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {file.name}
+                    <RefreshCcw   onClick={onButtonClick} className="h-4 w-4 inline-block ml-2 cursor-pointer" />
+                  </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500">
                     {(file.size / 1024).toFixed(1)} KB • {file.type}
                   </p>
