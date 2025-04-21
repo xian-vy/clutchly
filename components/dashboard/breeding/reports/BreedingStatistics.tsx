@@ -2,24 +2,23 @@
 
 import { BreedingStats } from '@/app/api/breeding/reports';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Egg, EggFried, EggOff, Layers } from 'lucide-react';
 
 // Import recharts components
-import { 
-  Bar, 
-  BarChart, 
-  Pie, 
-  PieChart, 
-  ResponsiveContainer, 
-  Tooltip,
-  XAxis,
-  YAxis,
-  Cell,
-  Legend,
+import {
   Area,
   AreaChart,
-  CartesianGrid
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
 } from "recharts";
 
 // Chart colors

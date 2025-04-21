@@ -1,16 +1,15 @@
 'use client';
 
 import { BreedingReportFilters as FiltersType } from '@/app/api/breeding/reports';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Species } from '@/lib/types/species';
-import { Check, ChevronsUpDown, Filter, X } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 import { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 
 interface BreedingReportFiltersProps {
   onFilterChange: (filters: FiltersType) => void;

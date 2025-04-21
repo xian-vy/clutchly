@@ -8,16 +8,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
-import { BreedingStatus, IncubationStatus } from "@/lib/types/breeding";
+import { BreedingStatus } from "@/lib/types/breeding";
 import { useSpeciesStore } from "@/lib/stores/speciesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const breedingStatuses: BreedingStatus[] = ['active', 'completed', 'failed', 'planned'];
-const incubationStatuses: IncubationStatus[] = ['not_started', 'in_progress', 'completed', 'failed'];
 
 export interface BreedingFilters {
   species?: string[];

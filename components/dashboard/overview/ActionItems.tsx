@@ -1,6 +1,5 @@
 'use client';
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import { BreedingProject, Clutch } from "@/lib/types/breeding";
 import { GrowthEntry } from "@/lib/types/growth";
 import { HealthLogEntry } from "@/lib/types/health";
 import { Reptile } from "@/lib/types/reptile";
-import { addDays, differenceInDays, isPast, isWithinInterval, parseISO } from "date-fns";
+import { differenceInDays, isPast, parseISO } from "date-fns";
 import { AlertTriangle, Calendar, CheckCircle, Egg, Scale } from "lucide-react";
 import Link from "next/link";
 
