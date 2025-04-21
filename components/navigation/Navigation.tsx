@@ -166,14 +166,14 @@ export function Navigation() {
                 key={item.href}
                 onClick={handleNavigation(item.href)}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer',
-                  isCollapsed ? 'justify-center px-2 py-2' : 'px-3 py-2',
+                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer  py-2 3xl:py-2.5',
+                  isCollapsed ? 'justify-center px-2' : 'px-3',
                   pathname === item.href
                     ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
                     : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 )}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4.5 3xl:w-5 h-4.5 3xl:h-5" />
                 {!isCollapsed && item.name}
               </p>
             );
