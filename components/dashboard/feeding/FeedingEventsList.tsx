@@ -1,8 +1,8 @@
 'use client';
 
 import { createFeedingEvent, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
-import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
+import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -124,14 +124,25 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
       
       // If target type is 'reptile', handle it directly
       if (target.target_type === 'reptile') {
-        // For reptile target, we just need that single reptile
+        // For reptile targets, we need to fetch all reptile targets from the schedule
+        const reptileTargets = schedule.targets.filter(t => t.target_type === 'reptile');
+        console.log(`Found ${reptileTargets.length} reptile targets in schedule`);
+        
+        if (reptileTargets.length === 0) {
+          console.log("No reptile targets found in schedule");
+          setReptilesByLocation([]);
+          return;
+        }
+        
         try {
-          const reptile = await getReptileById(target.target_id);
-          console.log("Loaded single reptile:", reptile);
-          setReptilesByLocation([reptile]);
+          // Fetch all reptiles in parallel
+          const reptilePromises = reptileTargets.map(t => getReptileById(t.target_id));
+          const reptiles = await Promise.all(reptilePromises);
+          console.log(`Loaded ${reptiles.length} reptiles:`, reptiles);
+          setReptilesByLocation(reptiles);
         } catch (error) {
-          console.error('Error fetching reptile:', error);
-          toast.error(`Failed to fetch reptile: $${error instanceof Error ?  error.message : 'Unknown error'}`);
+          console.error('Error fetching reptiles:', error);
+          toast.error(`Failed to fetch reptiles: ${error instanceof Error ? error.message : 'Unknown error'}`);
           setReptilesByLocation([]);
         }
       } else {
@@ -158,7 +169,6 @@ export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: Fee
       setIsLoadingReptiles(false);
     }
   };
-  // ... existing code ...
 
 // Determine if feeding should happen today based on schedule
 const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): boolean => {
@@ -196,7 +206,6 @@ const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): boolean =
       return false;
   }
 };
-// ... existing code ...
 
 // Generate virtual events based on schedule
 const { data: virtualEvents = [] } = useQuery({
@@ -231,7 +240,6 @@ const { data: virtualEvents = [] } = useQuery({
           reptileId: reptile.id,
           speciesId: reptile.species_id,
           morphId: reptile.morph_id
-      
         });
         
         if (!hasExistingEvent) {
@@ -373,14 +381,6 @@ const { data: virtualEvents = [] } = useQuery({
     });
   };
 
-  // Handle view change (switch between location targets)
-  const handleTargetChange = (targetId: string) => {
-    const selectedTarget = schedule.targets.find(t => t.id === targetId);
-    if (selectedTarget) {
-      setActiveTarget(selectedTarget);
-    }
-  };
-
   if (isLoading || isLoadingReptiles) {
     return (
       <Card className="min-h-[200px] border-0 shadow-none">
@@ -391,25 +391,11 @@ const { data: virtualEvents = [] } = useQuery({
     );
   }
   
-  // Filter events for the selected location
-  console.log("All events before filtering:", events.length, events);
-  console.log("Reptiles by location:", reptilesByLocation.length, reptilesByLocation);
-  
-  const filteredEvents = activeTarget 
-    ? events.filter(event => {
-        const reptile = reptilesByLocation.find(r => r.id === event.reptile_id);
-        const isMatched = !!reptile;
-        if (!isMatched) {
-          console.log(`Event for reptile ${event.reptile_id} (${event.reptile_name}) filtered out - not in current location target`);
-        }
-        return isMatched;
-      })
-    : events;
-  
-  console.log("Filtered events:", filteredEvents.length, filteredEvents);
+  // Show all events regardless of target type
+  console.log("All events:", events.length, events);
   
   // Combine real and virtual events
-  const allEvents = [...filteredEvents, ...virtualEvents];
+  const allEvents = [...events, ...virtualEvents];
   console.log("All events after combining with virtual:", allEvents.length, allEvents);
   
   if (schedule.targets.length === 0) {
@@ -427,82 +413,12 @@ const { data: virtualEvents = [] } = useQuery({
   if (allEvents.length === 0 && reptilesByLocation.length === 0) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
-          <div className="flex-1">
-            <h3 className="text-sm font-medium mb-2">Select Target Location</h3>
-            <Select 
-              value={activeTarget?.id || ''}
-              onValueChange={handleTargetChange}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select target location" />
-              </SelectTrigger>
-              <SelectContent>
-                {schedule.targets.map(target => (
-                  <SelectItem key={target.id} value={target.id}>
-                    {target.target_type === 'room' && target.room_name && (
-                      <>Room: {target.room_name}</>
-                    )}
-                    {target.target_type === 'rack' && target.rack_name && (
-                      <>Rack: {target.rack_name}</>
-                    )}
-                    {target.target_type === 'level' && target.rack_name && (
-                      <>Level: {target.rack_name} - {target.level_number}</>
-                    )}
-                    {target.target_type === 'location' && target.location_label && (
-                      <>Location: {target.location_label}</>
-                    )}
-                    {target.target_type === 'reptile' && target.reptile_name && (
-                      <>Reptile: {target.reptile_name}</>
-                    )}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="flex items-end">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => {
-                      refetch();
-                      if (activeTarget) loadReptilesByTarget(activeTarget);
-                    }}
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Refresh data</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
-        
-        
         <Card className="border-0 shadow-none bg-transparent">
           <CardContent className="flex flex-col items-center justify-center text-center py-12">
             <PlusCircle className="h-8 w-8 text-muted-foreground mb-2 opacity-70" />
-            <div className="text-muted-foreground font-medium mb-2">No reptiles found in this location</div>
+            <div className="text-muted-foreground font-medium mb-2">No reptiles found</div>
             <div className="text-sm text-muted-foreground mb-4">
-              {activeTarget ? (
-                <>
-                  There are no reptiles assigned to {activeTarget.target_type === 'room' ? 'Room ' + activeTarget.room_name : 
-                    activeTarget.target_type === 'rack' ? 'Rack ' + activeTarget.rack_name : 
-                    activeTarget.target_type === 'level' ? 'Level ' + activeTarget.level_number + ' in ' + activeTarget.rack_name : 
-                    activeTarget.target_type === 'location' ? 'Location ' + activeTarget.location_label : 
-                    'this location'}.
-                </>
-              ) : (
-                <>
-                  Please select a target location or add reptiles to this location.
-                </>
-              )}
+              No reptiles are assigned to this feeding schedule.
             </div>
             <Button 
               variant="outline" 
@@ -522,39 +438,6 @@ const { data: virtualEvents = [] } = useQuery({
     return (
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
-          <div className="flex-1">
-            <h3 className="text-sm font-medium mb-2">Select Target Location</h3>
-            <Select 
-              value={activeTarget?.id || ''}
-              onValueChange={handleTargetChange}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select target location" />
-              </SelectTrigger>
-              <SelectContent>
-                {schedule.targets.map(target => (
-                  <SelectItem key={target.id} value={target.id}>
-                    {target.target_type === 'room' && target.room_name && (
-                      <>Room: {target.room_name}</>
-                    )}
-                    {target.target_type === 'rack' && target.rack_name && (
-                      <>Rack: {target.rack_name}</>
-                    )}
-                    {target.target_type === 'level' && target.rack_name && (
-                      <>Level: {target.rack_name} - {target.level_number}</>
-                    )}
-                    {target.target_type === 'location' && target.location_label && (
-                      <>Location: {target.location_label}</>
-                    )}
-                    {target.target_type === 'reptile' && target.reptile_name && (
-                      <>Reptile: {target.reptile_name}</>
-                    )}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
           <div>
             <h3 className="text-sm font-medium mb-2">Sort By</h3>
             <Select 
@@ -595,19 +478,12 @@ const { data: virtualEvents = [] } = useQuery({
           </div>
         </div>
         
-    
         <Card className="border-0 shadow-none bg-transparent">
           <CardContent className="flex flex-col items-center justify-center text-center py-12">
             <PlusCircle className="h-8 w-8 text-muted-foreground mb-2 opacity-70" />
             <div className="text-muted-foreground font-medium mb-2">No feeding events yet</div>
             <div className="text-sm text-muted-foreground mb-4">
-              Found {reptilesByLocation.length} reptile{reptilesByLocation.length !== 1 ? 's' : ''} in {' '}
-              {activeTarget?.target_type === 'room' ? 'Room ' + activeTarget.room_name : 
-                activeTarget?.target_type === 'rack' ? 'Rack ' + activeTarget.rack_name : 
-                activeTarget?.target_type === 'level' ? 'Level ' + activeTarget.level_number + ' in ' + activeTarget.rack_name : 
-                activeTarget?.target_type === 'location' ? 'Location ' + activeTarget.location_label : 
-                activeTarget?.target_type === 'reptile' ? 'Reptile ' + activeTarget.reptile_name :
-                'this location'}, but no feeding events have been generated yet.
+              Found {reptilesByLocation.length} reptile{reptilesByLocation.length !== 1 ? 's' : ''}, but no feeding events have been generated yet.
             </div>
             <Button 
               variant="outline" 
@@ -645,39 +521,6 @@ const { data: virtualEvents = [] } = useQuery({
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
-        <div className="flex-1">
-          <h3 className="text-sm font-medium mb-2">Select Target Location</h3>
-          <Select 
-            value={activeTarget?.id || ''}
-            onValueChange={handleTargetChange}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select target location" />
-            </SelectTrigger>
-            <SelectContent>
-              {schedule.targets.map(target => (
-                <SelectItem key={target.id} value={target.id}>
-                  {target.target_type === 'room' && target.room_name && (
-                    <>Room: {target.room_name}</>
-                  )}
-                  {target.target_type === 'rack' && target.rack_name && (
-                    <>Rack: {target.rack_name}</>
-                  )}
-                  {target.target_type === 'level' && target.rack_name && (
-                    <>Level: {target.rack_name} - {target.level_number}</>
-                  )}
-                  {target.target_type === 'location' && target.location_label && (
-                    <>Location: {target.location_label}</>
-                  )}
-                  {target.target_type === 'reptile' && target.reptile_name && (
-                    <>Reptile: {target.reptile_name}</>
-                  )}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
         <div>
           <h3 className="text-sm font-medium mb-2">Sort By</h3>
           <Select 
