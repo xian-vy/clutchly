@@ -203,21 +203,21 @@ export function FeedingScheduleForm({
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  className="flex  space-y-1"
+                  className="flex items-center"
                 >
-                  <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormItem className="flex items-center">
                     <FormControl>
                       <RadioGroupItem value="daily" />
                     </FormControl>
                     <FormLabel className="font-normal">Daily</FormLabel>
                   </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormItem className="flex items-center">
                     <FormControl>
                       <RadioGroupItem value="weekly" />
                     </FormControl>
                     <FormLabel className="font-normal">Weekly</FormLabel>
                   </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
+                  <FormItem className="flex items-center">
                     <FormControl>
                       <RadioGroupItem value="custom" />
                     </FormControl>
@@ -353,9 +353,9 @@ export function FeedingScheduleForm({
             )}
           />
         </div>
-        
         {/* Target Selection */}
         <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2">
           <div>
             <FormLabel className="block mb-2">Feeding Target Type</FormLabel>
             <Select
@@ -379,7 +379,7 @@ export function FeedingScheduleForm({
                 <SelectItem value="room">Feed by Room</SelectItem>
                 <SelectItem value="rack">Feed by Rack</SelectItem>
                 <SelectItem value="level">Feed by Rack Level</SelectItem>
-                <SelectItem value="location">Feed by Specific Enclosure</SelectItem>
+                {/* <SelectItem value="location">Feed by Specific Enclosure</SelectItem> */}
                 <SelectItem value="reptile">Feed Specific Reptiles</SelectItem>
               </SelectContent>
             </Select>
@@ -644,6 +644,7 @@ export function FeedingScheduleForm({
               </FormItem>
             )}
           />
+          </div>
         </div>
         
         {/* Form Buttons */}
