@@ -73,7 +73,7 @@ export function FeedingTab() {
           // Check if the schedule was created today or in the future
           const scheduleCreatedAt = new Date(schedule.created_at);
           scheduleCreatedAt.setHours(0, 0, 0, 0);
-          const isNewSchedule = scheduleCreatedAt >= today;
+          const isNewSchedule = scheduleCreatedAt >= today && schedule.recurrence !== 'daily';
           
           if (isNewSchedule) {
             // For new schedules, just set the next feeding date without counting events
@@ -401,7 +401,7 @@ export function FeedingTab() {
       const scheduleCreatedAt = new Date(schedule.created_at);
       scheduleCreatedAt.setHours(0, 0, 0, 0);
       const today = startOfDay(new Date());
-      const isNewSchedule = scheduleCreatedAt >= today;
+      const isNewSchedule = scheduleCreatedAt >= today && schedule.recurrence !== 'daily';
       
       // Don't count new schedules as incomplete
       if (isNewSchedule) return false;
@@ -439,7 +439,7 @@ export function FeedingTab() {
           const scheduleCreatedAt = new Date(schedule.created_at);
           scheduleCreatedAt.setHours(0, 0, 0, 0);
           const today = startOfDay(new Date());
-          const isNewSchedule = scheduleCreatedAt >= today;
+          const isNewSchedule = scheduleCreatedAt >= today && schedule.recurrence !== 'daily';
           
           const isActiveToday = status?.scheduledDate === format(new Date(), 'yyyy-MM-dd');
           const feedingDateString = status?.scheduledDate 
