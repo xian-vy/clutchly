@@ -18,7 +18,7 @@ import {
 import { useResource } from '@/lib/hooks/useResource';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, startOfDay } from 'date-fns';
+import { format, startOfDay, differenceInDays } from 'date-fns';
 import { AlertCircle, Calendar, Check, CheckCircle, Loader2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
@@ -478,9 +478,14 @@ export function FeedingTab() {
                 <CardHeader className="pb-0 px-6">
                   {status && (status.isComplete || isNewSchedule) && (
                     <div className="mb-3">
-                      <Badge variant="outline" className="flex !text-xs items-center gap-1.5  h-8 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
-                        <Calendar className="h-3 w-3 mb-0.5" />
-                        Next feeding: {format(stats.nextFeedingDate, 'EEEE, MMM d, yyyy')}
+                      <Badge variant="outline" className="flex justify-between !text-xs items-center  h-8 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                       <div className='flex items-center gap-1.5'>
+                          <Calendar className="h-3 w-3 mb-0.5" />
+                          Next feeding: {format(stats.nextFeedingDate, 'EEEE, MMM d, yyyy')}  
+                        </div>
+                       <>
+                         {differenceInDays(stats.nextFeedingDate, new Date())} days to go
+                        </>
                       </Badge>
                     </div>
                   )}
