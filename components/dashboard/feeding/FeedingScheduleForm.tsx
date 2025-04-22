@@ -31,6 +31,7 @@ import { z } from 'zod';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { useMultiReptileSelect } from '@/lib/hooks/useMultiReptileSelect';
 
 // Define form schema
 const feedingScheduleSchema = z.object({
@@ -54,7 +55,6 @@ interface FeedingScheduleFormProps {
   initialData?: FeedingScheduleWithTargets;
   onSubmit: (data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => Promise<void>;
   onCancel: () => void;
-  reptiles: { id: string; name: string }[];
   locations: { id: string; label: string }[];
   rooms: { id: string; name: string }[];
   racks: { id: string; name: string; room_id: string }[];
@@ -65,7 +65,6 @@ export function FeedingScheduleForm({
   initialData,
   onSubmit,
   onCancel,
-  reptiles,
   locations,
   rooms,
   racks,
@@ -133,6 +132,8 @@ export function FeedingScheduleForm({
       form.setValue('custom_days', [1, 3, 5]); // Default to Mon, Wed, Fri
     }
   }, [recurrence, form]);
+  
+  const { MultiReptileSelect } = useMultiReptileSelect();
   
   // Handle form submission
   const handleSubmit = async (values: FeedingScheduleFormValues) => {
@@ -585,59 +586,26 @@ export function FeedingScheduleForm({
                   )}
                   
                   {targetType === 'reptile' && (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button 
-                          variant="outline"
-                          className="w-full justify-between font-normal"
-                        >
-                          {field.value.length === 0 
-                            ? "Select reptiles" 
-                            : `${field.value.length} reptile${field.value.length > 1 ? 's' : ''} selected`}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[400px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search reptiles..." />
-                          <CommandEmpty>No reptiles found.</CommandEmpty>
-                          <CommandGroup>
-                            {reptiles.map((reptile) => (
-                              <CommandItem
-                                key={reptile.id}
-                                value={reptile.id}
-                                onSelect={() => {
-                                  const currentValue = [...field.value];
-                                  const exists = currentValue.some(
-                                    target => target.target_type === 'reptile' && target.target_id === reptile.id
-                                  );
-                                  
-                                  if (exists) {
-                                    field.onChange(
-                                      currentValue.filter(
-                                        target => !(target.target_type === 'reptile' && target.target_id === reptile.id)
-                                      )
-                                    );
-                                  } else {
-                                    field.onChange([
-                                      ...currentValue,
-                                      { target_type: 'reptile', target_id: reptile.id }
-                                    ]);
-                                  }
-                                }}
-                              >
-                                <div className="flex items-center">
-                                  {field.value.some(
-                                    target => target.target_type === 'reptile' && target.target_id === reptile.id
-                                  ) && <Check className="mr-2 h-4 w-4" />}
-                                  {reptile.name}
-                                </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                    <FormField
+                      control={form.control}
+                      name="targets"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <MultiReptileSelect
+                              value={field.value.filter(target => target.target_type === 'reptile')}
+                              onChange={(newValue) => {
+                                // Keep other target types (room, rack, level, location)
+                                const otherTargets = field.value.filter(target => target.target_type !== 'reptile');
+                                field.onChange([...otherTargets, ...newValue]);
+                              }}
+                              placeholder="Select reptiles..."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   )}
                 </div>
                 <FormMessage />
