@@ -20,7 +20,7 @@ export default function FeedingPage() {
           <TabsList>
             <TabsTrigger value="feeding">Feeding</TabsTrigger>
             <TabsTrigger value="schedules">Schedules</TabsTrigger>
-            <TabsTrigger value="logs">Logs & Reports</TabsTrigger>
+            <TabsTrigger value="logs">Logs</TabsTrigger>
           </TabsList>
           <hr className='mt-[1px]'/>
         </div>
