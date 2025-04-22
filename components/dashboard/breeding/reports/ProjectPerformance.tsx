@@ -65,7 +65,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
   
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden border-none shadow-md">
+      <Card className="overflow-hidden">
         <CardHeader className="pb-4">
           <CardTitle>Project Performance Overview</CardTitle>
           <CardDescription>
