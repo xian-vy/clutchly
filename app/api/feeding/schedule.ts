@@ -247,27 +247,6 @@ export async function createFeedingSchedule(
   // 3. Enrich targets
   const enrichedTargets = await enrichTargets(createdTargets || []);
   
-  // 4. Check if start date is today and generate events if needed
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const startDate = new Date(scheduleData.start_date);
-  startDate.setHours(0, 0, 0, 0);
-  
-  if (startDate.getTime() === today.getTime()) {
-    console.log('Start date is today, generating feeding events...');
-    try {
-      // Import the generateEventsFromSchedule function
-      const { generateEventsFromSchedule } = await import('./events');
-      
-      // Generate events for today
-      await generateEventsFromSchedule(schedule.id, scheduleData.start_date);
-    } catch (error) {
-      console.error('Error generating events for new schedule:', error);
-      // Don't throw the error, just log it - we still want to return the schedule
-    }
-  } else {
-    console.log('Schedule Start date is not today, no events generated.');
-  }
   
   // 5. Return the schedule with targets
   return {
