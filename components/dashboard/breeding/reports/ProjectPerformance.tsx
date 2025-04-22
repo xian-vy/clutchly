@@ -58,7 +58,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
   );
 
   const getSuccessColor = (rate: number) => {
-    if (rate >= 70) return 'bg-emerald-100 dark:bg-gray-900 data-[state=progress]:bg-emerald-500';
+    if (rate >= 70) return 'bg-emerald-100 dark:bg-emerald-900 data-[state=progress]:bg-emerald-500';
     if (rate >= 40) return 'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500';
     return 'bg-gray-100  dark:bg-gray-900  data-[state=progress]:bg-gray-500';
   };
@@ -111,7 +111,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                           value={project.metrics.fertilityRate} 
                           className={cn("h-2 w-20", 
                             project.metrics.fertilityRate >= 70 ? 'bg-emerald-100 data-[state=progress]:bg-emerald-500' : 
-                            project.metrics.fertilityRate >= 40 ? 'bg-gray-100 data-[state=progress]:bg-gray-500' : 
+                            project.metrics.fertilityRate >= 40 ? 'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500' : 
                             'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500'
                           )}
                         />
@@ -124,7 +124,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                           value={project.metrics.hatchRate} 
                           className={cn("h-2 w-20", 
                             project.metrics.hatchRate >= 70 ? 'bg-emerald-100 data-[state=progress]:bg-emerald-500' : 
-                            project.metrics.hatchRate >= 40 ? 'bg-gray-100 data-[state=progress]:bg-gray-500' : 
+                            project.metrics.hatchRate >= 40 ? 'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500' : 
                             'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500'
                           )}
                         />
