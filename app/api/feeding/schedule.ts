@@ -1,9 +1,10 @@
-import { createClient } from '@/lib/supabase/client';
+'use server'
+import { createClient } from '@/lib/supabase/server';
 import { FeedingTarget, NewFeedingSchedule, FeedingScheduleWithTargets, TargetType } from '@/lib/types/feeding';
 
 // Get all feeding schedules for the current user
 export async function getFeedingSchedules(): Promise<FeedingScheduleWithTargets[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Get user ID
   const { data: { user } } = await supabase.auth.getUser();
@@ -52,7 +53,7 @@ export async function getFeedingSchedules(): Promise<FeedingScheduleWithTargets[
 async function enrichTargets(targets: FeedingTarget[]): Promise<FeedingTarget[]> {
   if (targets.length === 0) return [];
   
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Separate targets by type
   const reptileTargets = targets.filter(t => t.target_type === 'reptile');
@@ -204,8 +205,9 @@ async function enrichTargets(targets: FeedingTarget[]): Promise<FeedingTarget[]>
 export async function createFeedingSchedule(
   data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }
 ): Promise<FeedingScheduleWithTargets> {
-  const supabase = createClient();
-  
+  const supabase = await createClient();
+  console.log('Creating feeding schedule...');
+
   // Get user ID
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
@@ -227,7 +229,7 @@ export async function createFeedingSchedule(
   
   if (error) throw error;
   if (!schedule) throw new Error('Failed to create feeding schedule');
-  
+  console.log('Schedule created:', schedule);
   // 2. Create the targets
   const targetData = targets.map(target => ({
     schedule_id: schedule.id,
@@ -245,7 +247,29 @@ export async function createFeedingSchedule(
   // 3. Enrich targets
   const enrichedTargets = await enrichTargets(createdTargets || []);
   
-  // 4. Return the schedule with targets
+  // 4. Check if start date is today and generate events if needed
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startDate = new Date(scheduleData.start_date);
+  startDate.setHours(0, 0, 0, 0);
+  
+  if (startDate.getTime() === today.getTime()) {
+    console.log('Start date is today, generating feeding events...');
+    try {
+      // Import the generateEventsFromSchedule function
+      const { generateEventsFromSchedule } = await import('./events');
+      
+      // Generate events for today
+      await generateEventsFromSchedule(schedule.id, scheduleData.start_date);
+    } catch (error) {
+      console.error('Error generating events for new schedule:', error);
+      // Don't throw the error, just log it - we still want to return the schedule
+    }
+  } else {
+    console.log('Schedule Start date is not today, no events generated.');
+  }
+  
+  // 5. Return the schedule with targets
   return {
     ...schedule,
     targets: enrichedTargets
@@ -257,7 +281,7 @@ export async function updateFeedingSchedule(
   id: string,
   data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }
 ): Promise<FeedingScheduleWithTargets> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Extract targets from data
   const { targets, ...scheduleData } = data;
@@ -315,7 +339,7 @@ export async function updateFeedingSchedule(
 
 // Delete a feeding schedule
 export async function deleteFeedingSchedule(id: string): Promise<void> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Delete targets first (foreign key constraint)
   const { error: deleteTargetsError } = await supabase
