@@ -355,7 +355,7 @@ export function FeedingScheduleForm({
         </div>
         {/* Target Selection */}
         <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <FormLabel className="block mb-2">Feeding Target Type</FormLabel>
             <Select
@@ -372,7 +372,7 @@ export function FeedingScheduleForm({
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className='w-full'>
                 <SelectValue placeholder="Select target type" />
               </SelectTrigger>
               <SelectContent>
