@@ -140,6 +140,9 @@ export function FeedingTab() {
                 relevantEvents = recentEvents.filter(event => event.scheduled_date === scheduledDate);
               }
             }
+          } else if (schedule.recurrence === 'interval') {
+            // For interval schedules, only check events for the specific feeding date
+            relevantEvents = events.filter(event => event.scheduled_date === todayString);
           } else if (schedule.recurrence === 'custom') {
             // For custom schedules, check if today is a feeding day
             const dayOfWeek = today.getDay();
