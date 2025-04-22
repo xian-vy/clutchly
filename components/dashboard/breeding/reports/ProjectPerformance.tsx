@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { STATUS_COLORS } from '@/lib/constants/colors';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { ChevronRight, Gauge, Info, Mars, Venus } from 'lucide-react';
+import { Gauge, Info, Mars, Venus } from 'lucide-react';
 
 interface ProjectPerformanceProps {
   data?: DetailedBreedingProject[];
@@ -213,7 +213,6 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                   <div className="text-xs text-muted-foreground hidden sm:block">
                     {project.metrics.totalHatchlings} hatchlings from {project.metrics.totalEggs} eggs
                   </div>
-                  <ChevronRight className="h-4 w-4 transition-transform duration-200 ml-auto group-data-[state=open]:rotate-90 text-muted-foreground" />
                 </div>
               </AccordionTrigger>
               <AccordionContent className="bg-muted/5">
