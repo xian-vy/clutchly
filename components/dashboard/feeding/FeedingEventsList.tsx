@@ -37,6 +37,7 @@ interface FeedingEventsListProps {
   scheduleId: string;
   schedule: FeedingScheduleWithTargets;
   onEventsUpdated?: () => void;
+  isNewSchedule : boolean
 }
 
 // Interface for virtual events that don't exist in the DB yet
@@ -49,7 +50,7 @@ interface VirtualFeedingEvent {
   morph_name: string;
 }
 
-export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated }: FeedingEventsListProps) {
+export function FeedingEventsList({ scheduleId, schedule, onEventsUpdated,isNewSchedule }: FeedingEventsListProps) {
   const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
   const [eventNotes, setEventNotes] = useState<Record<string, string>>({});
   const [creatingVirtualEvent, setCreatingVirtualEvent] = useState<boolean>(false);
@@ -572,6 +573,8 @@ const { data: virtualEvents = [] } = useQuery({
       </Alert>
     );
   }
+
+  if (isNewSchedule) return;
 
   if (allEvents.length === 0 && reptilesByLocation.length === 0) {
     return (
