@@ -23,6 +23,7 @@ const HealthIssues = ({reptileHealthData} : HealthIssuesProps) => {
                   data={reptileHealthData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   maxBarSize={25}
+                  className="[&>svg>path]:fill-transparent"
                 >
                   <CartesianGrid 
                     strokeDasharray="3 3"

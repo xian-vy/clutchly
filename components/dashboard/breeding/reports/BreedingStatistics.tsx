@@ -393,15 +393,15 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                 layout="vertical"
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 maxBarSize={25}
-
+                className="[&>svg>path]:fill-transparent"
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                 <XAxis type="number" style={{ fontSize: '12px' }} />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
-                  width={120} 
-                  style={{ fontSize: '12px' }}
+                  width={60} 
+                  style={{ fontSize: '11px' }}
                 />
                 <Tooltip content={<SpeciesDistributionTooltip />} />
                 <Bar 
@@ -472,6 +472,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
               data={hatchRateBySpecies}
               margin={{ top: 10, right: 30, left: 20, bottom: 40 }}
               maxBarSize={30}
+              className="[&>svg>path]:fill-transparent"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
               <XAxis 

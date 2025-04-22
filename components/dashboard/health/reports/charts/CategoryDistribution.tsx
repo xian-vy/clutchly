@@ -18,6 +18,7 @@ const CategoryDistribution = ({categoryDistribution} : CategoryDistributionProps
           data={categoryDistribution}
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           layout="vertical"
+          className="[&>svg>path]:fill-transparent"
         >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
           <XAxis type="number" style={{ fontSize: '12px' }} />
