@@ -89,7 +89,7 @@ export function MorphFilterDialog({
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value="all">All Morphs</SelectItem>
-                  <SelectItem value="true">Global Morphs</SelectItem>
+                  <SelectItem value="true">System Created</SelectItem>
                   <SelectItem value="false">User Created</SelectItem>
                 </SelectGroup>
               </SelectContent>
