@@ -1,11 +1,13 @@
-import { createClient } from '@/lib/supabase/client';
+'use server'
+import { createClient } from '@/lib/supabase/server';
 import { FeedingEvent, FeedingEventWithDetails, NewFeedingEvent } from '@/lib/types/feeding';
 import { Morph } from '@/lib/types/morph';
 import { Species } from '@/lib/types/species';
+import { startOfDay } from 'date-fns';
 
 // Get feeding events for a specific schedule
 export async function getFeedingEvents(scheduleId: string): Promise<FeedingEventWithDetails[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Get feeding events
   const { data: events, error } = await supabase
@@ -92,7 +94,7 @@ export async function getFeedingEvents(scheduleId: string): Promise<FeedingEvent
 
 // Create a new feeding event
 export async function createFeedingEvent(data: NewFeedingEvent): Promise<FeedingEvent> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data: event, error } = await supabase
     .from('feeding_events')
@@ -110,7 +112,7 @@ export async function createFeedingEvent(data: NewFeedingEvent): Promise<Feeding
 export async function createFeedingEvents(events: NewFeedingEvent[]): Promise<FeedingEvent[]> {
   if (events.length === 0) return [];
   
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const { data, error } = await supabase
     .from('feeding_events')
@@ -124,7 +126,7 @@ export async function createFeedingEvents(events: NewFeedingEvent[]): Promise<Fe
 
 // Update a feeding event (mark as fed)
 export async function updateFeedingEvent(id: string, data: Partial<NewFeedingEvent>): Promise<FeedingEvent> {
-  const supabase = createClient();
+  const supabase =  await createClient();
   
   const { data: event, error } = await supabase
     .from('feeding_events')
@@ -145,7 +147,7 @@ export async function updateFeedingEvent(id: string, data: Partial<NewFeedingEve
 
 // Delete a feeding event
 export async function deleteFeedingEvent(id: string): Promise<void> {
-  const supabase = createClient();
+  const supabase =  await createClient();
   
   const { error } = await supabase
     .from('feeding_events')
@@ -161,7 +163,7 @@ export async function generateEventsFromSchedule(
   startDate: string,
   endDate?: string | null
 ): Promise<{ count: number }> {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Get user ID
   const { data: { user } } = await supabase.auth.getUser();
@@ -253,7 +255,7 @@ export async function generateEventsFromSchedule(
 
 // Helper function to get reptiles from targets
 async function getReptilesFromTargets(targets: { target_type: string; target_id: string }[]): Promise<string[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const reptileIds: string[] = [];
 
   // Extract targets by type
@@ -428,4 +430,214 @@ function generateFeedingDates(
   }
   
   return dates;
-} 
+}
+
+// Check every reptile update (if location_id has value)
+export async function createFeedingEventForNewLocation(reptileId: string, locationId: string): Promise<void> {
+  const supabase = await createClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  console.log(`Server: Starting with location : ${locationId}`);
+  
+  // Get location details including room and rack information
+  const { data: location, error: locationError } = await supabase
+    .from('locations')
+    .select(`
+      *,
+      rooms:room_id (id, name),
+      racks:rack_id (id, name, type)
+    `)
+    .eq('id', locationId)
+    .single();
+
+  if (locationError) {
+    console.error('Error fetching location:', locationError);
+    return;
+  }
+
+  if (!location) {
+    console.error(`No location found for ID: ${locationId}`);
+    return;
+  }
+
+  console.log('Server: Found location:', location);
+
+  // Build target conditions with proper room reference
+  const targetIds = [
+    locationId,
+    location.racks?.id,
+    location.rooms?.id
+  ].filter(Boolean); // Remove any undefined values
+
+  if (targetIds.length === 0) {
+    console.log(`Server: No valid target IDs for location ${locationId}`);
+    return;
+  }
+
+  // Create the level target ID separately
+  const levelTargetId = location.racks?.id && location.shelf_level ? 
+    `${location.racks.id}-${location.shelf_level}` : null;
+
+  // Query for feeding targets that match our location or its parents
+  const targetsQuery = supabase
+    .from('feeding_targets')
+    .select('schedule_id, target_type, target_id')
+    .or(`target_type.eq.location,target_type.eq.rack,target_type.eq.room`)
+    .in('target_id', targetIds);
+
+  console.log(`Looking for targets with IDs: ${targetIds.join(', ')}`);
+
+  // Add level targets separately if we have a valid level target ID
+  if (levelTargetId) {
+    // Query for all level targets
+    const { data: allLevelTargets, error: levelError } = await supabase
+      .from('feeding_targets')
+      .select('schedule_id, target_type, target_id')
+      .eq('target_type', 'level');
+    
+    console.log(`Found ${allLevelTargets?.length || 0} level targets, looking for: ${levelTargetId}`);
+    
+    if (levelError) {
+      console.error('Error fetching level targets:', levelError);
+    } else if (allLevelTargets && allLevelTargets.length > 0) {
+      // Filter level targets in memory to match our level target ID
+      const matchingLevelTargets = allLevelTargets.filter(
+        target => target.target_id === levelTargetId
+      );
+      
+      console.log(`Found ${matchingLevelTargets.length} matching level targets for: ${levelTargetId}`);
+      
+      if (matchingLevelTargets.length > 0) {
+        // Combine the results
+        const { data: regularTargets, error: regularError } = await targetsQuery;
+        
+        if (regularError) {
+          console.error('Error fetching regular targets:', regularError);
+          return;
+        }
+        
+        // Combine both sets of targets
+        const combinedTargets = [
+          ...(regularTargets || []),
+          ...matchingLevelTargets
+        ];
+        
+        // Continue with the combined targets
+        await processTargets(combinedTargets, reptileId, locationId);
+        return;
+      }
+    }
+  }
+
+  const { data: targets, error: targetsError } = await targetsQuery;
+
+  if (targetsError) {
+    console.error('Error fetching feeding targets:', targetsError);
+    return;
+  }
+
+  console.log(`Found ${targets?.length || 0} regular targets for location ${locationId}`);
+
+  if (!targets || targets.length === 0) {
+    console.log(`Server: No feeding targets found for location ${locationId} or its parents`);
+    return;
+  }
+
+  // Process the targets
+  await processTargets(targets, reptileId, locationId);
+}
+
+// Helper function to process targets and create feeding events
+async function processTargets(
+  targets: { schedule_id: string; target_type: string; target_id: string }[], 
+  reptileId: string, 
+  locationId: string
+): Promise<void> {
+  const supabase = await createClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Check each schedule
+  for (const target of targets) {
+    // Get schedule details
+    const { data: schedule, error: scheduleError } = await supabase
+      .from('feeding_schedules')
+      .select('*')
+      .eq('id', target.schedule_id)
+      .single();
+
+    if (scheduleError || !schedule) {
+      console.error(`Error fetching schedule ${target.schedule_id}:`, scheduleError);
+      continue;
+    }
+
+    console.log(`Processing schedule: ${schedule.id}, recurrence: ${schedule.recurrence}, start_date: ${schedule.start_date}`);
+
+    // Check if today is a feeding day based on schedule pattern
+    let isFeedingDay = false;
+    const todayDate = today.toISOString().split('T')[0];
+    const scheduleStart = startOfDay(new Date(schedule.start_date));
+    
+    if (schedule.recurrence === 'daily') {
+      isFeedingDay = today >= scheduleStart;
+    } else if (schedule.recurrence === 'weekly') {
+      // For weekly schedules, check if today is within the same week as the start date
+      // and if today is after or equal to the start date
+      const startDayOfWeek = scheduleStart.getDay();
+      const todayDayOfWeek = today.getDay();
+      
+      // Calculate days since schedule start
+      const daysSinceStart = Math.floor((today.getTime() - scheduleStart.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // For weekly schedules, we want to create events for any day in the week
+      // that's after or equal to the start date
+      isFeedingDay = daysSinceStart >= 0;
+      
+      console.log(`Weekly schedule check: startDay=${startDayOfWeek}, todayDay=${todayDayOfWeek}, daysSinceStart=${daysSinceStart}, isFeedingDay=${isFeedingDay}, startDate=${schedule.start_date}, today=${today.toISOString()}`);
+    } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
+      const todayDay = today.getDay();
+      isFeedingDay = schedule.custom_days.includes(todayDay) && today >= scheduleStart;
+    }
+
+    if (isFeedingDay) {
+      console.log(`Server: Found feeding schedule for reptile ${reptileId} at ${locationId}`);
+      
+      // Check if event already exists for this reptile today
+      const { data: existingEvent } = await supabase
+        .from('feeding_events')
+        .select('id')
+        .eq('schedule_id', target.schedule_id)
+        .eq('reptile_id', reptileId)
+        .eq('scheduled_date', todayDate)
+        .maybeSingle();
+
+      if (!existingEvent) {
+        // Check if all other events for this schedule and date are fed
+        const { data: otherEvents } = await supabase
+          .from('feeding_events')
+          .select('fed')
+          .eq('schedule_id', target.schedule_id)
+          .eq('scheduled_date', todayDate)
+          .neq('reptile_id', reptileId);
+        
+        // Set fed to true if all other events are fed, otherwise false
+        const allOtherEventsFed = otherEvents && otherEvents.length > 0 && 
+          otherEvents.every(event => event.fed);
+        
+        // Create a new event for this reptile
+        const newEvent: NewFeedingEvent = {
+          schedule_id: target.schedule_id,
+          reptile_id: reptileId,
+          scheduled_date: todayDate,
+          fed: allOtherEventsFed || false,
+          fed_at: allOtherEventsFed ? new Date().toISOString() : null,
+          notes: null
+        };
+
+        await createFeedingEvent(newEvent);
+      }
+    } else {
+      console.log(`Server: No feeding schedules found for reptile ${reptileId} at ${locationId}`);
+    }
+  }
+}

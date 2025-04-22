@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { CreateGrowthEntryInput } from '@/lib/types/growth'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
+import { createFeedingEventForNewLocation } from '@/app/api/feeding/events'
 
 export async function getReptiles() {
   const supabase = await createClient()
@@ -29,6 +30,7 @@ export async function getReptileById(id: string) {
   return reptile as Reptile
 }
 
+// In createReptile function, after creating the reptile:
 export async function createReptile(reptile: NewReptile) {
   const supabase = await createClient()
   const currentUser= await supabase.auth.getUser()
@@ -79,9 +81,20 @@ export async function createReptile(reptile: NewReptile) {
     }
   }
   
-  return data as Reptile
+  // After successful creation and location update
+  if (data.location_id) {
+    try {
+      await createFeedingEventForNewLocation(data.id, data.location_id);
+    } catch (error) {
+      console.error("Error creating feeding event for new reptile:", error);
+      // Don't throw the error as this is a non-critical operation
+    }
+  }
+  
+  return data as Reptile;
 }
 
+// In updateReptile function, after updating the reptile:
 export async function updateReptile(id: string, updates: Partial<NewReptile>) {
   const supabase = await createClient()
   
@@ -104,7 +117,8 @@ export async function updateReptile(id: string, updates: Partial<NewReptile>) {
   if (error) throw error
   
   // Handle location changes if needed
-  if (updates.location_id !== undefined && currentReptile.location_id !== updates.location_id) {
+  if (updates.location_id !== undefined && 
+      currentReptile.location_id !== updates.location_id) {
     // If the old location exists, mark it as available
     if (currentReptile.location_id) {
       await supabase
@@ -119,6 +133,14 @@ export async function updateReptile(id: string, updates: Partial<NewReptile>) {
         .from('locations')
         .update({ is_available: false })
         .eq('id', updates.location_id)
+
+      // Add feeding event for the new location
+      try {
+        await createFeedingEventForNewLocation(id, updates.location_id);
+      } catch (error) {
+        console.error("Error creating feeding event for updated reptile:", error);
+        // Don't throw the error as this is a non-critical operation
+      }
     }
   }
   
