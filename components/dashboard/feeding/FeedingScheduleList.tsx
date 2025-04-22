@@ -67,7 +67,7 @@ export function FeedingScheduleList({
     // Add reptiles section if there are reptile targets
     if (reptileTargets.length > 0) {
       targetSections.push(
-        <div key="reptiles" className="mb-1">
+        <div key="reptiles" className="mb-1 text-xs">
           <span className="font-medium">Reptiles: </span>
           <span>{reptileTargets.map(t => t.reptile_name).join(', ')}</span>
         </div>
@@ -77,7 +77,7 @@ export function FeedingScheduleList({
     // Add locations section if there are location targets
     if (locationTargets.length > 0) {
       targetSections.push(
-        <div key="locations" className="mb-1">
+        <div key="locations" className="mb-1 text-xs">
           <span className="font-medium">Enclosures: </span>
           <span>{locationTargets.map(t => t.location_label).join(', ')}</span>
         </div>
@@ -87,7 +87,7 @@ export function FeedingScheduleList({
     // Add rooms section if there are room targets
     if (roomTargets.length > 0) {
       targetSections.push(
-        <div key="rooms" className="mb-1">
+        <div key="rooms" className="mb-1 text-xs">
           <span className="font-medium">Rooms: </span>
           <span>{roomTargets.map(t => t.room_name).join(', ')}</span>
         </div>
@@ -97,7 +97,7 @@ export function FeedingScheduleList({
     // Add racks section if there are rack targets
     if (rackTargets.length > 0) {
       targetSections.push(
-        <div key="racks" className="mb-1">
+        <div key="racks" className="mb-1 text-xs">
           <span className="font-medium">Racks: </span>
           <span>{rackTargets.map(t => t.rack_name).join(', ')}</span>
         </div>
@@ -107,7 +107,7 @@ export function FeedingScheduleList({
     // Add levels section if there are level targets
     if (levelTargets.length > 0) {
       targetSections.push(
-        <div key="levels" className="mb-1">
+        <div key="levels" className="mb-1 text-xs">
           <span className="font-medium">Rack Levels: </span>
           <span>
             {levelTargets.map(t => `${t.rack_name} - Level ${t.level_number}`).join(', ')}
