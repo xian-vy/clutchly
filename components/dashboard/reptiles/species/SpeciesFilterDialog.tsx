@@ -84,7 +84,7 @@ export function SpeciesFilterDialog({
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value="all">All Species</SelectItem>
-                  <SelectItem value="true">Global Species</SelectItem>
+                  <SelectItem value="true">System Created</SelectItem>
                   <SelectItem value="false">User Created</SelectItem>
                 </SelectGroup>
               </SelectContent>

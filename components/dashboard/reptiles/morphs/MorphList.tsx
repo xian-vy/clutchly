@@ -96,6 +96,15 @@ export function MorphList({ morphs, onEdit, onDelete, onAddNew, onDownload }: Mo
       header: "Description",
     },
     {
+      header: "Created by",
+      accessorKey: "is_global",
+      cell: ({ row }) => {
+        const is_global = row.original.is_global
+        const createdby = is_global ? "System" : "User"
+        return <div className="text-left">{createdby}</div>; 
+      }
+    },
+    {
       id: "actions",
       cell: ({ row }) => {
         const morph = row.original;
