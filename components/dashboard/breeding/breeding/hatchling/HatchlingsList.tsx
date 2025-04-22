@@ -50,7 +50,7 @@ export function HatchlingsList({
           })}
           {hatchlings.length === 0 && (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
+              <TableCell colSpan={4} className="text-center py-1 text-muted-foreground">
                 No hatchlings found for this clutch yet
               </TableCell>
             </TableRow>

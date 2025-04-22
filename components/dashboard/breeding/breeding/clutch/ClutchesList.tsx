@@ -69,14 +69,14 @@ export function ClutchesList({
   return (
     <div className="space-y-4">
         <div key={clutch.id} className="rounded-lg  bg-card">
-          <Card className="border-0 shadow-none pt-2">
+          <Card className="border-0 shadow-none pt-2 pb-3 gap-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-sm font-medium">
                 Clutch Info
               </CardTitle>
           
               <div className="flex justify-end items-center">
-                <Button size="sm"  onClick={() => setIsAddClutchDialogOpen(true)}>
+                <Button size="sm"  onClick={() => setIsAddClutchDialogOpen(true)} className='w-[100px]'>
                 <Plus />  Add Clutch
               </Button>
             </div>
@@ -144,7 +144,7 @@ export function ClutchesList({
             </CardContent>
           </Card>
 
-          <div className="px-6 pb-6 pt-2 ">
+          <div className="px-6 xl:py-2 ">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-medium">Hatchlings</h3>
               <Button 
@@ -153,8 +153,9 @@ export function ClutchesList({
                   e.stopPropagation();
                   onAddHatchling(clutch.id);
                 }}
+                className='w-[100px]'
               >
-                <Plus className="w-4 h-4" /> Add Hatchling
+                <Plus className="w-4 h-4" />  Hatchling
               </Button>
             </div>
             

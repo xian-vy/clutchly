@@ -101,12 +101,12 @@ export function BreedingProjectsTab() {
                 </Badge>
                 <div className="flex gap-5">
                       <div className='flex items-center gap-2'>
-                          <p className="text-xs xl:text-sm font-medium text-muted-foreground">Start Date</p>
-                          <p className='text-xs xl:text-sm'>{format(new Date(selectedProjectForDetails?.start_date || new Date()), 'MMM d, yyyy')}</p>
+                          <p className="text-xs 2xl:text-[0.8rem] 3xl:text-sm font-medium text-muted-foreground">Start Date:</p>
+                          <p className='text-xs 2xl:text-[0.8rem] 3xl:text-sm text-muted-foreground'>{format(new Date(selectedProjectForDetails?.start_date || new Date()), 'MMM d, yyyy')}</p>
                       </div>
                       <div className='flex items-center gap-2'>
-                          <p className="text-xs xl:text-sm font-medium text-muted-foreground">Expected Hatch</p>
-                          <p className='text-xs xl:text-sm'>
+                          <p className="text-xs 2xl:text-[0.8rem] 3xl:text-sm font-medium text-muted-foreground">Expected Hatch:</p>
+                          <p className='text-xs 2xl:text-[0.8rem] 3xl:text-sm text-muted-foreground'>
                             {selectedProjectForDetails?.expected_hatch_date
                               ? format(new Date(selectedProjectForDetails?.expected_hatch_date), 'MMM d, yyyy')
                               : 'Not set'}
