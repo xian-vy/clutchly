@@ -12,19 +12,15 @@ import { Info, Loader2, Plus } from 'lucide-react';
 import { getLocations } from '@/app/api/locations/locations';
 import { getRooms } from '@/app/api/locations/rooms';
 import { getRacks } from '@/app/api/locations/racks';
-import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useQuery } from '@tanstack/react-query';
 
 
 
 export function FeedingSchedulesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [locations, setLocations] = useState<{ id: string; label: string }[]>([]);
-  const [rooms, setRooms] = useState<{ id: string; name: string }[]>([]);
-  const [racks, setRacks] = useState<{ id: string; name: string; room_id: string }[]>([]);
-  const [levels, setLevels] = useState<{ rack_id: string; level: number | string }[]>([]);
-  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+
   
   // Update the API functions to handle the new target types
   const createScheduleWithTargetTypes = async (data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => {
@@ -53,29 +49,38 @@ export function FeedingSchedulesTab() {
     deleteResource: deleteFeedingSchedule,
   });
 
-  // Load reptiles, locations, rooms and racks when dialog opens
-  const loadOptions = async () => {
-    if (locations.length > 0 && rooms.length > 0 && racks.length > 0) return;
-    
-    setIsLoadingOptions(true);
-    try {
-      const [ locationData, roomData, rackData] = await Promise.all([
-        getLocations(),
-        getRooms(),
-        getRacks()
-      ]);
-      
-      setLocations(locationData.map(l => ({ id: l.id, label: l.label })));
-      setRooms(roomData.map(r => ({ id: r.id, name: r.name })));
-      
-      const racksWithDetails = rackData.map(r => ({ 
-        id: r.id, 
-        name: r.name, 
-        room_id: r.room_id 
-      }));
-      setRacks(racksWithDetails);
-      
-      // Generate level data from racks
+
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const data = await getLocations();
+      return data.map(l => ({ id: l.id, label: l.label }));
+    },
+    enabled: isDialogOpen
+  });
+
+  const { data: rooms = [] } = useQuery({
+    queryKey: ['rooms'],
+    queryFn: async () => {
+      const data = await getRooms();
+      return data.map(r => ({ id: r.id, name: r.name }));
+    },
+    enabled: isDialogOpen
+  });
+
+  const { data: racks = [] } = useQuery({
+    queryKey: ['racks'],
+    queryFn: async () => {
+      const data = await getRacks();
+      return data.map(r => ({ id: r.id, name: r.name, room_id: r.room_id }));
+    },
+    enabled: isDialogOpen
+  });
+
+  const { data: levels = [] } = useQuery({
+    queryKey: ['rack-levels'],
+    queryFn: async () => {
+      const rackData = await getRacks();
       const levelData: { rack_id: string; level: number | string }[] = [];
       rackData.forEach(rack => {
         if (rack.rows) {
@@ -84,25 +89,19 @@ export function FeedingSchedulesTab() {
           }
         }
       });
-      setLevels(levelData);
-    } catch (error) {
-      console.error('Error loading options:', error);
-      toast.error('Failed to load reptiles and locations');
-    } finally {
-      setIsLoadingOptions(false);
-    }
-  };
+      return levelData;
+    },
+    enabled: isDialogOpen
+  });
 
   const onDialogChange = (open: boolean) => {
     setIsDialogOpen(open);
     if (!open) {
       setSelectedSchedule(undefined);
-    } else {
-      loadOptions();
     }
   };
 
-  const isLoading = schedulesLoading || isLoadingOptions;
+  const isLoading = schedulesLoading ;
 
   if (isLoading) {
     return (
