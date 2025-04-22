@@ -409,6 +409,14 @@ export function FeedingTab() {
             >
               <Card className="border-0 shadow-none gap-5 3xl:gap-6">
                 <CardHeader className="pb-0 px-6">
+                  {status && status.isComplete && (
+                    <div className="mb-3">
+                      <Badge variant="outline" className="flex !text-xs items-center gap-1.5  h-8 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                        <Calendar className="h-3 w-3 mb-0.5" />
+                        Next feeding: {format(stats.nextFeedingDate, 'EEEE, MMM d, yyyy')}
+                      </Badge>
+                    </div>
+                  )}
                   <div className="flex  items-center gap-5 2xl:gap-7">
                     <div>
                       <div className="flex items-center gap-2">
@@ -428,7 +436,7 @@ export function FeedingTab() {
                         <div className="h-8 flex items-center justify-center mb-3">
                           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                         </div>
-                        ) : status && status.totalEvents > 0 && (
+                        ) : status && status.totalEvents > 0 && !status.isComplete && (
                           <div className="mb-4">
                             <div className="flex justify-between text-xs text-muted-foreground mb-1">
                               <span>
