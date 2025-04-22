@@ -7,9 +7,9 @@ import { INCUBATION_STATUS_COLORS } from '@/lib/constants/colors';
 import { BreedingProject, Clutch, IncubationStatus, NewClutch } from '@/lib/types/breeding';
 import { Reptile } from '@/lib/types/reptile';
 import { format } from 'date-fns';
-import { Plus } from 'lucide-react';
+import { Info, Plus } from 'lucide-react';
 import { HatchlingsList } from '../hatchling/HatchlingsList';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ClutchForm } from './ClutchForm';
 import { createClutch, updateClutch } from '@/app/api/breeding/clutches';
@@ -30,6 +30,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useRouter } from 'next/navigation';
+import { TopLoader } from '@/components/ui/TopLoader';
 interface ClutchesListProps {
   clutch: Clutch;
   hatchlings: Record<string, Reptile[]>;
@@ -48,6 +50,8 @@ export function ClutchesList({
   const [clutchDialogOpen, setClutchDialogOpen] = useState(false);
   const [editingClutch, setEditingClutch] = useState<Clutch | null>(null);
   const queryClient = useQueryClient();
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const handleClutchSubmit = async (data: NewClutch) => {
     try {
@@ -77,6 +81,8 @@ export function ClutchesList({
 
   return (
     <div className="space-y-4">
+        {isPending && <TopLoader />}
+
         <div key={clutch.id} className="rounded-lg  bg-card">
           <Card className="border-0 shadow-none pt-2 pb-3 gap-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -165,7 +171,7 @@ export function ClutchesList({
             </CardContent>
           </Card>
 
-          <div className="px-6 xl:py-2 ">
+          <div className="px-6 xl:py-2 space-y-2 ">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-medium">Hatchlings</h3>
               <Button 
@@ -179,7 +185,15 @@ export function ClutchesList({
                 <Plus className="w-4 h-4" />  Hatchling
               </Button>
             </div>
-            
+            {hatchlings[clutch.id].length  > 0 &&
+                <small className='flex items-center gap-1'>
+                    <Info strokeWidth={1.5} className="h-4 w-4" />
+                      Edit Hatchling info in 
+                      <span 
+                      onClick={()=> startTransition(() => { router.push('/reptiles')})}
+                      className='underline underline-offset-4 cursor-pointer'>Herp Page</span>
+                </small>
+            }
             <HatchlingsList hatchlings={hatchlings[clutch.id] || []} />
           </div>
         </div>
