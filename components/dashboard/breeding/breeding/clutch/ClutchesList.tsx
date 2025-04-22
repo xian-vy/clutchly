@@ -4,17 +4,24 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { INCUBATION_STATUS_COLORS } from '@/lib/constants/colors';
-import { Clutch, IncubationStatus } from '@/lib/types/breeding';
+import { BreedingProject, Clutch, IncubationStatus, NewClutch } from '@/lib/types/breeding';
 import { Reptile } from '@/lib/types/reptile';
 import { format } from 'date-fns';
 import { Plus } from 'lucide-react';
 import { HatchlingsList } from '../hatchling/HatchlingsList';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { ClutchForm } from './ClutchForm';
+import { createClutch,  } from '@/app/api/breeding/clutches';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 interface ClutchesListProps {
   clutch: Clutch;
   hatchlings: Record<string, Reptile[]>;
   onAddHatchling: (clutchId: string) => void;
   onUpdateIncubationStatus: (clutchId: string, status: IncubationStatus) => void;
+  project : BreedingProject
 }
 
 export function ClutchesList({
@@ -22,7 +29,28 @@ export function ClutchesList({
   hatchlings,
   onAddHatchling,
   onUpdateIncubationStatus,
+  project
 }: ClutchesListProps) {
+  const [isAddClutchDialogOpen, setIsAddClutchDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleAddClutch = async (data: NewClutch) => {
+    try {
+      await createClutch({
+        ...data,
+        breeding_project_id: project.id,
+      });
+      
+      // Invalidate queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
+      queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
+      
+      toast.success('Clutch added successfully');
+    } catch (error) {
+      console.error('Error adding clutch:', error);
+      toast.error('Failed to add clutch');
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -32,17 +60,16 @@ export function ClutchesList({
               <CardTitle className="text-sm font-medium">
                 Clutch Info
               </CardTitle>
-              <Badge
-                className={`${
-                  INCUBATION_STATUS_COLORS[clutch.incubation_status]
-                } capitalize`}
-              >
-                {clutch.incubation_status.replace('_', ' ')}
-              </Badge>
+          
+              <div className="flex justify-end items-center">
+                <Button size="sm"  onClick={() => setIsAddClutchDialogOpen(true)}>
+                <Plus />  Add Clutch
+              </Button>
+            </div>
             </CardHeader>
             
             <CardContent>
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 border rounded-md p-4">
+              <div className="grid grid-cols-2 xl:grid-cols-5 gap-4 border rounded-md p-4">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">Egg Count</p>
                   <p className="text-sm font-semibold">{clutch.egg_count}</p>
@@ -55,6 +82,13 @@ export function ClutchesList({
                   <p className="text-sm font-medium text-muted-foreground">Hatch Date</p>
                   <p className="text-sm font-semibold">{clutch.hatch_date ? format(new Date(clutch.hatch_date), 'MMM d, yyyy') : 'Not hatched'}</p>
                 </div>
+                <Badge
+                className={`${
+                  INCUBATION_STATUS_COLORS[clutch.incubation_status]
+                } capitalize`}
+              >
+                {clutch.incubation_status.replace('_', ' ')}
+              </Badge>
                 <div className="flex gap-2 justify-end">
                 {clutch.incubation_status !== 'completed' && (
                   <Button
@@ -106,7 +140,17 @@ export function ClutchesList({
           </div>
         </div>
       
-     
+        <Dialog open={isAddClutchDialogOpen} onOpenChange={setIsAddClutchDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogTitle>Add Clutch</DialogTitle>
+          <ClutchForm
+            breedingProjectId={project.id}
+            onSubmit={handleAddClutch}
+            onCancel={() => setIsAddClutchDialogOpen(false)}
+            speciesID={project.species_id}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

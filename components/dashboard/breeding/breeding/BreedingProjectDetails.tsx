@@ -1,8 +1,7 @@
 'use client';
 
-import { createClutch, getClutches, updateClutch } from '@/app/api/breeding/clutches';
+import { getClutches, updateClutch } from '@/app/api/breeding/clutches';
 import { createReptile, deleteReptile, getReptileByClutchId, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,12 +11,10 @@ import { BreedingProject, Clutch, IncubationStatus, NewClutch } from '@/lib/type
 import { NewReptile, Reptile, ReptileGeneInfo } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import BreedingProjecParentsInfo from './BreedingProjecParentsInfo';
 import { ClutchesList } from './clutch/ClutchesList';
-import { ClutchForm } from './clutch/ClutchForm';
 import { HatchlingForm } from './hatchling/HatchlingForm';
 
 interface BreedingProjectDetailsProps {
@@ -28,7 +25,6 @@ interface BreedingProjectDetailsProps {
 export function BreedingProjectDetails({
   project,
 }: BreedingProjectDetailsProps) {
-  const [isAddClutchDialogOpen, setIsAddClutchDialogOpen] = useState(false);
   const [isAddHatchlingDialogOpen, setIsAddHatchlingDialogOpen] = useState(false);
   const [selectedClutchId, setSelectedClutchId] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -81,25 +77,6 @@ export function BreedingProjectDetails({
   });
 
 
-
-  const handleAddClutch = async (data: NewClutch) => {
-    try {
-      await createClutch({
-        ...data,
-        breeding_project_id: project.id,
-      });
-      
-      // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
-      queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
-      
-      toast.success('Clutch added successfully');
-      setIsAddClutchDialogOpen(false);
-    } catch (error) {
-      console.error('Error adding clutch:', error);
-      toast.error('Failed to add clutch');
-    }
-  };
 
   const handleUpdateClutch = async (id: string, data: Partial<Clutch>) => {
     try {
@@ -188,11 +165,7 @@ export function BreedingProjectDetails({
       </TabsContent>
       <TabsContent value="project-info">
           <div className="space-y-4">
-            <div className="flex justify-end items-center">
-              <Button size="sm"  onClick={() => setIsAddClutchDialogOpen(true)}>
-              <Plus />  Add Clutch
-              </Button>
-            </div>
+           
 
             {clutches.length > 0 ? (
               <Tabs defaultValue={clutches[0]?.id} className="w-full">
@@ -210,6 +183,7 @@ export function BreedingProjectDetails({
                       hatchlings={{ [clutch.id]: hatchlingsByClutch[clutch.id] || [] }}
                       onAddHatchling={handleAddHatchlingClick}
                       onUpdateIncubationStatus={handleUpdateIncubationStatus}
+                      project={project}
                     />
                   </TabsContent>
                 ))}
@@ -223,17 +197,6 @@ export function BreedingProjectDetails({
       </TabsContent>
       </Tabs>
 
-      <Dialog open={isAddClutchDialogOpen} onOpenChange={setIsAddClutchDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogTitle>Add Clutch</DialogTitle>
-          <ClutchForm
-            breedingProjectId={project.id}
-            onSubmit={handleAddClutch}
-            onCancel={() => setIsAddClutchDialogOpen(false)}
-            speciesID={project.species_id}
-          />
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={isAddHatchlingDialogOpen} onOpenChange={setIsAddHatchlingDialogOpen}>
         <DialogContent className="sm:max-w-[700px]">
