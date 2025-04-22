@@ -12,9 +12,9 @@ import {
     LineChart,
     MapPinHouse,
     Menu,
+    Rat,
     Settings,
     Turtle,
-    Utensils
 } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -57,7 +57,7 @@ const navItems = [
   {
     name: 'Feeding',
     href: '/feeding',
-    icon: Utensils,
+    icon: Rat,
   },
   {
     name: 'Backup',
