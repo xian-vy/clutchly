@@ -124,7 +124,7 @@ export function FeedingScheduleList({
   }
 
   return (
-    <Card>
+    <Card className='shadow-none'>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <Table className="border-b">
