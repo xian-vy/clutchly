@@ -12,7 +12,7 @@ import { HatchlingsList } from '../hatchling/HatchlingsList';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { ClutchForm } from './ClutchForm';
-import { createClutch,  } from '@/app/api/breeding/clutches';
+import { createClutch, updateClutch } from '@/app/api/breeding/clutches';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { MoreHorizontal } from 'lucide-react';
@@ -45,24 +45,33 @@ export function ClutchesList({
   onUpdateIncubationStatus,
   project
 }: ClutchesListProps) {
-  const [isAddClutchDialogOpen, setIsAddClutchDialogOpen] = useState(false);
+  const [clutchDialogOpen, setClutchDialogOpen] = useState(false);
+  const [editingClutch, setEditingClutch] = useState<Clutch | null>(null);
   const queryClient = useQueryClient();
 
-  const handleAddClutch = async (data: NewClutch) => {
+  const handleClutchSubmit = async (data: NewClutch) => {
     try {
-      await createClutch({
-        ...data,
-        breeding_project_id: project.id,
-      });
+      if (editingClutch) {
+        await updateClutch(editingClutch.id, {
+          ...data,
+          breeding_project_id: project.id,
+        });
+        toast.success('Clutch updated successfully');
+      } else {
+        await createClutch({
+          ...data,
+          breeding_project_id: project.id,
+        });
+        toast.success('Clutch added successfully');
+      }
       
-      // Invalidate queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
       queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
-      
-      toast.success('Clutch added successfully');
+      setClutchDialogOpen(false);
+      setEditingClutch(null);
     } catch (error) {
-      console.error('Error adding clutch:', error);
-      toast.error('Failed to add clutch');
+      console.error('Error saving clutch:', error);
+      toast.error(`Failed to ${editingClutch ? 'update' : 'add'} clutch`);
     }
   };
 
@@ -76,9 +85,12 @@ export function ClutchesList({
               </CardTitle>
           
               <div className="flex justify-end items-center">
-                <Button size="sm"  onClick={() => setIsAddClutchDialogOpen(true)} className='w-[100px]'>
-                <Plus />  Add Clutch
-              </Button>
+              <Button size="sm" onClick={() => {
+                  setEditingClutch(null);
+                  setClutchDialogOpen(true);
+                }} className='w-[100px]'>
+                  <Plus /> Add Clutch
+                </Button>
             </div>
             </CardHeader>
             
@@ -134,6 +146,15 @@ export function ClutchesList({
                                 Mark Failed
                               </DropdownMenuItem>
                             )}
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingClutch(clutch);
+                                setClutchDialogOpen(true);
+                              }}
+                            >
+                              Edit Clutch Info
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -163,14 +184,26 @@ export function ClutchesList({
           </div>
         </div>
       
-        <Dialog open={isAddClutchDialogOpen} onOpenChange={setIsAddClutchDialogOpen}>
+       
+      <Dialog open={clutchDialogOpen} onOpenChange={(open) => {
+        setClutchDialogOpen(open);
+        if (!open) setEditingClutch(null);
+      }}>
         <DialogContent className="sm:max-w-[500px]">
-          <DialogTitle>Add Clutch</DialogTitle>
+          <DialogTitle>{editingClutch ? 'Edit' : 'Add'} Clutch</DialogTitle>
           <ClutchForm
             breedingProjectId={project.id}
-            onSubmit={handleAddClutch}
-            onCancel={() => setIsAddClutchDialogOpen(false)}
+            onSubmit={handleClutchSubmit}
+            onCancel={() => {
+              setClutchDialogOpen(false);
+              setEditingClutch(null);
+            }}
             speciesID={project.species_id}
+            initialData={editingClutch ? {
+              ...editingClutch,
+              lay_date: editingClutch.lay_date.split('T')[0],
+              hatch_date: editingClutch.hatch_date ? editingClutch.hatch_date.split('T')[0] : undefined,
+            } : undefined}
           />
         </DialogContent>
       </Dialog>

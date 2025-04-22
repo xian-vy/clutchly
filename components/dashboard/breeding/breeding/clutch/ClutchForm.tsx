@@ -33,7 +33,7 @@ const formSchema = z.object({
   incubation_temp: z.coerce.number().optional(),
   incubation_humidity: z.coerce.number().optional(),
   hatch_date: z.string().optional(),
-  notes: z.string().optional(),
+  notes: z.string().nullable(),
 });
 
 interface ClutchFormProps {
@@ -208,7 +208,7 @@ export function ClutchForm({
               <FormControl>
                 <Textarea
                   placeholder="Enter any additional notes..."
-                  {...field}
+                  {...field} value={field.value || ''}
                 />
               </FormControl>
               <FormMessage />
