@@ -2,7 +2,7 @@
 
 import { BreedingStats } from '@/app/api/breeding/reports';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Egg, EggFried, EggOff, Layers } from 'lucide-react';
+import { Egg,  EggOff, Layers, Turtle } from 'lucide-react';
 
 // Import recharts components
 import {
@@ -24,18 +24,27 @@ import {
 // Chart colors
 const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
+interface PayloadType {
+  name: string;
+  value: number;
+  payload: {
+    parent: Array<{ name: string; value: number }>;
+  };
+  color ?: string;
+}
+
 // Custom tooltips for charts
 const ProjectStatusTooltip = ({ 
   active, 
   payload 
 }: {
   active?: boolean;
-  payload?: any[];
+  payload?: PayloadType[];
 }) => {
   if (active && payload && payload.length) {
     const data = payload[0];
     const parentData = data.payload.parent;
-    const total = parentData.reduce((sum: number, item: any) => sum + item.value, 0);
+    const total = parentData.reduce((sum: number, item) => sum + item.value, 0);
     const percentage = (data.value / total) * 100;
 
     return (
@@ -59,12 +68,12 @@ const EggStatisticsTooltip = ({
   payload 
 }: {
   active?: boolean;
-  payload?: any[];
+  payload?: PayloadType[];
 }) => {
   if (active && payload && payload.length) {
     const data = payload[0];
     const parentData = data.payload.parent;
-    const total = parentData.reduce((sum: number, item: any) => sum + item.value, 0);
+    const total = parentData.reduce((sum: number, item) => sum + item.value, 0);
     const percentage = (data.value / total) * 100;
 
     return (
@@ -89,7 +98,7 @@ const MonthlyTrendsTooltip = ({
   label 
 }: {
   active?: boolean;
-  payload?: any[];
+  payload?: PayloadType[];
   label?: string;
 }) => {
   if (active && payload && payload.length) {
@@ -114,7 +123,7 @@ const HatchRateTooltip = ({
   label 
 }: {
   active?: boolean;
-  payload?: any[];
+  payload?: PayloadType[];
   label?: string;
 }) => {
   if (active && payload && payload.length) {
@@ -145,7 +154,7 @@ const SpeciesDistributionTooltip = ({
   label 
 }: {
   active?: boolean;
-  payload?: any[];
+  payload?: PayloadType[];
   label?: string;
 }) => {
   if (active && payload && payload.length) {
@@ -258,7 +267,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Hatchlings</CardTitle>
-            <EggFried className="h-4 w-4 text-muted-foreground" />
+            <Turtle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.totalHatchlings}</div>
