@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { STATUS_COLORS } from '@/lib/constants/colors';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { ChevronRight, Info, Mars, Venus } from 'lucide-react';
+import { ChevronRight, Gauge, Info, Mars, Venus } from 'lucide-react';
 
 interface ProjectPerformanceProps {
   data?: DetailedBreedingProject[];
@@ -189,7 +189,10 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
       </Card>
       
       <div className="space-y-4">
-        <h3 className="text-sm lg:text-base font-medium ml-1">Detailed Project Performance</h3>
+        <h3 className="text-sm lg:text-base font-medium flex items-center gap-1">
+          <Gauge className="h-4 w-4 " />
+          Detailed Project Performance
+        </h3>
         
         <Accordion type="single" collapsible className="space-y-4">
           {sortedProjects.map(project => (
@@ -221,7 +224,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                         <CardTitle className="text-sm">Parents</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="flex items-center gap-8">
+                        <div className="flex items-center justify-center gap-8">
                           <div className="flex items-start gap-2">
                             <Mars className="h-4 w-4 text-blue-500 mt-0.5" />
                             <div>
