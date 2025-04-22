@@ -48,6 +48,11 @@ export function FeedingScheduleList({
         const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const days = schedule.custom_days.sort().map(day => dayNames[day]);
         return `Custom (${days.join(', ')})`;
+      case 'interval':
+        if (!schedule.interval_days) {
+          return 'Interval';
+        }
+        return `Every ${schedule.interval_days} day${schedule.interval_days > 1 ? 's' : ''}`;
     }
   };
 

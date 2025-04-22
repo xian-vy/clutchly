@@ -165,22 +165,17 @@ export async function generateEventsFromSchedule(
 ): Promise<{ count: number }> {
   const supabase = await createClient();
   
-  // Get user ID
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-  
-  // 1. Get the schedule details
+  // Get the schedule
   const { data: schedule, error: scheduleError } = await supabase
     .from('feeding_schedules')
     .select('*')
     .eq('id', scheduleId)
-    .eq('user_id', user.id)
     .single();
   
   if (scheduleError) throw scheduleError;
   if (!schedule) throw new Error('Schedule not found');
   
-  // 2. Get schedule targets
+  // Get targets for this schedule
   const { data: targets, error: targetsError } = await supabase
     .from('feeding_targets')
     .select('*')
@@ -188,31 +183,31 @@ export async function generateEventsFromSchedule(
   
   if (targetsError) throw targetsError;
   if (!targets || targets.length === 0) {
-    return { count: 0 }; // No targets to generate events for
+    throw new Error('No targets found for this schedule');
   }
   
-  // 3. Get reptile IDs based on targets
+  // Get reptiles from targets
   const reptileIds = await getReptilesFromTargets(targets);
-  
   if (reptileIds.length === 0) {
-    return { count: 0 }; // No reptiles to generate events for
+    throw new Error('No reptiles found for this schedule');
   }
   
-  // 4. Generate dates based on recurrence pattern
-  // Use provided date range, or fallback to schedule's start/end dates
+  // Determine start and end dates
   const actualStartDate = startDate || schedule.start_date;
   const actualEndDate = endDate || schedule.end_date || generateDefaultEndDate(actualStartDate);
   
+  // Generate feeding dates based on recurrence pattern
   const feedingDates = generateFeedingDates(
     schedule.recurrence,
     schedule.custom_days || [],
+    schedule.interval_days,
     actualStartDate,
     actualEndDate
   );
   
-  if (feedingDates.length === 0) {
-    return { count: 0 }; // No dates to generate events for
-  }
+  // Get user ID
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
   
   // 5. Generate events (one per reptile per date)
   const events = [];
@@ -378,6 +373,7 @@ function generateDefaultEndDate(startDate: string): string {
 function generateFeedingDates(
   recurrence: string,
   customDays: number[],
+  intervalDays: number | null,
   startDate: string,
   endDate: string
 ): string[] {
@@ -427,6 +423,14 @@ function generateFeedingDates(
     
     // Sort dates to ensure they're in chronological order
     dates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+  }
+  // Interval-based recurrence
+  else if (recurrence === 'interval' && intervalDays && intervalDays > 0) {
+    const current = new Date(start);
+    while (current <= end) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + intervalDays);
+    }
   }
   
   return dates;

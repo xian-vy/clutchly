@@ -37,8 +37,9 @@ import { useMultiReptileSelect } from '@/lib/hooks/useMultiReptileSelect';
 const feedingScheduleSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  recurrence: z.enum(['daily', 'weekly', 'custom']),
+  recurrence: z.enum(['daily', 'weekly', 'custom', 'interval']),
   custom_days: z.array(z.number()).optional(),
+  interval_days: z.number().min(1).optional(),
   start_date: z.date(),
   end_date: z.date().optional().nullable(),
   targets: z.array(
@@ -75,28 +76,19 @@ export function FeedingScheduleForm({
   // Set up form with default values
   const form = useForm<FeedingScheduleFormValues>({
     resolver: zodResolver(feedingScheduleSchema),
-    defaultValues: initialData
-      ? {
-          name: initialData.name,
-          description: initialData.description || '',
-          recurrence: initialData.recurrence,
-          custom_days: initialData.custom_days || [],
-          start_date: new Date(initialData.start_date),
-          end_date: initialData.end_date ? new Date(initialData.end_date) : null,
-          targets: initialData.targets.map(target => ({
-            target_type: target.target_type,
-            target_id: target.target_id,
-          })),
-        }
-      : {
-          name: '',
-          description: '',
-          recurrence: 'weekly',
-          custom_days: [],
-          start_date: new Date(),
-          end_date: null,
-          targets: [],
-        },
+    defaultValues: {
+      name: initialData?.name || '',
+      description: initialData?.description || '',
+      recurrence: initialData?.recurrence || 'weekly',
+      custom_days: initialData?.custom_days || [],
+      interval_days: initialData?.interval_days || undefined,
+      start_date: initialData?.start_date ? new Date(initialData.start_date) : new Date(),
+      end_date: initialData?.end_date ? new Date(initialData.end_date) : null,
+      targets: initialData?.targets.map(target => ({
+        target_type: target.target_type,
+        target_id: target.target_id,
+      })) || [],
+    },
   });
   
   // Handle target type change
@@ -137,13 +129,14 @@ export function FeedingScheduleForm({
   
   // Handle form submission
   const handleSubmit = async (values: FeedingScheduleFormValues) => {
-    setIsSubmitting(true);
     try {
+      setIsSubmitting(true);
       await onSubmit({
         name: values.name,
         description: values.description || null,
         recurrence: values.recurrence,
         custom_days: values.recurrence === 'custom' ? values.custom_days || [] : null,
+        interval_days: values.recurrence === 'interval' ? values.interval_days || null : null,
         start_date: format(values.start_date, 'yyyy-MM-dd'),
         end_date: values.end_date ? format(values.end_date, 'yyyy-MM-dd') : null,
         targets: values.targets,
@@ -198,13 +191,13 @@ export function FeedingScheduleForm({
           control={form.control}
           name="recurrence"
           render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel>Feeding Frequency</FormLabel>
+            <FormItem>
+              <FormLabel>Recurrence</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  className="flex items-center"
+                  className="flex flex-col space-y-1"
                 >
                   <FormItem className="flex items-center">
                     <FormControl>
@@ -224,6 +217,12 @@ export function FeedingScheduleForm({
                     </FormControl>
                     <FormLabel className="font-normal">Custom Days</FormLabel>
                   </FormItem>
+                  <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="interval" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Interval</FormLabel>
+                  </FormItem>
                 </RadioGroup>
               </FormControl>
               <FormMessage />
@@ -238,34 +237,45 @@ export function FeedingScheduleForm({
             name="custom_days"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select Days</FormLabel>
+                <FormLabel>Custom Days</FormLabel>
                 <FormControl>
                   <div className="flex flex-wrap gap-2">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                      <div key={day} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={`day-${index}`}
-                          checked={field.value?.includes(index)}
-                          onCheckedChange={(checked) => {
-                            const currentValue = field.value || [];
-                            if (checked) {
-                              field.onChange([...currentValue, index]);
-                            } else {
-                              field.onChange(
-                                currentValue.filter((day) => day !== index)
-                              );
-                            }
-                          }}
-                        />
-                        <label
-                          htmlFor={`day-${index}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {day}
-                        </label>
-                      </div>
+                    {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+                      <Checkbox
+                        key={day}
+                        checked={field.value?.includes(day)}
+                        onCheckedChange={(checked) => {
+                          const newValue = checked
+                            ? [...(field.value || []), day]
+                            : (field.value || []).filter((d) => d !== day);
+                          field.onChange(newValue);
+                        }}
+                      />
                     ))}
                   </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        
+        {/* Interval Days Selection */}
+        {recurrence === 'interval' && (
+          <FormField
+            control={form.control}
+            name="interval_days"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Interval (days)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="1"
+                    placeholder="Enter number of days"
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
