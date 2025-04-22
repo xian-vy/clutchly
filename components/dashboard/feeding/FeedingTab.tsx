@@ -375,7 +375,7 @@ export function FeedingTab() {
    
       <div className="flex justify-between items-center">
         {incompleteSchedules > 0 ? (
-          <Alert variant="info" className="flex-1 mr-2">
+          <Alert variant="info" className="flex-1">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Feeding reminder</AlertTitle>
             <AlertDescription>
