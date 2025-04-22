@@ -237,6 +237,8 @@ export function FeedingTab() {
         return 'Daily';
       case 'weekly':
         return 'Weekly';
+      case 'interval':
+        return `Every ${schedule.interval_days} days`;
       case 'custom':
         if (!schedule.custom_days || schedule.custom_days.length === 0) {
           return 'Custom';
@@ -274,6 +276,25 @@ export function FeedingTab() {
         nextDate.setDate(nextDate.getDate() + daysToAdd);
         return nextDate;
       }
+    } else if (schedule.recurrence === 'interval' && schedule.interval_days) {
+      const startDate = new Date(schedule.start_date);
+      startDate.setHours(0, 0, 0, 0);
+      
+      // Calculate days since start
+      const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Calculate next interval
+      const nextInterval = Math.ceil(daysSinceStart / schedule.interval_days) * schedule.interval_days;
+      
+      const nextDate = new Date(startDate);
+      nextDate.setDate(startDate.getDate() + nextInterval);
+      
+      // If next date is today or in the past, add one more interval
+      if (nextDate <= today) {
+        nextDate.setDate(nextDate.getDate() + schedule.interval_days);
+      }
+      
+      return nextDate;
     } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
       const currentDayOfWeek = today.getDay();
       
