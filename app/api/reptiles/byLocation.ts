@@ -15,7 +15,7 @@ export async function getReptilesByLocation(
   const supabase = await createClient();
 
   try {
-    console.log(`Server: Fetching reptiles by ${locationType} with ID ${locationId}`);
+    //console.log(`Server: Fetching reptiles by ${locationType} with ID ${locationId}`);
     
     // For room, rack, or level, we need to get location IDs first
     let locationIds: string[] = [];
@@ -25,7 +25,7 @@ export async function getReptilesByLocation(
       locationIds = [locationId];
     } 
     else if (locationType === 'room') {
-      console.log(`Server: Querying locations for room_id: ${locationId}`);
+      //console.log(`Server: Querying locations for room_id: ${locationId}`);
       
       // Get all locations in this room
       const { data: locations, error } = await supabase
@@ -38,7 +38,7 @@ export async function getReptilesByLocation(
         throw error;
       }
       
-      console.log(`Server: Found ${locations?.length || 0} locations in room:`, locations);
+      //console.log(`Server: Found ${locations?.length || 0} locations in room:`, locations);
       locationIds = locations?.map(loc => loc.id) || [];
     } 
     else if (locationType === 'rack') {
@@ -79,7 +79,7 @@ export async function getReptilesByLocation(
     }
     
     // Get reptiles for these location IDs
-    console.log(`Server: Querying reptiles for location IDs: ${locationIds.join(', ')}`);
+    //console.log(`Server: Querying reptiles for location IDs: ${locationIds.join(', ')}`);
     
     const { data: reptiles, error } = await supabase
       .from('reptiles')
@@ -97,7 +97,7 @@ export async function getReptilesByLocation(
       return [];
     }
     
-    console.log(`Server: Found ${reptiles.length} reptiles for ${locationType}`);
+    //console.log(`Server: Found ${reptiles.length} reptiles for ${locationType}`);
     
     // Get species and morphs for the reptiles in separate queries
     const speciesIds = reptiles.map(reptile => reptile.species_id).filter(Boolean);
