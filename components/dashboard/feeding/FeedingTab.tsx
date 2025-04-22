@@ -373,7 +373,7 @@ export function FeedingTab() {
     .length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
    
       <div className="flex justify-between items-center">
         {incompleteSchedules > 0 ? (
