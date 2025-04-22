@@ -94,7 +94,7 @@ export function BreedingReportFilters({
     <div className="flex items-center gap-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className="h-8 gap-1 border-dashed">
+          <Button variant="outline" size="sm" className="h-8 gap-1 border">
             <Filter className="h-3.5 w-3.5" />
             <span>Filter</span>
             {getActiveFilterCount() > 0 && (

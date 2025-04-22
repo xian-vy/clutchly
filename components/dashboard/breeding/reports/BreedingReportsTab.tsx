@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Database, Loader2, PieChart, TrendingUp } from 'lucide-react';
+import { Database, FilterX, Loader2, PieChart, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { BreedingReportFilters as FilterComponent } from './BreedingReportFilters';
@@ -105,7 +105,7 @@ export function BreedingReportsTab() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-start">Breeding Reports</h2>
+          <h2 className="text-sm lg:text-lg font-semibold tracking-tight text-start">Breeding Reports</h2>
           <p className="text-sm text-muted-foreground">
             Comprehensive analysis of your breeding projects and outcomes
           </p>
@@ -116,17 +116,19 @@ export function BreedingReportsTab() {
             date={dateRange} 
             onDateChange={handleDateRangeChange} 
           />
-          <Button variant="outline" size="sm" onClick={handleResetFilters}>
-            Reset Filters
+          <FilterComponent 
+            onFilterChange={setFilters} 
+            filters={filters}
+            species={species}
+          />
+           <Button variant="outline" size="sm" onClick={handleResetFilters}>
+            <FilterX className="h-4 w-4" />
+            Reset 
           </Button>
         </div>
       </div>
       
-      <FilterComponent 
-        onFilterChange={setFilters} 
-        filters={filters}
-        species={species}
-      />
+    
 
       <Tabs defaultValue="statistics" value={activeTab} onValueChange={handleTabChange} className="space-y-4">
         <TabsList>
