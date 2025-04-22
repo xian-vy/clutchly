@@ -19,7 +19,7 @@ import { useResource } from '@/lib/hooks/useResource';
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, startOfDay } from 'date-fns';
-import { AlertCircle, Calendar, Check, Loader2 } from 'lucide-react';
+import { AlertCircle, Calendar, Check, CheckCircle, Loader2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEventsList } from './FeedingEventsList';
@@ -423,7 +423,9 @@ export function FeedingTab() {
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="flex-1" />
+          <div className="flex w-full items-center justify-center gap-3 text-primary text-sm 2xl:text-base" >
+               <CheckCircle strokeWidth={1.5} className='w-4 h-4 2xl:h-5 2xl:w-5' /> You&apos;re all set with Feedings.
+          </div>
         )}
 
       </div>
