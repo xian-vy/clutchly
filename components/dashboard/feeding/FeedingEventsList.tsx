@@ -470,7 +470,21 @@ const { data: virtualEvents = [] } = useQuery({
   });
   
   // Sort dates
-  const sortedDates = Object.keys(eventsByDate).sort((a, b) => 
+  const sortedDates = Object.keys(eventsByDate)
+  .filter(date => {
+    // Always show today's date
+    if (isToday(new Date(date))) return true;
+    
+    // For past dates, check if any events are not fed
+    const dateEvents = eventsByDate[date];
+    const hasUnfedEvents = dateEvents.some(event => {
+      if ('virtual' in event) return true; // Virtual events are always unfed
+      return !event.fed; // Check real events
+    });
+    
+    return hasUnfedEvents;
+  })
+  .sort((a, b) => 
     new Date(b).getTime() - new Date(a).getTime()  // Newest dates first
   );
   
