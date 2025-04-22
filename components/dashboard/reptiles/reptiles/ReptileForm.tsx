@@ -357,6 +357,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                         value={field.value || ''} 
                         onChange={field.onChange}
                         currentLocationId={initialData?.location_id}
+                        filterByAvailability
                       />
                     </FormControl>
                     <FormMessage />

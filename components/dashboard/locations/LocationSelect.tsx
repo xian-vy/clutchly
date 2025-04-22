@@ -13,9 +13,10 @@ interface LocationSelectProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   currentLocationId?: string | null;
+  filterByAvailability?: boolean;
 }
 
-export function LocationSelect({ value, onChange, disabled, currentLocationId }: LocationSelectProps) {
+export function LocationSelect({ value, onChange, disabled, currentLocationId,filterByAvailability }: LocationSelectProps) {
   const { availableLocations, isLoading, refetchLocations } = useLocations();
   const [locations, setLocations] = useState<FormattedLocation[]>([]);
   const [open, setOpen] = useState(false);
@@ -134,7 +135,15 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId }:
               
               {Object.entries(groupedLocations).map(([roomName, roomLocations]) => (
                 <CommandGroup heading={roomName} key={roomName}>
-                  {roomLocations.map((location) => {
+                  {roomLocations
+                  .filter((location) => {
+                    // Filter locations based on availability if the prop is set
+                    if (filterByAvailability) {
+                      return location.is_available;
+                    }
+                    return true;
+                  })
+                  .map((location) => {
                     // Split display name into parts, so we can emphasize the rack and location
                     const parts = (location.displayName || location.label || '').split('>');
                     
