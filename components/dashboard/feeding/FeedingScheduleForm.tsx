@@ -197,7 +197,7 @@ export function FeedingScheduleForm({
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  className="flex flex-col space-y-1"
+                  className="flex items-center space-x-1"
                 >
                   <FormItem className="flex items-center">
                     <FormControl>
@@ -211,17 +211,17 @@ export function FeedingScheduleForm({
                     </FormControl>
                     <FormLabel className="font-normal">Weekly</FormLabel>
                   </FormItem>
-                  <FormItem className="flex items-center">
+                  {/* <FormItem className="flex items-center">
                     <FormControl>
                       <RadioGroupItem value="custom" />
                     </FormControl>
                     <FormLabel className="font-normal">Custom Days</FormLabel>
-                  </FormItem>
+                  </FormItem> */}
                   <FormItem className="flex items-center">
                     <FormControl>
                       <RadioGroupItem value="interval" />
                     </FormControl>
-                    <FormLabel className="font-normal">Interval</FormLabel>
+                    <FormLabel className="font-normal">Custom</FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
@@ -274,6 +274,7 @@ export function FeedingScheduleForm({
                     min="1"
                     placeholder="Enter number of days"
                     {...field}
+                    value={field.value ?? ''}
                     onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
                   />
                 </FormControl>
