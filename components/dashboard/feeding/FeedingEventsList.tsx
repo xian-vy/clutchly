@@ -186,10 +186,10 @@ const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): boolean =
       return true;
 
     case 'weekly': {
-      // Get days since start
-      const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      // If it's divisible by 7, it's a feeding day
-      return daysSinceStart % 7 === 0;
+      // For weekly schedules, check if today's day of week matches the start date's day of week
+      const startDayOfWeek = startDate.getDay();
+      const todayDayOfWeek = today.getDay();
+      return startDayOfWeek === todayDayOfWeek;
     }
 
     case 'custom':

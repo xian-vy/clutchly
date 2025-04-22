@@ -99,15 +99,17 @@ export function FeedingTab() {
             
             // If no events found for the calculated date, try using any events from the last 7 days
             if (relevantEvents.length === 0) {
-              // Look for any feeding events in the past week
+              // Look for any feeding events in the past week that match the start day of week
               const oneWeekAgo = new Date(today);
-              oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+              oneWeekAgo.setDate(today.getDate() - 7);
               
-              // Sort by date descending to get most recent first
+              // Filter events from the past week that match the start day of week
               const recentEvents = events
                 .filter(event => {
                   const eventDate = new Date(event.scheduled_date);
-                  return eventDate >= oneWeekAgo && eventDate <= today;
+                  return eventDate >= oneWeekAgo && 
+                         eventDate <= today && 
+                         eventDate.getDay() === startDayOfWeek;
                 })
                 .sort((a, b) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime());
               
