@@ -136,7 +136,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4">
                     <Card className="shadow-none border">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Offspring Phenotypes</CardTitle>
+                        <CardTitle className="text-sm">Offspring Morphs</CardTitle>
                         <CardDescription className="text-xs">
                           Morph distribution in hatched offspring
                         </CardDescription>
