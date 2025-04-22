@@ -193,7 +193,7 @@ const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): boolean =
       return startDayOfWeek === todayDayOfWeek;
     }
 
-    case 'custom':
+    case 'custom': {
       if (!schedule.custom_days || schedule.custom_days.length === 0) return false;
       
       // Check if today's day of week is in the custom days array
@@ -241,9 +241,17 @@ const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): boolean =
           }
         }
       }
-      
       return false;
-
+    }
+    case 'interval': {
+      if (!schedule.interval_days || schedule.interval_days <= 0) return false;
+      
+      // Calculate days since start
+      const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Check if today falls on an interval
+      return daysSinceStart % schedule.interval_days === 0;
+    }
     default:
       return false;
   }
