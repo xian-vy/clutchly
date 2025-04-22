@@ -149,8 +149,8 @@ export function BreedingProjectDetails({
   
   <Tabs defaultValue="project-details">
     <TabsList>
-      <TabsTrigger value="project-details">Parents Info</TabsTrigger>
-      <TabsTrigger value="project-info">Clutch and Hatchlings</TabsTrigger>
+      <TabsTrigger value="project-details">Breeders</TabsTrigger>
+      <TabsTrigger value="project-info">Brood</TabsTrigger>
       </TabsList>
       <TabsContent value="project-details">
           {/* Parents Info */}
@@ -164,12 +164,11 @@ export function BreedingProjectDetails({
           )}
       </TabsContent>
       <TabsContent value="project-info">
-          <div className="space-y-4">
-           
-
+          <div className="space-y-4 pt-3">
+            {/* Clutches and Hatchlings */} 
             {clutches.length > 0 ? (
               <Tabs defaultValue={clutches[0]?.id} className="w-full">
-                <TabsList className="w-full justify-start">
+                <TabsList className="w-full justify-center">
                   {clutches.map((clutch) => (
                     <TabsTrigger key={clutch.id} value={clutch.id} className="min-w-[120px]">
                       {format(new Date(clutch.lay_date), 'MMM d, yyyy')}

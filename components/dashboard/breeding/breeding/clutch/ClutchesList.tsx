@@ -15,7 +15,21 @@ import { ClutchForm } from './ClutchForm';
 import { createClutch,  } from '@/app/api/breeding/clutches';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
+import { MoreHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 interface ClutchesListProps {
   clutch: Clutch;
   hatchlings: Record<string, Reptile[]>;
@@ -55,7 +69,7 @@ export function ClutchesList({
   return (
     <div className="space-y-4">
         <div key={clutch.id} className="rounded-lg  bg-card">
-          <Card className="border-0 shadow-none">
+          <Card className="border-0 shadow-none pt-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-sm font-medium">
                 Clutch Info
@@ -69,56 +83,64 @@ export function ClutchesList({
             </CardHeader>
             
             <CardContent>
-              <div className="grid grid-cols-2 xl:grid-cols-5 gap-4 border rounded-md p-4">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">Egg Count</p>
-                  <p className="text-sm font-semibold">{clutch.egg_count}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">Fertile Count</p>
-                  <p className="text-sm font-semibold">{clutch.fertile_count || 'Not recorded'}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">Hatch Date</p>
-                  <p className="text-sm font-semibold">{clutch.hatch_date ? format(new Date(clutch.hatch_date), 'MMM d, yyyy') : 'Not hatched'}</p>
-                </div>
-                <Badge
-                className={`${
-                  INCUBATION_STATUS_COLORS[clutch.incubation_status]
-                } capitalize`}
-              >
-                {clutch.incubation_status.replace('_', ' ')}
-              </Badge>
-                <div className="flex gap-2 justify-end">
-                {clutch.incubation_status !== 'completed' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onUpdateIncubationStatus(clutch.id, 'completed');
-                    }}
-                    className='text-xs'
-                  >
-                    Mark Completed
-                  </Button>
-                )}
-                {clutch.incubation_status !== 'failed' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onUpdateIncubationStatus(clutch.id, 'failed');
-                    }}
-                    className='text-xs'
-                  >
-                    Mark Failed
-                  </Button>
-                )}
+              <div className="relative w-full overflow-auto border rounded-md  px-2 lg:px-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b">
+                      <TableHead >Egg Count</TableHead>
+                      <TableHead>Fertile Count</TableHead>
+                      <TableHead>Hatch Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow >
+                      <TableCell className="text-start">{clutch.egg_count}</TableCell>
+                      <TableCell className="text-start">{clutch.fertile_count || 'Not recorded'}</TableCell>
+                      <TableCell className="text-start">
+                        {clutch.hatch_date ? format(new Date(clutch.hatch_date), 'MMM d, yyyy') : 'Not hatched'}
+                      </TableCell>
+                      <TableCell className="text-start">
+                        <Badge className={`${INCUBATION_STATUS_COLORS[clutch.incubation_status]} capitalize`}>
+                          {clutch.incubation_status.replace('_', ' ')}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-start ">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-6 w-6 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {clutch.incubation_status !== 'completed' && (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onUpdateIncubationStatus(clutch.id, 'completed');
+                                }}
+                              >
+                                Mark Completed
+                              </DropdownMenuItem>
+                            )}
+                            {clutch.incubation_status !== 'failed' && (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onUpdateIncubationStatus(clutch.id, 'failed');
+                                }}
+                              >
+                                Mark Failed
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody >
+                </Table>
               </div>
-              </div>
-             
             </CardContent>
           </Card>
 
