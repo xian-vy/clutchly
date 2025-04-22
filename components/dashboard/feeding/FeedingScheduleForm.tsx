@@ -430,28 +430,40 @@ export function FeedingScheduleForm({
                         </Select>
                       </div>
                       
-                      {/* Show Rack filter only if a room is selected */}
-                      {selectedRoomId && (
-                        <div className="mb-4">
-                          <FormLabel className="text-sm text-muted-foreground">Filter by Rack (Optional)</FormLabel>
-                          <Select
-                            value={selectedRackId || "all"}
-                            onValueChange={(value) => setSelectedRackId(value === "all" ? null : value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="All Racks" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">All Racks</SelectItem>
-                              {filteredRacks.map((rack) => (
-                                <SelectItem key={rack.id} value={rack.id}>
-                                  {rack.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
+                      {/* Show Rack selection with checkboxes */}
+                      <div className="flex flex-wrap gap-2">
+                        {filteredRacks.map((rack) => (
+                          <div key={rack.id} className="flex items-center space-x-2">
+                            <Checkbox 
+                              id={`rack-${rack.id}`}
+                              checked={field.value.some(target => 
+                                target.target_type === 'rack' && target.target_id === rack.id
+                              )}
+                              onCheckedChange={(checked) => {
+                                const currentValue = [...field.value];
+                                if (checked) {
+                                  field.onChange([
+                                    ...currentValue,
+                                    { target_type: 'rack', target_id: rack.id }
+                                  ]);
+                                } else {
+                                  field.onChange(
+                                    currentValue.filter(
+                                      target => !(target.target_type === 'rack' && target.target_id === rack.id)
+                                    )
+                                  );
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor={`rack-${rack.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {rack.name}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
                     </>
                   )}
                   
@@ -477,26 +489,47 @@ export function FeedingScheduleForm({
                         </Select>
                       </div>
                       
-                      {/* Show Level filter only if a rack is selected */}
+                      {/* Show Level selection with checkboxes */}
                       {selectedRackId && (
-                        <div className="mb-4">
-                          <FormLabel className="text-sm text-muted-foreground">Filter by Level (Optional)</FormLabel>
-                          <Select
-                            value={selectedLevel || "all"}
-                            onValueChange={(value) => setSelectedLevel(value === "all" ? null : value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="All Levels" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">All Levels</SelectItem>
-                              {filteredLevels.map((levelObj) => (
-                                <SelectItem key={`${levelObj.rack_id}-${levelObj.level}`} value={`${levelObj.level}`}>
-                                  Level {levelObj.level}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                        <div className="flex flex-wrap gap-2">
+                          {filteredLevels.map((levelObj) => (
+                            <div key={`${levelObj.rack_id}-${levelObj.level}`} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`level-${levelObj.rack_id}-${levelObj.level}`}
+                                checked={field.value.some(target => 
+                                  target.target_type === 'level' && 
+                                  target.target_id === `${levelObj.rack_id}-${levelObj.level}`
+                                )}
+                                onCheckedChange={(checked) => {
+                                  const currentValue = [...field.value];
+                                  if (checked) {
+                                    field.onChange([
+                                      ...currentValue,
+                                      { 
+                                        target_type: 'level', 
+                                        target_id: `${levelObj.rack_id}-${levelObj.level}` 
+                                      }
+                                    ]);
+                                  } else {
+                                    field.onChange(
+                                      currentValue.filter(
+                                        target => !(
+                                          target.target_type === 'level' && 
+                                          target.target_id === `${levelObj.rack_id}-${levelObj.level}`
+                                        )
+                                      )
+                                    );
+                                  }
+                                }}
+                              />
+                              <label
+                                htmlFor={`level-${levelObj.rack_id}-${levelObj.level}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                Level {levelObj.level}
+                              </label>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </>
@@ -601,4 +634,4 @@ export function FeedingScheduleForm({
       </form>
     </Form>
   );
-} 
+}
