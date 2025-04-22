@@ -9,7 +9,6 @@ import { FeedingScheduleForm } from './FeedingScheduleForm';
 import { FeedingScheduleList } from './FeedingScheduleList';
 import { Button } from '@/components/ui/button';
 import { Info, Loader2, Plus } from 'lucide-react';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { getLocations } from '@/app/api/locations/locations';
 import { getRooms } from '@/app/api/locations/rooms';
 import { getRacks } from '@/app/api/locations/racks';
@@ -21,7 +20,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function FeedingSchedulesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [reptiles, setReptiles] = useState<{ id: string; name: string }[]>([]);
   const [locations, setLocations] = useState<{ id: string; label: string }[]>([]);
   const [rooms, setRooms] = useState<{ id: string; name: string }[]>([]);
   const [racks, setRacks] = useState<{ id: string; name: string; room_id: string }[]>([]);
@@ -57,18 +55,16 @@ export function FeedingSchedulesTab() {
 
   // Load reptiles, locations, rooms and racks when dialog opens
   const loadOptions = async () => {
-    if (reptiles.length > 0 && locations.length > 0 && rooms.length > 0 && racks.length > 0) return;
+    if (locations.length > 0 && rooms.length > 0 && racks.length > 0) return;
     
     setIsLoadingOptions(true);
     try {
-      const [reptileData, locationData, roomData, rackData] = await Promise.all([
-        getReptiles(),
+      const [ locationData, roomData, rackData] = await Promise.all([
         getLocations(),
         getRooms(),
         getRacks()
       ]);
       
-      setReptiles(reptileData.map(r => ({ id: r.id, name: r.name })));
       setLocations(locationData.map(l => ({ id: l.id, label: l.label })));
       setRooms(roomData.map(r => ({ id: r.id, name: r.name })));
       
@@ -140,7 +136,7 @@ export function FeedingSchedulesTab() {
             <Info className="h-4 w-4" />
             <AlertDescription>
               Create schedules based on specific locations or reptiles with customizable recurrence patterns. 
-              After creating a schedule, you can generate feeding events from the Feeding tab.
+              After creating a schedule, you can start feeding from the Feeding tab.
             </AlertDescription>
           </Alert>
           
@@ -172,7 +168,6 @@ export function FeedingSchedulesTab() {
               }
             }}
             onCancel={() => onDialogChange(false)}
-            reptiles={reptiles}
             locations={locations}
             rooms={rooms}
             racks={racks}
