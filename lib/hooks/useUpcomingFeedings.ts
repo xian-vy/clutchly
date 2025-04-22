@@ -49,6 +49,13 @@ export function useUpcomingFeedings(schedules: FeedingScheduleWithTargets[]) {
           const startDayOfWeek = startDate.getDay();
           isFeedingDay = checkDate.getDay() === startDayOfWeek;
           break;
+        case 'interval':
+          // For interval schedules, check if the number of days since start date is divisible by interval_days
+          if (schedule.interval_days) {
+            const daysSinceStart = Math.floor((checkDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+            isFeedingDay = daysSinceStart >= 0 && daysSinceStart % schedule.interval_days === 0;
+          }
+          break;
         case 'custom':
           isFeedingDay = schedule.custom_days?.includes(dayOfWeek) || false;
           break;
@@ -133,6 +140,9 @@ export function useUpcomingFeedings(schedules: FeedingScheduleWithTargets[]) {
               if (feedingDayOfWeek === startDayOfWeek) {
                 relevantEvents = events.filter(event => event.scheduled_date === feedingDateString);
               }
+            } else if (feeding.schedule.recurrence === 'interval') {
+              // For interval schedules, only check events for the specific feeding date
+              relevantEvents = events.filter(event => event.scheduled_date === feedingDateString);
             } else if (feeding.schedule.recurrence === 'custom') {
               if (isToday(feeding.date)) {
                 relevantEvents = events.filter(event => event.scheduled_date === todayString);
@@ -171,4 +181,4 @@ export function useUpcomingFeedings(schedules: FeedingScheduleWithTargets[]) {
     isLoadingStatus,
     refreshStatus: handleRefreshStatus
   };
-} 
+}
