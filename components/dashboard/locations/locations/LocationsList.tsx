@@ -13,7 +13,6 @@ import { Location, Rack, Room } from '@/lib/types/location';
 import { Filter, Loader2, Package, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { ReptileLocationsVisualizer } from './ReptileLocationsVisualizer';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface LocationsListProps {
   locations: Location[];
@@ -34,8 +33,6 @@ export function LocationsList({
 }: LocationsListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAvailable, setFilterAvailable] = useState<boolean | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [selectedRack, setSelectedRack] = useState<Rack | null>(null);
   
   // Get room and rack names for display
   const getRoomAndRackInfo = (location: Location) => {
@@ -62,10 +59,7 @@ export function LocationsList({
     return searchMatch && availabilityMatch;
   });
 
-  // Filter racks based on selected room
-  const filteredRacks = racks.filter(rack => 
-    !selectedRoom || rack.room_id === selectedRoom.id
-  );
+ 
 
   if (isLoading) {
     return  (
@@ -115,45 +109,7 @@ export function LocationsList({
               </Button>
             </div>
             <div className="flex items-center gap-3">
-              <Select
-                value={selectedRoom?.id}
-                onValueChange={(value) => {
-                  const room = rooms.find(r => r.id === value);
-                  setSelectedRoom(room || null);
-                  setSelectedRack(null);
-                }}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Room" />
-                </SelectTrigger>
-                <SelectContent>
-                  {rooms.map(room => (
-                    <SelectItem key={room.id} value={room.id}>
-                      {room.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={selectedRack?.id}
-                onValueChange={(value) => {
-                  const rack = racks.find(r => r.id === value);
-                  setSelectedRack(rack || null);
-                }}
-                disabled={!selectedRoom}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Rack" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredRacks.map(rack => (
-                    <SelectItem key={rack.id} value={rack.id}>
-                      {rack.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+             
 
               <div className="relative">
                 <Input
@@ -173,14 +129,23 @@ export function LocationsList({
         </Card>
       ) : (
         <>
-          <ReptileLocationsVisualizer
-            selectedRoom={selectedRoom}
-            selectedRack={selectedRack}
-            startLevel={1}
-            endLevel={selectedRack?.rows || 1}
-            positionsPerLevel={selectedRack?.columns || 1}
-            locations={filteredLocations}
-          />
+        {racks.map(rack => {
+          const location = locations.find(loc => loc.rack_id === rack.id);
+          const room = rooms.find(r => r.id === location?.room_id);
+          return (
+            <ReptileLocationsVisualizer
+              key={rack.id}
+              selectedRoom={room}
+              selectedRack={rack}
+              startLevel={1}
+              endLevel={rack?.rows || 1}
+              positionsPerLevel={rack?.columns || 1}
+              locations={filteredLocations}
+           />
+          );
+        }
+        )}
+       
         </>
       )}
     </div>
