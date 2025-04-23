@@ -6,7 +6,7 @@ export interface Logs {
     status: 'success' | 'error'
 }
 
-export type BackupType = 'reptiles' | 'feeding' | 'health' | 'growth' | 'breeding' | 'locations'
+export type BackupType = 'reptiles' | 'feeding' | 'health_log_entries' | 'growth_entries' | 'breeding_projects' | 'locations'
 
 export interface BackupConfig {
     id: BackupType
@@ -16,13 +16,16 @@ export interface BackupConfig {
         key: string
         label: string
         type: 'string' | 'number' | 'date' | 'boolean' | 'array' | 'object'
-        format?: (value: string) => string
     }[]
     filters?: {
         field: string
         label: string
         type: 'select' | 'date' | 'text'
         options?: { value: string; label: string }[]
+    }[]
+    relationships?: {
+        table: string
+        fields: string[]
     }[]
 }
 
@@ -33,16 +36,29 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
         description: 'Your reptile collection data',
         fields: [
             { key: 'name', label: 'Name', type: 'string' },
-            { key: 'species_id', label: 'Species', type: 'string' },
-            { key: 'morph_id', label: 'Morph', type: 'string' },
+            { key: 'species.name', label: 'Species', type: 'string' },
+            { key: 'species.scientific_name', label: 'Scientific Name', type: 'string' },
+            { key: 'morph.name', label: 'Morph', type: 'string' },
             { key: 'sex', label: 'Sex', type: 'string' },
-            { key: 'weight', label: 'Weight', type: 'number' },
-            { key: 'length', label: 'Length', type: 'number' },
+            { key: 'weight', label: 'Weight (g)', type: 'number' },
+            { key: 'length', label: 'Length (cm)', type: 'number' },
             { key: 'hatch_date', label: 'Hatch Date', type: 'date' },
             { key: 'acquisition_date', label: 'Acquisition Date', type: 'date' },
             { key: 'status', label: 'Status', type: 'string' },
             { key: 'is_breeder', label: 'Breeder', type: 'boolean' },
+            { key: 'retired_breeder', label: 'Retired Breeder', type: 'boolean' },
+            { key: 'visual_traits', label: 'Visual Traits', type: 'array' },
+            { key: 'het_traits', label: 'Het Traits', type: 'array' },
+            { key: 'primary_genetics', label: 'Primary Genetics', type: 'array' },
+            { key: 'breeding_line', label: 'Breeding Line', type: 'string' },
+            { key: 'generation', label: 'Generation', type: 'number' },
+            { key: 'location.name', label: 'Location', type: 'string' },
             { key: 'notes', label: 'Notes', type: 'string' }
+        ],
+        relationships: [
+            { table: 'species', fields: ['name', 'scientific_name'] },
+            { table: 'morphs', fields: ['name'] },
+            { table: 'locations', fields: ['name'] }
         ],
         filters: [
             {
@@ -81,11 +97,17 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
         label: 'Feeding Records',
         description: 'Feeding schedules and events',
         fields: [
-            { key: 'name', label: 'Name', type: 'string' },
+            { key: 'name', label: 'Schedule Name', type: 'string' },
             { key: 'recurrence', label: 'Recurrence', type: 'string' },
             { key: 'target_type', label: 'Target Type', type: 'string' },
+            { key: 'targets', label: 'Targets', type: 'array' },
+            { key: 'events', label: 'Events', type: 'array' },
             { key: 'created_at', label: 'Created At', type: 'date' },
             { key: 'last_modified', label: 'Last Modified', type: 'date' }
+        ],
+        relationships: [
+            { table: 'feeding_targets', fields: ['*'] },
+            { table: 'feeding_events', fields: ['*'] }
         ],
         filters: [
             {
@@ -113,39 +135,66 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
             }
         ]
     },
-    health: {
-        id: 'health',
+    health_log_entries: {
+        id: 'health_log_entries',
         label: 'Health Records',
         description: 'Health checkups and medical history',
         fields: [
-            { key: 'type', label: 'Type', type: 'string' },
+            { key: 'reptile.name', label: 'Reptile', type: 'string' },
             { key: 'date', label: 'Date', type: 'date' },
+            { key: 'category.label', label: 'Category', type: 'string' },
+            { key: 'subcategory.label', label: 'Subcategory', type: 'string' },
+            { key: 'type.label', label: 'Type', type: 'string' },
+            { key: 'custom_type_label', label: 'Custom Type', type: 'string' },
+            { key: 'severity', label: 'Severity', type: 'string' },
+            { key: 'resolved', label: 'Resolved', type: 'boolean' },
             { key: 'notes', label: 'Notes', type: 'string' },
+            { key: 'attachments', label: 'Attachments', type: 'array' },
             { key: 'created_at', label: 'Created At', type: 'date' }
+        ],
+        relationships: [
+            { table: 'reptiles', fields: ['name'] },
+            { table: 'health_log_categories', fields: ['label'] },
+            { table: 'health_log_subcategories', fields: ['label'] },
+            { table: 'health_log_types', fields: ['label'] }
         ],
         filters: [
             {
-                field: 'type',
-                label: 'Record Type',
+                field: 'severity',
+                label: 'Severity',
                 type: 'select',
                 options: [
-                    { value: 'checkup', label: 'Checkup' },
-                    { value: 'treatment', label: 'Treatment' },
-                    { value: 'surgery', label: 'Surgery' },
-                    { value: 'medication', label: 'Medication' }
+                    { value: 'low', label: 'Low' },
+                    { value: 'moderate', label: 'Moderate' },
+                    { value: 'high', label: 'High' }
+                ]
+            },
+            {
+                field: 'resolved',
+                label: 'Status',
+                type: 'select',
+                options: [
+                    { value: 'true', label: 'Resolved' },
+                    { value: 'false', label: 'Unresolved' }
                 ]
             }
         ]
     },
-    growth: {
-        id: 'growth',
+    growth_entries: {
+        id: 'growth_entries',
         label: 'Growth Records',
         description: 'Weight and length measurements',
         fields: [
+            { key: 'reptile.name', label: 'Reptile', type: 'string' },
             { key: 'measurement_type', label: 'Type', type: 'string' },
             { key: 'value', label: 'Value', type: 'number' },
+            { key: 'unit', label: 'Unit', type: 'string' },
             { key: 'date', label: 'Date', type: 'date' },
+            { key: 'notes', label: 'Notes', type: 'string' },
             { key: 'created_at', label: 'Created At', type: 'date' }
+        ],
+        relationships: [
+            { table: 'reptiles', fields: ['name'] }
         ],
         filters: [
             {
@@ -159,16 +208,28 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
             }
         ]
     },
-    breeding: {
-        id: 'breeding',
+    breeding_projects: {
+        id: 'breeding_projects',
         label: 'Breeding Records',
         description: 'Breeding projects and outcomes',
         fields: [
+            { key: 'name', label: 'Project Name', type: 'string' },
+            { key: 'male.name', label: 'Male', type: 'string' },
+            { key: 'female.name', label: 'Female', type: 'string' },
+            { key: 'species.name', label: 'Species', type: 'string' },
             { key: 'status', label: 'Status', type: 'string' },
             { key: 'start_date', label: 'Start Date', type: 'date' },
             { key: 'end_date', label: 'End Date', type: 'date' },
+            { key: 'expected_hatch_date', label: 'Expected Hatch Date', type: 'date' },
+            { key: 'clutches', label: 'Clutches', type: 'array' },
             { key: 'notes', label: 'Notes', type: 'string' },
             { key: 'created_at', label: 'Created At', type: 'date' }
+        ],
+        relationships: [
+            { table: 'reptiles!male_id(name)', fields: ['name'] },
+            { table: 'reptiles!female_id(name)', fields: ['name'] },
+            { table: 'species', fields: ['name'] },
+            { table: 'clutches', fields: ['*'] }
         ],
         filters: [
             {
@@ -176,10 +237,10 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
                 label: 'Status',
                 type: 'select',
                 options: [
-                    { value: 'planned', label: 'Planned' },
-                    { value: 'in_progress', label: 'In Progress' },
+                    { value: 'active', label: 'Active' },
                     { value: 'completed', label: 'Completed' },
-                    { value: 'cancelled', label: 'Cancelled' }
+                    { value: 'failed', label: 'Failed' },
+                    { value: 'planned', label: 'Planned' }
                 ]
             }
         ]
@@ -191,8 +252,14 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
         fields: [
             { key: 'name', label: 'Name', type: 'string' },
             { key: 'type', label: 'Type', type: 'string' },
+            { key: 'parent.name', label: 'Parent Location', type: 'string' },
+            { key: 'reptiles', label: 'Reptiles', type: 'array' },
             { key: 'created_at', label: 'Created At', type: 'date' },
             { key: 'last_modified', label: 'Last Modified', type: 'date' }
+        ],
+        relationships: [
+            { table: 'locations!parent_id(name)', fields: ['name'] },
+            { table: 'reptiles', fields: ['name'] }
         ],
         filters: [
             {

@@ -66,7 +66,7 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
     (Date.now() - lastBackup.getTime()) > 60 * 60 * 1000 // 1 hour
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-6">
       {lastBackup && (
         <Alert>
           <Clock className="h-4 w-4" />
@@ -141,12 +141,12 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
         )}
         
         <Button
-          className="w-full"
+          className="w-fit float-right"
           disabled={!canBackup || isPending}
           onClick={() => handleBackup()}
         >
-          <Download className="h-4 w-4 mr-2" />
-          {isPending ? 'Creating Backup...' : canBackup ? 'Download Backup' : 'Rate Limited'}
+          <Download className="h-4 w-4 " />
+          {isPending ? 'Creating Backup...' : canBackup ? 'Download' : 'Rate Limited'}
         </Button>
       </div>
     </div>

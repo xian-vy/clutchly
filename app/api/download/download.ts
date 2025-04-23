@@ -3,13 +3,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { BackupType, backupConfigs } from '@/lib/types/download'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 const backupTypeSchema = z.enum([
   'reptiles',
   'feeding',
-  'health',
-  'growth',
-  'breeding',
+  'health_log_entries',
+  'growth_entries',
+  'breeding_projects',
   'locations',
 ])
 
@@ -26,9 +27,49 @@ const requestSchema = z.object({
   dateRange: dateRangeSchema.optional()
 })
 
-function formatValue(value: unknown, type: string): string {
+function formatHetTraits(value: unknown): string {
+  if (!Array.isArray(value)) return ''
+  return value.map(trait => `${trait.trait} (${trait.percentage}%)`).join('; ')
+}
+
+function formatTargets(value: unknown): string {
+  if (!Array.isArray(value)) return ''
+  return value.map(target => target.name || target.id).join('; ')
+}
+
+function formatEvents(value: unknown): string {
+  if (!Array.isArray(value)) return ''
+  return value.length.toString() + ' events'
+}
+
+function formatClutches(value: unknown): string {
+  if (!Array.isArray(value)) return '0'
+  return value.length.toString()
+}
+
+function formatReptiles(value: unknown): string {
+  if (!Array.isArray(value)) return '0'
+  return value.length.toString()
+}
+
+function formatValue(value: unknown, type: string, key: string): string {
   if (value === null || value === undefined) return ''
   
+  // Handle special formatting cases
+  switch (key) {
+    case 'het_traits':
+      return formatHetTraits(value)
+    case 'targets':
+      return formatTargets(value)
+    case 'events':
+      return formatEvents(value)
+    case 'clutches':
+      return formatClutches(value)
+    case 'reptiles':
+      return formatReptiles(value)
+  }
+  
+  // Handle standard types
   switch (type) {
     case 'date':
       return new Date(value as string).toLocaleDateString()
@@ -45,6 +86,16 @@ function formatValue(value: unknown, type: string): string {
   }
 }
 
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+  return path.split('.').reduce((acc: Record<string, unknown> | null, part) => {
+    if (acc === null) return null
+    const value = acc[part]
+    if (value === undefined) return null
+    if (typeof value === 'object') return value as Record<string, unknown>
+    return { value }
+  }, obj)?.value
+}
+
 function convertToCSV(data: Record<string, unknown>[], type: BackupType): string {
   if (!data.length) return ''
   
@@ -56,15 +107,363 @@ function convertToCSV(data: Record<string, unknown>[], type: BackupType): string
     headers.join(','),
     ...data.map(row => 
       keys.map(key => {
-        const value = row[key]
+        const value = getNestedValue(row, key)
         const field = config.fields.find(f => f.key === key)
-        const formattedValue = formatValue(value, field?.type || 'string')
+        const formattedValue = formatValue(value, field?.type || 'string', key)
         return formattedValue.includes(',') ? `"${formattedValue}"` : formattedValue
       }).join(',')
     )
   ]
   
   return csvRows.join('\n')
+}
+
+async function getReptileData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
+  // Get reptiles
+  let query = supabase
+    .from('reptiles')
+    .select('*')
+    .eq('user_id', userId)
+
+  if (dateRange) {
+    query = query
+      .gte('created_at', dateRange.from)
+      .lte('created_at', dateRange.to)
+  }
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      query = query.eq(key, value)
+    }
+  })
+
+  const { data: reptiles, error } = await query.order('name')
+  if (error) throw error
+
+  // Get species and morphs
+  const speciesIds = reptiles.map(r => r.species_id).filter(Boolean)
+  const morphIds = reptiles.map(r => r.morph_id).filter(Boolean)
+  const locationIds = reptiles.map(r => r.location_id).filter(Boolean)
+
+  // Fetch species
+  const { data: species } = await supabase
+    .from('species')
+    .select('id, name, scientific_name')
+    .in('id', speciesIds)
+
+  // Fetch morphs
+  const { data: morphs } = await supabase
+    .from('morphs')
+    .select('id, name')
+    .in('id', morphIds)
+
+  // Fetch locations
+  const { data: locations } = await supabase
+    .from('locations')
+    .select('id, name')
+    .in('id', locationIds)
+
+  // Create maps for quick lookup
+  const speciesMap = new Map(species?.map(s => [s.id, s]) || [])
+  const morphMap = new Map(morphs?.map(m => [m.id, m]) || [])
+  const locationMap = new Map(locations?.map(l => [l.id, l]) || [])
+
+  // Enhance reptiles with related data
+  return reptiles.map(reptile => ({
+    ...reptile,
+    species: speciesMap.get(reptile.species_id) || { name: 'Unknown', scientific_name: null },
+    morph: morphMap.get(reptile.morph_id) || { name: 'Unknown' },
+    location: locationMap.get(reptile.location_id) || { name: 'Unknown' }
+  }))
+}
+
+async function getHealthData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
+  // Get health logs
+  let query = supabase
+    .from('health_log_entries')
+    .select('*')
+    .eq('user_id', userId)
+
+  if (dateRange) {
+    query = query
+      .gte('created_at', dateRange.from)
+      .lte('created_at', dateRange.to)
+  }
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      query = query.eq(key, value)
+    }
+  })
+
+  const { data: healthLogs, error } = await query.order('date', { ascending: false })
+  if (error) throw error
+
+  // Get related data
+  const reptileIds = healthLogs.map(h => h.reptile_id).filter(Boolean)
+  const categoryIds = healthLogs.map(h => h.category_id).filter(Boolean)
+  const subcategoryIds = healthLogs.map(h => h.subcategory_id).filter(Boolean)
+  const typeIds = healthLogs.map(h => h.type_id).filter(Boolean)
+
+  // Fetch reptiles
+  const { data: reptiles } = await supabase
+    .from('reptiles')
+    .select('id, name')
+    .in('id', reptileIds)
+
+  // Fetch categories
+  const { data: categories } = await supabase
+    .from('health_log_categories')
+    .select('id, label')
+    .in('id', categoryIds)
+
+  // Fetch subcategories
+  const { data: subcategories } = await supabase
+    .from('health_log_subcategories')
+    .select('id, label')
+    .in('id', subcategoryIds)
+
+  // Fetch types
+  const { data: types } = await supabase
+    .from('health_log_types')
+    .select('id, label')
+    .in('id', typeIds)
+
+  // Create maps for quick lookup
+  const reptileMap = new Map(reptiles?.map(r => [r.id, r]) || [])
+  const categoryMap = new Map(categories?.map(c => [c.id, c]) || [])
+  const subcategoryMap = new Map(subcategories?.map(s => [s.id, s]) || [])
+  const typeMap = new Map(types?.map(t => [t.id, t]) || [])
+
+  // Enhance health logs with related data
+  return healthLogs.map(log => ({
+    ...log,
+    reptile: reptileMap.get(log.reptile_id) || { name: 'Unknown' },
+    category: categoryMap.get(log.category_id) || { label: 'Unknown' },
+    subcategory: subcategoryMap.get(log.subcategory_id) || { label: 'Unknown' },
+    type: log.type_id ? typeMap.get(log.type_id) || { label: 'Unknown' } : null
+  }))
+}
+
+async function getGrowthData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
+  // Get growth entries
+  let query = supabase
+    .from('growth_entries')
+    .select('*')
+    .eq('user_id', userId)
+
+  if (dateRange) {
+    query = query
+      .gte('created_at', dateRange.from)
+      .lte('created_at', dateRange.to)
+  }
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      query = query.eq(key, value)
+    }
+  })
+
+  const { data: growthEntries, error } = await query.order('date', { ascending: false })
+  if (error) throw error
+
+  // Get reptiles
+  const reptileIds = growthEntries.map(g => g.reptile_id).filter(Boolean)
+  const { data: reptiles } = await supabase
+    .from('reptiles')
+    .select('id, name')
+    .in('id', reptileIds)
+
+  // Create map for quick lookup
+  const reptileMap = new Map(reptiles?.map(r => [r.id, r]) || [])
+
+  // Enhance growth entries with reptile data
+  return growthEntries.map(entry => ({
+    ...entry,
+    reptile: reptileMap.get(entry.reptile_id) || { name: 'Unknown' }
+  }))
+}
+
+async function getBreedingData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
+  // Get breeding projects
+  let query = supabase
+    .from('breeding_projects')
+    .select('*')
+    .eq('user_id', userId)
+
+  if (dateRange) {
+    query = query
+      .gte('created_at', dateRange.from)
+      .lte('created_at', dateRange.to)
+  }
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      query = query.eq(key, value)
+    }
+  })
+
+  const { data: breedingProjects, error } = await query.order('start_date', { ascending: false })
+  if (error) throw error
+
+  // Get related data
+  const reptileIds = [
+    ...breedingProjects.map(bp => bp.male_id).filter(Boolean),
+    ...breedingProjects.map(bp => bp.female_id).filter(Boolean)
+  ]
+  const speciesIds = breedingProjects.map(bp => bp.species_id).filter(Boolean)
+  const projectIds = breedingProjects.map(bp => bp.id)
+
+  // Fetch reptiles
+  const { data: reptiles } = await supabase
+    .from('reptiles')
+    .select('id, name')
+    .in('id', reptileIds)
+
+  // Fetch species
+  const { data: species } = await supabase
+    .from('species')
+    .select('id, name')
+    .in('id', speciesIds)
+
+  // Fetch clutches
+  const { data: clutches } = await supabase
+    .from('clutches')
+    .select('*')
+    .in('breeding_project_id', projectIds)
+
+  // Create maps for quick lookup
+  const reptileMap = new Map(reptiles?.map(r => [r.id, r]) || [])
+  const speciesMap = new Map(species?.map(s => [s.id, s]) || [])
+  const clutchMap = new Map(projectIds.map(id => [id, []]))
+  clutches?.forEach(clutch  => {
+    const projectClutches = clutchMap.get(clutch.breeding_project_id) || []
+    projectClutches.push(clutch)
+    clutchMap.set(clutch.breeding_project_id, projectClutches)
+  })
+
+  // Enhance breeding projects with related data
+  return breedingProjects.map(project => ({
+    ...project,
+    male: reptileMap.get(project.male_id) || { name: 'Unknown' },
+    female: reptileMap.get(project.female_id) || { name: 'Unknown' },
+    species: speciesMap.get(project.species_id) || { name: 'Unknown' },
+    clutches: clutchMap.get(project.id) || []
+  }))
+}
+
+async function getFeedingData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
+  // Get feeding schedules
+  let query = supabase
+    .from('feeding_schedules')
+    .select('*')
+    .eq('user_id', userId)
+
+  if (dateRange) {
+    query = query
+      .gte('created_at', dateRange.from)
+      .lte('created_at', dateRange.to)
+  }
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      query = query.eq(key, value)
+    }
+  })
+
+  const { data: feedingSchedules, error } = await query.order('created_at', { ascending: false })
+  if (error) throw error
+
+  // Get related data
+  const scheduleIds = feedingSchedules.map(s => s.id)
+
+  // Fetch targets
+  const { data: targets } = await supabase
+    .from('feeding_targets')
+    .select('*')
+    .in('schedule_id', scheduleIds)
+
+  // Fetch events
+  const { data: events } = await supabase
+    .from('feeding_events')
+    .select('*')
+    .in('schedule_id', scheduleIds)
+
+  // Create maps for quick lookup
+  const targetMap = new Map(scheduleIds.map(id => [id, []]))
+  const eventMap = new Map(scheduleIds.map(id => [id, []]))
+  targets?.forEach(target => {
+    const scheduleTargets = targetMap.get(target.schedule_id) || []
+    scheduleTargets.push(target)
+    targetMap.set(target.schedule_id, scheduleTargets)
+  })
+  events?.forEach(event => {
+    const scheduleEvents = eventMap.get(event.schedule_id) || []
+    scheduleEvents.push(event)
+    eventMap.set(event.schedule_id, scheduleEvents)
+  })
+
+  // Enhance feeding schedules with related data
+  return feedingSchedules.map(schedule => ({
+    ...schedule,
+    targets: targetMap.get(schedule.id) || [],
+    events: eventMap.get(schedule.id) || []
+  }))
+}
+
+async function getLocationData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
+  // Get locations
+  let query = supabase
+    .from('locations')
+    .select('*')
+    .eq('user_id', userId)
+
+  if (dateRange) {
+    query = query
+      .gte('created_at', dateRange.from)
+      .lte('created_at', dateRange.to)
+  }
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      query = query.eq(key, value)
+    }
+  })
+
+  const { data: locations, error } = await query.order('name')
+  if (error) throw error
+
+  // Get related data
+  const locationIds = locations.map(l => l.id)
+  const parentIds = locations.map(l => l.parent_id).filter(Boolean)
+
+  // Fetch parent locations
+  const { data: parentLocations } = await supabase
+    .from('locations')
+    .select('id, name')
+    .in('id', parentIds)
+
+  // Fetch reptiles
+  const { data: reptiles } = await supabase
+    .from('reptiles')
+    .select('id, name, location_id')
+    .in('location_id', locationIds)
+
+  // Create maps for quick lookup
+  const parentMap = new Map(parentLocations?.map(l => [l.id, l]) || [])
+  const reptileMap = new Map(locationIds.map(id => [id, []]))
+  reptiles?.forEach(reptile => {
+    const locationReptiles = reptileMap.get(reptile.location_id) || []
+    locationReptiles.push(reptile)
+    reptileMap.set(reptile.location_id, locationReptiles)
+  })
+
+  // Enhance locations with related data
+  return locations.map(location => ({
+    ...location,
+    parent: location.parent_id ? parentMap.get(location.parent_id) || { name: 'Unknown' } : null,
+    reptiles: reptileMap.get(location.id) || []
+  }))
 }
 
 export async function createBackup(request: z.infer<typeof requestSchema>) {
@@ -97,42 +496,29 @@ export async function createBackup(request: z.infer<typeof requestSchema>) {
     }
   }
 
-  // Build query based on type and filters
-  const tableName = type === 'feeding' ? 'feeding_schedules' : type
-  let query = supabase
-    .from(tableName)
-    .select('*')
-    .eq('user_id', user.id)
-
-  // Apply date range filter if provided
-  if (dateRange) {
-    query = query
-      .gte('created_at', dateRange.from)
-      .lte('created_at', dateRange.to)
-  }
-
-  // Apply custom filters
-  if (filters) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        query = query.eq(key, value)
-      }
-    })
-  }
-
-  // Handle special cases for feeding data
-  if (type === 'feeding') {
-    query = query.select(`
-      *,
-      targets:feeding_targets(*),
-      events:feeding_events(*)
-    `)
-  }
-
-  const { data, error } = await query
-
-  if (error) {
-    throw error
+  // Get data based on type
+  let data: Record<string, unknown>[]
+  switch (type) {
+    case 'reptiles':
+      data = await getReptileData(supabase, user.id, filters, dateRange)
+      break
+    case 'health_log_entries':
+      data = await getHealthData(supabase, user.id, filters, dateRange)
+      break
+    case 'growth_entries':
+      data = await getGrowthData(supabase, user.id, filters, dateRange)
+      break
+    case 'breeding_projects':
+      data = await getBreedingData(supabase, user.id, filters, dateRange)
+      break
+    case 'feeding':
+      data = await getFeedingData(supabase, user.id, filters, dateRange)
+      break
+    case 'locations':
+      data = await getLocationData(supabase, user.id, filters, dateRange)
+      break
+    default:
+      throw new Error('Invalid backup type')
   }
 
   // Convert data to CSV
@@ -169,4 +555,15 @@ export async function getBackupLogs() {
   }
 
   return logs
+} 
+
+export async function getLastBackupTimes(){
+  const supabase = await createClient()
+
+  const { data: lastBackups } = await supabase
+    .from('backup_logs')
+    .select('backup_type, created_at')
+    .order('created_at', { ascending: false })
+
+    return lastBackups
 } 

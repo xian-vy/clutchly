@@ -1,17 +1,13 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+
 import { BackupClient } from '../../../components/download/DownloadData'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import DownloadHistory from '@/components/download/DownloadHistory'
 import { backupTypes } from '@/lib/types/download'
+import { getLastBackupTimes } from '@/app/api/download/download'
 
 export default async function BackupPage() {
-  const supabase = createServerComponentClient({ cookies })
   
-  const { data: lastBackups } = await supabase
-    .from('backup_logs')
-    .select('backup_type, created_at')
-    .order('created_at', { ascending: false })
+  const lastBackups = await getLastBackupTimes()
 
   const lastBackupTimes = lastBackups?.reduce((acc, backup) => {
     acc[backup.backup_type] = new Date(backup.created_at)
