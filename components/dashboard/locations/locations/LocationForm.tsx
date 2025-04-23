@@ -197,7 +197,7 @@ export function LocationForm({
                 name="shelf_level"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Shelf Level</FormLabel>
+                    <FormLabel>Shelf Level (Bottom is 1)</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="e.g., 1, 2, 3, or Top" />
                     </FormControl>
@@ -211,7 +211,7 @@ export function LocationForm({
                 name="position"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Position</FormLabel>
+                    <FormLabel>Column (Add 1 if None)</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="e.g., 1, 2, 3, or Left" />
                     </FormControl>

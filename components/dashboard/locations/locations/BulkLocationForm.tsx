@@ -159,16 +159,16 @@ export function BulkLocationForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="md:max-w-screen-md">
         <DialogTitle className="flex items-center gap-2">
           <Package className="h-5 w-5" />
           Generate Multiple Enclosures
         </DialogTitle>
         
         <Tabs defaultValue="form" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList >
             <TabsTrigger value="form">Bulk Generator</TabsTrigger>
-            <TabsTrigger value="preview" disabled={!selectedRoom || !selectedRack}>Location Preview</TabsTrigger>
+            <TabsTrigger value="preview" disabled={!selectedRoom || !selectedRack}>Enclosure Preview</TabsTrigger>
           </TabsList>
           
           <TabsContent value="form" className="space-y-4 pt-4">
