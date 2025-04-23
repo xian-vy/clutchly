@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-type ScreenSize = 'mobile' | 'large' | 'xlarge';
+type ScreenSize = 'mobile' | 'tablet' | 'large' | 'xlarge';
 
 export const useScreenSize = (): ScreenSize => {
   const [screenSize, setScreenSize] = useState<ScreenSize>('large');
@@ -11,7 +11,9 @@ export const useScreenSize = (): ScreenSize => {
 
       if (width < 768) {
         setScreenSize('mobile');
-      } else if (width > 768 && width < 1800) {
+      } else if (width >= 768 && width < 1024) {
+        setScreenSize('tablet'); 
+      } else if (width >= 1024 && width < 1800) {
         setScreenSize('large');
       } else {
         setScreenSize('xlarge');

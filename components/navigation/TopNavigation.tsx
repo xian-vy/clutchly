@@ -7,8 +7,8 @@ import { FeedbackDialog } from '@/components/navigation/FeedbackDialog';
 
 const TopNavigation = () => {
   return (
-    <div className="h-16 border-b border-border flex items-center justify-between pr-2 ">
-        <div className="flex items-center gap-3 md:gap-5 2xl:gap-6 ml-auto">
+    <div className="h-16 border-b border-border flex items-center justify-end pr-2 ">
+        <div className="flex items-center gap-3 md:gap-5 2xl:gap-6 ">
             <FeedbackDialog />
             <InstallDialog />
             <HelpDialog />
