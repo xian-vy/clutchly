@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { Location, NewLocation } from '@/lib/types/location'
+import { updateRackDimensions } from './racks'
 
 export async function getLocations() {
   const supabase = await createClient()
@@ -71,11 +72,24 @@ export async function createLocation(location: NewLocation) {
     .single()
 
   if (error) throw error
+  
+  // Update rack dimensions after creating location
+  await updateRackDimensions(location.rack_id)
+  
   return data as Location
 }
 
 export async function updateLocation(id: string, updates: Partial<NewLocation>) {
   const supabase = await createClient()
+  
+  // Get the current location to check if rack_id changed
+  const { data: currentLocation, error: currentError } = await supabase
+    .from('locations')
+    .select('rack_id')
+    .eq('id', id)
+    .single()
+    
+  if (currentError) throw currentError
   
   // With RLS, user can only update their own locations
   const { data, error } = await supabase
@@ -86,11 +100,31 @@ export async function updateLocation(id: string, updates: Partial<NewLocation>) 
     .single()
 
   if (error) throw error
+  
+  // Update rack dimensions for both old and new rack if rack_id changed
+  if (updates.rack_id && updates.rack_id !== currentLocation.rack_id) {
+    await updateRackDimensions(currentLocation.rack_id) // Update old rack
+    await updateRackDimensions(updates.rack_id) // Update new rack
+  } else if (updates.rack_id) {
+    await updateRackDimensions(updates.rack_id)
+  } else if (currentLocation.rack_id) {
+    await updateRackDimensions(currentLocation.rack_id)
+  }
+  
   return data as Location
 }
 
 export async function deleteLocation(id: string): Promise<void> {
   const supabase = await createClient()
+  
+  // Get the location's rack_id before deleting
+  const { data: location, error: locationError } = await supabase
+    .from('locations')
+    .select('rack_id')
+    .eq('id', id)
+    .single()
+    
+  if (locationError) throw locationError
   
   // With RLS, user can only delete their own locations
   const { error } = await supabase
@@ -99,6 +133,11 @@ export async function deleteLocation(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
+  
+  // Update rack dimensions after deleting location
+  if (location.rack_id) {
+    await updateRackDimensions(location.rack_id)
+  }
 }
 
 export async function getLocationDetails(locationId: string) {
@@ -136,5 +175,10 @@ export async function bulkCreateLocations(locations: NewLocation[]) {
     .select()
 
   if (error) throw error
+  
+  // Update rack dimensions for each unique rack
+  const uniqueRackIds = [...new Set(locations.map(loc => loc.rack_id))]
+  await Promise.all(uniqueRackIds.map(rackId => updateRackDimensions(rackId)))
+  
   return data as Location[]
 } 
