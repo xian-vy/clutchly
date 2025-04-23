@@ -175,7 +175,7 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex w-full items-center justify-between mt-5 xl:mt-7">
-             <p className="text-sm">
+             <p className="text-xs sm:text-[0.8rem] 3xl:text-sm">
                {data.length}  {' Total Records'} 
             </p>
           <div className="flex items-center justify-end space-x-2">
