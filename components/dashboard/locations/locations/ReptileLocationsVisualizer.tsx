@@ -106,7 +106,7 @@ export function ReptileLocationsVisualizer({
         <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LayoutGrid className="h-5 w-5 text-primary" />
-            <span>Rack Visualization</span>
+            <span>{selectedRack.name}</span>
           </div>
           <Badge variant="outline" className="ml-auto !text-xs">
             {totalLocations} {totalLocations === 1 ? 'enclosure' : 'enclosures'}

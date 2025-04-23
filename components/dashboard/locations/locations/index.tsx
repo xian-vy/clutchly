@@ -1,64 +1,43 @@
 'use client';
 
 import { useState } from 'react';
-import { useResource } from '@/lib/hooks/useResource';
-import { Room, Rack, Location, NewLocation, NewRoom, NewRack } from '@/lib/types/location';
+import { Location, NewLocation } from '@/lib/types/location';
 import { getRooms } from '@/app/api/locations/rooms';
 import { getRacks } from '@/app/api/locations/racks';
-import { getLocations, createLocation, updateLocation, deleteLocation, bulkCreateLocations } from '@/app/api/locations/locations';
+import { getLocations, createLocation, updateLocation, deleteLocation } from '@/app/api/locations/locations';
 import { LocationsList } from './LocationsList';
 import { LocationForm } from './LocationForm';
-import { toast } from 'sonner';
-import { BulkLocationForm } from './BulkLocationForm';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 
 export function LocationsManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
-  const [isGeneratingLocations, setIsGeneratingLocations] = useState(false);
-  
-  // Fetch rooms for the dropdown
-  const {
-    resources: rooms,
-    isLoading: roomsLoading,
-  } = useResource<Room, NewRoom>({
-    resourceName: 'Room',
-    queryKey: ['rooms'],
-    getResources: getRooms,
-    createResource: async () => { throw new Error('Not implemented') },
-    updateResource: async () => { throw new Error('Not implemented') },
-    deleteResource: async () => { throw new Error('Not implemented') },
-  });
-  
-  // Fetch racks for the dropdown
-  const {
-    resources: racks,
-    isLoading: racksLoading,
-  } = useResource<Rack, NewRack>({
-    resourceName: 'Rack',
-    queryKey: ['racks'],
-    getResources: getRacks,
-    createResource: async () => { throw new Error('Not implemented') },
-    updateResource: async () => { throw new Error('Not implemented') },
-    deleteResource: async () => { throw new Error('Not implemented') },
-  });
-  
-  // Manage locations
-  const {
-    resources: locations,
-    isLoading: locationsLoading,
-    selectedResource: selectedLocation,
-    setSelectedResource: setSelectedLocation,
-    handleCreate,
-    handleUpdate,
-    handleDelete,
-    refetch,
-  } = useResource<Location, NewLocation>({
-    resourceName: 'Location',
+  const [selectedLocation, setSelectedLocation] = useState<Location | undefined>(undefined);
+
+  // Get locations, rooms, and racks
+  const { 
+    data: locations = [], 
+    isLoading,
+    refetch: refetchLocations
+  } = useQuery({
     queryKey: ['locations'],
-    getResources: getLocations,
-    createResource: createLocation,
-    updateResource: updateLocation,
-    deleteResource: deleteLocation,
+    queryFn: getLocations
+  });
+  
+  const { 
+    data: rooms = [], 
+    isLoading: isRoomsLoading 
+  } = useQuery({
+    queryKey: ['rooms'],
+    queryFn: getRooms
+  });
+  
+  const { 
+    data: racks = [], 
+    isLoading: isRacksLoading 
+  } = useQuery({
+    queryKey: ['racks'],
+    queryFn: getRacks
   });
 
   const onDialogChange = (open: boolean) => {
@@ -68,51 +47,42 @@ export function LocationsManagement() {
     }
   };
 
-  const onBulkDialogChange = (open: boolean) => {
-    setIsBulkDialogOpen(open);
-  };
-
   const onAddLocation = () => {
     setSelectedLocation(undefined);
-    onDialogChange(true);
-  };
-
-  const onEditLocation = (location: Location) => {
-    setSelectedLocation(location);
-    onDialogChange(true);
+    setIsDialogOpen(true);
   };
 
   const onSubmitLocation = async (data: NewLocation) => {
-    return selectedLocation
-      ? await handleUpdate(data)
-      : await handleCreate(data);
-  };
-
-  const onSubmitBulkLocations = async (locationsToCreate: NewLocation[]) => {
-    setIsGeneratingLocations(true);
-    
     try {
-      // Create all locations at once
-      await bulkCreateLocations(locationsToCreate);
-      
-      // Success message
-      const totalLocations = locationsToCreate.length;
-      toast.success(`Successfully created ${totalLocations} locations`);
-      
-      // Refresh locations using refetch
-      await refetch();
-      
+      if (selectedLocation) {
+        await updateLocation(selectedLocation.id, data);
+      } else {
+        await createLocation(data);
+      }
+      refetchLocations();
       return true;
     } catch (error) {
-      console.error("Error creating bulk locations:", error);
-      toast.error("Failed to create locations");
+      console.error('Error saving location:', error);
       return false;
-    } finally {
-      setIsGeneratingLocations(false);
     }
   };
 
-  const isLoading = roomsLoading || racksLoading || locationsLoading;
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteLocation(id);
+      refetchLocations();
+    } catch (error) {
+      console.error('Error deleting location:', error);
+    }
+  };
+
+  if (isLoading || isRoomsLoading || isRacksLoading) {
+    return (
+      <div className="flex justify-center items-center h-full"> 
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -121,9 +91,7 @@ export function LocationsManagement() {
         rooms={rooms}
         racks={racks}
         isLoading={isLoading}
-        onEditLocation={onEditLocation}
         onAddLocation={onAddLocation}
-        onBulkAddLocations={() => setIsBulkDialogOpen(true)}
       />
       
       <LocationForm
@@ -134,15 +102,6 @@ export function LocationsManagement() {
         racks={racks}
         onSubmit={onSubmitLocation}
         onDelete={handleDelete}
-      />
-      
-      <BulkLocationForm
-        isOpen={isBulkDialogOpen}
-        onClose={() => onBulkDialogChange(false)}
-        rooms={rooms}
-        racks={racks}
-        isLoading={isGeneratingLocations}
-        onSubmit={onSubmitBulkLocations}
       />
     </>
   );

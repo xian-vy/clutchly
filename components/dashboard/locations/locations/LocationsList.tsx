@@ -20,7 +20,6 @@ interface LocationsListProps {
   racks: Rack[];
   isLoading: boolean;
   onAddLocation: () => void;
-  onBulkAddLocations: () => void;
 }
 
 export function LocationsList({ 
@@ -28,8 +27,7 @@ export function LocationsList({
   rooms, 
   racks, 
   isLoading, 
-  onAddLocation,
-  onBulkAddLocations 
+  onAddLocation
 }: LocationsListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAvailable, setFilterAvailable] = useState<boolean | null>(null);
@@ -59,68 +57,55 @@ export function LocationsList({
     return searchMatch && availabilityMatch;
   });
 
- 
-
   if (isLoading) {
-    return  (
+    return (
       <div className="flex justify-center items-center h-full"> 
-         <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center gap-4 w-full">    
-          <div className="flex gap-2">
-              <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1">
-                        <Filter className="h-4 w-4" />
-                        Filter
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setFilterAvailable(null)}>
-                        All Locations
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setFilterAvailable(true)}>
-                        Available Only
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setFilterAvailable(false)}>
-                        Occupied Only
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-              </DropdownMenu>
-              <Button 
-                onClick={onBulkAddLocations}
-                size="sm"
-                variant="outline"
-                disabled={racks.length === 0}
-              >
-                Bulk Generate <Plus className="h-4 w-4 " />
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1">
+                <Filter className="h-4 w-4" />
+                Filter
               </Button>
-              <Button 
-                onClick={onAddLocation}
-                size="sm"
-                disabled={racks.length === 0}
-              >
-                New <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="flex items-center gap-3">
-             
-
-              <div className="relative">
-                <Input
-                  placeholder="Search enclosures..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-                <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setFilterAvailable(null)}>
+                All Locations
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterAvailable(true)}>
+                Available Only
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterAvailable(false)}>
+                Occupied Only
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button 
+            onClick={onAddLocation}
+            size="sm"
+            disabled={racks.length === 0}
+          >
+            New <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="relative">
+          <Input
+            placeholder="Search enclosures..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+          <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        </div>
       </div>
       
       {rooms.length === 0 || racks.length === 0 ? (
@@ -129,23 +114,21 @@ export function LocationsList({
         </Card>
       ) : (
         <>
-        {racks.map(rack => {
-          const location = locations.find(loc => loc.rack_id === rack.id);
-          const room = rooms.find(r => r.id === location?.room_id);
-          return (
-            <ReptileLocationsVisualizer
-              key={rack.id}
-              selectedRoom={room}
-              selectedRack={rack}
-              startLevel={1}
-              endLevel={rack?.rows || 1}
-              positionsPerLevel={rack?.columns || 1}
-              locations={filteredLocations}
-           />
-          );
-        }
-        )}
-       
+          {racks.map(rack => {
+            const location = locations.find(loc => loc.rack_id === rack.id);
+            const room = rooms.find(r => r.id === location?.room_id);
+            return (
+              <ReptileLocationsVisualizer
+                key={rack.id}
+                selectedRoom={room}
+                selectedRack={rack}
+                startLevel={1}
+                endLevel={rack?.rows || 1}
+                positionsPerLevel={rack?.columns || 1}
+                locations={filteredLocations}
+              />
+            );
+          })}
         </>
       )}
     </div>
