@@ -39,12 +39,8 @@ export function ReptileLocationsVisualizer({
   });
 
 
-  // Filter locations for the selected rack
-  const filteredLocations = locations.filter(location => 
-    location.rack_id === selectedRack?.id
-  );
 
-  console.log("Filtered Locations:", filteredLocations);
+
 
   useEffect(() => {
     if (startLevel > 0 && endLevel >= startLevel) {
@@ -146,7 +142,7 @@ export function ReptileLocationsVisualizer({
                   </div>
                   
                   {positions.map(position => {
-                    const location = filteredLocations.find(
+                    const location = locations.find(
                       loc => loc.shelf_level.toString() === level.toString() && 
                             loc.position.toString() === position.toString()
                     );

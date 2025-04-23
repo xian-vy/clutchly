@@ -47,10 +47,10 @@ export function LocationsManagement() {
     }
   };
 
-  const onAddLocation = () => {
-    setSelectedLocation(undefined);
-    setIsDialogOpen(true);
-  };
+  // const onAddLocation = () => {
+  //   setSelectedLocation(undefined);
+  //   setIsDialogOpen(true);
+  // };
 
   const onSubmitLocation = async (data: NewLocation) => {
     try {
@@ -91,7 +91,7 @@ export function LocationsManagement() {
         rooms={rooms}
         racks={racks}
         isLoading={isLoading}
-        onAddLocation={onAddLocation}
+        // onAddLocation={onAddLocation}
       />
       
       <LocationForm
