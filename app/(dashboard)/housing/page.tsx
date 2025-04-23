@@ -41,13 +41,14 @@ export default async function HousingPage() {
             
         <Alert className="mb-3">
           <Info className="h-4 w-4" />
-          <AlertTitle>Organize Your Collection Efficiently</AlertTitle>
+          <AlertTitle>Organize Your Collection Efficiently (For large-scale keepers)</AlertTitle>
           <AlertDescription>
             Follow the steps below to set up your housing organization:
             <ol className="list-decimal pl-5 mt-2 space-y-1">
               <li>Create <strong>Rooms</strong> first to define the physical spaces where your animals are kept</li>
               <li>Add <strong>Racks</strong> to each room with the appropriate number of rows (shelf levels)</li>
-              <li>Generate <strong>Enclosures</strong> individually or in bulk with the visual grid generator for precise enclosure tracking</li>
+              <li><strong>Enclosures</strong> will be generated base on Rack dimensions.</li>
+              <li>You can select an enclosure to house a reptile.</li>
             </ol>
           </AlertDescription>
         </Alert>
