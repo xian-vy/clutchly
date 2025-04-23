@@ -80,26 +80,55 @@ export function LocationsList({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end items-center">
-        <div className="flex gap-2">
-          <Button 
-            onClick={onBulkAddLocations}
-            size="sm"
-            variant="outline"
-            disabled={racks.length === 0}
-          >
-            <Plus className="h-4 w-4 " />
-            Bulk Generate
-          </Button>
-          <Button 
-            onClick={onAddLocation}
-            size="sm"
-            disabled={racks.length === 0}
-          >
-            <Plus className="h-4 w-4" />
-            Add Enclosure
-          </Button>
-        </div>
+      <div className="flex justify-between items-center gap-4 w-full">    
+          <div className="flex gap-2">
+              <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-1">
+                        <Filter className="h-4 w-4" />
+                        Filter
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setFilterAvailable(null)}>
+                        All Locations
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterAvailable(true)}>
+                        Available Only
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterAvailable(false)}>
+                        Occupied Only
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+              </DropdownMenu>
+              <Button 
+                onClick={onBulkAddLocations}
+                size="sm"
+                variant="outline"
+                disabled={racks.length === 0}
+              >
+                Bulk Generate <Plus className="h-4 w-4 " />
+              </Button>
+              <Button 
+                onClick={onAddLocation}
+                size="sm"
+                disabled={racks.length === 0}
+              >
+                New <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex  items-center gap-3">
+              <div className="relative ">
+                <Input
+                  placeholder="Search enclosures..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+                <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+             
+            </div>
       </div>
       
       {rooms.length === 0 || racks.length === 0 ? (
@@ -108,36 +137,7 @@ export function LocationsList({
         </Card>
       ) : (
         <>
-          <div className="flex justify-between items-center gap-4 mb-4">
-            <div className="relative flex-1">
-              <Input
-                placeholder="Search enclosures..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-              <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Filter className="h-4 w-4" />
-                  Filter
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setFilterAvailable(null)}>
-                  All Locations
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterAvailable(true)}>
-                  Available Only
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterAvailable(false)}>
-                  Occupied Only
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+         
           
           <Card className='px-4'>
             <Table>
