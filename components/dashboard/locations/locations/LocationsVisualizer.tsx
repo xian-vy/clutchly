@@ -32,7 +32,7 @@ export function LocationsVisualizer({
       for (let i = startLevel; i <= endLevel; i++) {
         levelArray.push(i);
       }
-      setLevels(levelArray);
+      setLevels(levelArray.reverse());
     } else {
       setLevels([]);
     }
@@ -136,4 +136,4 @@ export function LocationsVisualizer({
       </CardContent>
     </Card>
   );
-} 
+}

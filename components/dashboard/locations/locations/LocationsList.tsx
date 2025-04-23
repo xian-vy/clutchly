@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -10,25 +9,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { TRUE_FALSE_COLORS } from '@/lib/constants/colors';
 import { Location, Rack, Room } from '@/lib/types/location';
-import { Edit, Filter, Loader2, Package, Plus } from 'lucide-react';
+import { Filter, Loader2, Package, Plus } from 'lucide-react';
 import { useState } from 'react';
+import { ReptileLocationsVisualizer } from './ReptileLocationsVisualizer';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface LocationsListProps {
   locations: Location[];
   rooms: Room[];
   racks: Rack[];
   isLoading: boolean;
-  onEditLocation: (location: Location) => void;
   onAddLocation: () => void;
   onBulkAddLocations: () => void;
 }
@@ -38,12 +29,13 @@ export function LocationsList({
   rooms, 
   racks, 
   isLoading, 
-  onEditLocation, 
   onAddLocation,
   onBulkAddLocations 
 }: LocationsListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAvailable, setFilterAvailable] = useState<boolean | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [selectedRack, setSelectedRack] = useState<Rack | null>(null);
   
   // Get room and rack names for display
   const getRoomAndRackInfo = (location: Location) => {
@@ -69,6 +61,11 @@ export function LocationsList({
     
     return searchMatch && availabilityMatch;
   });
+
+  // Filter racks based on selected room
+  const filteredRacks = racks.filter(rack => 
+    !selectedRoom || rack.room_id === selectedRoom.id
+  );
 
   if (isLoading) {
     return  (
@@ -117,8 +114,48 @@ export function LocationsList({
                 New <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex  items-center gap-3">
-              <div className="relative ">
+            <div className="flex items-center gap-3">
+              <Select
+                value={selectedRoom?.id}
+                onValueChange={(value) => {
+                  const room = rooms.find(r => r.id === value);
+                  setSelectedRoom(room || null);
+                  setSelectedRack(null);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Room" />
+                </SelectTrigger>
+                <SelectContent>
+                  {rooms.map(room => (
+                    <SelectItem key={room.id} value={room.id}>
+                      {room.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={selectedRack?.id}
+                onValueChange={(value) => {
+                  const rack = racks.find(r => r.id === value);
+                  setSelectedRack(rack || null);
+                }}
+                disabled={!selectedRoom}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Rack" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredRacks.map(rack => (
+                    <SelectItem key={rack.id} value={rack.id}>
+                      {rack.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="relative">
                 <Input
                   placeholder="Search enclosures..."
                   value={searchTerm}
@@ -127,7 +164,6 @@ export function LocationsList({
                 />
                 <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               </div>
-             
             </div>
       </div>
       
@@ -137,67 +173,14 @@ export function LocationsList({
         </Card>
       ) : (
         <>
-         
-          
-          <Card className='px-4'>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Room</TableHead>
-                  <TableHead>Rack</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead>Position</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLocations.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                      {searchTerm || filterAvailable !== null
-                        ? "No locations match your filters"
-                        : "No locations found. Click 'Add Location' to create your first location."}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredLocations.map((location) => {
-                    const { roomName, rackName } = getRoomAndRackInfo(location);
-                    return (
-                      <TableRow key={location.id} className="group">
-                        <TableCell className="font-medium max-w-[200px] truncate" title={location.label}>
-                          {location.label}
-                        </TableCell>
-                        <TableCell>{roomName}</TableCell>
-                        <TableCell>{rackName}</TableCell>
-                        <TableCell>{location.shelf_level}</TableCell>
-                        <TableCell>{location.position}</TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={location.is_available ? "outline" : "destructive"} 
-                            className={`${TRUE_FALSE_COLORS[location.is_available ? "true" : "false" as keyof typeof TRUE_FALSE_COLORS]} capitalize`}
-                          >
-                            {location.is_available ? 'Available' : 'Occupied'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onEditLocation(location)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </Card>
+          <ReptileLocationsVisualizer
+            selectedRoom={selectedRoom}
+            selectedRack={selectedRack}
+            startLevel={1}
+            endLevel={selectedRack?.rows || 1}
+            positionsPerLevel={selectedRack?.columns || 1}
+            locations={filteredLocations}
+          />
         </>
       )}
     </div>

@@ -82,4 +82,34 @@ export async function deleteRack(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
+}
+
+export async function updateRackDimensions(rackId: string) {
+  const supabase = await createClient()
+  
+  // Get all locations for this rack
+  const { data: locations, error: locationsError } = await supabase
+    .from('locations')
+    .select('shelf_level, position')
+    .eq('rack_id', rackId)
+  
+  if (locationsError) throw locationsError
+  
+  // Calculate max rows and columns
+  const maxLevel = Math.max(...locations.map(loc => Number(loc.shelf_level)))
+  const maxPosition = Math.max(...locations.map(loc => Number(loc.position)))
+  
+  // Update rack with new dimensions
+  const { data, error } = await supabase
+    .from('racks')
+    .update({
+      rows: maxLevel,
+      columns: maxPosition
+    })
+    .eq('id', rackId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as Rack
 } 
