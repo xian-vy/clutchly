@@ -105,7 +105,7 @@ export function ReptileLocationsVisualizer({
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <LayoutGrid className="h-5 w-5 text-primary" />
+            <LayoutGrid className="h-5 w-5" />
             <span>{selectedRack.name}</span>
           </div>
           <Badge variant="outline" className="ml-auto !text-xs">
@@ -141,7 +141,7 @@ export function ReptileLocationsVisualizer({
             <div className="space-y-4 max-h-[350px] overflow-y-auto">
               {levels.map(level => (
                 <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center">
-                  <div className="w-18  text-right font-medium text-xs">
+                  <div className="w-24  text-right font-medium text-xs">
                     Level {level}
                   </div>
                   
@@ -160,19 +160,19 @@ export function ReptileLocationsVisualizer({
                           <TooltipTrigger asChild>
                             <div 
                               className={`
-                                h-12 rounded-md border-2 flex items-center justify-center 
-                                ${isOccupied ? 'bg-red-50 border-red-200' : 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-950 '}
-                                ${isOccupied ? 'text-red-800' : 'text-blue-800'} 
+                                h-14 rounded-md border-1 flex items-center justify-center 
+                                ${isOccupied ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-950' : 'bg-green-50 dark:bg-primary/5 border-green-200 dark:border-green-950 '}
+                                ${isOccupied ? 'text-red-800' : 'text-green-800'} 
                                 transition-colors hover:bg-opacity-80
                               `}
                             >
-                              <div className="flex flex-col items-center">
-                                <span className="text-xs font-medium text-black dark:text-white">
+                              <div className="flex flex-col items-center ">
+                                <span className="text-xs font-medium text-black dark:text-white text-center  w-18 truncate">
                                   {reptile ? reptile.name : `L${level}-P${position}`}
                                 </span>
                                 <Badge 
                                   variant="outline"
-                                  className={`${!isOccupied ? " text-blue-800 dark:text-white" : ""}`}
+                                  className={`${!isOccupied ? " text-green-800 dark:text-white" : ""}`}
                                 >
                                   {isOccupied ? "Occupied" : "Available"}
                                 </Badge>
