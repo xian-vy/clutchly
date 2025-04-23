@@ -9,6 +9,8 @@ import { Building2, LayoutGrid } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
 
 interface ReptileLocationsVisualizerProps {
   selectedRoom?: Room | null;
@@ -29,15 +31,13 @@ export function ReptileLocationsVisualizer({
 }: ReptileLocationsVisualizerProps) {
   const [levels, setLevels] = useState<number[]>([]);
   const [positions, setPositions] = useState<number[]>([]);
-
+  const {species} = useSpeciesStore()
+  const {morphs} = useMorphsStore()
   const { data: reptiles = [], isLoading: isLoadingReptiles } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
 
-  console.log("Reptiles:", reptiles);
-  console.log("Locations:", locations);
-  console.log("Selected Rack:", selectedRack);
 
   // Filter locations for the selected rack
   const filteredLocations = locations.filter(location => 
@@ -141,7 +141,7 @@ export function ReptileLocationsVisualizer({
             <div className="space-y-4 max-h-[350px] overflow-y-auto">
               {levels.map(level => (
                 <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center">
-                  <div className="w-18 text-right font-medium text-xs">
+                  <div className="w-18  text-right font-medium text-xs">
                     Level {level}
                   </div>
                   
@@ -152,7 +152,8 @@ export function ReptileLocationsVisualizer({
                     );
                     const reptile = location ? getReptileInLocation(location.id) : null;
                     const isOccupied = !!reptile;
-
+                    const speciesName = species.find(species => species.id.toString() === reptile?.species_id.toString())?.name || "Unknown Species";
+                    const morphName = morphs.find(morph => morph.id.toString() === reptile?.morph_id.toString())?.name || "Unknown Morph";
                     return (
                       <TooltipProvider key={`cell-${level}-${position}`}>
                         <Tooltip>
@@ -170,7 +171,7 @@ export function ReptileLocationsVisualizer({
                                   {reptile ? reptile.name : `L${level}-P${position}`}
                                 </span>
                                 <Badge 
-                                  variant={isOccupied ? "destructive" : "outline"} 
+                                  variant="outline"
                                   className={`${!isOccupied ? " text-blue-800 dark:text-white" : ""}`}
                                 >
                                   {isOccupied ? "Occupied" : "Available"}
@@ -183,7 +184,10 @@ export function ReptileLocationsVisualizer({
                               <div className="text-sm">
                                 <p className="font-medium">{reptile.name}</p>
                                 <p className="text-xs text-muted-foreground">
-                                  {reptile.species_id} • {reptile.morph_id}
+                                  { `L${level}-P${position}`}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {speciesName} • {morphName}
                                 </p>
                               </div>
                             </TooltipContent>

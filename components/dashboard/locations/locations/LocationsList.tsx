@@ -168,7 +168,7 @@ export function LocationsList({
       </div>
       
       {rooms.length === 0 || racks.length === 0 ? (
-        <Card className="p-4 bg-yellow-50 text-yellow-800 rounded-md">
+        <Card className="p-4 bg-yellow-50 text-yellow-800 rounded-md text-xs lg:text-sm">
           Please create at least one room and rack before adding locations.
         </Card>
       ) : (
