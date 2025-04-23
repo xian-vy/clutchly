@@ -10,8 +10,8 @@ import {
     Heart,
     LayoutDashboard,
     LineChart,
-    MapPinHouse,
     Menu,
+    Package,
     Rat,
     Settings,
     Turtle,
@@ -37,7 +37,7 @@ const navItems = [
   {
     name : "Housing",
     href : '/housing',
-    icon : MapPinHouse
+    icon : Package
   },
   {
     name: 'Health',
