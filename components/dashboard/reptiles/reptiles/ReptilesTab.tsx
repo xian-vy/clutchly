@@ -10,10 +10,13 @@ import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { useMemo, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { ReptileForm } from './ReptileForm';
-import { ReptileList } from './ReptileList';
+import { EnrichedReptile, ReptileList } from './ReptileList';
 import { Loader2 } from 'lucide-react';
 
 
+type EnrichedReptileWithLabel = EnrichedReptile & {
+  label: string;
+};
 export function ReptilesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   
@@ -54,7 +57,7 @@ export function ReptilesTab() {
   });
 
   const locationData = useMemo(() => {
-    const data: Record<string, any> = {};
+    const data: Record<string, EnrichedReptileWithLabel> = {};
     reptiles
       .filter(r => r.location_id)
       .forEach((reptile, index) => {
@@ -80,7 +83,7 @@ export function ReptilesTab() {
       
       // Get location information if available
       const locationInfo = reptile.location_id ? locationData[reptile.location_id] : null;
-      const locationLabel = locationInfo ? locationInfo.label : null;
+      const locationLabel = locationInfo ? locationInfo.label : "Unknown Location";
 
       return {
         ...reptile,
@@ -130,7 +133,7 @@ export function ReptilesTab() {
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
         <DialogContent className="sm:max-w-[800px]">
           <DialogTitle>
-            {selectedReptile ? 'Edit Herp' : 'Add New Herp'}
+            {selectedReptile ? 'Edit Reptile' : 'Add New Reptile'}
           </DialogTitle>
           <ReptileForm
             initialData={selectedReptile}

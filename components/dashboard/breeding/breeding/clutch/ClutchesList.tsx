@@ -191,7 +191,7 @@ export function ClutchesList({
                       Edit Hatchling info in 
                       <span 
                       onClick={()=> startTransition(() => { router.push('/reptiles')})}
-                      className='underline underline-offset-4 cursor-pointer'>Herp Page</span>
+                      className='underline underline-offset-4 cursor-pointer'>Reptile Page</span>
                 </small>
             }
             <HatchlingsList hatchlings={hatchlings[clutch.id] || []} />

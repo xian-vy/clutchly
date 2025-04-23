@@ -10,7 +10,7 @@ export default async function ReptilesPage() {
   return (
     <div className="container mx-auto">
         <div className="flex items-center justify-between w-full">
-            <h1 className="text-lg sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold mb-6">Herp Management</h1>
+            <h1 className="text-lg sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold mb-6">Reptile Management</h1>
             <Button variant="outline">
               <Settings className="h-4 w-4" />
               Options
@@ -19,7 +19,7 @@ export default async function ReptilesPage() {
       <Tabs defaultValue="reptiles" className="space-y-6">
         <div className="flex flex-col w-full">
             <TabsList>
-              <TabsTrigger value="reptiles">Herps</TabsTrigger>
+              <TabsTrigger value="reptiles">Reptiles</TabsTrigger>
               <TabsTrigger value="morphs">Morphs</TabsTrigger>
               <TabsTrigger value="species">Species</TabsTrigger>
             </TabsList>

@@ -30,7 +30,7 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    name: 'Herps',
+    name: 'Reptiles',
     href: '/reptiles',
     icon: Turtle,
   },
