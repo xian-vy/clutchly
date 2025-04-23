@@ -437,12 +437,23 @@ const { data: virtualEvents = [] } = useQuery({
   // Sort reptiles based on selected criteria
   const getSortedReptiles = (reptiles: (FeedingEventWithDetails | VirtualFeedingEvent)[]) => {
     return [...reptiles].sort((a, b) => {
+      // First sort by the stable key (reptile_id) to maintain consistent order
+      const aId = 'virtual' in a ? a.reptile_id : a.id;
+      const bId = 'virtual' in b ? b.reptile_id : b.id;
+      const idCompare = aId.localeCompare(bId);
+  
+      // Then apply the user's selected sort criteria
       if (sortBy === 'name') {
-        return (a.reptile_name || '').localeCompare(b.reptile_name || '');
+        const nameCompare = (a.reptile_name || '').localeCompare(b.reptile_name || '');
+        return nameCompare || idCompare;
       } else if (sortBy === 'species') {
-        return (a.species_name || '').localeCompare(b.species_name || '');
+        const speciesCompare = (a.species_name || '').localeCompare(b.species_name || '');
+        return speciesCompare || idCompare;
+      } else if (sortBy === 'morph') {
+        const morphCompare = (a.morph_name || '').localeCompare(b.morph_name || '');
+        return morphCompare || idCompare;
       } else {
-        return (a.morph_name || '').localeCompare(b.morph_name || '');
+        return idCompare;
       }
     });
   };
