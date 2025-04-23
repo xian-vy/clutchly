@@ -14,7 +14,6 @@ import {
     Package,
     Rat,
     Settings,
-    Turtle,
 } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -22,6 +21,7 @@ import { useState, useEffect, useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { useTheme } from 'next-themes';
 import { TopLoader } from '../ui/TopLoader';
+import { VscSnake } from "react-icons/vsc";
 
 const navItems = [
   {
@@ -32,7 +32,7 @@ const navItems = [
   {
     name: 'Reptiles',
     href: '/reptiles',
-    icon: Turtle,
+    icon: VscSnake,
   },
   {
     name : "Housing",
@@ -173,7 +173,7 @@ export function Navigation() {
                     : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                 )}
               >
-                <Icon className="w-4.5 3xl:w-5 h-4.5 3xl:h-5" />
+                <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]' }`} />
                 {!isCollapsed && item.name}
               </p>
             );
