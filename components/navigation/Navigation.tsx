@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import {
     ChevronLeft,
     ChevronRight,
-    DatabaseBackup,
     Dna,
+    Download,
     Heart,
     LayoutDashboard,
     LineChart,
@@ -60,9 +60,9 @@ const navItems = [
     icon: Rat,
   },
   {
-    name: 'Backup',
-    href: '/backup',
-    icon: DatabaseBackup,
+    name: 'Download',
+    href: '/download',
+    icon: Download,
   },
   {
     name: 'Settings',
