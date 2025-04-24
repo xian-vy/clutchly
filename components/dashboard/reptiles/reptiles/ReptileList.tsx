@@ -174,6 +174,10 @@ export function ReptileList({
       }
     },
     {
+      accessorKey: "reptile_code",
+      header: "Code",
+    },
+    {
       accessorKey: "name",
       header: "Name",
     },

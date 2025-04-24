@@ -19,10 +19,13 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { BreedingProject, Clutch } from '@/lib/types/breeding';
-import { NewReptile } from '@/lib/types/reptile';
+import { NewReptile, Reptile, Sex } from '@/lib/types/reptile';
+import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Info } from 'lucide-react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -30,9 +33,12 @@ import { Card } from '@/components/ui/card'
 import { useState } from 'react'
 import { VisualTraitsForm } from "@/components/dashboard/reptiles/reptiles/VisualTraitsForm";
 import { HetTraitsForm } from "@/components/dashboard/reptiles/reptiles/HetTraitsForm";
+import { getReptiles } from '@/app/api/reptiles/reptiles';
+import { useResource } from '@/lib/hooks/useResource';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
+  reptile_code: z.string().nullable(),
   morph_id: z.string().min(1, 'Morph is required'),
   sex: z.enum(['male', 'female', 'unknown']),
   weight: z.coerce.number().min(0, 'Weight must be positive'),
@@ -55,13 +61,27 @@ export function HatchlingForm({
 }: HatchlingFormProps) {
 
   const { getMorphsBySpecies } = useMorphsStore()
+  const { species, fetchSpecies } = useSpeciesStore()
   const morphsForSpecies = getMorphsBySpecies(clutch.species_id.toString())
   
+  // Fetch existing reptiles for sequence number generation
+  const { 
+    resources: reptiles, 
+    isLoading: isReptilesLoading 
+  } = useResource<Reptile, NewReptile>({
+    resourceName: 'Reptile',
+    queryKey: ['reptiles'],
+    getResources: getReptiles,
+    createResource: async () => { throw new Error('Not implemented'); },
+    updateResource: async () => { throw new Error('Not implemented'); },
+    deleteResource: async () => { throw new Error('Not implemented'); },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      reptile_code: null,
       morph_id: '',
       sex: 'unknown',
       notes: '',
@@ -77,6 +97,59 @@ export function HatchlingForm({
     source?: 'visual_parent' | 'genetic_test' | 'breeding_odds';
     verified?: boolean;
   }>>([]);
+
+  // Get values from form for code generation
+  const morphId = form.watch('morph_id');
+  const sex = form.watch('sex');
+  
+  // Fetch species if not already loaded
+  useEffect(() => {
+    if (species.length === 0) {
+      fetchSpecies()
+    }
+  }, [species.length, fetchSpecies])
+  
+  // Auto-select first morph if available
+  useEffect(() => {
+    if (morphsForSpecies.length > 0 && !form.getValues('morph_id')) {
+      form.setValue('morph_id', morphsForSpecies[0].id.toString());
+    }
+  }, [morphsForSpecies, form]);
+
+  // Generate reptile code when fields change
+  useEffect(() => {
+    if (!morphId || isReptilesLoading) return;
+    
+    // Find the selected morph
+    const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
+    
+    if (selectedMorph) {
+      // Find species info from the species store
+      const speciesInfo = species.find(s => s.id.toString() === clutch.species_id.toString());
+      
+      if (speciesInfo) {
+        // Generate the code
+        const speciesCode = getSpeciesCode(speciesInfo.name);
+        const today = new Date().toISOString().split('T')[0]; // Use today as hatch date
+        
+        // Add a timestamp to sequence to avoid duplication in concurrent sessions
+        const uniqueReptiles = [
+          ...(reptiles || []),
+          { id: 'temp_' + Date.now().toString() } as unknown as Reptile // Add a temporary reptile to bump the sequence
+        ];
+        
+        const generatedCode = generateReptileCode(
+          uniqueReptiles,
+          speciesCode,
+          selectedMorph.name,
+          today,
+          sex as Sex
+        );
+        
+        form.setValue('reptile_code', generatedCode);
+      }
+    }
+  }, [morphId, sex, form, reptiles, morphsForSpecies, clutch.species_id, species, isReptilesLoading]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -119,7 +192,8 @@ export function HatchlingForm({
           </TabsList>
 
           <TabsContent value="basic" className="space-y-3 mt-4">
-            <FormField
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
@@ -132,7 +206,23 @@ export function HatchlingForm({
                   </FormItem>
                 )}
               />
-          <div className="grid grid-cols-2 gap-4">
+              
+              <FormField
+                control={form.control}
+                name="reptile_code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reptile Code</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value || ''} readOnly />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
                 <FormField
                       control={form.control}
                       name="morph_id"

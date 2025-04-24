@@ -26,7 +26,7 @@ export function HatchlingsList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
+              <TableHead>Code</TableHead>
               <TableHead>Morph</TableHead>
               <TableHead>Sex</TableHead>
               <TableHead>Hatched</TableHead>
@@ -37,7 +37,7 @@ export function HatchlingsList({
             const morphName = morphs.find((morph) => morph.id.toString() === hatchling.morph_id.toString())?.name;
             return (
               <TableRow key={hatchling.id}>
-                <TableCell>{hatchling.name}</TableCell>
+                <TableCell>{hatchling.reptile_code}</TableCell>
                 <TableCell>{morphName}</TableCell>
                 <TableCell className="capitalize">{hatchling.sex}</TableCell>
                 <TableCell>

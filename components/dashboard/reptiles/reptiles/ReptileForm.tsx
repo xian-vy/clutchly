@@ -13,7 +13,8 @@ import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpe
 import { useResource } from '@/lib/hooks/useResource'
 import { useSelectList } from '@/lib/hooks/useSelectList'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
-import { NewReptile, Reptile } from '@/lib/types/reptile'
+import { NewReptile, Reptile, Sex } from '@/lib/types/reptile'
+import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -23,6 +24,7 @@ import { VisualTraitsForm } from './VisualTraitsForm'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
+  reptile_code: z.string().nullable(),
   species_id: z.string().min(1, 'Species is required'),
   morph_id: z.string().min(1, 'Morph is required'),
   sex: z.enum(['male', 'female', 'unknown'] as const),
@@ -80,11 +82,14 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
     verified?: boolean;
   }>>(initialData?.het_traits || []);
 
+  // Initialize form with default values, preselecting first species and morph if no initialData
+  const defaultSpeciesId = initialData?.species_id || (species.length > 0 ? species[0].id.toString() : '');
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || '',
-      species_id: initialData?.species_id.toString() || '',
+      reptile_code: initialData?.reptile_code || null,
+      species_id: defaultSpeciesId,
       morph_id: initialData?.morph_id.toString() || '',
       sex: initialData?.sex || 'unknown',
       hatch_date: initialData?.hatch_date || null,
@@ -99,7 +104,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       het_traits: initialData?.het_traits || [],
       location_id: initialData?.location_id || null,
     }
-  })
+  });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     const formattedData = {
@@ -121,10 +126,53 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
   }, [species.length, fetchSpecies])
 
   const speciesId = form.watch('species_id');
+  const morphId = form.watch('morph_id');
+  const sex = form.watch('sex');
+  const hatchDate = form.watch('hatch_date');
+  
   const { selectedSpeciesId, maleReptiles, femaleReptiles, morphsForSpecies } = useReptilesParentsBySpecies({
     reptiles,
     speciesId : speciesId || '',
   });
+
+  // Select first morph when species changes or when component first loads
+  useEffect(() => {
+    if (morphsForSpecies.length > 0 && !initialData) {
+      form.setValue('morph_id', morphsForSpecies[0].id.toString());
+    }
+  }, [morphsForSpecies, form, initialData]);
+
+  // Auto-generate reptile code when relevant fields change
+  useEffect(() => {
+    // Only auto-generate code for new reptiles (not when editing)
+    if (initialData) return;
+    
+    const selectedSpecies = species.find(s => s.id.toString() === speciesId);
+    const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
+    
+    if (selectedSpecies && selectedMorph) {
+      // Use utility function to get species code
+      const speciesCode = getSpeciesCode(selectedSpecies.name);
+      
+      // Add a temporary unique reptile to the list to ensure unique sequence numbers
+      // This helps when multiple forms are open at once
+      const uniqueReptiles = [
+        ...(reptiles || []),
+        { id: 'temp_' + Date.now().toString() } as unknown as Reptile // Add a temporary reptile to bump the sequence
+      ];
+      
+      // Use utility function to generate the reptile code
+      const generatedCode = generateReptileCode(
+        uniqueReptiles,
+        speciesCode,
+        selectedMorph.name,
+        hatchDate,
+        sex as Sex
+      );
+      
+      form.setValue('reptile_code', generatedCode);
+    }
+  }, [speciesId, morphId, sex, hatchDate, form, reptiles, species, morphsForSpecies, initialData]);
 
   const { Select: SpeciesSelect } = useSelectList({
     data: species,
@@ -161,19 +209,35 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
           </TabsList>
           
           <TabsContent value="basic" className="space-y-3 2xl:space-y-5 mt-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 2xl:gap-5">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="reptile_code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reptile Code</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value || ''} readOnly />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="grid grid-cols-2 2xl:grid-cols-4 gap-3  2xl:gap-5">
               <FormField

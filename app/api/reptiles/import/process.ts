@@ -5,11 +5,13 @@ import { CreateGrowthEntryInput } from '@/lib/types/growth'
 import { Morph, NewMorph } from '@/lib/types/morph'
 import { NewReptile, Reptile, Sex, Status } from '@/lib/types/reptile'
 import { NewSpecies, Species } from '@/lib/types/species'
+import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
 
 // Since we couldn't install xlsx and papaparse, we'll use a simpler approach
 // Type for CSV/Excel row from import
 interface ReptileImportRow {
   name: string
+  reptile_code?: string
   sex: Sex
   species: string
   morph?: string
@@ -27,6 +29,9 @@ interface ReptileImportRow {
   retired_breeder?: boolean | string
   notes?: string
 }
+
+// Generic object type to avoid 'any'
+type GenericObject = Record<string, unknown>;
 
 // Response for the preview of imported data
 export interface ImportPreviewResponse {
@@ -50,9 +55,9 @@ export interface ImportResponse {
 }
 
 // Validate a single reptile row
-function validateReptileRow(row: Record<string, any>): { valid: boolean; error?: string } {
+function validateReptileRow(row: GenericObject): { valid: boolean; error?: string } {
   // Required fields validation
-  if (!row.name || row.name.trim() === '') {
+  if (!row.name || String(row.name).trim() === '') {
     return { valid: false, error: 'Name is required' }
   }
 
@@ -67,7 +72,7 @@ function validateReptileRow(row: Record<string, any>): { valid: boolean; error?:
   }
 
   // Acquisition date validation
-  if (!row.acquisition_date || isNaN(new Date(row.acquisition_date).getTime())) {
+  if (!row.acquisition_date || isNaN(new Date(String(row.acquisition_date)).getTime())) {
     return { valid: false, error: 'Acquisition date is required and must be a valid date' }
   }
 
@@ -77,7 +82,7 @@ function validateReptileRow(row: Record<string, any>): { valid: boolean; error?:
   }
 
   // Hatch date validation (if provided)
-  if (row.hatch_date && isNaN(new Date(row.hatch_date).getTime())) {
+  if (row.hatch_date && isNaN(new Date(String(row.hatch_date)).getTime())) {
     return { valid: false, error: 'Hatch date must be a valid date' }
   }
 
@@ -116,7 +121,7 @@ function validateReptileRow(row: Record<string, any>): { valid: boolean; error?:
 
 // For simplicity, since we can't directly access xlsx and papaparse libraries
 // we'll use a simplified approach that assumes the data is already parsed
-export async function previewImportData(parsedData: Record<string, any>[]): Promise<ImportPreviewResponse> {
+export async function previewImportData(parsedData: GenericObject[]): Promise<ImportPreviewResponse> {
   const rows = parsedData
 
   if (rows.length === 0) {
@@ -133,6 +138,8 @@ export async function previewImportData(parsedData: Record<string, any>[]): Prom
   // Map headers to our schema
   const defaultMappings: Record<string, string> = {
     name: 'name',
+    reptile_code: 'reptile_code',
+    'reptile code': 'reptile_code',
     sex: 'sex',
     species: 'species',
     morph: 'morph',
@@ -170,7 +177,7 @@ export async function previewImportData(parsedData: Record<string, any>[]): Prom
   const invalidRows: Record<number, string> = {}
   
   const normalizedRows = rows.map(row => {
-    const normalizedRow: Record<string, any> = {}
+    const normalizedRow: Record<string, unknown> = {}
     
     Object.entries(row).forEach(([key, value]) => {
       const mappedField = mappedHeaders[key]
@@ -200,12 +207,12 @@ export async function previewImportData(parsedData: Record<string, any>[]): Prom
       }
     })
     
-    return normalizedRow as ReptileImportRow
+    return normalizedRow as unknown as ReptileImportRow
   })
 
   // Validate each row
   normalizedRows.forEach((row, index) => {
-    const validation = validateReptileRow(row, index)
+    const validation = validateReptileRow(row as unknown as GenericObject)
     if (validation.valid) {
       validRows.push(index)
     } else {
@@ -235,7 +242,7 @@ export async function previewImportData(parsedData: Record<string, any>[]): Prom
 }
 
 // Helper to parse boolean from various formats
-function parseBoolean(value: any): boolean {
+function parseBoolean(value: unknown): boolean {
   if (typeof value === 'boolean') return value
   if (typeof value === 'string') {
     const lowerValue = String(value).toLowerCase()
@@ -295,6 +302,11 @@ export async function processImport(
         morphMap[morph.name.toLowerCase()] = morph.id
       })
     }
+    
+    // Fetch existing reptiles for sequence number generation
+    const { data: existingReptiles } = await supabase
+      .from('reptiles')
+      .select('*')
     
     // Step 2: Process species that don't exist yet
     const newSpecies: NewSpecies[] = []
@@ -403,9 +415,49 @@ export async function processImport(
           continue
         }
         
+        // Get morph name for reptile code generation
+        let morphName = ""
+        if (row.morph) {
+          const morphId = morphMap[String(row.morph).toLowerCase()]
+          if (morphId) {
+            const matchedMorph = existingMorphs?.find(m => m.id === morphId) || 
+              response.morphsAdded.find(m => m.id === morphId)
+            
+            if (matchedMorph) {
+              morphName = matchedMorph.name
+            }
+          }
+        }
+        
+        // Generate reptile code if not provided
+        let reptileCode = row.reptile_code || ""
+        if (!reptileCode && morphName) {
+          const speciesObj = existingSpecies?.find(s => s.id === speciesId) || 
+            response.speciesAdded.find(s => s.id === speciesId)
+            
+          if (speciesObj) {
+            const speciesCode = getSpeciesCode(speciesObj.name)
+            
+            // Include newly created reptiles in this import to avoid duplicate sequence numbers
+            const allReptiles = [
+              ...(existingReptiles || []), 
+              ...response.reptiles
+            ]
+            
+            reptileCode = generateReptileCode(
+              allReptiles as Reptile[],
+              speciesCode,
+              morphName,
+              row.hatch_date || null,
+              row.sex
+            )
+          }
+        }
+        
         // Prepare reptile data
         const newReptile: NewReptile = {
           name: row.name,
+          reptile_code: reptileCode || null,
           sex: (String(row.sex).toLowerCase() as Sex),
           species_id: speciesId.toString(),
           morph_id: row.morph ? morphMap[String(row.morph).toLowerCase()]?.toString() : "",
@@ -463,17 +515,19 @@ export async function processImport(
             if (growthError) throw growthError
           }
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error processing row:', error)
-        response.errors.push(`Error processing ${row.name}: ${error.message}`)
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        response.errors.push(`Error processing ${row.name}: ${errorMessage}`)
       }
     }
     
     response.success = true
     return response
     
-  } catch (error: any) {
-    throw new Error(`Import failed: ${error.message}`)
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    throw new Error(`Import failed: ${errorMessage}`)
   }
 }
 

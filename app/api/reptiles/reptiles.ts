@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { CreateGrowthEntryInput } from '@/lib/types/growth'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { createFeedingEventForNewLocation } from '@/app/api/feeding/events'
+import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
 
 export async function getReptiles() {
   const supabase = await createClient()
@@ -35,6 +36,40 @@ export async function createReptile(reptile: NewReptile) {
   const supabase = await createClient()
   const currentUser= await supabase.auth.getUser()
   const userId = currentUser.data.user?.id
+
+  // If a reptile_code is not provided or is empty, generate one
+  if (!reptile.reptile_code || reptile.reptile_code.trim() === '') {
+    // First, get all existing reptiles for sequence number generation
+    const { data: existingReptiles } = await supabase
+      .from('reptiles')
+      .select('*')
+    
+    // Get species info for generating the code
+    const { data: speciesInfo } = await supabase
+      .from('species')
+      .select('name')
+      .eq('id', reptile.species_id)
+      .single()
+    
+    // Get morph info for the name
+    const { data: morphInfo } = await supabase
+      .from('morphs')
+      .select('name')
+      .eq('id', reptile.morph_id)
+      .single()
+    
+    if (speciesInfo && morphInfo) {
+      const speciesCode = getSpeciesCode(speciesInfo.name)
+      reptile.reptile_code = generateReptileCode(
+        existingReptiles as Reptile[],
+        speciesCode,
+        morphInfo.name,
+        reptile.hatch_date,
+        reptile.sex
+      )
+    }
+  }
+
   const newReptile = {
     ...reptile,
     user_id : userId,
@@ -101,11 +136,70 @@ export async function updateReptile(id: string, updates: Partial<NewReptile>) {
   // First, get the current reptile to check for location changes
   const { data: currentReptile, error: fetchError } = await supabase
     .from('reptiles')
-    .select('location_id')
+    .select('location_id, species_id, morph_id, sex, hatch_date')
     .eq('id', id)
     .single()
     
   if (fetchError) throw fetchError
+  
+  // Check if we need to regenerate the reptile_code
+  // This happens if species_id, morph_id, sex, or hatch_date changed
+  const shouldRegenerateCode = 
+    (updates.species_id && updates.species_id !== currentReptile.species_id) ||
+    (updates.morph_id && updates.morph_id !== currentReptile.morph_id) ||
+    (updates.sex && updates.sex !== currentReptile.sex) ||
+    (updates.hatch_date && updates.hatch_date !== currentReptile.hatch_date);
+  
+  // If key fields changed, regenerate the reptile_code
+  if (shouldRegenerateCode) {
+    // Get species info 
+    const speciesId = updates.species_id || currentReptile.species_id;
+    const { data: speciesInfo } = await supabase
+      .from('species')
+      .select('name')
+      .eq('id', speciesId)
+      .single()
+    
+    // Get morph info
+    const morphId = updates.morph_id || currentReptile.morph_id;
+    const { data: morphInfo } = await supabase
+      .from('morphs')
+      .select('name')
+      .eq('id', morphId)
+      .single()
+    
+    if (speciesInfo && morphInfo) {
+      const speciesCode = getSpeciesCode(speciesInfo.name);
+      
+      // When updating, we should preserve the sequence number if possible
+      // First see if we can extract it from the existing code
+      let sequenceNumber = "00001"; // default
+      const currentReptileWithDetails = await supabase
+        .from('reptiles')
+        .select('reptile_code')
+        .eq('id', id)
+        .single();
+      
+      if (currentReptileWithDetails?.data?.reptile_code) {
+        const parts = currentReptileWithDetails.data.reptile_code.split('_');
+        if (parts.length >= 1) {
+          // Use the existing sequence number
+          sequenceNumber = parts[0];
+        }
+      }
+      
+      // Generate the code while preserving the sequence number
+      const hatchYear = updates.hatch_date || currentReptile.hatch_date 
+        ? new Date(updates.hatch_date || currentReptile.hatch_date).getFullYear().toString().slice(-2)
+        : new Date().getFullYear().toString().slice(-2);
+        
+      const sex = updates.sex || currentReptile.sex;
+      const sexCode = sex === 'male' ? 'M' : sex === 'female' ? 'F' : 'U';
+      const formattedMorphName = morphInfo.name.toUpperCase().replace(/\s+/g, '_');
+      
+      updates.reptile_code = `${sequenceNumber}_${speciesCode}_${formattedMorphName}_${hatchYear}_${sexCode}`;
+    }
+  }
   
   const { data, error } = await supabase
     .from('reptiles')
