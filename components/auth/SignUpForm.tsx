@@ -98,7 +98,7 @@ export function SignUpForm() {
       {isLoading && <TopLoader />}
       <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="text-3xl font-bold">Create Account</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">Create Account</h2>
           <p className="mt-2 text-muted-foreground">
             Join Clutchly today and start managing your collection.
           </p>

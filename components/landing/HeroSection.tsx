@@ -30,20 +30,20 @@ export function HeroSection() {
               Welcome to Clutchly
             </span>
           </div>
-          <h1 className="font-bold tracking-tighter text-4xl md:text-6xl lg:text-7xl 3xl:!text-[5rem]">
+          <h1 className="font-bold tracking-tighter text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl 3xl:!text-[5rem]">
             The Reptile Data
             <br />
             <span className="text-primary">
               Management Platform
             </span>
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-6 text-base xl:text-lg 2xl:text-xl text-muted-foreground max-w-2xl mx-auto">
              Create reliable breeding records and manage health, growth, and husbandry with ease—Clutchly makes reptile data management intuitive for keepers and breeders alike.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={() => handleNavigation('/auth/signup')}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm md:text-base xl:text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
               disabled={isPending}
             >
               {isPending ? (
@@ -59,7 +59,7 @@ export function HeroSection() {
             </button>
             <button
               onClick={() => handleNavigation('/auth/signin')}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background/50 backdrop-blur-sm px-8 py-3 text-lg font-medium transition-all hover:bg-secondary hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background/50 backdrop-blur-sm px-8 py-3 text-sm md:text-base xl:text-lg font-medium transition-all hover:bg-secondary hover:scale-[1.02] active:scale-[0.98]"
               disabled={isPending}
             >
               {isPending ? 'Loading...' : 'Sign In'}
