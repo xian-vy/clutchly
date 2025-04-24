@@ -2,16 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { Room, Rack, Location } from '@/lib/types/location';
-import { Reptile } from '@/lib/types/reptile';
+import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, LayoutGrid } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
+import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
-
+import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useResource } from '@/lib/hooks/useResource';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 interface ReptileLocationsVisualizerProps {
   selectedRoom?: Room | null;
   selectedRack?: Rack | null;
@@ -33,20 +36,61 @@ export function ReptileLocationsVisualizer({
   const [positions, setPositions] = useState<number[]>([]);
   const {species} = useSpeciesStore()
   const {morphs} = useMorphsStore()
-  const { data: reptiles = [], isLoading: isLoadingReptiles } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  });
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedEnclosure, setSelectedEnclosure] = useState<string|null>(null);
 
+  const {
+    resources: reptiles,
+    isLoading: reptilesLoading,
+    selectedResource: selectedReptile,
+    setSelectedResource: setSelectedReptile,
+    handleUpdate,
+  } = useResource<Reptile, NewReptile>({
+    resourceName: 'Reptile',
+    queryKey: ['reptiles'],
+    getResources: getReptiles,
+    createResource: createReptile,
+    updateResource: updateReptile,
+    deleteResource: deleteReptile,
+  })
+
+  const reptileWithNoEnclosure = reptiles.filter(reptile => !reptile.location_id);
+  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptileWithNoEnclosure});
   // Filter locations for current room and rack
   const filteredLocations = locations.filter(
     loc => loc.room_id === selectedRoom?.id && loc.rack_id === selectedRack?.id
   );
 
 
+const updateReptileLocation = async () => {
+  const reptile = reptiles.find(r => r.id === selectedReptile?.id);
+  if (!reptile) {
+    console.error(`Reptile with ID ${selectedReptile} not found.`);
+    return;
+  }
+  if (!selectedEnclosure) {
+    console.error('No enclosure selected.');
+    return;
+  }
+  const updatedReptile: NewReptile = {
+    ...reptile,
+    location_id: selectedEnclosure
+  };
+  try {
+   const success =  await handleUpdate(updatedReptile);
 
+   if (success){
+    toast.success("Reptile assigned to enclosure.");
+   }
+  } catch (error) {
+    console.error('Error updating reptile location:', error);
+  }
+}
 
-
+const handleEnclosureClick = async (locationId: string | null) => {
+    setSelectedEnclosure(locationId);
+    setIsDialogOpen(true);
+};
   useEffect(() => {
     if (startLevel > 0 && endLevel >= startLevel) {
       const levelArray = [];
@@ -88,7 +132,7 @@ export function ReptileLocationsVisualizer({
     );
   }
 
-  if (isLoadingReptiles) {
+  if (reptilesLoading) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center min-h-[200px]">
@@ -102,6 +146,7 @@ export function ReptileLocationsVisualizer({
   }
 
   return (
+    <>
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center justify-between">
@@ -167,7 +212,7 @@ export function ReptileLocationsVisualizer({
                                 transition-colors hover:bg-opacity-80
                               `}
                             >
-                              <div className="flex flex-col items-center ">
+                              <div onClick={() => handleEnclosureClick(location ? location.id : null)} className="cursor-pointer flex flex-col items-center ">
                                 <span className="text-xs font-medium text-black dark:text-white text-center  w-18 truncate">
                                   {reptile ? reptile.name : `L${level}-P${position}`}
                                 </span>
@@ -204,5 +249,24 @@ export function ReptileLocationsVisualizer({
         </div>
       </CardContent>
     </Card>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogContent className='sm:max-w-[300px]'>
+      <DialogTitle>Assign Reptile to Location</DialogTitle>
+
+        <ReptileSelect 
+          onValueChange={(value)=>{
+            setSelectedReptile(reptiles.find(reptile => reptile.id === value))
+          }}
+        />
+        <Button
+          variant="outline"
+          onClick={() => {
+            updateReptileLocation();
+            setIsDialogOpen(false);
+          }}>Assign</Button>
+      </DialogContent>
+    </Dialog>
+
+    </>
   );
 }
