@@ -103,7 +103,6 @@ const handleEnclosureClick = async (locationId: string | null) => {
       setLevels([]);
     }
   }, [startLevel, endLevel]);
-
   useEffect(() => {
     if (positionsPerLevel > 0) {
       const posArray = [];
@@ -193,8 +192,8 @@ const handleEnclosureClick = async (locationId: string | null) => {
                   
                   {positions.map(position => {
                     const location = filteredLocations.find(
-                      loc => loc.shelf_level.toString() === level.toString() && 
-                            loc.position.toString() === position.toString()
+                      loc => Number(loc.shelf_level) === level && 
+                            Number(loc.position) === position
                     );
                     const reptile = location ? getReptileInLocation(location.id) : null;
                     const isOccupied = !!reptile;
