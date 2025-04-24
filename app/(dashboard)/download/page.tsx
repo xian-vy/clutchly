@@ -17,14 +17,14 @@ export default async function BackupPage() {
 
   return (
     <div className="container mx-auto">
-      <div className="mb-8">
+      <div className="mb-3 lg:mb-4 xl:mb-6">
         <h1 className="text-lg sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold">Download Data</h1>
         <p className="text-muted-foreground mt-1">
           Download your data with advanced filtering options
         </p>
       </div>
 
-      <Tabs defaultValue="download" className="space-y-6">
+      <Tabs defaultValue="download" className="space-y-2 md:space-y-3 xl:space-y-6">
          <div className="flex flex-col w-full">
               <TabsList>
                 <TabsTrigger value="download">Download</TabsTrigger>
