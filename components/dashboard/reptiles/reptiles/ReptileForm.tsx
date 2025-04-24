@@ -83,7 +83,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
   }>>(initialData?.het_traits || []);
 
   // Initialize form with default values, preselecting first species and morph if no initialData
-  const defaultSpeciesId = initialData?.species_id || (species.length > 0 ? species[0].id.toString() : '');
+  const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? species[0].id.toString() : '');
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
