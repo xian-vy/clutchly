@@ -1,5 +1,6 @@
 'use client';
 
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,7 @@ import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { useHealthStore } from '@/lib/stores/healthStore';
 import { CreateHealthLogEntryInput, HealthLogEntry } from '@/lib/types/health';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -47,7 +49,12 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     isLoading: healthStoreLoading
   } = useHealthStore();
 
-  const { ReptileSelect } = useGroupedReptileSelect()
+  const { data: reptiles = [] } = useQuery({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  })
+ 
+  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

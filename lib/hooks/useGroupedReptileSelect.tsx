@@ -1,4 +1,3 @@
-import { getReptiles } from "@/app/api/reptiles/reptiles"
 import { Button } from "@/components/ui/button"
 import {
     Command,
@@ -13,10 +12,10 @@ import {
 } from "@/components/ui/popover"
 import { useSpeciesStore } from "@/lib/stores/speciesStore"
 import { cn } from "@/lib/utils"
-import { useQuery } from "@tanstack/react-query"
 import { Check, ChevronsUpDown } from "lucide-react"
 import * as React from "react"
 import { useMemo } from "react"
+import { Reptile } from "../types/reptile"
 
 interface ReptileSelectProps {
   value?: string
@@ -24,14 +23,12 @@ interface ReptileSelectProps {
   placeholder?: string
 }
 
+interface Props {
+  filteredReptiles : Reptile[]
+}
 
+export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
 
-export function useGroupedReptileSelect() {
-  // Get reptiles from React Query
-  const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  })
 
   // Get species from store
   const { species } = useSpeciesStore()
@@ -40,14 +37,14 @@ export function useGroupedReptileSelect() {
   const groupedReptiles = useMemo(() => {
     return species.map(speciesItem => ({
       label: speciesItem.name,
-      items: reptiles
+      items: filteredReptiles
         .filter(reptile => reptile.species_id.toString() === speciesItem.id.toString())
         .map(reptile => ({
           value: reptile.id,
           label: reptile.name,
         }))
     })).filter(group => group.items.length > 0)
-  }, [species, reptiles])
+  }, [species, filteredReptiles])
 
   // Define ReptileSelect as a proper React component
   const ReptileSelect: React.FC<ReptileSelectProps> = React.useMemo(() => {

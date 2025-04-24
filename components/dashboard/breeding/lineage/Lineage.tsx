@@ -2,9 +2,16 @@
 import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { useState } from 'react';
 import { ReptileTree } from './Tree';
+import { useQuery } from '@tanstack/react-query';
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 
 const Lineage = () => {
-  const { ReptileSelect } = useGroupedReptileSelect()
+  const { data: reptiles = [] } = useQuery({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  })
+ 
+  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
 
 

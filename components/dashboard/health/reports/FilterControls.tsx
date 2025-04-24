@@ -1,10 +1,12 @@
 'use client';
 
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { HealthCategory } from '@/lib/types/health';
+import { useQuery } from '@tanstack/react-query';
 import { Calendar, Filter } from 'lucide-react';
 
 interface FilterControlsProps {
@@ -38,7 +40,13 @@ export function FilterControls({
   resetFilters,
   filteredLogsCount
 }: FilterControlsProps) {
-  const { ReptileSelect } = useGroupedReptileSelect()
+  const { data: reptiles = [] } = useQuery({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  })
+ 
+  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
+
 
   return (
     <>

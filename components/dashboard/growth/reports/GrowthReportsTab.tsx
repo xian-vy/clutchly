@@ -15,8 +15,6 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 
 export function GrowthReportsTab() {
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
-  const { ReptileSelect } = useGroupedReptileSelect()
-
   const { 
     entries, 
     fetchEntries,
@@ -28,6 +26,7 @@ export function GrowthReportsTab() {
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
+  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
 
   // Fetch growth entries if not already loaded
   useEffect(() => {

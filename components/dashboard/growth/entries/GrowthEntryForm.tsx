@@ -1,5 +1,6 @@
 'use client';
 
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -7,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -33,7 +34,12 @@ interface GrowthEntryFormProps {
 
 export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntryFormProps) {
 
-  const { ReptileSelect } = useGroupedReptileSelect()
+  const { data: reptiles = [] } = useQuery({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  })
+ 
+  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
   const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
