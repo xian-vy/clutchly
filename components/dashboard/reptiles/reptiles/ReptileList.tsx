@@ -247,9 +247,9 @@ export function ReptileList({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center">
-                  <MapPin className={`h-4 w-4 mr-1 ${hasLocation ? 'text-green-500' : 'text-gray-300'}`} />
+                  <MapPin className={`h-4 w-4 mr-1 ${hasLocation ? 'text-primary' : 'text-gray-300'}`} />
                   {hasLocation ? (
-                    <span className="text-xs truncate">
+                    <span className="text-xs truncate w-[100px]">
                       {reptile.location_label}
                     </span>
                   ) : (
