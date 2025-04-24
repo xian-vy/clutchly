@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useGroupedReptiles } from '@/lib/hooks/useGroupedReptiles';
+import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { HealthCategory } from '@/lib/types/health';
 import { Calendar, Filter } from 'lucide-react';
 
@@ -38,7 +38,7 @@ export function FilterControls({
   resetFilters,
   filteredLogsCount
 }: FilterControlsProps) {
-  const { ReptileSelect } = useGroupedReptiles()
+  const { ReptileSelect } = useGroupedReptileSelect()
 
   return (
     <>

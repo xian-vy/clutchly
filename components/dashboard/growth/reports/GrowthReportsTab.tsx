@@ -4,7 +4,7 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGroupedReptiles } from '@/lib/hooks/useGroupedReptiles';
+import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { useGrowthStore } from '@/lib/stores/growthStore';
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery } from '@tanstack/react-query';
@@ -15,7 +15,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 
 export function GrowthReportsTab() {
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
-  const { ReptileSelect } = useGroupedReptiles()
+  const { ReptileSelect } = useGroupedReptileSelect()
 
   const { 
     entries, 

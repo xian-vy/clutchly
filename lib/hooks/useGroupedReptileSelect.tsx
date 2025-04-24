@@ -24,7 +24,9 @@ interface ReptileSelectProps {
   placeholder?: string
 }
 
-export function useGroupedReptiles() {
+
+
+export function useGroupedReptileSelect() {
   // Get reptiles from React Query
   const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],

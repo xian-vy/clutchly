@@ -1,10 +1,10 @@
 'use client'
-import { useGroupedReptiles } from '@/lib/hooks/useGroupedReptiles';
+import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { useState } from 'react';
 import { ReptileTree } from './Tree';
 
 const Lineage = () => {
-  const { ReptileSelect } = useGroupedReptiles()
+  const { ReptileSelect } = useGroupedReptileSelect()
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
 
 

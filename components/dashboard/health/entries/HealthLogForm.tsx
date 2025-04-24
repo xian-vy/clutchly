@@ -5,7 +5,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useGroupedReptiles } from '@/lib/hooks/useGroupedReptiles';
+import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { useHealthStore } from '@/lib/stores/healthStore';
 import { CreateHealthLogEntryInput, HealthLogEntry } from '@/lib/types/health';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,7 +47,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     isLoading: healthStoreLoading
   } = useHealthStore();
 
-  const { ReptileSelect } = useGroupedReptiles()
+  const { ReptileSelect } = useGroupedReptileSelect()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
