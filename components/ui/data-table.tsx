@@ -52,7 +52,6 @@ export function DataTable<TData, TValue>({
     pageIndex: 0, 
     pageSize: screenSize === "large" ? 5 : 10,
   });
-  console.log("Screen",screenSize)
   useEffect(() => {
     setPagination(prev => ({
       ...prev,
