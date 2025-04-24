@@ -24,7 +24,7 @@ interface MultiReptileSelectProps {
   placeholder?: string;
 }
 
-export function useMultiReptileSelect() {
+export function useGroupedReptileMultiSelect() {
   // Get reptiles from React Query
   const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],

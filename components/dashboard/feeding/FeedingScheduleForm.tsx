@@ -31,7 +31,7 @@ import { z } from 'zod';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { useMultiReptileSelect } from '@/lib/hooks/useMultiReptileSelect';
+import { useGroupedReptileMultiSelect } from '@/lib/hooks/useGroupedReptileMultiSelect';
 
 // Define form schema
 const feedingScheduleSchema = z.object({
@@ -101,7 +101,6 @@ export function FeedingScheduleForm({
   // For filtering rack and level selections
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedRackId, setSelectedRackId] = useState<string | null>(null);
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   
   // Filter racks by selected room
   const filteredRacks = selectedRoomId 
@@ -125,7 +124,7 @@ export function FeedingScheduleForm({
     }
   }, [recurrence, form]);
   
-  const { MultiReptileSelect } = useMultiReptileSelect();
+  const { MultiReptileSelect } = useGroupedReptileMultiSelect();
   
   // Handle form submission
   const handleSubmit = async (values: FeedingScheduleFormValues) => {
