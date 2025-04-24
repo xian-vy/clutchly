@@ -1,6 +1,6 @@
 'use client';
 
-import { getClutches, updateClutch } from '@/app/api/breeding/clutches';
+import { createClutch, getClutches, updateClutch } from '@/app/api/breeding/clutches';
 import { createReptile, deleteReptile, getReptileByClutchId, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -16,6 +16,8 @@ import { toast } from 'sonner';
 import BreedingProjecParentsInfo from './BreedingProjecParentsInfo';
 import { ClutchesList } from './clutch/ClutchesList';
 import { HatchlingForm } from './hatchling/HatchlingForm';
+import { PlusCircle } from 'lucide-react';
+import { ClutchForm } from './clutch/ClutchForm';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
@@ -29,6 +31,7 @@ export function BreedingProjectDetails({
   const [selectedClutchId, setSelectedClutchId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const {morphs} = useMorphsStore()
+  const [clutchDialogOpen, setClutchDialogOpen] = useState(false);
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
@@ -144,6 +147,19 @@ export function BreedingProjectDetails({
     }
     return acc;
   }, {} as Record<string, Reptile[]>);
+
+  const handleClutchSubmit = async (data: NewClutch) => {
+    try {
+      await createClutch({ ...data,  breeding_project_id: project.id, });
+      toast.success('Clutch added successfully');
+      queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
+      queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
+      setClutchDialogOpen(false);
+    } catch (error) {
+      console.error('Error saving clutch:', error);
+      toast.error(`Failed to add clutch`);
+    }
+  };
   return (
     <div className="space-y-6">
   
@@ -188,8 +204,9 @@ export function BreedingProjectDetails({
                 ))}
               </Tabs>
             ) : (
-              <Card className="p-8 text-center text-muted-foreground">
-                <p>No clutches added yet. Click Add Clutch to get started.</p>
+              <Card onClick={()=>setClutchDialogOpen(true)} className="p- cursor-pointer text-center text-muted-foreground flex flex-col">
+                <p className='text-xs sm:text-sm'>No clutches added yet. Click Add Clutch to get started.</p>
+                <PlusCircle strokeWidth={1.5} className="mx-auto h-8 w-8 text-muted-foreground" />
               </Card>
             )}
           </div>
@@ -208,6 +225,20 @@ export function BreedingProjectDetails({
               onCancel={() => setIsAddHatchlingDialogOpen(false)}
             />
           )}
+        </DialogContent>
+      </Dialog>
+      <Dialog open={clutchDialogOpen} onOpenChange={(open) => {setClutchDialogOpen(open); }}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogTitle>Add Clutch</DialogTitle>
+          <ClutchForm
+            breedingProjectId={project.id}
+            onSubmit={handleClutchSubmit}
+            onCancel={() => {
+              setClutchDialogOpen(false);
+            }}
+            speciesID={project.species_id}
+            initialData={undefined}
+          />
         </DialogContent>
       </Dialog>
     </div>
