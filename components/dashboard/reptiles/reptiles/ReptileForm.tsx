@@ -229,7 +229,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                 name="reptile_code"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Reptile Code</FormLabel>
+                    <FormLabel>Code <span className='text-[0.55rem] md:text-[0.6arem]'>(SEQ_SP_MORPH_HATCHYEAR_GENDER)</span></FormLabel>
                     <FormControl>
                       <Input {...field} value={field.value || ''} readOnly />
                     </FormControl>
