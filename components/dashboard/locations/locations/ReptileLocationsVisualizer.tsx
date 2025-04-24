@@ -38,6 +38,11 @@ export function ReptileLocationsVisualizer({
     queryFn: getReptiles,
   });
 
+  // Filter locations for current room and rack
+  const filteredLocations = locations.filter(
+    loc => loc.room_id === selectedRoom?.id && loc.rack_id === selectedRack?.id
+  );
+
 
 
 
@@ -134,7 +139,7 @@ export function ReptileLocationsVisualizer({
               ))}
             </div>
             
-            <div className="space-y-4 max-h-[350px] overflow-y-auto">
+            <div className="space-y-4 max-h-[450px] overflow-y-auto">
               {levels.map(level => (
                 <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center">
                   <div className="w-24  text-right font-medium text-xs">
@@ -142,7 +147,7 @@ export function ReptileLocationsVisualizer({
                   </div>
                   
                   {positions.map(position => {
-                    const location = locations.find(
+                    const location = filteredLocations.find(
                       loc => loc.shelf_level.toString() === level.toString() && 
                             loc.position.toString() === position.toString()
                     );
@@ -200,4 +205,4 @@ export function ReptileLocationsVisualizer({
       </CardContent>
     </Card>
   );
-} 
+}
