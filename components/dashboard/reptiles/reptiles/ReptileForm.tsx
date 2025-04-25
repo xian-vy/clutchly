@@ -203,13 +203,13 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <Tabs defaultValue="basic" >
           <TabsList >
-            <TabsTrigger value="basic">Basic Information</TabsTrigger>
+            <TabsTrigger value="basic">Info</TabsTrigger>
             <TabsTrigger value="visual-traits">Visual Traits</TabsTrigger>
             <TabsTrigger value="het-traits">Het Traits</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="basic" className="space-y-3 2xl:space-y-5 mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 2xl:gap-5">
+          <TabsContent value="basic" className="space-y-2 sm:space-y-3 2xl:space-y-5 mt-2 sm:mt-4">
+            <div className="grid grid-cols-1 gap-3 2xl:gap-5">
               <FormField
                 control={form.control}
                 name="name"
@@ -239,7 +239,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
               />
             </div>
 
-            <div className="grid grid-cols-2 2xl:grid-cols-4 gap-3  2xl:gap-5">
+            <div className="grid grid-cols-3 2xl:grid-cols-4 gap-3  2xl:gap-5">
               <FormField
                     control={form.control}
                     name="species_id"
@@ -467,7 +467,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end gap-4 mt-6">
+        <div className="flex justify-end gap-4 mt-3 md:mt-5">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>

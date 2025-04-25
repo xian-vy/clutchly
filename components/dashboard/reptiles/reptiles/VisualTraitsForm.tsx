@@ -54,7 +54,7 @@ export function VisualTraitsForm({ initialTraits, onChange }: VisualTraitsFormPr
       {visualTraits.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-2">
           {visualTraits.map((trait, index) => (
-            <div key={index} className="flex items-center bg-secondary text-secondary-foreground px-3 py-1 rounded-md">
+            <div key={index} className="flex items-center bg-secondary text-secondary-foreground px-3 py-1 rounded-md  text-xs xl:text-sm">
               <span>{trait}</span>
               <button 
                 type="button" 
