@@ -106,7 +106,7 @@ export function HealthFilterDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 2xl:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {/* Category Filter */}
               <FormField
                 control={form.control}
@@ -215,7 +215,7 @@ export function HealthFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {/* Type Filter */}
               <FormField
                 control={form.control}
@@ -302,7 +302,7 @@ export function HealthFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
               {/* Resolved Filter */}
               <FormField
                 control={form.control}

@@ -89,8 +89,8 @@ export function BreedingFilterDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 2xl:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-5 2xl:space-y-6">
+            <div className="grid grid-cols-2 gap-4">
               {/* Species Filter */}
               <FormField
                 control={form.control}

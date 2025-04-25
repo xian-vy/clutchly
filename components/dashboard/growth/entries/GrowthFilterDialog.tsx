@@ -100,7 +100,7 @@ export function GrowthFilterDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 2xl:space-y-6">
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 items-center space-y-4 g">
               {/* Weight Range Filter */}
               <FormField
                 control={form.control}
@@ -201,7 +201,7 @@ export function GrowthFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {/* Has Notes Filter */}
               <FormField
                 control={form.control}
