@@ -77,8 +77,8 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
     const base64Logo = await loadImage(window.location.origin + '/logo_light.png');
     
     // Add logo with fixed dimensions
-    const logoWidth = 20;
-    const logoHeight = 20;
+    const logoWidth = 12;
+    const logoHeight = 12;
     doc.addImage(base64Logo, 'PNG', 15, 10, logoWidth, logoHeight);
   } catch (error) {
     console.warn('Failed to load logo for PDF:', error);
@@ -88,19 +88,19 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   // Add accent line - thinner
   doc.setDrawColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
   doc.setLineWidth(0.3);
-  doc.line(15, 32, doc.internal.pageSize.getWidth() - 15, 32);
+  doc.line(15, 25, doc.internal.pageSize.getWidth() - 15, 25);
   
   // Add main title
-  doc.setFontSize(17);
+  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
-  doc.text('Clutchly', 40, 17);
+  doc.text('Clutchly', 30, 15);
   
   // Add subtitle
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(COLORS.text[0], COLORS.text[1], COLORS.text[2]);
-  doc.text('Reptile Details Certificate', 40, 22);
+  doc.text('Reptile Details Certificate', 30, 20);
   
   // Reset line width and color
   doc.setLineWidth(0.5);
@@ -122,14 +122,16 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   leftColumn.push(['Length', reptile.length ? `${reptile.length} cm` : 'Unknown']);
   
   // Basic info for right column
+  rightColumn.push(['Code', reptile.reptile_code || '']);
   rightColumn.push(['Status', reptile.status ? capitalize(reptile.status) : 'Unknown']);
   rightColumn.push(['Breeder', reptile.is_breeder ? 'Yes' : 'No']);
   rightColumn.push(['Hatched', reptile.hatch_date ? format(new Date(reptile.hatch_date), 'MMM dd, yyyy') : 'Unknown']);
   rightColumn.push(['Acquired', reptile.acquisition_date ? format(new Date(reptile.acquisition_date), 'MMM dd, yyyy') : 'Unknown']);
-  
+  rightColumn.push(['Produced By', reptile.original_breeder || 'Unknown']);
+
   // Section title with underline
-  const sectionY = 40;
-  drawSectionTitle(doc, 'Basic Information', 15, sectionY, 12);
+  const sectionY = 35;
+  drawSectionTitle(doc, 'Basic Information', 15, sectionY, 10);
   
   // Two-column layout for basic info
   const colWidth = (doc.internal.pageSize.getWidth() - 30) / 2 - 5;
@@ -176,7 +178,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
     sectionY + leftColumn.length * 8 + 15
   );
   
-  drawSectionTitle(doc, 'Genetic Information', 15, lastY, 12);
+  drawSectionTitle(doc, 'Genetic Information', 15, lastY, 10);
   
   // Visual traits
   const geneticData = [];
@@ -214,7 +216,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   
   // Lineage information
   const lineageLastY = doc.lastAutoTable.finalY + 12;
-  drawSectionTitle(doc, 'Parents Information', 15, lineageLastY, 12);
+  drawSectionTitle(doc, 'Parents Information', 15, lineageLastY, 10);
   
   // Prepare dam and sire columns with proper formatting
   const damColumn = [];
@@ -245,6 +247,8 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
     damColumn.push(['Acquisition', damDetails.acquisition_date 
       ? format(new Date(damDetails.acquisition_date), 'MMM dd, yyyy') 
       : 'Unknown']);
+    damColumn.push(['Produced By', damDetails.original_breeder || 'Unknown']); 
+ 
   } else {
     damColumn.push(['Name', 'Unknown']);
     damColumn.push(['Morph', 'Unknown']);
@@ -252,6 +256,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
     damColumn.push(['Het Traits', 'Unknown']);
     damColumn.push(['Hatch Date', 'Unknown']);
     damColumn.push(['Acquisition', 'Unknown']);
+    damColumn.push(['Produced By', 'Unknown']);
   }
 
   // Sire information
@@ -279,6 +284,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
     sireColumn.push(['Acquisition', sireDetails.acquisition_date 
       ? format(new Date(sireDetails.acquisition_date), 'MMM dd, yyyy') 
       : 'Unknown']);
+    sireColumn.push(['Produced By', sireDetails.original_breeder || 'Unknown']); 
   } else {
     sireColumn.push(['Name', 'Unknown']);
     sireColumn.push(['Morph', 'Unknown']);
@@ -286,6 +292,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
     sireColumn.push(['Het Traits', 'Unknown']);
     sireColumn.push(['Hatch Date', 'Unknown']);
     sireColumn.push(['Acquisition', 'Unknown']);
+    sireColumn.push(['Produced By', 'Unknown']);
   }
 
   // Add headers for each column
@@ -342,7 +349,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   // Health summary if available
   if (reptile.health_logs && reptile.health_logs.length > 0) {
     const healthLastY = doc.lastAutoTable.finalY + 12;
-    drawSectionTitle(doc, 'Health Records', 15, healthLastY, 12);
+    drawSectionTitle(doc, 'Health Records', 15, healthLastY, 10);
     
     // Last 3 health records
     const healthData = reptile.health_logs.slice(0, 3).map(log => {
@@ -386,7 +393,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   
   // Footer line - thinner
   doc.setDrawColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
-  doc.setLineWidth(0.5);
+  doc.setLineWidth(0.3);
   doc.line(15, pageHeight - 15, doc.internal.pageSize.getWidth() - 15, pageHeight - 15);
   
   // Footer text
@@ -397,11 +404,11 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
     doc.internal.pageSize.getWidth() / 2, pageHeight - 7, { align: 'center' });
   
   // Save the PDF with the reptile's name
-  doc.save(`${reptile.name.replace(/\s+/g, '_')}_details.pdf`);
+  doc.save(`${reptile.name.replace(/\s+/g, '_')}_${reptile.reptile_code ? reptile.reptile_code : '--'}_details.pdf`);
 };
 
 // Helper function to draw section titles with styling
-function drawSectionTitle(doc: JsPDFWithAutoTable, title: string, x: number, y: number, fontSize: number = 14): void {
+function drawSectionTitle(doc: JsPDFWithAutoTable, title: string, x: number, y: number, fontSize: number = 10): void {
   // Section title
   doc.setFontSize(fontSize);
   doc.setFont('helvetica', 'bold');
@@ -410,8 +417,8 @@ function drawSectionTitle(doc: JsPDFWithAutoTable, title: string, x: number, y: 
   
   // Section underline - thinner
   doc.setDrawColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
-  doc.setLineWidth(0.3);
-  doc.line(x, y + 1, x + 40, y + 1);
+  doc.setLineWidth(0.1);
+  doc.line(x, y + 1, x + 32, y + 1);
   
   // Reset
   doc.setLineWidth(0.1);
