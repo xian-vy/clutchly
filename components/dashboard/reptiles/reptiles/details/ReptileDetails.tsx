@@ -8,7 +8,7 @@ import { useReptileDetails } from "./useReptileDetails";
 import { EnrichedReptile } from "../ReptileList";
 import { Reptile } from "@/lib/types/reptile";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OverviewTab } from "./OverviewTab";
@@ -17,6 +17,8 @@ import { HealthTab } from "./HealthTab";
 import { FeedingTab } from "./FeedingTab";
 import { GeneticsTab } from "./GeneticsTab";
 import { BreedingTab } from "./BreedingTab";
+import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/details/pdfGenerator";
+import { useState } from 'react';
 
 interface ReptileDetailsProps {
   reptile: EnrichedReptile | null;
@@ -32,6 +34,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
     error,
     refetch
   } = useReptileDetails(reptile?.id || null);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   if (!reptile) return null;
 
@@ -60,10 +63,25 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
     </div>
   );
 
+  const handlePrintPDF = async () => {
+    if (!reptileDetails) return;
+    
+    try {
+      setIsPrinting(true);
+      const sireDetails = reptiles.find(r => r.id === reptile.sire_id);
+      const damDetails = reptiles.find(r => r.id === reptile.dam_id);
+      await generateReptilePDF(reptileDetails, sireDetails as EnrichedReptile, damDetails as EnrichedReptile);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-screen-md lg:max-w-screen-lg h-[90vh] p-0">
-        <DialogHeader className="px-6 pt-6 pb-2">
+        <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between">
           <DialogTitle className="text-2xl flex items-center gap-2">
             {reptile.name}
             <div className="flex gap-2">
@@ -79,6 +97,16 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
               )}
             </div>
           </DialogTitle>
+          {!isLoading && !error && reptileDetails && (
+            <Button 
+              variant="outline" 
+              onClick={handlePrintPDF}
+              disabled={isPrinting}
+            >
+              <Printer className="mr-2 h-4 w-4" />
+              {isPrinting ? "Generating..." : "Print"}
+            </Button>
+          )}
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full h-full">

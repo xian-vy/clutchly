@@ -7,12 +7,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { SEX_COLORS, STATUS_COLORS, YES_NO_COLORS } from "@/lib/constants/colors";
 import { Reptile } from "@/lib/types/reptile";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, Filter, MapPin, MoreHorizontal, Star, Trash } from "lucide-react";
+import { Edit, Eye, Filter, MapPin, MoreHorizontal, Printer, Star, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ReptileFilterDialog, ReptileFilters } from "./ReptileFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ImportReptileDialog } from "./ImportReptileDialog";
 import { ReptileDetailsDialog } from "./ReptileDetailsDialog";
+import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/details/pdfGenerator";
+import { getReptileDetails } from "@/app/api/reptiles/reptileDetails";
 
 export interface EnrichedReptile extends Reptile {
   species_name: string;
@@ -40,6 +42,7 @@ export function ReptileList({
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const [selectedReptile, setSelectedReptile] = useState<EnrichedReptile>({} as EnrichedReptile)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   // Apply filters to the reptiles list
   const filteredReptiles = useMemo(() => {
@@ -294,34 +297,89 @@ export function ReptileList({
         const reptile = row.original;
         return (
           <>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem >
-                <Star className="mr-2 h-4 w-4" />
-                Mark as Favorite
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={()=>{
-                setSelectedReptile(reptile);
-                setDetailsDialogOpen(true);
-              }} >
-                <Eye className="mr-2 h-4 w-4" />
-                 Full Details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit?.(reptile)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete?.(reptile.id)}>
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    disabled={isPrinting}
+                    onClick={async () => {
+                      try {
+                        setIsPrinting(true);
+                        // Get detailed reptile data for PDF
+                        const detailedReptile = await getReptileDetails(reptile.id);
+                        const sireDetails = reptiles.find(r => r.id === reptile.sire_id);
+                        const damDetails = reptiles.find(r => r.id === reptile.dam_id);
+                        // Generate and download PDF
+                        await generateReptilePDF(detailedReptile, sireDetails as EnrichedReptile, damDetails as EnrichedReptile);
+                      } catch (error) {
+                        console.error("Error generating PDF:", error);
+                      } finally {
+                        setIsPrinting(false);
+                      }
+                    }}
+                  >
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Print Details</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem >
+                  <Star className="mr-2 h-4 w-4" />
+                  Mark as Favorite
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={()=>{
+                  setSelectedReptile(reptile);
+                  setDetailsDialogOpen(true);
+                }} >
+                  <Eye className="mr-2 h-4 w-4" />
+                   Full Details
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  disabled={isPrinting}
+                  onClick={async () => {
+                    try {
+                      setIsPrinting(true);
+                      // Get detailed reptile data for PDF
+                      const detailedReptile = await getReptileDetails(reptile.id);
+                      const sireDetails = reptiles.find(r => r.id === reptile.sire_id);
+                      const damDetails = reptiles.find(r => r.id === reptile.dam_id);
+                      // Generate and download PDF
+                      await generateReptilePDF(detailedReptile, sireDetails as EnrichedReptile, damDetails as EnrichedReptile);
+                    } catch (error) {
+                      console.error("Error generating PDF:", error);
+                    } finally {
+                      setIsPrinting(false);
+                    }
+                  }}
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Print PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEdit?.(reptile)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onDelete?.(reptile.id)}>
+                  <Trash className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           </>
         );
       },
