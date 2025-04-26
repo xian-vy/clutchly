@@ -351,7 +351,7 @@ export function FeedingScheduleForm({
               <SelectContent>
                 <SelectItem value="room">Feed by Room</SelectItem>
                 <SelectItem value="rack">Feed by Rack</SelectItem>
-                <SelectItem value="level">Feed by Rack Level</SelectItem>
+                {/* <SelectItem value="level">Feed by Rack Level</SelectItem> */}
                 {/* <SelectItem value="location">Feed by Specific Enclosure</SelectItem> */}
                 <SelectItem value="reptile">Feed Specific Reptiles</SelectItem>
               </SelectContent>
