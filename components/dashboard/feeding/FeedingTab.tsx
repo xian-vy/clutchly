@@ -22,7 +22,7 @@ import { format, startOfDay, differenceInDays } from 'date-fns';
 import { AlertCircle, Calendar, Check, CheckCircle, Loader2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
-import { FeedingEventsList } from './FeedingEventsList';
+import { FeedingEvents } from './FeedingEvents';
 
 interface ScheduleStatus {
   totalEvents: number;
@@ -601,7 +601,7 @@ export function FeedingTab() {
                 </CardContent>
               </Card>
                 <div className=" px-2">
-                  <FeedingEventsList 
+                  <FeedingEvents 
                     scheduleId={schedule.id} 
                     schedule={schedule}
                     onEventsUpdated={refreshStatus} 
