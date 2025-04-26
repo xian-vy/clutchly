@@ -44,6 +44,7 @@ const formSchema = z.object({
     verified: z.boolean().optional()
   })).nullable(),
   location_id: z.string().nullable(),
+  original_breeder : z.string().nullable()
 })
 
 // Extended Reptile type with species_name and morph_name
@@ -103,6 +104,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
       visual_traits: initialData?.visual_traits || [],
       het_traits: initialData?.het_traits || [],
       location_id: initialData?.location_id || null,
+      original_breeder : initialData ? initialData.original_breeder : ''
     }
   });
 
@@ -423,6 +425,19 @@ export function ReptileForm({ initialData, onSubmit, onCancel }: ReptileFormProp
                         currentLocationId={initialData?.location_id}
                         filterByAvailability
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="original_breeder"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Original Breeder</FormLabel>
+                    <FormControl>
+                      <Input value={field.value || ''} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

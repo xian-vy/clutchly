@@ -168,6 +168,7 @@ export function HatchlingForm({
         het_traits: hetTraits,
         notes: values.notes || '',
         visual_traits: visualTraits,
+        original_breeder : ''
       };
       await onSubmit(hatchlingData);
     } catch (error) {
