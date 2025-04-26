@@ -342,7 +342,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   // Health summary if available
   if (reptile.health_logs && reptile.health_logs.length > 0) {
     const healthLastY = doc.lastAutoTable.finalY + 12;
-    drawSectionTitle(doc, 'Health Summary', 15, healthLastY, 12);
+    drawSectionTitle(doc, 'Health Records', 15, healthLastY, 12);
     
     // Last 3 health records
     const healthData = reptile.health_logs.slice(0, 3).map(log => {
