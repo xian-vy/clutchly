@@ -20,37 +20,51 @@ const COLORS = {
   border: [220, 220, 220]      // Medium gray
 };
 
-const loadImage = (url: string) => { 
-  return new Promise<string>((resolve, reject) => { 
-    const img = new Image(); 
-    img.crossOrigin = "Anonymous"; 
-    img.onload = () => { 
-      const canvas = document.createElement('canvas'); 
-      // Resize the image to a reasonable size for the PDF
-      const maxSize = 100; // Maximum width or height
-      let width = img.width;
-      let height = img.height;
-      
-      // Calculate new dimensions while maintaining aspect ratio
-      if (width > height && width > maxSize) {
-        height = (height * maxSize) / width;
-        width = maxSize;
-      } else if (height > maxSize) {
-        width = (width * maxSize) / height;
-        height = maxSize;
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0, width, height);
-      // Use lower quality for PDF to reduce file size
-      resolve(canvas.toDataURL('image/png', 0.5));
-    }; 
-    img.onerror = reject; 
-    img.src = url; 
-  }); 
-}; 
+// ... existing code ...
+
+const loadImage = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => {
+          const canvas = document.createElement('canvas');
+          // Resize the image to smaller dimensions since it's just a logo
+          const maxWidth = 100;
+          const maxHeight = 100;
+          let width = img.width;
+          let height = img.height;
+          
+          // Calculate new dimensions while maintaining aspect ratio
+          if (width > height) {
+              if (width > maxWidth) {
+                  height *= maxWidth / width;
+                  width = maxWidth;
+              }
+          } else {
+              if (height > maxHeight) {
+                  width *= maxHeight / height;
+                  height = maxHeight;
+              }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          
+          // Enable image smoothing for better quality
+          if (ctx) {
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = 'high';
+              ctx.drawImage(img, 0, 0, width, height);
+          }
+          
+          // Convert to JPEG with lower quality to reduce size
+          resolve(canvas.toDataURL('image/jpeg', 1));
+      };
+      img.onerror = reject;
+      img.src = url;
+  });
+};
 
 export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: EnrichedReptile, damDetails: EnrichedReptile) => {
   const doc = new jsPDF() as JsPDFWithAutoTable;
@@ -59,12 +73,12 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   doc.setTextColor(COLORS.text[0], COLORS.text[1], COLORS.text[2]);
   
   try {
-    // Load the logo using the loadImage function
-    const base64Logo = await loadImage(''); // Update path if needed
+    // Use the absolute URL for Next.js public assets
+    const base64Logo = await loadImage(window.location.origin + '/logo_light.png');
     
     // Add logo with fixed dimensions
-    const logoWidth = 30;
-    const logoHeight = 30;
+    const logoWidth = 20;
+    const logoHeight = 20;
     doc.addImage(base64Logo, 'PNG', 15, 10, logoWidth, logoHeight);
   } catch (error) {
     console.warn('Failed to load logo for PDF:', error);
@@ -73,20 +87,20 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   
   // Add accent line - thinner
   doc.setDrawColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
-  doc.setLineWidth(0.5);
-  doc.line(15, 25, doc.internal.pageSize.getWidth() - 15, 25);
+  doc.setLineWidth(0.3);
+  doc.line(15, 32, doc.internal.pageSize.getWidth() - 15, 32);
   
   // Add main title
-  doc.setFontSize(18);
+  doc.setFontSize(17);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
-  doc.text('Clutchly', 50, 17);
+  doc.text('Clutchly', 40, 17);
   
   // Add subtitle
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(COLORS.text[0], COLORS.text[1], COLORS.text[2]);
-  doc.text('Reptile Details Certificate', 50, 22);
+  doc.text('Reptile Details Certificate', 40, 22);
   
   // Reset line width and color
   doc.setLineWidth(0.5);
