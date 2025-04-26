@@ -92,7 +92,7 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
                         <div className={`rounded-full flex-shrink-0 `}>
                           <Icon className={`h-4 w-4 sm:h-5 sm:w-5 text-primary`} />
                         </div>
-                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium text-primary  truncate">
+                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium   truncate">
                          {stat.title}
                         </p>
                     </div>  
