@@ -34,7 +34,9 @@ import { useState } from 'react'
 import { VisualTraitsForm } from "@/components/dashboard/reptiles/reptiles/VisualTraitsForm";
 import { HetTraitsForm } from "@/components/dashboard/reptiles/reptiles/HetTraitsForm";
 import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { useResource } from '@/lib/hooks/useResource';
+import { useQuery } from "@tanstack/react-query";
+import { getProfile } from "@/app/api/profiles/profiles";
+import { Profile } from "@/lib/types/profile";
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -44,6 +46,7 @@ const formSchema = z.object({
   weight: z.coerce.number().min(0, 'Weight must be positive'),
   length: z.coerce.number().min(0, 'Length must be positive'),
   notes: z.string().nullable(),
+  original_breeder : z.string().nullable()
 });
 
 interface HatchlingFormProps {
@@ -64,18 +67,16 @@ export function HatchlingForm({
   const { species, fetchSpecies } = useSpeciesStore()
   const morphsForSpecies = getMorphsBySpecies(clutch.species_id.toString())
   
-  // Fetch existing reptiles for sequence number generation
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
+  const { data: reptiles, isLoading : reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
-  });
+    queryFn: getReptiles
+  })
+  
+  const { data: profile } = useQuery<Profile>({
+    queryKey: ['profile'],
+    queryFn: getProfile
+  })
+  const userProfile = Array.isArray(profile) ? profile[0] : profile;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,6 +88,7 @@ export function HatchlingForm({
       notes: '',
       weight: 0,
       length: 0,
+      original_breeder : userProfile?.full_name || ''
     },
   });
 
@@ -118,7 +120,7 @@ export function HatchlingForm({
 
   // Generate reptile code when fields change
   useEffect(() => {
-    if (!morphId || isReptilesLoading) return;
+    if (!morphId || reptilesLoading) return;
     
     // Find the selected morph
     const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
@@ -149,7 +151,7 @@ export function HatchlingForm({
         form.setValue('reptile_code', generatedCode);
       }
     }
-  }, [morphId, sex, form, reptiles, morphsForSpecies, clutch.species_id, species, isReptilesLoading]);
+  }, [morphId, sex, form, reptiles, morphsForSpecies, clutch.species_id, species, reptilesLoading]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -168,7 +170,6 @@ export function HatchlingForm({
         het_traits: hetTraits,
         notes: values.notes || '',
         visual_traits: visualTraits,
-        original_breeder : ''
       };
       await onSubmit(hatchlingData);
     } catch (error) {

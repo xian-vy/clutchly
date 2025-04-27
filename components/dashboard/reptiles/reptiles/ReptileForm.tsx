@@ -113,7 +113,6 @@ export function ReptileForm({ initialData, onSubmit, onCancel,profile }: Reptile
     }
   });
 
-  console.log("profile",profile)
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     const formattedData = {
       ...data,

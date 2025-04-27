@@ -16,15 +16,6 @@ export async function getProfile() {
       .eq('id', user.id)
       .single()
 
-    // If profile doesn't exist, create a minimal one
-    if (error && error.code === 'PGRST116') {
-      console.log('Profile not found, creating new profile...')
-      return createProfile({
-        full_name: '',
-        account_type: 'keeper',
-        collection_size: null
-      })
-    }
 
     if (error) throw error
     return profile as Profile
