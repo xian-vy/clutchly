@@ -39,6 +39,7 @@ import { getProfile } from "@/app/api/profiles/profiles";
 import { Profile } from "@/lib/types/profile";
 
 const formSchema = z.object({
+  quantity: z.coerce.number().min(1, 'Must create at least 1 hatchling').max(20, 'Maximum 20 hatchlings at once'),
   name: z.string().min(1, 'Name is required'),
   reptile_code: z.string().nullable(),
   morph_id: z.string().min(1, 'Morph is required'),
@@ -46,7 +47,7 @@ const formSchema = z.object({
   weight: z.coerce.number().min(0, 'Weight must be positive'),
   length: z.coerce.number().min(0, 'Length must be positive'),
   notes: z.string().nullable(),
-  original_breeder : z.string().nullable()
+  original_breeder: z.string().nullable()
 });
 
 interface HatchlingFormProps {
@@ -81,6 +82,7 @@ export function HatchlingForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      quantity: 1,
       name: '',
       reptile_code: null,
       morph_id: '',
@@ -155,25 +157,57 @@ export function HatchlingForm({
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const today = new Date().toISOString().split('T')[0]
-
-      const hatchlingData: NewReptile = {
-        ...values,
-        parent_clutch_id: clutch.id,
-        species_id: clutch.species_id,
-        hatch_date: today,
-        acquisition_date: today,
-        generation: 1,
-        dam_id: projectDetails.female_id,
-        sire_id: projectDetails.male_id,
-        status: 'active',
-        het_traits: hetTraits,
-        notes: values.notes || '',
-        visual_traits: visualTraits,
-      };
-      await onSubmit(hatchlingData);
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Get morph and species info for code generation
+      const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
+      const speciesInfo = species.find(s => s.id.toString() === clutch.species_id.toString());
+      
+      // Create array of promises for multiple hatchlings
+      const createPromises = Array.from({ length: values.quantity }, async (_, index) => {
+        const { quantity, ...hatchlingValues } = values;
+        
+        // Generate unique code for each hatchling
+        let uniqueCode = '';
+        if (selectedMorph && speciesInfo) {
+          const speciesCode = getSpeciesCode(speciesInfo.name);
+          const baseReptiles = [...(reptiles || [])];
+          // Add previous hatchlings to ensure unique sequence
+          for (let i = 0; i < index; i++) {
+            baseReptiles.push({ id: `temp_${Date.now()}_${i}` } as Reptile);
+          }
+          
+          uniqueCode = generateReptileCode(
+            baseReptiles,
+            speciesCode,
+            selectedMorph.name,
+            today,
+            values.sex as Sex
+          );
+        }
+        
+        const hatchlingData: NewReptile = {
+          ...hatchlingValues,
+          reptile_code: uniqueCode,
+          name: values.quantity > 1 ? `${values.name} #${index + 1}` : values.name,
+          parent_clutch_id: clutch.id,
+          species_id: clutch.species_id,
+          hatch_date: today,
+          acquisition_date: today,
+          generation: 1,
+          dam_id: projectDetails.female_id,
+          sire_id: projectDetails.male_id,
+          status: 'active',
+          het_traits: hetTraits,
+          notes: values.notes || '',
+          visual_traits: visualTraits,
+        };
+        await onSubmit(hatchlingData);
+      });
+  
+      await Promise.all(createPromises);
     } catch (error) {
-      console.error('Error submitting hatchling:', error);
+      console.error('Error submitting hatchlings:', error);
     }
   };
 
@@ -181,11 +215,11 @@ export function HatchlingForm({
     <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                Adding a hatchling will add a new reptile record to your collection.
-              </AlertDescription>
-         </Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            You can add multiple hatchlings at once if they share similar traits. Each hatchling will be added as a separate reptile record to your collection.
+          </AlertDescription>
+        </Alert>
         <Tabs defaultValue="basic">
           <TabsList>
             <TabsTrigger value="basic">Basic Information</TabsTrigger>
@@ -316,6 +350,19 @@ export function HatchlingForm({
                           placeholder="Enter any additional notes..."
                           {...field} value={field.value || ''} 
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              <FormField
+                  control={form.control}
+                  name="quantity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Number of Hatchlings</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="1" max="20" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
