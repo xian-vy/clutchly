@@ -1,6 +1,6 @@
 'use client';
 
-import { createFeedingEvent, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
+import { createFeedingEvent, createFeedingEventsForToday, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -23,26 +23,16 @@ import { AlertCircle, Check, ChevronDown, ChevronRight, Loader2, PlusCircle, Ref
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
-import { shouldHaveFeedingToday } from './utils';
+import { saveMultipleEvents, shouldHaveFeedingToday } from './utils';
 
 interface FeedingEventsListProps {
   scheduleId: string;
   schedule: FeedingScheduleWithTargets;
   onEventsUpdated?: () => void;
-  isNewSchedule : boolean
+  isNewSchedule: boolean;
 }
 
-// Interface for virtual events that don't exist in the DB yet
-interface VirtualFeedingEvent {
-  virtual: true;
-  reptile_id: string;
-  scheduled_date: string;
-  reptile_name: string;
-  species_name: string;
-  morph_name: string;
-}
-
-export function FeedingEvents({ scheduleId, schedule, onEventsUpdated,isNewSchedule }: FeedingEventsListProps) {
+export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSchedule }: FeedingEventsListProps) {
   const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
   const [eventNotes, setEventNotes] = useState<Record<string, string>>({});
   const [reptilesByLocation, setReptilesByLocation] = useState<Reptile[]>([]);
@@ -51,9 +41,10 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated,isNewSched
   const [sortBy, setSortBy] = useState<'species' | 'name' | 'morph' | 'all'>('all');
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
   const [feedingAll, setFeedingAll] = useState<boolean>(false);
+  const [creatingEvents, setCreatingEvents] = useState<boolean>(false);
   const queryClient = useQueryClient();
-  const {morphs} = useMorphsStore()
-  const {species} = useSpeciesStore()
+  const {morphs} = useMorphsStore();
+  const {species} = useSpeciesStore();
   
   // Fetch feeding events for this schedule using tanstack query
   const { 
@@ -74,15 +65,13 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated,isNewSched
       
       return eventsData;
     },
-    staleTime: 3000000, // 30 seconds
+    staleTime: 30000, // 30 seconds
   });
 
   // Load reptiles for the first target when component mounts
   useEffect(() => {
-    console.log("Schedule targets:", schedule?.targets);
     if (schedule?.targets?.length > 0 && !activeTarget) {
       const firstTarget = schedule.targets[0];
-      console.log("Setting active target to first target:", firstTarget);
       setActiveTarget(firstTarget);
     }
   }, [schedule, activeTarget]);
@@ -93,6 +82,37 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated,isNewSched
       loadReptilesByTarget(activeTarget);
     }
   }, [activeTarget]);
+
+  // Generate events for today if needed
+  useEffect(() => {
+    if (reptilesByLocation.length > 0 && shouldHaveFeedingToday(schedule) && !isNewSchedule) {
+      createEventsForToday();
+    }
+  }, [reptilesByLocation, schedule, isNewSchedule]);
+
+  // Function to create events for today's feeding
+  const createEventsForToday = async () => {
+    if (creatingEvents || isNewSchedule) return;
+    
+    setCreatingEvents(true);
+    try {
+      const reptileIds = reptilesByLocation.map(reptile => reptile.id);
+      
+      if (reptileIds.length > 0) {
+        const result = await createFeedingEventsForToday(scheduleId, reptileIds);
+        
+        if (result.created > 0) {
+          toast.success(`Created ${result.created} new feeding events for today`);
+          refetch();
+        }
+      }
+    } catch (error) {
+      console.error('Error creating feeding events for today:', error);
+      toast.error('Failed to create feeding events');
+    } finally {
+      setCreatingEvents(false);
+    }
+  };
 
   // Add a retry button functionality
   const handleRetryLoadReptiles = () => {
@@ -107,16 +127,12 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated,isNewSched
     setReptilesByLocation([]); // Clear previous reptiles while loading
     
     try {
-      console.log("Loading reptiles for target:", target);
-      
       // If target type is 'reptile', handle it directly
       if (target.target_type === 'reptile') {
         // For reptile targets, we need to fetch all reptile targets from the schedule
         const reptileTargets = schedule.targets.filter(t => t.target_type === 'reptile');
-        console.log(`Found ${reptileTargets.length} reptile targets in schedule`);
         
         if (reptileTargets.length === 0) {
-          console.log("No reptile targets found in schedule");
           setReptilesByLocation([]);
           return;
         }
@@ -125,7 +141,6 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated,isNewSched
           // Fetch all reptiles in parallel
           const reptilePromises = reptileTargets.map(t => getReptileById(t.target_id));
           const reptiles = await Promise.all(reptilePromises);
-          console.log(`Loaded ${reptiles.length} reptiles:`, reptiles);
           setReptilesByLocation(reptiles);
         } catch (error) {
           console.error('Error fetching reptiles:', error);
@@ -134,13 +149,11 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated,isNewSched
         }
       } else {
         // For location-based targets, use the API function
-        console.log(`Fetching reptiles by ${target.target_type} with ID: ${target.target_id}`);
         try {
           const reptiles = await getReptilesByLocation(
             target.target_type as 'room' | 'rack' | 'level' | 'location', 
             target.target_id
           );
-          console.log(`Found ${reptiles?.length || 0} reptiles for ${target.target_type}:`, reptiles);
           setReptilesByLocation(reptiles || []);
         } catch (error : unknown) {
           console.error(`Error fetching reptiles by ${target.target_type}:`, error);
@@ -157,71 +170,12 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated,isNewSched
     }
   };
 
-// Determine if feeding should happen today based on schedul
-
-// Generate virtual events based on schedule
-const { data: virtualEvents = [] } = useQuery({
-  queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id],
-  queryFn: async () => {
-    if (!activeTarget || isLoadingReptiles || reptilesByLocation.length === 0) {
-      console.log('Skipping virtual events generation:', { activeTarget, isLoadingReptiles, reptileCount: reptilesByLocation.length });
-      return [];
-    }
-
-    const today = startOfDay(new Date());
-    const virtualEvents: VirtualFeedingEvent[] = [];
-    
-    // Check if we should show feeding events today based on schedule
-    const shouldShowEvents = shouldHaveFeedingToday(schedule);
-    console.log('Should show feeding events today:', shouldShowEvents, {
-      recurrence: schedule.recurrence,
-      custom_days: schedule.custom_days,
-      today: today.getDay(),
-      startDate: schedule.start_date
-    });
-    
-    if (shouldShowEvents) {
-      const todayString = format(today, 'yyyy-MM-dd');
-      const todayEvents = events.filter(e => e.scheduled_date === todayString);
-      
-      // Create virtual events for each reptile that doesn't have an event
-      for (const reptile of reptilesByLocation) {
-        const hasExistingEvent = todayEvents.some(e => e.reptile_id === reptile.id);
-        console.log(`Processing reptile ${reptile.name}:`, { 
-          hasExistingEvent,
-          reptileId: reptile.id,
-          speciesId: reptile.species_id,
-          morphId: reptile.morph_id
-        });
-        
-        if (!hasExistingEvent) {
-          virtualEvents.push({
-            virtual: true,
-            reptile_id: reptile.id,
-            scheduled_date: todayString,
-            reptile_name: reptile.name,
-            species_name: species.find(s => s.id.toString() === reptile.species_id.toString())?.name || 'Unknown Species',
-            morph_name: morphs.find(m => m.id.toString() === reptile.morph_id.toString())?.name || 'Unknown Species',
-          });
-        }
-      }
-    }
-    
-    console.log('Generated virtual events:', virtualEvents);
-    return virtualEvents;
-  },
-  enabled: !!activeTarget && !isLoadingReptiles && reptilesByLocation.length > 0,
-  staleTime: 600000, // 1 minute
-});
-
-const handleNotesChange = (eventId: string, notes: string) => {
-  setEventNotes(currentNotes => ({
-    ...currentNotes,
-    [eventId]: notes
-  }));
-};
-  // Convert a virtual event to a real event
-  
+  const handleNotesChange = (eventId: string, notes: string) => {
+    setEventNotes(currentNotes => ({
+      ...currentNotes,
+      [eventId]: notes
+    }));
+  };
   
   // Update a feeding event (mark as fed/unfed)
   const handleUpdateEvent = async (eventId: string, fed: boolean) => {
@@ -273,39 +227,17 @@ const handleNotesChange = (eventId: string, notes: string) => {
       setUpdatingEventId(null);
     }
   };
-  
-  // Save notes for an event
- 
 
   // Group events by date
-  const eventsByDate: Record<string, (FeedingEventWithDetails | VirtualFeedingEvent)[]> = {};
+  const eventsByDate: Record<string, FeedingEventWithDetails[]> = {};
 
-  // First add real events
+  // Group real events by date
   events.forEach(event => {
     const date = event.scheduled_date;
     if (!eventsByDate[date]) {
       eventsByDate[date] = [];
     }
     eventsByDate[date].push(event);
-  });
-
-  // Then add virtual events, but only if there's no real event for that reptile on that date
-  virtualEvents.forEach(virtualEvent => {
-    const date = virtualEvent.scheduled_date;
-    if (!eventsByDate[date]) {
-      eventsByDate[date] = [];
-    }
-    
-    // Check if there's already a real event for this reptile on this date
-    const hasRealEvent = events.some(event => 
-      event.reptile_id === virtualEvent.reptile_id && 
-      event.scheduled_date === virtualEvent.scheduled_date
-    );
-    
-    // Only add the virtual event if there's no real event for this reptile
-    if (!hasRealEvent) {
-      eventsByDate[date].push(virtualEvent);
-    }
   });
   
   // Sort dates
@@ -316,10 +248,7 @@ const handleNotesChange = (eventId: string, notes: string) => {
     
     // For past dates, check if any events are not fed
     const dateEvents = eventsByDate[date];
-    const hasUnfedEvents = dateEvents.some(event => {
-      if ('virtual' in event) return true; // Virtual events are always unfed
-      return !event.fed; // Check real events
-    });
+    const hasUnfedEvents = dateEvents.some(event => !event.fed);
     
     return hasUnfedEvents;
   })
@@ -339,92 +268,33 @@ const handleNotesChange = (eventId: string, notes: string) => {
     setFeedingAll(true);
     try {
       const dateEvents = eventsByDate[date];
-      const unfedEvents = dateEvents.filter(event => {
-        if ('virtual' in event) {
-          return true; // All virtual events need to be fed
-        } else {
-          return !event.fed; // Only unfed real events
-        }
-      });
-
-      // Make a copy of the events for optimistic updates
-      const virtualEventsCopy = [...(queryClient.getQueryData<VirtualFeedingEvent[]>(['virtual-feeding-events', scheduleId, activeTarget?.id]) || [])];
-      const realEventsCopy = [...(queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [])];
+      const unfedEvents = dateEvents.filter(event => !event.fed);
       
-      // Optimistically update the UI
-      const updatedRealEvents = [...realEventsCopy];
-      
-      // Update real events optimistically
-      unfedEvents.forEach(event => {
-        if (!('virtual' in event)) {
-          const index = updatedRealEvents.findIndex(e => e.id === event.id);
-          if (index !== -1) {
-            updatedRealEvents[index] = { ...updatedRealEvents[index], fed: true };
-          }
-        }
-      });
-      
-      // Remove virtual events optimistically
-      const updatedVirtualEvents = virtualEventsCopy.filter(ve => {
-        return !unfedEvents.some(event => 
-          'virtual' in event && 
-          event.reptile_id === ve.reptile_id && 
-          event.scheduled_date === ve.scheduled_date
-        );
-      });
-      
-      // Update the cache optimistically
-      queryClient.setQueryData(['feeding-events', scheduleId], updatedRealEvents);
-      queryClient.setQueryData(['virtual-feeding-events', scheduleId, activeTarget?.id], updatedVirtualEvents);
-
-      // Process each unfed event
-      for (const event of unfedEvents) {
-        if ('virtual' in event) {
-          // Handle virtual event
-          const virtualEvent = event as VirtualFeedingEvent;
-          const notes = eventNotes[`virtual-${virtualEvent.reptile_id}`] || '';
-          
-          // Don't use createRealEventFromVirtual here as we've already done the optimistic update
-          await createFeedingEvent({
-            schedule_id: scheduleId,
-            reptile_id: virtualEvent.reptile_id,
-            scheduled_date: virtualEvent.scheduled_date,
-            fed: true,
-            fed_at: new Date().toISOString(),
-            notes: notes || null
-          });
-        } else {
-          // Handle real event
-          const realEvent = event as FeedingEventWithDetails;
-          const notes = eventNotes[realEvent.id] || '';
-          await updateFeedingEvent(realEvent.id, {
-            fed: true,
-            notes: notes || null
-          });
-        }
+      if (unfedEvents.length === 0) {
+        toast.info('All reptiles are already fed');
+        return;
       }
-
-      // Only invalidate the feeding status query
-      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-
+      
+      // Prepare events data with notes
+      const eventsToUpdate = unfedEvents.map(event => ({
+        id: event.id,
+        notes: eventNotes[event.id] || null
+      }));
+      
+      // Use the new utility function to save multiple events
+      await saveMultipleEvents(eventsToUpdate, true, scheduleId, queryClient, onEventsUpdated);
+      
       toast.success('All reptiles fed successfully');
-      
-      if (onEventsUpdated) {
-        onEventsUpdated();
-      }
     } catch (error) {
       console.error('Error feeding all reptiles:', error);
       toast.error('Failed to feed all reptiles');
-      
-      // Revert optimistic updates if there was an error
-      refetch();
-      queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTarget?.id] });
     } finally {
       setFeedingAll(false);
     }
   };
   
-  if (isLoading || isLoadingReptiles || feedingAll) {
+  // Show loading state while any operation is in progress
+  if (isLoading || isLoadingReptiles || feedingAll || creatingEvents) {
     return (
       <Card className="min-h-[200px] border-0 shadow-none">
         <CardContent className="flex justify-center items-center h-full py-10">
@@ -434,28 +304,21 @@ const handleNotesChange = (eventId: string, notes: string) => {
     );
   }
   
-  // Show all events regardless of target type
-  console.log("All events:", events.length, events);
-  
-  // Combine real and virtual events
-  const allEvents = [...events, ...virtualEvents];
-  console.log("All events after combining with virtual:", allEvents.length, allEvents);
-  
   if (schedule.targets.length === 0) {
     return (
       <Alert className="mb-6">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>No feeding targets defined</AlertTitle>
         <AlertDescription>
-          This schedule doesnt have any targets defined. Add rooms, racks, levels, or specific locations to this schedule.
+          This schedule doesn't have any targets defined. Add rooms, racks, levels, or specific locations to this schedule.
         </AlertDescription>
       </Alert>
     );
   }
 
-  if (isNewSchedule) return;
+  if (isNewSchedule) return null;
 
-  if (allEvents.length === 0 && reptilesByLocation.length === 0) {
+  if (events.length === 0 && reptilesByLocation.length === 0) {
     return (
       <div className="space-y-6">
         <Card className="border-0 shadow-none bg-transparent">
@@ -479,7 +342,7 @@ const handleNotesChange = (eventId: string, notes: string) => {
     );
   }
 
-  if (allEvents.length === 0 && reptilesByLocation.length > 0) {
+  if (events.length === 0 && reptilesByLocation.length > 0) {
     return (
       <div className="space-y-6">
         <Card className="border-0 shadow-none bg-transparent">
@@ -492,14 +355,11 @@ const handleNotesChange = (eventId: string, notes: string) => {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => {
-                // Refresh the data
-                refetch();
-                if (activeTarget) loadReptilesByTarget(activeTarget);
-              }}
+              onClick={createEventsForToday}
+              disabled={creatingEvents}
             >
               <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+              Generate Today's Events
             </Button>
           </CardContent>
         </Card>

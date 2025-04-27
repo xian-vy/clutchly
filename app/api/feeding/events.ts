@@ -645,3 +645,89 @@ async function processTargets(
     }
   }
 }
+
+// Create feeding events for today based on feeding schedule
+export async function createFeedingEventsForToday(
+  scheduleId: string,
+  reptileIds: string[]
+): Promise<{ created: number }> {
+  const supabase = await createClient();
+  
+  // 1. Get the schedule details
+  const { data: schedule, error: scheduleError } = await supabase
+    .from('feeding_schedules')
+    .select('*')
+    .eq('id', scheduleId)
+    .single();
+  
+  if (scheduleError) throw scheduleError;
+  if (!schedule) throw new Error(`No schedule found for ID: ${scheduleId}`);
+  
+  // 2. Check if today is a feeding day based on the schedule
+  const today = new Date();
+  const todayString = today.toISOString().split('T')[0];
+  
+  // 3. Determine if today is a feeding day based on schedule recurrence
+  let isFeedingDay = false;
+  
+  if (schedule.recurrence === 'daily') {
+    isFeedingDay = true;
+  } else if (schedule.recurrence === 'weekly') {
+    const startDate = new Date(schedule.start_date);
+    const startDayOfWeek = startDate.getDay();
+    const todayDayOfWeek = today.getDay();
+    isFeedingDay = startDayOfWeek === todayDayOfWeek;
+  } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
+    const todayDayOfWeek = today.getDay();
+    isFeedingDay = schedule.custom_days.includes(todayDayOfWeek);
+  } else if (schedule.recurrence === 'interval' && schedule.interval_days) {
+    const startDate = new Date(schedule.start_date);
+    startDate.setHours(0, 0, 0, 0);
+    const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Ensure we're after the start date and exactly on an interval day
+    isFeedingDay = daysSinceStart >= 0 && daysSinceStart % schedule.interval_days === 0;
+  }
+  
+  if (!isFeedingDay) {
+    return { created: 0 };
+  }
+  
+  // 4. Check for existing events for these reptiles today
+  const { data: existingEvents } = await supabase
+    .from('feeding_events')
+    .select('reptile_id')
+    .eq('schedule_id', scheduleId)
+    .eq('scheduled_date', todayString);
+  
+  const existingReptileIds = new Set((existingEvents || []).map(e => e.reptile_id));
+  
+  // 5. Create new events for reptiles that don't have events yet
+  const events = [];
+  let created = 0;
+  
+  for (const reptileId of reptileIds) {
+    if (!existingReptileIds.has(reptileId)) {
+      events.push({
+        schedule_id: scheduleId,
+        reptile_id: reptileId,
+        scheduled_date: todayString,
+        fed: false,
+        fed_at: null,
+        notes: null
+      });
+      created++;
+    }
+  }
+  
+  // 6. Insert events if there are any to create
+  if (events.length > 0) {
+    const { error: insertError } = await supabase
+      .from('feeding_events')
+      .insert(events);
+    
+    if (insertError) throw insertError;
+  }
+  
+  return { created };
+}

@@ -96,10 +96,13 @@ export const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): bo
     case 'interval': {
       if (!schedule.interval_days || schedule.interval_days <= 0) return false;
       
-      // Calculate days since start
+      // Calculate days since start date
       const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      // Check if today falls on an interval
+      // If today is before start date, return false
+      if (daysSinceStart < 0) return false;
+      
+      // Check if today falls on an interval day (divisible by interval_days)
       return daysSinceStart % schedule.interval_days === 0;
     }
     default:
@@ -107,30 +110,24 @@ export const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): bo
   }
 };
 
-// Sort reptiles based on selected criteria
+// Sort reptiles based on the selected sort option
 export const getSortedReptiles = (
-  reptiles: (FeedingEventWithDetails | VirtualFeedingEvent)[], 
+  events: FeedingEventWithDetails[],
   sortBy: 'species' | 'name' | 'morph' | 'all'
-) => {
-  return [...reptiles].sort((a, b) => {
-    // First sort by the stable key (reptile_id) to maintain consistent order
-    const aId = 'virtual' in a ? a.reptile_id : a.id;
-    const bId = 'virtual' in b ? b.reptile_id : b.id;
-    const idCompare = aId.localeCompare(bId);
+): FeedingEventWithDetails[] => {
+  if (sortBy === 'all' || !events || events.length === 0) {
+    return events;
+  }
 
-    // Then apply the user's selected sort criteria
+  return [...events].sort((a, b) => {
     if (sortBy === 'name') {
-      const nameCompare = (a.reptile_name || '').localeCompare(b.reptile_name || '');
-      return nameCompare || idCompare;
+      return a.reptile_name.localeCompare(b.reptile_name);
     } else if (sortBy === 'species') {
-      const speciesCompare = (a.species_name || '').localeCompare(b.species_name || '');
-      return speciesCompare || idCompare;
+      return a.species_name.localeCompare(b.species_name);
     } else if (sortBy === 'morph') {
-      const morphCompare = (a.morph_name || '').localeCompare(b.morph_name || '');
-      return morphCompare || idCompare;
-    } else {
-      return idCompare;
+      return a.morph_name.localeCompare(b.morph_name);
     }
+    return 0;
   });
 };
 
@@ -296,5 +293,57 @@ export const saveEventNotes = async (
     console.error('Error saving notes:', error);
     toast.error('Failed to save notes');
     throw error;
+  }
+};
+
+// Save multiple feeding events at once (replaces the Feed All functionality)
+export const saveMultipleEvents = async (
+  events: { id: string, notes: string | null }[],
+  fed: boolean,
+  scheduleId: string,
+  queryClient: QueryClient,
+  onEventsUpdated?: () => void
+) => {
+  try {
+    // Optimistically update all events in the cache
+    queryClient.setQueryData(['feeding-events', scheduleId], 
+      (oldData: FeedingEventWithDetails[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.map(event => {
+          const matchingEvent = events.find(e => e.id === event.id);
+          if (matchingEvent) {
+            return { 
+              ...event, 
+              fed,
+              notes: matchingEvent.notes
+            };
+          }
+          return event;
+        });
+      }
+    );
+    
+    // Make API calls for each event
+    const promises = events.map(async event => {
+      return updateFeedingEvent(event.id, {
+        fed,
+        notes: event.notes
+      });
+    });
+    
+    await Promise.all(promises);
+    
+    // Update the feeding status
+    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
+    
+    if (onEventsUpdated) {
+      onEventsUpdated();
+    }
+  } catch (error) {
+    console.error('Error updating multiple feeding events:', error);
+    toast.error('Failed to update feeding status');
+    
+    // Revert the optimistic update
+    queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
   }
 };

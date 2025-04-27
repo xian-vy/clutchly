@@ -91,6 +91,7 @@ export function FeedingTab() {
             return;
           }
           
+          // Determine appropriate date based on schedule type
           if (schedule.recurrence === 'daily') {
             // For daily schedules, use today's events
             relevantEvents = events.filter(event => event.scheduled_date === todayString);
@@ -141,8 +142,42 @@ export function FeedingTab() {
               }
             }
           } else if (schedule.recurrence === 'interval') {
-            // For interval schedules, only check events for the specific feeding date
-            relevantEvents = events.filter(event => event.scheduled_date === todayString);
+            // For interval schedules, check if today is a feeding day
+            const startDate = new Date(schedule.start_date);
+            startDate.setHours(0, 0, 0, 0);
+            
+            // Calculate days since start
+            const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+            
+            // Check if today is a feeding day
+            // Only calculate if interval_days exists
+            if (schedule.interval_days) {
+              const isTodayFeedingDay = daysSinceStart % schedule.interval_days === 0;
+              
+              if (isTodayFeedingDay) {
+                // Today is a feeding day
+                relevantEvents = events.filter(event => event.scheduled_date === todayString);
+              } else {
+                // Find the most recent feeding day
+                const daysToSubtract = daysSinceStart % schedule.interval_days;
+                const lastFeedingDate = new Date(today);
+                lastFeedingDate.setDate(today.getDate() - daysToSubtract);
+                
+                const lastFeedingDateString = format(lastFeedingDate, 'yyyy-MM-dd');
+                relevantEvents = events.filter(event => event.scheduled_date === lastFeedingDateString);
+                
+                if (relevantEvents.length > 0) {
+                  scheduledDate = lastFeedingDateString;
+                } else {
+                  // No recent events found, set next feeding date
+                  const nextFeedingDate = getNextFeedingDay(schedule);
+                  scheduledDate = format(nextFeedingDate, 'yyyy-MM-dd');
+                }
+              }
+            } else {
+              // If interval_days is not set, default to checking today's events
+              relevantEvents = events.filter(event => event.scheduled_date === todayString);
+            }
           } else if (schedule.recurrence === 'custom') {
             // For custom schedules, check if today is a feeding day
             const dayOfWeek = today.getDay();
@@ -195,12 +230,27 @@ export function FeedingTab() {
             }
           }));
           
+          // If no relevant events but we found reptiles, it might be a new feeding day
+          if (relevantEvents.length === 0 && totalReptilesToFeed > 0) {
+            const nextFeedingDate = getNextFeedingDay(schedule);
+            scheduledDate = format(nextFeedingDate, 'yyyy-MM-dd');
+            
+            statuses[schedule.id] = {
+              totalEvents: totalReptilesToFeed,
+              completedEvents: 0,
+              isComplete: false,
+              percentage: 0,
+              scheduledDate
+            };
+            return;
+          }
+          
           const completedEvents = relevantEvents.filter(event => event.fed).length;
-          const isComplete = totalReptilesToFeed > 0 && completedEvents === totalReptilesToFeed;
-          const percentage = totalReptilesToFeed === 0 ? 0 : Math.round((completedEvents / totalReptilesToFeed) * 100);
+          const isComplete = relevantEvents.length > 0 && completedEvents === relevantEvents.length;
+          const percentage = relevantEvents.length === 0 ? 0 : Math.round((completedEvents / relevantEvents.length) * 100);
           
           statuses[schedule.id] = {
-            totalEvents: totalReptilesToFeed,
+            totalEvents: relevantEvents.length,
             completedEvents,
             isComplete,
             percentage,
@@ -287,16 +337,17 @@ export function FeedingTab() {
       // Calculate days since start
       const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      // Calculate next interval
-      const nextInterval = Math.ceil(daysSinceStart / schedule.interval_days) * schedule.interval_days;
-      
-      const nextDate = new Date(startDate);
-      nextDate.setDate(startDate.getDate() + nextInterval);
-      
-      // If next date is today or in the past, add one more interval
-      if (nextDate <= today) {
-        nextDate.setDate(nextDate.getDate() + schedule.interval_days);
+      // If today is a feeding day, return today
+      if (daysSinceStart % schedule.interval_days === 0) {
+        return today;
       }
+      
+      // Calculate days until next feeding
+      const daysUntilNext = schedule.interval_days - (daysSinceStart % schedule.interval_days);
+      
+      // Calculate next feeding date
+      const nextDate = new Date(today);
+      nextDate.setDate(today.getDate() + daysUntilNext);
       
       return nextDate;
     } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
