@@ -508,10 +508,33 @@ export function FeedingTab() {
       </div>
 
       <div className="grid grid-cols-1 3xl:grid-cols-2 gap-6">
-        {schedules.map((schedule) => {
-          const stats = scheduleStats[schedule.id] || { locationCount: 0, reptileCount: 0, nextFeedingDate: new Date() };
-          const status = scheduleStatus[schedule.id];
-          
+        {schedules
+          .sort((a, b) => {
+            const statusA = scheduleStatus[a.id];
+            const statusB = scheduleStatus[b.id];
+            
+            // Check if either schedule is new
+            const isNewA = new Date(a.created_at) > startOfDay(new Date());
+            const isNewB = new Date(b.created_at) > startOfDay(new Date());
+            
+            // New schedules go last
+            if (isNewA && !isNewB) return 1;
+            if (!isNewA && isNewB) return -1;
+            
+            // Sort by completion status
+            const isCompleteA = statusA?.isComplete ?? true;
+            const isCompleteB = statusB?.isComplete ?? true;
+            
+            if (!isCompleteA && isCompleteB) return -1;
+            if (isCompleteA && !isCompleteB) return 1;
+            
+            // If both complete or both incomplete, sort by name
+            return a.name.localeCompare(b.name);
+          })
+          .map((schedule) => {
+            const stats = scheduleStats[schedule.id] || { locationCount: 0, reptileCount: 0, nextFeedingDate: new Date() };
+            const status = scheduleStatus[schedule.id];
+            
           // Check if the schedule was created today or in the future
           const scheduleCreatedAt = new Date(schedule.created_at);
           scheduleCreatedAt.setHours(0, 0, 0, 0);
