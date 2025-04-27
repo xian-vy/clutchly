@@ -1,95 +1,52 @@
 'use server'
 import { createClient } from '@/lib/supabase/server';
 import { FeedingEvent, FeedingEventWithDetails, NewFeedingEvent } from '@/lib/types/feeding';
-import { Morph } from '@/lib/types/morph';
-import { Species } from '@/lib/types/species';
 import { startOfDay } from 'date-fns';
 
 // Get feeding events for a specific schedule
+// Modify getFeedingEvents to use a single join query
 export async function getFeedingEvents(scheduleId: string): Promise<FeedingEventWithDetails[]> {
   const supabase = await createClient();
   
-  // Get feeding events
+  // First get the feeding events with reptile info
   const { data: events, error } = await supabase
     .from('feeding_events')
-    .select('*')
+    .select(`
+      *,
+      reptiles!reptile_id (
+        id,
+        name,
+        species_id,
+        morph_id
+      )
+    `)
     .eq('schedule_id', scheduleId)
     .order('scheduled_date', { ascending: false });
-  
+
   if (error) throw error;
   if (!events || events.length === 0) return [];
-  
-  // Get reptile details for the events
-  const reptileIds = events.map(event => event.reptile_id);
-  
-  const { data: reptiles, error: reptilesError } = await supabase
-    .from('reptiles')
-    .select('id, name, species_id, morph_id')
-    .in('id', reptileIds);
-  
-  if (reptilesError) throw reptilesError;
-  if (!reptiles) return events.map(event => ({ 
-    ...event, 
-    reptile_name: 'Unknown', 
-    species_name: 'Unknown', 
-    morph_name: 'Unknown' 
-  }));
-  
-  // Get species and morphs for the reptiles
-  const speciesIds = reptiles.map(reptile => reptile.species_id).filter(Boolean);
-  const morphIds = reptiles.map(reptile => reptile.morph_id).filter(Boolean);
-  
-  let species: Species[] = [];
-  let morphs: Morph[] = [];
-  
-  if (speciesIds.length > 0) {
-    const { data: speciesData, error: speciesError } = await supabase
-      .from('species')
-      .select('id, name')
-      .in('id', speciesIds);
-    
-    if (!speciesError && speciesData) {
-      species = speciesData as Species[];
-    }
-  }
-  
-  if (morphIds.length > 0) {
-    const { data: morphsData, error: morphsError } = await supabase
-      .from('morphs')
-      .select('id, name')
-      .in('id', morphIds);
-    
-    if (!morphsError && morphsData) {
-      morphs = morphsData as Morph[];
-    }
-  }
-  
+
+  // Get unique species and morph IDs
+  const speciesIds = [...new Set(events.map(e => e.reptiles?.species_id).filter(Boolean))];
+  const morphIds = [...new Set(events.map(e => e.reptiles?.morph_id).filter(Boolean))];
+
+  // Fetch species and morphs in bulk
+  const [{ data: species }, { data: morphs }] = await Promise.all([
+    supabase.from('species').select('id,name').in('id', speciesIds),
+    supabase.from('morphs').select('id,name').in('id', morphIds)
+  ]);
+
   // Create lookup maps
-  const reptileMap = reptiles.reduce((acc: Record<string, typeof reptiles[0]>, reptile) => {
-    acc[reptile.id] = reptile;
-    return acc;
-  }, {});
-  
-  const speciesMap = species.reduce((acc: Record<string, string>, species: Species) => {
-    acc[species.id] = species.name;
-    return acc;
-  }, {});
-  
-  const morphMap = morphs.reduce((acc: Record<string, string>, morph: Morph) => {
-    acc[morph.id] = morph.name;
-    return acc;
-  }, {});
-  
-  // Combine data
-  return events.map(event => {
-    const reptile = reptileMap[event.reptile_id];
-    return {
-      ...event,
-      reptile_name: reptile?.name || 'Unknown',
-      species_name: reptile?.species_id ? speciesMap[reptile.species_id] || 'Unknown' : 'Unknown',
-      morph_name: reptile?.morph_id ? morphMap[reptile.morph_id] || 'Unknown' : 'Unknown'
-    };
-  });
+  const speciesMap = new Map(species?.map(s => [s.id, s]) || []);
+  const morphMap = new Map(morphs?.map(m => [m.id, m]) || []);
+
+  // Transform the joined data into the expected format
+  return events.map(event => ({
+    ...event,
+    reptile_name: event.reptiles?.name || 'Unknown',
+    species_name: speciesMap.get(event.reptiles?.species_id)?.name || 'Unknown',
+    morph_name: morphMap.get(event.reptiles?.morph_id)?.name || 'Unknown'
+  }));
 }
 
 // Create a new feeding event

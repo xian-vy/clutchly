@@ -297,6 +297,7 @@ export const saveEventNotes = async (
 };
 
 // Save multiple feeding events at once (replaces the Feed All functionality)
+// Modify saveMultipleEvents to update cache directly instead of invalidating
 export const saveMultipleEvents = async (
   events: { id: string, notes: string | null }[],
   fed: boolean,
@@ -305,37 +306,39 @@ export const saveMultipleEvents = async (
   onEventsUpdated?: () => void
 ) => {
   try {
-    // Optimistically update all events in the cache
-    queryClient.setQueryData(['feeding-events', scheduleId], 
-      (oldData: FeedingEventWithDetails[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.map(event => {
-          const matchingEvent = events.find(e => e.id === event.id);
-          if (matchingEvent) {
-            return { 
-              ...event, 
-              fed,
-              notes: matchingEvent.notes
-            };
-          }
-          return event;
-        });
-      }
-    );
-    
-    // Make API calls for each event
+    // Update events in parallel
     const promises = events.map(async event => {
-      return updateFeedingEvent(event.id, {
+      const updatedEvent = await updateFeedingEvent(event.id, {
         fed,
         notes: event.notes
       });
+      
+      // Update the cache directly for each event
+      queryClient.setQueryData(['feeding-events', scheduleId], 
+        (oldData: FeedingEventWithDetails[] | undefined) => {
+          if (!oldData) return [updatedEvent];
+          return oldData.map(e => e.id === event.id ? { ...e, ...updatedEvent } : e);
+        }
+      );
+
+      return updatedEvent;
     });
     
     await Promise.all(promises);
     
-    // Update the feeding status
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-    
+    // Update the status without refetching all data
+    queryClient.setQueryData(['feeding-status'], (oldData: any) => {
+      if (!oldData) return {};
+      return {
+        ...oldData,
+        [scheduleId]: {
+          ...oldData[scheduleId],
+          completedEvents: fed ? oldData[scheduleId].completedEvents + events.length : oldData[scheduleId].completedEvents - events.length,
+          percentage: Math.round(((oldData[scheduleId].completedEvents + (fed ? events.length : -events.length)) / oldData[scheduleId].totalEvents) * 100)
+        }
+      };
+    });
+
     if (onEventsUpdated) {
       onEventsUpdated();
     }
@@ -343,7 +346,8 @@ export const saveMultipleEvents = async (
     console.error('Error updating multiple feeding events:', error);
     toast.error('Failed to update feeding status');
     
-    // Revert the optimistic update
+    // Only invalidate on error
     queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
+    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
   }
 };

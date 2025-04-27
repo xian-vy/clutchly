@@ -179,35 +179,40 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     setUpdatingEventId(eventId);
     try {
       const notes = eventNotes[eventId];
-      
-      // Optimistic update - update the cache immediately before the API call
       const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [];
       const eventToUpdate = currentEvents.find(e => e.id === eventId);
       
       if (eventToUpdate) {
+        // Optimistically update events cache
         queryClient.setQueryData(['feeding-events', scheduleId], 
           currentEvents.map(event => 
             event.id === eventId 
-              ? { ...event, fed, notes: notes || null } 
+              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null } 
               : event
           )
         );
+        
+        // Optimistically update feeding status cache
+        queryClient.setQueryData(['feeding-status'], (oldData: any) => {
+          if (!oldData || !oldData[scheduleId]) return oldData;
+          const statusChange = eventToUpdate.fed !== fed ? 1 : 0;
+          return {
+            ...oldData,
+            [scheduleId]: {
+              ...oldData[scheduleId],
+              completedEvents: oldData[scheduleId].completedEvents + (fed ? statusChange : -statusChange),
+              percentage: Math.round(((oldData[scheduleId].completedEvents + (fed ? statusChange : -statusChange)) / oldData[scheduleId].totalEvents) * 100)
+            }
+          };
+        });
       }
       
       // Make the API call
       const updatedEvent = await updateFeedingEvent(eventId, {
         fed,
+        fed_at: fed ? new Date().toISOString() : null,
         notes: notes || null
       });
-      
-      // Update the cache with the server response
-      queryClient.setQueryData(['feeding-events', scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
-        if (!oldData) return [updatedEvent];
-        return oldData.map(event => event.id === eventId ? { ...event, ...updatedEvent } : event);
-      });
-      
-      // Only invalidate the feeding status query, not the events query
-      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
       
       toast.success(`Feeding ${fed ? 'completed' : 'unmarked'}`);
       
@@ -218,8 +223,9 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       console.error('Error updating feeding event:', error);
       toast.error('Failed to update feeding status');
       
-      // Revert the optimistic update if the API call failed
-      refetch();
+      // Revert both caches on error
+      queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
+      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
     } finally {
       setUpdatingEventId(null);
     }
