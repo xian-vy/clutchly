@@ -8,10 +8,12 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { useMemo, useState } from 'react';
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { ReptileForm } from './ReptileForm';
 import { EnrichedReptile, ReptileList } from './ReptileList';
 import { Loader2 } from 'lucide-react';
+import { getProfile } from '@/app/api/profiles/profiles';
+import { Profile } from '@/lib/types/profile';
 
 
 type EnrichedReptileWithLabel = EnrichedReptile & {
@@ -38,6 +40,13 @@ export function ReptilesTab() {
     deleteResource: deleteReptile,
   })
 
+  const { data: profile, isLoading : profileLoading } = useQuery<Profile>({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const data = await getProfile();
+      return Array.isArray(data) ? data[0] : data;
+    },
+  })
   // Get species and morphs from their respective stores
   const { species,  isLoading: speciesLoading } = useSpeciesStore()
   const { morphs, isLoading: morphsLoading } = useMorphsStore()
@@ -96,7 +105,7 @@ export function ReptilesTab() {
     });
   }, [reptiles, species, morphs, locationData]);
 
-  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations;
+  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations || profileLoading;
 
   if (isLoading) {
     return (
@@ -146,6 +155,7 @@ export function ReptilesTab() {
               }
             }}
             onCancel={onDialogChange}
+            profile={profile}
           />
         </DialogContent>
       </Dialog>
