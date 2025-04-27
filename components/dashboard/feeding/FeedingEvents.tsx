@@ -1,6 +1,6 @@
 'use client';
 
-import { createFeedingEvent, createFeedingEventsForToday, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
+import {  createFeedingEventsForToday, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -13,13 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { useSpeciesStore } from '@/lib/stores/speciesStore';
+
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, isToday, startOfDay } from 'date-fns';
-import { AlertCircle, Check, ChevronDown, ChevronRight, Loader2, PlusCircle, RefreshCw } from 'lucide-react';
+import { format, isToday } from 'date-fns';
+import { AlertCircle, Check, ChevronDown, ChevronRight, Loader2, PlusCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
@@ -43,9 +42,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   const [feedingAll, setFeedingAll] = useState<boolean>(false);
   const [creatingEvents, setCreatingEvents] = useState<boolean>(false);
   const queryClient = useQueryClient();
-  const {morphs} = useMorphsStore();
-  const {species} = useSpeciesStore();
-  
+
   // Fetch feeding events for this schedule using tanstack query
   const { 
     data: events = [], 
@@ -328,14 +325,6 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
             <div className="text-sm text-muted-foreground mb-4">
               No reptiles are assigned to this feeding schedule.
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleRetryLoadReptiles}
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Retry
-            </Button>
           </CardContent>
         </Card>
       </div>
@@ -352,15 +341,6 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
             <div className="text-sm text-muted-foreground mb-4">
               Found {reptilesByLocation.length} reptile{reptilesByLocation.length !== 1 ? 's' : ''}, but no feeding events have been generated yet.
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={createEventsForToday}
-              disabled={creatingEvents}
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Generate Today's Events
-            </Button>
           </CardContent>
         </Card>
       </div>
@@ -437,7 +417,16 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
           {expandedDates[date] && (
           <FeedingEventsList
               date={date}
-              eventsByDate={eventsByDate}
+              eventsByDate={{
+                [date]: eventsByDate[date].sort((a, b) => {
+                  // Sort by fed status first (unfed before fed)
+                  if (a.fed !== b.fed) {
+                    return a.fed ? 1 : -1;
+                  }
+                  // Then apply the selected sort criteria
+                  return 0;
+                })
+              }}
               events={events}
               sortBy={sortBy}
               schedule={schedule}
