@@ -30,9 +30,10 @@ interface FeedingEvent {
 export function FeedingLogsTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'fed' | 'unfed'>('all');
+  // Update initial dateRange to include both from and to as today
   const [dateRange, setDateRange] = useState<DateRange>({
-    from: new Date(), // Set today as default date
-    to: undefined,
+    from: new Date(),
+    to: new Date(), // Set to today as well
   });
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
@@ -66,11 +67,12 @@ export function FeedingLogsTab() {
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 50 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,
   });
 
   // Apply filters to events
+  // Update the date range filter logic
   const filteredEvents = events.filter(event => {
     // Apply search filter
     if (searchTerm) {
@@ -91,18 +93,25 @@ export function FeedingLogsTab() {
     }
 
     // Apply date range filter
-    if (dateRange.from) {
-      const eventDate = new Date(event.scheduled_date);
-      if (eventDate < dateRange.from) return false;
-    }
+    const eventDate = new Date(event.scheduled_date);
+    
+    // Set time to midnight for accurate date comparison
+    eventDate.setHours(0, 0, 0, 0);
+    const fromDate = dateRange.from ? new Date(dateRange.from.setHours(0, 0, 0, 0)) : null;
+    const toDate = dateRange.to ? new Date(dateRange.to.setHours(0, 0, 0, 0)) : null;
 
-    if (dateRange.to) {
-      const eventDate = new Date(event.scheduled_date);
-      if (eventDate > dateRange.to) return false;
-    }
+    if (fromDate && eventDate < fromDate) return false;
+    if (toDate && eventDate > toDate) return false;
 
     return true;
   });
+
+  // Update clearFilters to set both from and to to today
+  const clearFilters = () => {
+    setSearchTerm('');
+    setFilterStatus('all');
+    setDateRange({ from: new Date(), to: new Date() }); // Reset both to today
+  };
 
   // Handle report generation
   const handleGenerateReport = async () => {
@@ -135,12 +144,6 @@ export function FeedingLogsTab() {
     }
   };
 
-  // Clear all filters
-  const clearFilters = () => {
-    setSearchTerm('');
-    setFilterStatus('all');
-    setDateRange({ from: new Date(), to: undefined }); // Reset to today
-  };
 
   // Get the current date
   const today = new Date();
