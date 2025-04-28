@@ -11,6 +11,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { AlertCircle, Dna } from 'lucide-react';
 
+interface PayloadType {
+  name: string;
+  value: number;
+  payload: {
+    parent: Array<{ name: string; value: number }>;
+  };
+  color?: string;
+}
+const CustomTooltip = ({ 
+  active, 
+  payload, 
+  label 
+}: {
+  active?: boolean;
+  payload?: PayloadType[];
+  label?: string;
+}) => {
+  if (active && payload && payload.length) {
+    return (
+      <Card className="shadow-md border-border/50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/75">
+        <CardContent className="p-3 space-y-1">
+          <p className="font-medium text-foreground">{label}</p>
+          <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+            <span>Offspring Count: {payload[0].value}</span>
+            <span>Morph: {payload[0].name}</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  return null;
+};
 // Import recharts
 import {
   Cell,
@@ -166,14 +198,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                                     />
                                   ))}
                                 </Pie>
-                                <Tooltip 
-                                  formatter={(value) => [`${value} hatchlings`, 'Count']}
-                                  contentStyle={{ 
-                                    backgroundColor: 'var(--color-card)',
-                                    border: '1px solid var(--color-border)',
-                                    borderRadius: '8px'
-                                  }}
-                                />
+                                <Tooltip content={<CustomTooltip />} />
                                 <Legend 
                                   formatter={(value) => value}
                                   wrapperStyle={{ 

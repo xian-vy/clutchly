@@ -16,6 +16,9 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-chart-8: var(--chart-8);
+  --color-chart-7: var(--chart-7);
+  --color-chart-6: var(--chart-6);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -66,8 +69,11 @@
   --chart-1: oklch(0.67 0.2 142); /* Nuxt green */
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-4: oklch(0.55 0.2 300); /* Deep Purple */
   --chart-5: oklch(0.769 0.188 70.08);
+  --chart-6: oklch(0.65 0.22 30); /* Orange-Red */
+  --chart-7: oklch(0.64 0.19 90); /* Yellow-Green */
+  --chart-8: oklch(0.59 0.21 270); /* Violet */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: #28865f; /* Nuxt green */
@@ -98,11 +104,14 @@
   --border: rgba(250, 250, 250, 0.1);
   --input: rgba(250, 250, 250, 0.15);
   --ring: #00dc82; /* Nuxt green */
-  --chart-1: #00dc82; /* Nuxt green */
-  --chart-2: #0ea5e9;
-  --chart-3: #f59e0b;
-  --chart-4: #8b5cf6;
-  --chart-5: #ec4899;
+--chart-1: #1a7a4f; /* Darker Nuxt green */
+  --chart-2: #0a5c8b; /* Darker blue */
+  --chart-3: #0d6a8e; /* Darker blue-green */
+  --chart-4: #4a1d8c; /* Darker Deep Purple */
+  --chart-5: #a10b47; /* Darker warm tone */
+  --chart-6: #9c3523; /* Darker Orange-Red */
+  --chart-7: #3d8c1d; /* Darker Yellow-Green */
+  --chart-8: #4a1d8c; /* Darker Violet */
   --sidebar: #04071b;
   --sidebar-foreground: #fafafa;
   --sidebar-primary: #00dc82; /* Nuxt green */
