@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { FilterX, Loader2 } from 'lucide-react';
-import { DatePickerWithRange } from '@/components/ui/date-picker-range';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
@@ -21,44 +20,49 @@ export function SalesReportTab() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
   
-  // Update filters when date range changes
-  const handleDateRangeChange = (newRange: DateRange | undefined) => {
-    setDateRange(newRange);
-    
-    if (newRange?.from) {
-      const startDate = format(newRange.from, 'yyyy-MM-dd');
-      setFilters(prev => ({
-        ...prev,
-        startDate
-      }));
-    } else {
-      // Remove startDate if from is cleared
-      const updatedFilters = { ...filters };
-      delete updatedFilters.startDate;
-      setFilters(updatedFilters);
-    }
-    
-    if (newRange?.to) {
-      const endDate = format(newRange.to, 'yyyy-MM-dd');
-      setFilters(prev => ({
-        ...prev,
-        endDate
-      }));
-    } else {
-      // Remove endDate if to is cleared
-      const updatedFilters = { ...filters };
-      delete updatedFilters.endDate;
-      setFilters(updatedFilters);
-    }
-  };
-
   // Handle time period change
   const handleTimePeriodChange = (period: TimePeriod) => {
     setTimePeriod(period);
-    setFilters(prev => ({
-      ...prev,
-      period
-    }));
+    
+    // If custom period selected, don't update filters yet
+    // Wait for date range selection
+    if (period !== 'custom') {
+      setDateRange(undefined);
+      setFilters(prev => ({
+        ...prev,
+        period,
+        startDate: undefined,
+        endDate: undefined
+      }));
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        period
+      }));
+    }
+  };
+  
+  // Update filters when date range changes for custom period
+  const handleDateRangeChange = (newRange: DateRange | undefined) => {
+    setDateRange(newRange);
+    
+    if (timePeriod === 'custom' && newRange) {
+      const updatedFilters = { ...filters };
+      
+      if (newRange.from) {
+        updatedFilters.startDate = format(newRange.from, 'yyyy-MM-dd');
+      } else {
+        delete updatedFilters.startDate;
+      }
+      
+      if (newRange.to) {
+        updatedFilters.endDate = format(newRange.to, 'yyyy-MM-dd');
+      } else {
+        delete updatedFilters.endDate;
+      }
+      
+      setFilters(updatedFilters);
+    }
   };
   
   // Reset all filters
@@ -84,7 +88,6 @@ export function SalesReportTab() {
   } = useQuery({
     queryKey: ['sales-by-species', filters],
     queryFn: () => getSalesBySpecies(filters),
-    enabled: activeTab === 'distributions', // Only fetch when on distributions tab
   });
   
   // Fetch morph distribution data
@@ -94,7 +97,6 @@ export function SalesReportTab() {
   } = useQuery({
     queryKey: ['sales-by-morphs', filters],
     queryFn: () => getSalesByMorphs(filters),
-    enabled: activeTab === 'distributions', // Only fetch when on distributions tab
   });
 
   return (
@@ -108,10 +110,6 @@ export function SalesReportTab() {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
-          <DatePickerWithRange 
-            date={dateRange} 
-            onDateChange={handleDateRangeChange} 
-          />
           <SalesFilters 
             onFilterChange={setFilters} 
             filters={filters}
@@ -126,7 +124,9 @@ export function SalesReportTab() {
       <div>
         <TimeRangeSelector 
           value={timePeriod} 
-          onChange={handleTimePeriodChange} 
+          onChange={handleTimePeriodChange}
+          dateRange={dateRange}
+          onDateChange={handleDateRangeChange}
         />
       </div>
 
@@ -137,13 +137,17 @@ export function SalesReportTab() {
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6">
-          {summaryLoading ? (
+          {summaryLoading || speciesLoading || morphLoading ? (
             <div className="h-60 w-full flex items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <>
-              <SalesSummaryStats data={salesSummary} />
+              <SalesSummaryStats 
+                data={salesSummary} 
+                speciesData={speciesData}
+                morphData={morphData}
+              />
               <SalesByTimeChart data={salesSummary} period={timePeriod} />
             </>
           )}

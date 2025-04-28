@@ -9,7 +9,7 @@ export interface SalesFilterParams {
   status?: string;
   paymentMethod?: string;
   speciesId?: string;
-  period?: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  period?: 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
   priceMin?: number;
   priceMax?: number;
 }

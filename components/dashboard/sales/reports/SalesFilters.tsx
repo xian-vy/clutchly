@@ -1,7 +1,5 @@
 'use client';
 
-import { useSpeciesStore } from "@/lib/stores/speciesStore";
-import { SaleStatus, PaymentMethod } from "@/lib/types/sales";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -15,19 +13,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 
 export interface SalesFilterParams {
-  speciesId?: string;
-  status?: SaleStatus;
-  paymentMethod?: PaymentMethod;
   startDate?: string;
   endDate?: string;
   priceMin?: number;
   priceMax?: number;
-  period?: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  period?: 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
 }
 
 interface SalesFiltersProps {
@@ -36,164 +30,64 @@ interface SalesFiltersProps {
 }
 
 export function SalesFilters({ onFilterChange, filters }: SalesFiltersProps) {
-  const { species } = useSpeciesStore();
-  const [speciesOpen, setSpeciesOpen] = useState(false);
-  const [statusOpen, setStatusOpen] = useState(false);
-  const [paymentMethodOpen, setPaymentMethodOpen] = useState(false);
-  
-  // Status options
-  const statusOptions: { value: SaleStatus; label: string }[] = [
-    { value: "pending", label: "Pending" },
-    { value: "completed", label: "Completed" },
-    { value: "cancelled", label: "Cancelled" },
-    { value: "refunded", label: "Refunded" },
+  const [priceRangeOpen, setPriceRangeOpen] = useState(false);
+
+  // Price range options
+  const priceRanges = [
+    { min: undefined, max: undefined, label: "All Prices" },
+    { min: 0, max: 100, label: "Under $100" },
+    { min: 100, max: 500, label: "$100 - $500" },
+    { min: 500, max: 1000, label: "$500 - $1,000" },
+    { min: 1000, max: 5000, label: "$1,000 - $5,000" },
+    { min: 5000, max: undefined, label: "Over $5,000" },
   ];
 
-  // Payment method options
-  const paymentOptions: { value: PaymentMethod; label: string }[] = [
-    { value: "cash", label: "Cash" },
-    { value: "bank_transfer", label: "Bank Transfer" },
-    { value: "credit_card", label: "Credit Card" },
-    { value: "paypal", label: "PayPal" },
-    { value: "other", label: "Other" },
-  ];
+  // Get current price range label
+  const getCurrentPriceRangeLabel = () => {
+    const { priceMin, priceMax } = filters;
+    
+    const foundRange = priceRanges.find(
+      range => range.min === priceMin && range.max === priceMax
+    );
+    
+    return foundRange?.label || "Price Range";
+  };
 
   return (
     <div className="flex flex-wrap gap-2">
-      {/* Species Filter */}
-      <Popover open={speciesOpen} onOpenChange={setSpeciesOpen}>
+      {/* Price Range Filter */}
+      <Popover open={priceRangeOpen} onOpenChange={setPriceRangeOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
-            aria-expanded={speciesOpen}
+            aria-expanded={priceRangeOpen}
             className="justify-between min-w-[150px]"
             size="sm"
           >
-            {filters.speciesId
-              ? species.find((s) => s.id === filters.speciesId)?.name || "Select species"
-              : "Species"}
+            {getCurrentPriceRangeLabel()}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0">
           <Command>
-            <CommandInput placeholder="Search species..." />
-            <CommandEmpty>No species found</CommandEmpty>
+            <CommandInput placeholder="Search price range..." />
+            <CommandEmpty>No price range found</CommandEmpty>
             <CommandGroup>
-              {species.map((s) => (
+              {priceRanges.map((range, index) => (
                 <CommandItem
-                  key={s.id}
-                  value={s.name}
+                  key={index}
+                  value={range.label}
                   onSelect={() => {
                     onFilterChange({
                       ...filters,
-                      speciesId: filters.speciesId === s.id ? undefined : s.id,
+                      priceMin: range.min,
+                      priceMax: range.max,
                     });
-                    setSpeciesOpen(false);
+                    setPriceRangeOpen(false);
                   }}
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      filters.speciesId === s.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {s.name}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-
-      {/* Status Filter */}
-      <Popover open={statusOpen} onOpenChange={setStatusOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={statusOpen}
-            className="justify-between min-w-[120px]"
-            size="sm"
-          >
-            {filters.status
-              ? statusOptions.find((s) => s.value === filters.status)?.label || "Status"
-              : "Status"}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
-          <Command>
-            <CommandInput placeholder="Search status..." />
-            <CommandEmpty>No status found</CommandEmpty>
-            <CommandGroup>
-              {statusOptions.map((s) => (
-                <CommandItem
-                  key={s.value}
-                  value={s.label}
-                  onSelect={() => {
-                    onFilterChange({
-                      ...filters,
-                      status: filters.status === s.value ? undefined : s.value,
-                    });
-                    setStatusOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      filters.status === s.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {s.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-
-      {/* Payment Method Filter */}
-      <Popover open={paymentMethodOpen} onOpenChange={setPaymentMethodOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={paymentMethodOpen}
-            className="justify-between min-w-[150px]"
-            size="sm"
-          >
-            {filters.paymentMethod
-              ? paymentOptions.find((p) => p.value === filters.paymentMethod)?.label || "Payment"
-              : "Payment Method"}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
-          <Command>
-            <CommandInput placeholder="Search payment method..." />
-            <CommandEmpty>No payment method found</CommandEmpty>
-            <CommandGroup>
-              {paymentOptions.map((p) => (
-                <CommandItem
-                  key={p.value}
-                  value={p.label}
-                  onSelect={() => {
-                    onFilterChange({
-                      ...filters,
-                      paymentMethod: filters.paymentMethod === p.value ? undefined : p.value,
-                    });
-                    setPaymentMethodOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      filters.paymentMethod === p.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {p.label}
+                  {range.label}
                 </CommandItem>
               ))}
             </CommandGroup>
