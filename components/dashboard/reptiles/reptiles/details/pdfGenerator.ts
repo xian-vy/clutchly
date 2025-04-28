@@ -124,7 +124,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   // Basic info for right column
   rightColumn.push(['Code', reptile.reptile_code || '']);
   rightColumn.push(['Status', reptile.status ? capitalize(reptile.status) : 'Unknown']);
-  rightColumn.push(['Breeder', reptile.is_breeder ? 'Yes' : 'No']);
+  rightColumn.push(['Breeder', reptile.is_breeder ? 'Yes' + " (" + reptile.project_ids?.length + "x)" : 'No']);
   rightColumn.push(['Hatched', reptile.hatch_date ? format(new Date(reptile.hatch_date), 'MMM dd, yyyy') : 'Unknown']);
   rightColumn.push(['Acquired', reptile.acquisition_date ? format(new Date(reptile.acquisition_date), 'MMM dd, yyyy') : 'Unknown']);
   rightColumn.push(['Produced By', reptile.original_breeder || 'Unknown']);
