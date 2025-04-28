@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSpeciesStore } from "@/lib/stores/speciesStore"
 import { cn } from "@/lib/utils"
 import { useQuery } from "@tanstack/react-query"
@@ -79,7 +80,7 @@ export function useGroupedReptileMultiSelect() {
       }
 
       return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover modal open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button 
               variant="outline"
@@ -112,6 +113,7 @@ export function useGroupedReptileMultiSelect() {
                   </CommandItem>
                   
                   {expandedSpecies === group.label && (
+                  <ScrollArea className="h-[250px]">
                     <div className="pl-6 border-l ml-2">
                       {group.items.map((item) => (
                         <CommandItem
@@ -134,6 +136,7 @@ export function useGroupedReptileMultiSelect() {
                         </CommandItem>
                       ))}
                     </div>
+                  </ScrollArea>
                   )}
                 </div>
               ))}

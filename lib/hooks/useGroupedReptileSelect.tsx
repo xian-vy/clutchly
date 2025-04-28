@@ -16,6 +16,7 @@ import { Check, ChevronsUpDown } from "lucide-react"
 import * as React from "react"
 import { useMemo } from "react"
 import { Reptile } from "../types/reptile"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface ReptileSelectProps {
   value?: string
@@ -61,7 +62,7 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
       }, [value])
 
       return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover modal open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
@@ -92,8 +93,8 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
                     )} />
                     {group.label}
                   </CommandItem>
-                  
                   {expandedSpecies === group.label && (
+                    <ScrollArea className="h-[250px]">
                     <div className="pl-6 border-l ml-2">
                       {group.items.map((item) => (
                         <CommandItem
@@ -115,6 +116,7 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
                         </CommandItem>
                       ))}
                     </div>
+                    </ScrollArea>
                   )}
                 </div>
               ))}
