@@ -1,29 +1,29 @@
 'use client';
 
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { createSalesRecord, deleteSalesRecord, getSalesRecords, updateSalesRecord } from '@/app/api/sales';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { useResource } from '@/lib/hooks/useResource';
-import { NewSaleRecord, SaleRecord } from '@/lib/types/sales';
-import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { SalesRecordList } from './SalesRecordList';
-import { SalesRecordForm } from './SalesRecordForm';
-import { SalesRecordDetails } from './SalesRecordDetails';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { SALES_STATUS_COLORS } from '@/lib/constants/colors';
+import { useResource } from '@/lib/hooks/useResource';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { NewSaleRecord, SaleRecord } from '@/lib/types/sales';
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { Loader2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { SalesRecordDetails } from './SalesRecordDetails';
+import { SalesRecordForm } from './SalesRecordForm';
+import { EnrichedSaleRecord, SalesRecordList } from './SalesRecordList';
 
-// Status colors for different sale statuses
-const STATUS_COLORS = {
-  pending: 'bg-amber-100 text-amber-800 hover:bg-amber-100/80',
-  completed: 'bg-green-100 text-green-800 hover:bg-green-100/80',
-  cancelled: 'bg-red-100 text-red-800 hover:bg-red-100/80',
-  refunded: 'bg-blue-100 text-blue-800 hover:bg-blue-100/80',
-};
 
 export function SalesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
-  const [selectedSaleForDetails, setSelectedSaleForDetails] = useState<SaleRecord | null>(null);
+  const [selectedSaleForDetails, setSelectedSaleForDetails] = useState<EnrichedSaleRecord | null>(null);
+  const { species } = useSpeciesStore();
+  const { morphs } = useMorphsStore();
 
   const {
     resources: salesRecords,
@@ -42,7 +42,35 @@ export function SalesTab() {
     deleteResource: deleteSalesRecord,
   });
 
-  if (salesLoading) {
+  // Fetch reptiles data
+  const { data: reptiles, isLoading: reptilesLoading } = useQuery({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  });
+
+  // Create enriched sales records with reptile information
+  const enrichedSalesRecords = useMemo<EnrichedSaleRecord[]>(() => {
+    if (!salesRecords || !reptiles) return [];
+    
+    return salesRecords.map(sale => {
+      const reptile = reptiles.find(r => r.id === sale.reptile_id);
+      
+      // Get species and morph names
+      const speciesData = reptile?.species_id ? 
+        species.find(s => s.id.toString() === reptile.species_id.toString()) : null;
+      const morphData = reptile?.morph_id ? 
+        morphs.find(m => m.id.toString() === reptile.morph_id.toString()) : null;
+      
+      return {
+        ...sale,
+        reptile_name: reptile?.name || 'Unknown',
+        species_name: speciesData?.name || 'Unknown Species',
+        morph_name: morphData?.name || 'Unknown Morph',
+      };
+    });
+  }, [salesRecords, reptiles, species, morphs]);
+
+  if (salesLoading || reptilesLoading) {
     return (
       <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
           <Loader2 className='w-6 h-6 animate-spin text-black dark:text-white' />
@@ -58,7 +86,7 @@ export function SalesTab() {
   return (
     <div className="space-y-6">
       <SalesRecordList
-        salesRecords={salesRecords}
+        salesRecords={enrichedSalesRecords}
         onEdit={(sale) => {
           setSelectedSale(sale);
           setIsDialogOpen(true);
@@ -100,9 +128,14 @@ export function SalesTab() {
           <DialogTitle className='flex flex-col items-start gap-2 text-base'>
             {`Sale Record: ${selectedSaleForDetails?.invoice_number || selectedSaleForDetails?.id?.slice(0, 8)}`}
             <div className="flex justify-between w-full items-center">
-                <Badge variant="custom"  className={`${STATUS_COLORS[selectedSaleForDetails?.status.toLowerCase() as keyof typeof STATUS_COLORS]} !capitalize`}>
-                    {selectedSaleForDetails?.status}
-                </Badge>
+                <div className="flex items-center gap-3">
+                  <Badge variant="custom" className={`${SALES_STATUS_COLORS[selectedSaleForDetails?.status?.toLowerCase() as keyof typeof SALES_STATUS_COLORS]} !capitalize`}>
+                      {selectedSaleForDetails?.status}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedSaleForDetails?.reptile_name} ({selectedSaleForDetails?.morph_name})
+                  </span>
+                </div>
                 <div className="flex gap-5">
                       <div className='flex items-center gap-2'>
                           <p className="text-xs 2xl:text-[0.8rem] 3xl:text-sm font-medium text-muted-foreground">Sale Date:</p>

@@ -1,145 +1,131 @@
 'use client';
 
-import { SaleRecord } from '@/lib/types/sales';
 import { format } from 'date-fns';
-import { 
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle 
-} from '@/components/ui/card';
-import { 
-  BanknoteIcon, 
-  CalendarIcon, 
-  InfoIcon, 
-  UserIcon 
-} from 'lucide-react';
-import { Label } from '@/components/ui/label';
+import { Check, X } from 'lucide-react';
+import { EnrichedSaleRecord } from './SalesRecordList';
 
 interface SalesRecordDetailsProps {
-  sale: SaleRecord;
+  sale: EnrichedSaleRecord;
 }
 
 export function SalesRecordDetails({ sale }: SalesRecordDetailsProps) {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Not specified';
+    return format(new Date(dateString), 'MMMM d, yyyy');
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Buyer Info */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <UserIcon className="h-4 w-4" />
-              Buyer Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div>
-                <Label className="text-xs text-muted-foreground">Name</Label>
-                <p className="font-medium">{sale.buyer_name}</p>
-              </div>
-              {sale.buyer_email && (
-                <div>
-                  <Label className="text-xs text-muted-foreground">Email</Label>
-                  <p>{sale.buyer_email}</p>
-                </div>
-              )}
-              {sale.buyer_phone && (
-                <div>
-                  <Label className="text-xs text-muted-foreground">Phone</Label>
-                  <p>{sale.buyer_phone}</p>
-                </div>
-              )}
+    <div className="space-y-6 py-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Buyer Information */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Buyer Information</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Name:</span>
+              <span className="text-sm font-medium">{sale.buyer_name}</span>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Email:</span>
+              <span className="text-sm font-medium">{sale.buyer_email || 'Not provided'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Phone:</span>
+              <span className="text-sm font-medium">{sale.buyer_phone || 'Not provided'}</span>
+            </div>
+          </div>
+        </div>
 
-        {/* Payment Info */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <BanknoteIcon className="h-4 w-4" />
-              Payment Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div>
-                <Label className="text-xs text-muted-foreground">Amount</Label>
-                <p className="font-medium">${sale.price.toFixed(2)}</p>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Method</Label>
-                <p>{sale.payment_method.replace('_', ' ')}</p>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Status</Label>
-                <p className="capitalize">{sale.status}</p>
-              </div>
-              {sale.invoice_number && (
-                <div>
-                  <Label className="text-xs text-muted-foreground">Invoice #</Label>
-                  <p>{sale.invoice_number}</p>
-                </div>
-              )}
+        {/* Reptile Information */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Reptile Information</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Name:</span>
+              <span className="text-sm font-medium">{sale.reptile_name || 'Unknown'}</span>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Species:</span>
+              <span className="text-sm font-medium">{sale.species_name || 'Unknown'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Morph:</span>
+              <span className="text-sm font-medium">{sale.morph_name || 'Unknown'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Information */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Payment Information</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Price:</span>
+              <span className="text-sm font-medium">${sale.price.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Method:</span>
+              <span className="text-sm font-medium capitalize">{sale.payment_method.replace('_', ' ')}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <span className="text-sm font-medium capitalize">{sale.status}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Invoice Number:</span>
+              <span className="text-sm font-medium">{sale.invoice_number || 'Not assigned'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Information */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Additional Information</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Sale Date:</span>
+              <span className="text-sm font-medium">{formatDate(sale.sale_date)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Created:</span>
+              <span className="text-sm font-medium">{formatDate(sale.created_at)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Last Updated:</span>
+              <span className="text-sm font-medium">{formatDate(sale.updated_at)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Includes Documents:</span>
+              <span className="text-sm font-medium">
+                {sale.includes_documents ? 
+                  <Check className="text-green-500 h-4 w-4" /> : 
+                  <X className="text-red-500 h-4 w-4" />
+                }
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Dates & Details */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4" />
-              Sale Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div>
-                <Label className="text-xs text-muted-foreground">Sale Date</Label>
-                <p>{format(new Date(sale.sale_date), 'MMMM d, yyyy')}</p>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Reptile ID</Label>
-                <p>{sale.reptile_id}</p>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Documents Included</Label>
-                <p>{sale.includes_documents ? 'Yes' : 'No'}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Shipping Details */}
+      {sale.shipping_details && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Shipping Details</h3>
+          <div className="p-4 bg-muted rounded-md">
+            <p className="text-sm whitespace-pre-wrap">{sale.shipping_details}</p>
+          </div>
+        </div>
+      )}
 
-        {/* Additional Info */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <InfoIcon className="h-4 w-4" />
-              Additional Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {sale.shipping_details && (
-                <div>
-                  <Label className="text-xs text-muted-foreground">Shipping Details</Label>
-                  <p>{sale.shipping_details}</p>
-                </div>
-              )}
-              {sale.notes && (
-                <div>
-                  <Label className="text-xs text-muted-foreground">Notes</Label>
-                  <p className="whitespace-pre-wrap text-sm">{sale.notes}</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Notes */}
+      {sale.notes && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Notes</h3>
+          <div className="p-4 bg-muted rounded-md">
+            <p className="text-sm whitespace-pre-wrap">{sale.notes}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
