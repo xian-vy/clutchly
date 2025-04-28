@@ -118,7 +118,7 @@ export function ReptileFilterDialog({
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] md:max-w-[650px] max-h-[95vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] md:max-w-[650px] xl:max-w-[700px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-start">Filter Reptiles</DialogTitle>
         </DialogHeader>
@@ -317,7 +317,7 @@ export function ReptileFilterDialog({
             </div>
 
             <Separator />
-            <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-1 gap-4 xl:gap-5 2xl:gap-7 3xl:gap-9">
 
             {/* Weight Range Filter */}
             <FormField
