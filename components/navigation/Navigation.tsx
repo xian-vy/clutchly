@@ -26,6 +26,7 @@ import { VscSnake } from "react-icons/vsc";
 import { useUpcomingFeedings } from '@/lib/hooks/useUpcomingFeedings';
 import { isToday } from 'date-fns';
 import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
+import { Badge } from '../ui/badge';
 
 const navItems = [
   {
@@ -168,9 +169,9 @@ export function Navigation() {
                 <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]' }`} />
                 {!isCollapsed && item.name}
                 {todayFeedings.length > 0 && item.name === 'Feeding' && (
-                  <span className='absolute right-3 text-xs font-medium'>
+                  <Badge className='absolute right-3 text-xs font-medium'>
                     {todayFeedings.length}
-                  </span>
+                  </Badge>
                 )}
               </p>
             );
