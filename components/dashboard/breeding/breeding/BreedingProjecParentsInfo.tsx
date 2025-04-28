@@ -11,12 +11,12 @@ const BreedingProjecParentsInfo = ({reptileMap,project} : Props) => {
   return (
     <div className="flex items-start justify-center py-5 gap-10 2xl:gap-16 border rounded-md my-5">
         <div className='flex flex-col items-center gap-1'>
-            <p className='text-sm xl:text-base text-center  flex gap-1 font-semibold'>
+            <p className='text-sm xl:text-base text-center  flex items-center gap-1 font-semibold'>
                 {reptileMap.get(project.male_id)?.name || 'Unknown'}
-                <Mars className="h-4 w-4 text-blue-400"/>
+                <Mars className="h-3 w-3 text-blue-400"/>
             </p>
             <p className='text-xs xl:text-sm text-center '> {reptileMap.get(project.male_id)?.morphName}</p>
-            <div className='space-y-1'>
+            <div className='space-y-1 mt-3'>
                 <div className="flex items-center justify-center gap-1.5">
                     {reptileMap.get(project.male_id)?.visuals?.length === 0  &&
                         <span className='text-xs text-muted-foreground'>No Visual Traits</span>
@@ -36,15 +36,15 @@ const BreedingProjecParentsInfo = ({reptileMap,project} : Props) => {
             </div>
         </div>
         <div className="my-auto">
-            <X strokeWidth={1} className='text-muted-foreground'/>
+            <X strokeWidth={1} className='text-muted-foreground w-5 h-5'/>
         </div>                        
         <div  className='flex flex-col items-center  gap-1'>
-            <p className='text-sm xl:text-base flex gap-1 font-semibold'>
+            <p className='text-sm xl:text-base flex items-center gap-1 font-semibold'>
                 {reptileMap.get(project.female_id)?.name || 'Unknown'}
-                <Venus className="h-4 w-4 text-red-500"/>
+                <Venus className="h-3 w-3 text-red-500"/>
             </p>
             <p className='text-xs xl:text-sm  text-center'> {reptileMap.get(project.female_id)?.morphName} </p>
-            <div className='space-y-1'>
+            <div className='space-y-1 mt-3'>
                 <div className="flex items-center justify-center gap-1.5">
                     {reptileMap.get(project.female_id)?.visuals?.length === 0  &&
                     <span className='text-xs text-muted-foreground'>No Visual Traits</span>
