@@ -74,7 +74,7 @@ export function HatchlingForm({
   })
   
   const { data: profile } = useQuery<Profile>({
-    queryKey: ['profile'],
+    queryKey: ['profile2'],
     queryFn: getProfile
   })
   const userProfile = Array.isArray(profile) ? profile[0] : profile;

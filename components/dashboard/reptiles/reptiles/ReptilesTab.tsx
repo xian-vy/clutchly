@@ -41,7 +41,7 @@ export function ReptilesTab() {
   })
 
   const { data: profile, isLoading : profileLoading } = useQuery<Profile>({
-    queryKey: ['profile'],
+    queryKey: ['profile2'],
     queryFn: async () => {
       const data = await getProfile();
       return Array.isArray(data) ? data[0] : data;
