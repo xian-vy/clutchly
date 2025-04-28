@@ -3,6 +3,17 @@ import { NewSaleRecord, SaleRecord, SalesSummary } from '@/lib/types/sales'
 
 const supabase = createClient()
 
+export interface SalesFilterParams {
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+  paymentMethod?: string;
+  speciesId?: string;
+  period?: 'weekly' | 'monthly' | 'quarterly' | 'yearly';
+  priceMin?: number;
+  priceMax?: number;
+}
+
 export async function getSalesRecords(): Promise<SaleRecord[]> {
   const { data, error } = await supabase
     .from('sales_records')
@@ -66,23 +77,39 @@ export async function deleteSalesRecord(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function getSalesByDateRange(dateRange?: { 
-  startDate?: string; 
-  endDate?: string;
-}): Promise<SaleRecord[]> {
+export async function getSalesByDateRange(filters?: SalesFilterParams): Promise<SaleRecord[]> {
   const supabase = createClient()
   
   let query = supabase
     .from('sales_records')
-    .select('*')
+    .select('*, reptiles(*)')
     
-  // Apply date filtering if range is provided
-  if (dateRange) {
-    if (dateRange.startDate) {
-      query = query.gte('sale_date', dateRange.startDate)
+  // Apply filtering
+  if (filters) {
+    // Date filtering
+    if (filters.startDate) {
+      query = query.gte('sale_date', filters.startDate)
     }
-    if (dateRange.endDate) {
-      query = query.lte('sale_date', dateRange.endDate)
+    if (filters.endDate) {
+      query = query.lte('sale_date', filters.endDate)
+    }
+    
+    // Status filtering
+    if (filters.status) {
+      query = query.eq('status', filters.status)
+    }
+    
+    // Payment method filtering
+    if (filters.paymentMethod) {
+      query = query.eq('payment_method', filters.paymentMethod)
+    }
+    
+    // Price range filtering
+    if (filters.priceMin !== undefined) {
+      query = query.gte('price', filters.priceMin)
+    }
+    if (filters.priceMax !== undefined) {
+      query = query.lte('price', filters.priceMax)
     }
   }
   
@@ -95,11 +122,8 @@ export async function getSalesByDateRange(dateRange?: {
   return data
 }
 
-export async function getSalesSummary(dateRange?: { 
-  startDate?: string; 
-  endDate?: string;
-}): Promise<SalesSummary> {
-  const salesRecords = await getSalesByDateRange(dateRange)
+export async function getSalesSummary(filters?: SalesFilterParams): Promise<SalesSummary> {
+  const salesRecords = await getSalesByDateRange(filters)
   
   if (!salesRecords.length) {
     return {
@@ -181,4 +205,117 @@ export async function getSalesSummary(dateRange?: {
     sales_by_payment_method,
     monthly_sales
   }
-} 
+}
+
+// Get sales distribution by reptile species
+export async function getSalesBySpecies(filters?: SalesFilterParams): Promise<{ name: string; value: number }[]> {
+  const salesRecords = await getSalesByDateRange(filters);
+  
+  if (!salesRecords.length) {
+    return [];
+  }
+  
+  // Get all reptile IDs
+  const reptileIds = salesRecords.map(record => record.reptile_id);
+  
+  // Fetch reptile details with species info
+  const { data: reptiles, error } = await supabase
+    .from('reptiles')
+    .select('id, species_id')
+    .in('id', reptileIds);
+    
+  if (error) throw error;
+
+  // Get unique species IDs
+  const speciesIds = [...new Set(reptiles.map(reptile => reptile.species_id))];
+  
+  // Fetch species details
+  const { data: speciesData, error: speciesError } = await supabase
+    .from('species')
+    .select('id, name')
+    .in('id', speciesIds);
+    
+  if (speciesError) throw speciesError;
+  
+  // Create a lookup map for species
+  const speciesMap = new Map(speciesData.map(species => [species.id, species.name]));
+  
+  // Create a lookup map for reptile species
+  const reptileSpeciesMap = new Map();
+  
+  // Process each reptile to extract species ID
+  reptiles.forEach(reptile => {
+    const speciesName = speciesMap.get(reptile.species_id) || 'Unknown';
+    reptileSpeciesMap.set(reptile.id, speciesName);
+  });
+  
+  // Count sales by species
+  const speciesCounts: Record<string, number> = {};
+  
+  salesRecords.forEach(record => {
+    const speciesName = reptileSpeciesMap.get(record.reptile_id) || 'Unknown';
+    speciesCounts[speciesName] = (speciesCounts[speciesName] || 0) + 1;
+  });
+  
+  // Convert to array format
+  return Object.entries(speciesCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value); // Sort by most sales first
+}
+
+// Get sales distribution by reptile morphs
+export async function getSalesByMorphs(filters?: SalesFilterParams): Promise<{ name: string; value: number }[]> {
+  const salesRecords = await getSalesByDateRange(filters);
+  
+  if (!salesRecords.length) {
+    return [];
+  }
+  
+  // Get all reptile IDs
+  const reptileIds = salesRecords.map(record => record.reptile_id);
+  
+  // Fetch reptile details with morph ID
+  const { data: reptiles, error } = await supabase
+    .from('reptiles')
+    .select('id, morph_id')
+    .in('id', reptileIds);
+    
+  if (error) throw error;
+  
+  // Get unique morph IDs
+  const morphIds = [...new Set(reptiles.map(reptile => reptile.morph_id))];
+  
+  // Fetch morph details
+  const { data: morphData, error: morphError } = await supabase
+    .from('morphs')
+    .select('id, name')
+    .in('id', morphIds);
+    
+  if (morphError) throw morphError;
+  
+  // Create a lookup map for morphs
+  const morphMap = new Map(morphData.map(morph => [morph.id, morph.name]));
+  
+  // Create a lookup map for reptile morphs
+  const reptileMorphMap = new Map();
+  
+  // Process each reptile to extract morph
+  reptiles.forEach(reptile => {
+    const morphName = morphMap.get(reptile.morph_id) || 'Unknown';
+    reptileMorphMap.set(reptile.id, morphName);
+  });
+  
+  // Count sales by morph
+  const morphCounts: Record<string, number> = {};
+  
+  salesRecords.forEach(record => {
+    const morphName = reptileMorphMap.get(record.reptile_id) || 'Unknown';
+    morphCounts[morphName] = (morphCounts[morphName] || 0) + 1;
+  });
+  
+  // Convert to array format and limit to top 10 for visibility
+  return Object.entries(morphCounts)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value) // Sort by most sales first
+    .slice(0, 10); // Limit to top 10 morphs
+}

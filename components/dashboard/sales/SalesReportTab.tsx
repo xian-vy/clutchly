@@ -1,281 +1,168 @@
 'use client';
 
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
-import {
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Line,
-  Legend,
-  ComposedChart,
-} from 'recharts';
-import { Loader2 } from 'lucide-react';
-import { format } from 'date-fns';
-import { getSalesSummary } from '@/app/api/sales';
 import { useQuery } from '@tanstack/react-query';
-
-// Colors for the charts
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
-const STATUS_COLORS = {
-  pending: '#FFBB28',
-  completed: '#00C49F',
-  cancelled: '#FF8042',
-  refunded: '#0088FE',
-};
+import { format } from 'date-fns';
+import { FilterX, Loader2 } from 'lucide-react';
+import { DatePickerWithRange } from '@/components/ui/date-picker-range';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react';
+import { DateRange } from 'react-day-picker';
+import { SalesFilterParams, SalesFilters } from './reports/SalesFilters';
+import { getSalesByMorphs, getSalesBySpecies, getSalesSummary } from '@/app/api/sales';
+import { SalesSummaryStats } from './reports/SalesSummaryStats';
+import { SalesByTimeChart } from './reports/charts/SalesByTimeChart';
+import { DistributionPieCharts } from './reports/charts/DistributionPieCharts';
+import { TimePeriod, TimeRangeSelector } from './reports/TimeRangeSelector';
 
 export function SalesReportTab() {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [filters, setFilters] = useState<SalesFilterParams>({});
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
+  
+  // Update filters when date range changes
+  const handleDateRangeChange = (newRange: DateRange | undefined) => {
+    setDateRange(newRange);
+    
+    if (newRange?.from) {
+      const startDate = format(newRange.from, 'yyyy-MM-dd');
+      setFilters(prev => ({
+        ...prev,
+        startDate
+      }));
+    } else {
+      // Remove startDate if from is cleared
+      const updatedFilters = { ...filters };
+      delete updatedFilters.startDate;
+      setFilters(updatedFilters);
+    }
+    
+    if (newRange?.to) {
+      const endDate = format(newRange.to, 'yyyy-MM-dd');
+      setFilters(prev => ({
+        ...prev,
+        endDate
+      }));
+    } else {
+      // Remove endDate if to is cleared
+      const updatedFilters = { ...filters };
+      delete updatedFilters.endDate;
+      setFilters(updatedFilters);
+    }
+  };
 
+  // Handle time period change
+  const handleTimePeriodChange = (period: TimePeriod) => {
+    setTimePeriod(period);
+    setFilters(prev => ({
+      ...prev,
+      period
+    }));
+  };
+  
+  // Reset all filters
+  const handleResetFilters = () => {
+    setFilters({});
+    setDateRange(undefined);
+    setTimePeriod('monthly');
+  };
+  
+  // Fetch sales summary data
   const { 
     data: salesSummary, 
-    isLoading 
+    isLoading: summaryLoading 
   } = useQuery({
-    queryKey: ['sales-summary'],
-    queryFn: async () => getSalesSummary(),
+    queryKey: ['sales-summary', filters],
+    queryFn: () => getSalesSummary(filters),
   });
   
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!salesSummary) {
-    return (
-      <div className="text-center py-12">
-        <p>No sales data available</p>
-      </div>
-    );
-  }
-
-  // Prepare data for the status pie chart
-  const statusData = Object.entries(salesSummary.sales_by_status).map(([key, value]) => ({
-    name: key,
-    value,
-  }));
-
-  // Prepare data for the payment method pie chart
-  const paymentData = Object.entries(salesSummary.sales_by_payment_method).map(([key, value]) => ({
-    name: key,
-    value,
-  })).filter((item) => item.value > 0);
-
-  // Format month names for the monthly sales chart
-  const formattedMonthlySales = salesSummary.monthly_sales.map((item) => ({
-    ...item,
-    month: format(new Date(item.month), 'MMM yy'),
-  }));
+  // Fetch species distribution data
+  const { 
+    data: speciesData, 
+    isLoading: speciesLoading 
+  } = useQuery({
+    queryKey: ['sales-by-species', filters],
+    queryFn: () => getSalesBySpecies(filters),
+    enabled: activeTab === 'distributions', // Only fetch when on distributions tab
+  });
+  
+  // Fetch morph distribution data
+  const { 
+    data: morphData, 
+    isLoading: morphLoading 
+  } = useQuery({
+    queryKey: ['sales-by-morphs', filters],
+    queryFn: () => getSalesByMorphs(filters),
+    enabled: activeTab === 'distributions', // Only fetch when on distributions tab
+  });
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Sales
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{salesSummary.total_sales}</div>
-            <p className="text-xs text-muted-foreground">Records</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Revenue
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${salesSummary.total_revenue.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">USD</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Average Price
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${salesSummary.average_price.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Per sale</p>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-sm lg:text-lg font-semibold tracking-tight text-start">Sales Reports</h2>
+          <p className="text-sm text-muted-foreground">
+            Comprehensive analysis of your sales data and trends
+          </p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-2">
+          <DatePickerWithRange 
+            date={dateRange} 
+            onDateChange={handleDateRangeChange} 
+          />
+          <SalesFilters 
+            onFilterChange={setFilters} 
+            filters={filters}
+          />
+          <Button variant="outline" size="sm" onClick={handleResetFilters}>
+            <FilterX className="h-4 w-4 mr-2" />
+            Reset 
+          </Button>
+        </div>
+      </div>
+      
+      <div>
+        <TimeRangeSelector 
+          value={timePeriod} 
+          onChange={handleTimePeriodChange} 
+        />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Sales Chart */}
-        <Card className="col-span-1 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Monthly Sales</CardTitle>
-            <CardDescription>Number of sales and revenue by month</CardDescription>
-          </CardHeader>
-          <CardContent className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart
-                data={formattedMonthlySales}
-                margin={{
-                  top: 20,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-                maxBarSize={25}
-                className="[&>svg>path]:fill-transparent"
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)"/>
-                <XAxis dataKey="month" fontSize={12} />
-                <YAxis 
-                  yAxisId="left" 
-                  orientation="left" 
-                  stroke="var(--color-chart-2)"
-                  label={{ 
-                    value: 'Revenue ($)', 
-                    angle: -90, 
-                    position: 'insideLeft',
-                    style: { fill: 'var(--color-muted-foreground)' }
-                  }}
-                  fontSize={12}
-                />
-                <YAxis 
-                  yAxisId="right" 
-                  orientation="right" 
-                  stroke="var(--color-chart-1)" 
-                  fontSize={12}
-                  label={{ 
-                    value: 'Number of Sales', 
-                    angle: 90, 
-                    position: 'insideRight',
-                    style: { fill: 'var(--color-muted-foreground)' }
-                  }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'var(--color-card)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '8px'
-                  }}
-                  formatter={(value: number, name: string) => {
-                    if (name === 'revenue') return [`$${value.toFixed(2)}`, 'Revenue'];
-                    if (name === 'count') return [value, 'Number of Sales'];
-                    return [value, name];
-                  }}
-                  labelFormatter={(label) => format(new Date(label), 'MMMM d, yyyy')}
-                />
-                <Legend 
-                  formatter={(value) => {
-                    if (value === 'revenue') return 'Revenue ($)';
-                    if (value === 'count') return 'Number of Sales';
-                    return value;
-                  }}
-                  wrapperStyle={{ 
-                    fontSize: '13px',
-                    color: 'var(--foreground)' 
-                  }}
-                />
-                <Bar 
-                  yAxisId="left" 
-                  dataKey="revenue" 
-                  fill="var(--color-chart-2)" 
-                  name="revenue" 
-                />
-                <Line 
-                  yAxisId="right" 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="var(--color-chart-1)"
-                  strokeWidth={2}
-                  dot={{ r: 4, fill: 'var(--color-chart-1)' }}
-                  activeDot={{ r: 6, fill: 'var(--color-chart-1)' }}
-                  name="count" 
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Status Distribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sales by Status</CardTitle>
-            <CardDescription>Distribution of sales by status</CardDescription>
-          </CardHeader>
-          <CardContent className="h-72 flex justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  nameKey="name"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                >
-                  {statusData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS] || COLORS[index % COLORS.length]} 
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Payment Method Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Methods</CardTitle>
-            <CardDescription>Distribution of payment methods used</CardDescription>
-          </CardHeader>
-          <CardContent className="h-72 flex justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={paymentData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  nameKey="name"
-                  label={({ name, percent }) => `${name.replace('_', ' ')}: ${(percent * 100).toFixed(0)}%`}
-                >
-                  {paymentData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="distributions">Distribution Analysis</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="overview" className="space-y-6">
+          {summaryLoading ? (
+            <div className="h-60 w-full flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <>
+              <SalesSummaryStats data={salesSummary} />
+              <SalesByTimeChart data={salesSummary} period={timePeriod} />
+            </>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="distributions" className="space-y-6">
+          {(speciesLoading || morphLoading || summaryLoading) ? (
+            <div className="h-60 w-full flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <DistributionPieCharts 
+              data={salesSummary} 
+              speciesData={speciesData} 
+              morphData={morphData}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 } 
