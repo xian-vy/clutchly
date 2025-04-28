@@ -155,7 +155,7 @@ export function ProfileSetupDialog() {
 
   return (
     <Dialog open={open} onOpenChange={(newOpen) => allowClose && setOpen(newOpen)}>
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden bg-gradient-to-b from-background to-background/95 border-2">
+      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden bg-gradient-to-b from-background to-background/95 border-0 [&>button]:hidden">
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-background/0 pointer-events-none" />
         
         {/* Top accent banner with progress */}
