@@ -17,11 +17,14 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect, useTransition } from 'react';
+import { useState,  useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { useTheme } from 'next-themes';
 import { TopLoader } from '../ui/TopLoader';
 import { VscSnake } from "react-icons/vsc";
+import { useUpcomingFeedings } from '@/lib/hooks/useUpcomingFeedings';
+import { isToday } from 'date-fns';
+import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
 
 const navItems = [
   {
@@ -78,31 +81,14 @@ export function Navigation() {
   const { theme } = useTheme();
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  useSidebarAnimation({ isCollapsed }); 
 
-  // Update CSS variable when sidebar is collapsed/expanded
-  useEffect(() => {
-    // First set the transition on the document
-    document.documentElement.classList.add('sidebar-transitioning');
-    
-    // Then update the CSS variable
-    document.documentElement.style.setProperty(
-      '--sidebar-width', 
-      isCollapsed ? '4rem' : '16rem'
-    );
-    
-    // Update for 3xl screens
-    document.documentElement.style.setProperty(
-      '--sidebar-width-3xl', 
-      isCollapsed ? '4rem' : '18rem'
-    );
-    
-    // Remove the transition class after the transition completes
-    const timer = setTimeout(() => {
-      document.documentElement.classList.remove('sidebar-transitioning');
-    }, 250);
-    
-    return () => clearTimeout(timer);
-  }, [isCollapsed]);
+  const { 
+    upcomingFeedings, 
+  } = useUpcomingFeedings();
+
+  const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
+
 
   const handleNavigation = (href: string) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -166,7 +152,7 @@ export function Navigation() {
                 key={item.href}
                 onClick={handleNavigation(item.href)}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer  py-2 3xl:py-2.5',
+                  'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer  py-2 3xl:py-2.5',
                   isCollapsed ? 'justify-center px-2' : 'px-3',
                   pathname === item.href
                     ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
@@ -175,6 +161,11 @@ export function Navigation() {
               >
                 <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]' }`} />
                 {!isCollapsed && item.name}
+                {todayFeedings.length > 0 && item.name === 'Feeding' && (
+                  <span className='absolute right-3 text-xs font-medium'>
+                    {todayFeedings.length}
+                  </span>
+                )}
               </p>
             );
           })}
