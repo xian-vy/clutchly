@@ -1,4 +1,5 @@
 'use client'
+import { getProfile } from '@/app/api/profiles/profiles';
 import { logout } from '@/app/auth/logout/actions';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { createClient } from '@/lib/supabase/client';
+import { Profile } from '@/lib/types/profile';
+import { useQuery } from '@tanstack/react-query';
 import {
     ChevronDown,
     LogOut,
@@ -17,22 +19,43 @@ import {
     Sun
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
 interface Props {
     isCollapsed : boolean
 }
 const AccountAvatar =   ({isCollapsed } : Props) => {
     const { theme, setTheme } = useTheme();
-    const supabase = createClient();
-    const [userEmail, setUserEmail] = useState<string | null>(null);
+    const { data, isLoading } = useQuery<Profile>({
+        queryKey: ['profile2'],
+        queryFn: getProfile,
+    }); 
+    if (isLoading) {
+        return (
+            <div className='mb-5 w-full'>
+                 <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full">
+                    <div className="flex items-center w-full">
+                        <div className="flex items-center gap-2 w-full flex-1">
+                                <Avatar className="cursor-pointer">
+                                    <AvatarFallback className='bg-primary dark:bg-slate-800/90 text-white dark:text-primary'>G</AvatarFallback>
+                                </Avatar>
+                                {!isCollapsed &&
+                                    <div className="flex flex-col items-start">
+                                        <span className='text-xs'>User X</span>
+                                        <span className='text-xs text-muted-foreground'>...</span>
+                                    </div>
+                                }
+                        </div>
+                        {!isCollapsed &&
+                             <ChevronDown className="ml-4 text-muted-foreground" />
+                        }
+                    </div>
+                </Button>
+            </div>
+        )
+    }
+    const profile = Array.isArray(data) ? data[0] : data;
+    const userEmail = profile?.email;
+    const userFullname = profile?.full_name;
 
-    useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUserEmail(user?.email || null);
-        };
-        getUser();
-    }, []);
   return (
     <div className='mb-5 w-full'>
         <DropdownMenu>
@@ -45,7 +68,7 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
                                 </Avatar>
                                 {!isCollapsed &&
                                     <div className="flex flex-col items-start">
-                                        <span className='text-xs'>User X</span>
+                                        <span className='text-xs'>{userFullname}</span>
                                         <span className='text-xs text-muted-foreground'>{userEmail}</span>
                                     </div>
                                 }
