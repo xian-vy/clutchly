@@ -206,7 +206,7 @@ export function HealthCategorySelect({ form, className }: HealthCategorySelectPr
           name="custom_type_label"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Custom Type Label</FormLabel>
+              <FormLabel>Add Custom Event</FormLabel>
               <FormControl>
                 <Input {...field} value={field.value || ''} />
               </FormControl>
