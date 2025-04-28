@@ -169,11 +169,11 @@ export function BreedingProjectList({
     },
     {
       accessorKey: 'male_name',
-      header: 'Sire',
+      header: 'Sire (M)',
     },
     {
       accessorKey: 'female_name',
-      header: 'Dam',
+      header: 'Dam (F)',
     },
     {
       accessorKey: "status",
