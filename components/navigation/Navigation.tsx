@@ -6,6 +6,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Dna,
+    DollarSign,
     Download,
     Heart,
     LayoutDashboard,
@@ -33,12 +34,17 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
+    name: 'Sales',
+    href: '/sales',
+    icon: DollarSign,
+  },
+  {
     name: 'Reptiles',
     href: '/reptiles',
     icon: VscSnake,
   },
   {
-    name : "Housing",
+    name : "Enclosures",
     href : '/housing',
     icon : Package
   },
