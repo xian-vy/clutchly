@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { TabsContent } from '@radix-ui/react-tabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { SALES_STATUS_COLORS } from '@/lib/constants/colors';
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -59,13 +60,6 @@ const formSchema = z.object({
 // Extract the type from the schema
 type FormValues = z.infer<typeof formSchema>;
 
-// Status colors for different sale statuses
-const STATUS_COLORS = {
-  pending: 'bg-amber-100 text-amber-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-  refunded: 'bg-blue-100 text-blue-800',
-};
 
 interface SalesRecordFormProps {
   initialData?: SaleRecord;
@@ -224,7 +218,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                                   <SelectValue placeholder="Select a status">
                                     {field.value && (
                                       <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className={cn(STATUS_COLORS[field.value], "capitalize")}>
+                                        <Badge variant="outline" className={cn(SALES_STATUS_COLORS[field.value], "capitalize")}>
                                           {field.value}
                                         </Badge>
                                       </div>
@@ -235,22 +229,22 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                               <SelectContent>
                                 <SelectItem value="pending">
                                   <span className="flex items-center gap-2">
-                                    <Badge variant="outline" className={STATUS_COLORS.pending}>Pending</Badge>
+                                    <Badge variant="outline" className={SALES_STATUS_COLORS.pending}>Pending</Badge>
                                   </span>
                                 </SelectItem>
                                 <SelectItem value="completed">
                                   <span className="flex items-center gap-2">
-                                    <Badge variant="outline" className={STATUS_COLORS.completed}>Completed</Badge>
+                                    <Badge variant="outline" className={SALES_STATUS_COLORS.completed}>Completed</Badge>
                                   </span>
                                 </SelectItem>
                                 <SelectItem value="cancelled">
                                   <span className="flex items-center gap-2">
-                                    <Badge variant="outline" className={STATUS_COLORS.cancelled}>Cancelled</Badge>
+                                    <Badge variant="outline" className={SALES_STATUS_COLORS.cancelled}>Cancelled</Badge>
                                   </span>
                                 </SelectItem>
                                 <SelectItem value="refunded">
                                   <span className="flex items-center gap-2">
-                                    <Badge variant="outline" className={STATUS_COLORS.refunded}>Refunded</Badge>
+                                    <Badge variant="outline" className={SALES_STATUS_COLORS.refunded}>Refunded</Badge>
                                   </span>
                                 </SelectItem>
                               </SelectContent>
