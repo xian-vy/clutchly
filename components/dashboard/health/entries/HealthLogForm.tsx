@@ -11,9 +11,9 @@ import { useHealthStore } from '@/lib/stores/healthStore';
 import { CreateHealthLogEntryInput, HealthLogEntry } from '@/lib/types/health';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { HealthCategorySelect } from './HealthCategorySelect';
 
 // Define the form schema to match the CreateHealthLogEntryInput type
 const formSchema = z.object({
@@ -31,7 +31,7 @@ const formSchema = z.object({
 });
 
 // Define the form values type
-type FormValues = z.infer<typeof formSchema>;
+export type FormValues = z.infer<typeof formSchema>;
 
 interface HealthLogFormProps {
   initialData?: HealthLogEntry;
@@ -40,12 +40,9 @@ interface HealthLogFormProps {
 }
 
 export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogFormProps) {
-  const [isCustomType, setIsCustomType] = useState(false);
   
   const { 
-    categories, 
-    getSubcategoriesByCategory,
-    getTypesBySubcategory,
+
     isLoading: healthStoreLoading
   } = useHealthStore();
 
@@ -73,46 +70,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     }
   });
 
-  // Get subcategories and types based on selected category/subcategory
-  const selectedCategoryId = form.watch('category_id');
-  const selectedSubcategoryId = form.watch('subcategory_id');
-  
-  const subcategories = selectedCategoryId 
-    ? getSubcategoriesByCategory(selectedCategoryId)
-    : [];
-  
-  const types = selectedSubcategoryId
-    ? getTypesBySubcategory(selectedSubcategoryId)
-    : [];
-
-  // Handle category change
-  const handleCategoryChange = (categoryId: string) => {
-    form.setValue('category_id', categoryId);
-    form.setValue('subcategory_id', '');
-    form.setValue('type_id', null);
-    form.setValue('custom_type_label', '');
-    setIsCustomType(false);
-  };
-
-  // Handle subcategory change
-  const handleSubcategoryChange = (subcategoryId: string) => {
-    form.setValue('subcategory_id', subcategoryId);
-    form.setValue('type_id', null);
-    form.setValue('custom_type_label', '');
-    setIsCustomType(false);
-  };
-
-  // Handle type change
-  const handleTypeChange = (value: string) => {
-    if (value === 'custom') {
-      setIsCustomType(true);
-      form.setValue('type_id', null);
-    } else {
-      setIsCustomType(false);
-      form.setValue('type_id', value);
-      form.setValue('custom_type_label', '');
-    }
-  };
+ 
 
   // Handle form submission
   const handleSubmit = async (data: FormValues) => {
@@ -160,110 +118,11 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
               </FormItem>
             )}
           />
+        </div>
 
-          <FormField
-            control={form.control}
-            name="category_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={handleCategoryChange}
-                >
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <HealthCategorySelect form={form} />
 
-          <FormField
-            control={form.control}
-            name="subcategory_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Subcategory</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={handleSubcategoryChange}
-                  disabled={!selectedCategoryId}
-                >
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select a subcategory" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {subcategories.map((subcategory) => (
-                      <SelectItem key={subcategory.id} value={subcategory.id}>
-                        {subcategory.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="type_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Type</FormLabel>
-                <Select
-                  value={isCustomType ? 'custom' : (field.value || undefined)}
-                  onValueChange={handleTypeChange}
-                  disabled={!selectedSubcategoryId}
-                >
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select a type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="custom">Custom Type</SelectItem>
-                    {types.map((type) => (
-                      <SelectItem key={type.id} value={type.id}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          {isCustomType && (
-            <FormField
-              control={form.control}
-              name="custom_type_label"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Custom Type Label</FormLabel>
-                  <FormControl>
-                    <Input {...field} value={field.value || ''} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="severity"
@@ -341,4 +200,4 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
       </form>
     </Form>
   );
-} 
+}
