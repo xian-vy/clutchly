@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
           <Navigation />
           <div className="flex-1 lg:ml-[18rem] 3xl:ml-[20rem] transition-all duration-200">
             <TopNavigation />
-            <div className="p-4 lg:p-6 2xl:p-7">
+            <div className="p-4 lg:p-6 2xl:p-8">
                 <ProfileSetupDialog />
                 {children}
             </div>
