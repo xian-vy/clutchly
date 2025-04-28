@@ -60,7 +60,7 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
     <div className='mb-5 w-full'>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full">
+                <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full focus-visible:ring-0">
                     <div className="flex items-center w-full">
                         <div className="flex items-center gap-2 w-full flex-1">
                                 <Avatar className="cursor-pointer">
