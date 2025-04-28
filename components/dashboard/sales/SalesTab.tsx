@@ -9,7 +9,7 @@ import { useResource } from '@/lib/hooks/useResource';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { NewSaleRecord, SaleRecord } from '@/lib/types/sales';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -24,6 +24,7 @@ export function SalesTab() {
   const [selectedSaleForDetails, setSelectedSaleForDetails] = useState<EnrichedSaleRecord | null>(null);
   const { species } = useSpeciesStore();
   const { morphs } = useMorphsStore();
+  const queryClient = useQueryClient();
 
   const {
     resources: salesRecords,
@@ -113,6 +114,7 @@ export function SalesTab() {
               if (success) {
                 setIsDialogOpen(false);
                 setSelectedSale(undefined);
+                queryClient.invalidateQueries({ queryKey: ['reptiles'] });
               }
             }}
             onCancel={() => {

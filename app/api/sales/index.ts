@@ -43,6 +43,8 @@ export async function createSalesRecord(record: NewSaleRecord): Promise<SaleReco
     ...record,
     user_id: userId,
   }
+  
+  // Create the sale record
   const { data, error } = await supabase
     .from('sales_records')
     .insert([newSaleRecord])
@@ -50,6 +52,15 @@ export async function createSalesRecord(record: NewSaleRecord): Promise<SaleReco
     .single()
 
   if (error) throw error
+
+  // Update reptile status to 'sold'
+  const { error: reptileError } = await supabase
+    .from('reptiles')
+    .update({ status: 'sold' })
+    .eq('id', record.reptile_id)
+
+  if (reptileError) throw reptileError
+
   return data
 }
 
@@ -57,6 +68,18 @@ export async function updateSalesRecord(
   id: string,
   record: NewSaleRecord
 ): Promise<SaleRecord> {
+  const supabase = createClient()
+
+  // Get the current sale record
+  const { data: currentSale, error: fetchError } = await supabase
+    .from('sales_records')
+    .select('reptile_id, status')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) throw fetchError
+
+  // Update the sale record
   const { data, error } = await supabase
     .from('sales_records')
     .update(record)
@@ -65,16 +88,55 @@ export async function updateSalesRecord(
     .single()
 
   if (error) throw error
+
+  // If the status changed to 'cancelled' or 'refunded', set reptile status back to 'active'
+  // If the status changed to 'completed', ensure reptile status is 'sold'
+  if (record.status === 'cancelled' || record.status === 'refunded') {
+    const { error: reptileError } = await supabase
+      .from('reptiles')
+      .update({ status: 'active' })
+      .eq('id', currentSale.reptile_id)
+
+    if (reptileError) throw reptileError
+  } else if (record.status === 'completed') {
+    const { error: reptileError } = await supabase
+      .from('reptiles')
+      .update({ status: 'sold' })
+      .eq('id', currentSale.reptile_id)
+
+    if (reptileError) throw reptileError
+  }
+
   return data
 }
 
 export async function deleteSalesRecord(id: string): Promise<void> {
+  const supabase = createClient()
+
+  // Get the sale record to find the reptile_id
+  const { data: saleRecord, error: fetchError } = await supabase
+    .from('sales_records')
+    .select('reptile_id')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) throw fetchError
+
+  // Delete the sale record
   const { error } = await supabase
     .from('sales_records')
     .delete()
     .eq('id', id)
 
   if (error) throw error
+
+  // Update reptile status back to 'active'
+  const { error: reptileError } = await supabase
+    .from('reptiles')
+    .update({ status: 'active' })
+    .eq('id', saleRecord.reptile_id)
+
+  if (reptileError) throw reptileError
 }
 
 export async function getSalesByDateRange(filters?: SalesFilterParams): Promise<SaleRecord[]> {

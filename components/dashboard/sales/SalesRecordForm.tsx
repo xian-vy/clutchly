@@ -72,8 +72,8 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-  
-  const { ReptileSelect } = useGroupedReptileSelect({ filteredReptiles: reptiles });
+  const unSoldReptiles = reptiles.filter((reptile) => reptile.status === 'active');
+  const { ReptileSelect } = useGroupedReptileSelect({ filteredReptiles: unSoldReptiles });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as Resolver<FormValues>,
