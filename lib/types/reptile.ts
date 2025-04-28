@@ -33,8 +33,6 @@ export interface Reptile {
   breeding_line?: string          
   is_breeder?: boolean   
   retired_breeder?: boolean       
-  primary_genetics?: string[]  
-  lineage_path?: string  
   project_ids?: string[]
   location_id?: string | null
   original_breeder : string | null //produced_by
