@@ -24,7 +24,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { FeedingOverview } from './FeedingOverview';
-import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 
 export function DashboardOverviewTab() {
   const [allClutches, setAllClutches] = useState<Clutch[]>([]);
@@ -93,12 +92,7 @@ export function DashboardOverviewTab() {
       : getBreedingProjects(),
   });
 
-  // Fetch feeding schedules using React Query
-  const { data: feedingSchedules = [], isLoading: feedingLoading } = useQuery({
-    queryKey: ['feeding-schedules'],
-    queryFn: getFeedingSchedules
-  });
-  
+
   // Fetch clutches for all breeding projects
   useEffect(() => {
     async function fetchAllClutches() {
@@ -136,8 +130,7 @@ export function DashboardOverviewTab() {
     morphsLoading || 
     healthLoading || 
     growthLoading || 
-    breedingLoading ||
-    feedingLoading;
+    breedingLoading 
   
   const hasActiveFilters = !!dateRange;
   
@@ -190,9 +183,7 @@ export function DashboardOverviewTab() {
         </div>
       </ScrollArea>
 
-      <FeedingOverview 
-       schedules={feedingSchedules}
-      />
+      <FeedingOverview  />
       
       {/* Collection overview */}
       <div className="w-full">

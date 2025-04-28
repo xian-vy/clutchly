@@ -18,12 +18,9 @@ import { AlertCircle, Calendar, Check, Clock, MoreHorizontal, RefreshCw, Target,
 import Link from "next/link";
 import { useCallback } from "react";
 
-interface FeedingOverviewProps {
-  schedules: FeedingScheduleWithTargets[];
-}
 
 
-export function FeedingOverview({ schedules }: FeedingOverviewProps) {
+export function FeedingOverview() {
   const queryClient = useQueryClient();
 
   // Get upcoming feeding days
@@ -34,7 +31,7 @@ export function FeedingOverview({ schedules }: FeedingOverviewProps) {
     upcomingFeedings, 
     isLoadingStatus: upcomingLoading,
     refreshStatus: refreshUpcoming
-  } = useUpcomingFeedings(schedules);
+  } = useUpcomingFeedings();
   
   const handleRefreshStatus = useCallback(() => {
     refreshUpcoming();

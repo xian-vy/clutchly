@@ -1,17 +1,22 @@
 import { getFeedingEvents } from "@/app/api/feeding/events";
+import { getFeedingSchedules } from "@/app/api/feeding/schedule";
 import { getReptilesByLocation } from "@/app/api/reptiles/byLocation";
 import { FeedingScheduleWithTargets } from "@/lib/types/feeding";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday, parseISO } from "date-fns";
 import { useCallback } from "react";
 
-export function useUpcomingFeedings(schedules: FeedingScheduleWithTargets[]) {
+export function useUpcomingFeedings() {
   const queryClient = useQueryClient();
-
+  const { data: schedules } = useQuery({
+    queryKey: ['feeding-schedules'],
+    queryFn: getFeedingSchedules
+  });
   // Get upcoming feeding days
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
+
   const getUpcomingFeedingDates = (schedule: FeedingScheduleWithTargets): Date[] => {
     const dates: Date[] = [];
     const startDate = parseISO(schedule.start_date);
@@ -75,11 +80,11 @@ export function useUpcomingFeedings(schedules: FeedingScheduleWithTargets[]) {
     isLoading: isLoadingStatus,
     refetch: refreshStatus 
   } = useQuery({
-    queryKey: ['upcoming-feedings', schedules.map(s => s.id).join(',')],
+    queryKey: ['upcoming-feedings', schedules?.map(s => s.id).join(',')],
     queryFn: async () => {
       try {
         // Get the next feeding dates for all schedules
-        const feedingsWithoutStatus = schedules.flatMap(schedule => {
+        const feedingsWithoutStatus = schedules?.flatMap(schedule => {
           const dates = getUpcomingFeedingDates(schedule);
           return dates.map(date => ({
             schedule,
@@ -91,11 +96,14 @@ export function useUpcomingFeedings(schedules: FeedingScheduleWithTargets[]) {
         });
         
         // Sort by date
-        feedingsWithoutStatus.sort((a, b) => a.date.getTime() - b.date.getTime());
+        feedingsWithoutStatus?.sort((a, b) => a.date.getTime() - b.date.getTime());
         
         // Only keep the next 5 upcoming feedings
-        const nearestFeedings = feedingsWithoutStatus.slice(0, 5);
+        const nearestFeedings = feedingsWithoutStatus?.slice(0, 5);
         
+        if (!nearestFeedings) {
+          return [];
+        }
         // Fetch feeding status for each schedule
         const feedingsWithStatus = await Promise.all(
           nearestFeedings.map(async (feeding) => {
@@ -166,7 +174,7 @@ export function useUpcomingFeedings(schedules: FeedingScheduleWithTargets[]) {
         return [];
       }
     },
-    enabled: schedules.length > 0,
+    enabled: schedules &&schedules.length > 0,
     staleTime: 3000000, // 30 seconds
   });
   
