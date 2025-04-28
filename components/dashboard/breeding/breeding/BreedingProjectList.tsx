@@ -13,10 +13,15 @@ import { format } from 'date-fns';
 import { STATUS_COLORS } from '@/lib/constants/colors';
 import { useState, useMemo } from 'react';
 import { BreedingFilterDialog, BreedingFilters } from './BreedingFilterDialog';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
 
 interface EnrichedBreedingProject extends BreedingProject {
   male_name: string;
   female_name: string;
+  species_name: string;
+  male_morph_name: string;
+  female_morph_name: string;
 }
 
 interface BreedingProjectListProps {
@@ -38,6 +43,8 @@ export function BreedingProjectList({
 }: BreedingProjectListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<BreedingFilters>({});
+  const {species} = useSpeciesStore();
+  const {morphs} = useMorphsStore();
 
   // Fetch reptiles to get parent names
   const { data: reptiles = [] } = useQuery<Reptile[]>({
@@ -52,11 +59,19 @@ export function BreedingProjectList({
   });
 
   // Enrich projects with parent names
-  const enrichedProjects: EnrichedBreedingProject[] = projects.map((project) => ({
-    ...project,
-    male_name: reptileMap.get(project.male_id) || 'Unknown',
-    female_name: reptileMap.get(project.female_id) || 'Unknown',
-  }));
+  const enrichedProjects: EnrichedBreedingProject[] = projects.map((project) => {
+    const maleReptile = reptiles.find(r => r.id === project.male_id);
+    const femaleReptile = reptiles.find(r => r.id === project.female_id);
+    
+    return {
+      ...project,
+      male_name: reptileMap.get(project.male_id) || 'Unknown',
+      female_name: reptileMap.get(project.female_id) || 'Unknown',
+      species_name: species.find(s => s.id.toString() === project.species_id.toString())?.name || 'Unknown',
+      male_morph_name: morphs.find(m => m.id.toString() === maleReptile?.morph_id.toString())?.name || 'Unknown',
+      female_morph_name: morphs.find(m => m.id.toString() === femaleReptile?.morph_id.toString())?.name || 'Unknown',
+    };
+  });
 
   // Apply filters to the breeding projects list
   const filteredProjects = useMemo(() => {
@@ -133,6 +148,24 @@ export function BreedingProjectList({
     {
       accessorKey: 'name',
       header: 'Name',
+    },
+    {
+      accessorKey: 'species_name',
+      header: 'Species',
+    },
+    {
+      header: "Combo",
+      cell: ({ row }) => {
+        const male_morph_name = row.original.male_morph_name;
+        const female_morph_name = row.original.female_morph_name;
+        return (
+          <div className="text-left">
+            <span className="font-medium text-blue-600 dark:text-blue-500">{male_morph_name}</span>
+            <span className='text-muted-foreground mx-1'> x </span>
+            <span className="font-medium text-pink-600 dark:text-pink-500">{female_morph_name}</span>
+          </div>
+        );
+      },
     },
     {
       accessorKey: 'male_name',
@@ -244,4 +277,4 @@ export function BreedingProjectList({
       />
     </>
   );
-} 
+}
