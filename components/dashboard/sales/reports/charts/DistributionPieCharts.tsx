@@ -66,11 +66,17 @@ export function DistributionPieCharts({
                 cx="50%"
                 cy="50%"
                 labelLine={true}
-                outerRadius={80}
+                outerRadius={100}
+                innerRadius={60}
+                paddingAngle={3}
                 fill="#8884d8"
                 dataKey="value"
                 nameKey="name"
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                style={{
+                  fontSize: '13px',
+                  color: 'var(--foreground)'
+                }}
               >
                 {statusData.map((entry, index) => (
                   <Cell 
@@ -101,11 +107,17 @@ export function DistributionPieCharts({
                 cx="50%"
                 cy="50%"
                 labelLine={true}
-                outerRadius={80}
+                outerRadius={100}
+                innerRadius={60}
+                paddingAngle={3}
                 fill="#8884d8"
                 dataKey="value"
                 nameKey="name"
                 label={({ name, percent }) => `${name.replace('_', ' ')}: ${(percent * 100).toFixed(0)}%`}
+                style={{
+                  fontSize: '13px',
+                  color: 'var(--foreground)'
+                }}
               >
                 {paymentData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -134,11 +146,17 @@ export function DistributionPieCharts({
                   cx="50%"
                   cy="50%"
                   labelLine={true}
-                  outerRadius={80}
+                  outerRadius={100}
+                  innerRadius={60}
+                  paddingAngle={3}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="name"
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  style={{
+                    fontSize: '13px',
+                    color: 'var(--foreground)'
+                  }}
                 >
                   {speciesData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -168,13 +186,19 @@ export function DistributionPieCharts({
                   cx="50%"
                   cy="50%"
                   labelLine={true}
-                  outerRadius={80}
+                  outerRadius={100}
+                  innerRadius={60}
+                  paddingAngle={3}
                   fill="#8884d8"
                   dataKey="value"
                   nameKey="name"
                   label={({ name, percent }) => 
                     `${name.length > 15 ? name.substring(0, 12) + '...' : name}: ${(percent * 100).toFixed(0)}%`
                   }
+                  style={{
+                    fontSize: '13px',
+                    color: 'var(--foreground)'
+                  }}
                 >
                   {morphData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
