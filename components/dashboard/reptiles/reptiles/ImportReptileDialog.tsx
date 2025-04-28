@@ -279,7 +279,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
               
               {!file && 
                   <>
-                      <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-400" /> 
+                      <FileSpreadsheet className="mx-auto h-8 w-8 md:h-10 md:w-10 text-gray-400" /> 
                       <div className="mt-4">
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               Drag and drop a CSV or Excel file, or
@@ -391,7 +391,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
               </div>
             </div>
             
-            <div className="border rounded-md max-h-[200px] overflow-y-auto">
+            <div className="border rounded-md max-h-[200px] overflow-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -419,7 +419,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>
                           {isValid ? (
-                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-primary" />
                           ) : (
                             <AlertCircle 
                               className="h-5 w-5 text-red-500" 
@@ -466,14 +466,14 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         
       case ImportStep.IMPORTING:
         return (
-          <div className="space-y-6 py-12 text-center">
-            <Upload className="h-16 w-16 mx-auto text-primary animate-pulse" />
-            <h3 className="text-xl font-medium">Importing Your Data</h3>
-            <p className="text-gray-600 dark:text-gray-400">
+          <div className="space-y-3 xl:space-y-4 3xl:space-y-6 text-center">
+            <Upload className="h-8 w-8 md:h-10 md:w-10 mx-auto text-primary animate-pulse" />
+            <h3 className="text-sm lg:text-base font-medium">Importing Your Data</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Please wait while we process your data...
             </p>
             <Progress value={60} className="w-2/3 mx-auto" />
-            <p className="text-sm text-gray-500">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Processing {selectedRows.length} reptiles
             </p>
           </div>
@@ -483,19 +483,19 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         if (!importResult) return null
         
         return (
-          <div className="space-y-6">
+          <div className="space-y-3 xl:space-y-4 3xl:space-y-6">
             <div className="text-center py-4">
               {importResult.success ? (
-                <CheckCircle className="h-16 w-16 mx-auto text-green-500 mb-4" />
+                <CheckCircle className="h-8 w-8 md:h-10 md:w-10 mx-auto text-primary mb-4" />
               ) : (
-                <AlertCircle className="h-16 w-16 mx-auto text-red-500 mb-4" />
+                <AlertCircle className="h-8 w-8 md:h-10 md:w-10 mx-auto text-red-500 mb-4" />
               )}
               
-              <h3 className="text-xl font-medium">
+              <h3 className="text-sm lg:text-base font-medium">
                 {importResult.success ? 'Import Complete!' : 'Import Completed with Issues'}
               </h3>
               
-              <p className="text-gray-600 dark:text-gray-400 mt-2">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2">
                 {importResult.success
                   ? `Successfully imported ${importResult.reptiles.length} reptiles.`
                   : 'The import completed with some issues. See details below.'}
@@ -643,7 +643,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         {renderStepContent()}
         
         {/* Dialog footer */}
-        <DialogFooter className="flex justify-between">
+        <DialogFooter className="flex justify-end gap-3">
           {step === ImportStep.PREVIEW && (
             <Button variant="outline" onClick={handleBack} disabled={isLoading}>
               Back
@@ -652,7 +652,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
           <Button 
             onClick={handlePrimaryButtonClick}
             disabled={isPrimaryButtonDisabled()}
-            className={step === ImportStep.IMPORTING ? 'opacity-50 pointer-events-none' : ''}
+            className={`${step === ImportStep.IMPORTING ? 'opacity-50 pointer-events-none' : ''}`}
           >
             {getButtonText()}
           </Button>

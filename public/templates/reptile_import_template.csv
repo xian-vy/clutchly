@@ -1,4 +1,4 @@
-name,species,sex,morph,weight,length,acquisition_date,hatch_date,visual_traits,primary_genetics,status,breeding_line,is_breeder,notes
-Ball Python,Ball Python,male,Normal,1500,120,2023-06-15,2022-08-22,Normal,Normal,active,Line A,TRUE,Example reptile 1
-Corn Snake 1,Corn Snake,female,Amel,250,80,2023-05-10,2023-01-15,Amelanistic,"Amel, Het Anery",active,Line B,FALSE,Example reptile 2
-Leopard Gecko 1,Leopard Gecko,unknown,Super Snow,65,22,2023-07-01,2023-03-20,"Super Snow, Eclipse",Super Snow,active,Line C,FALSE,Example reptile 3 
+name,species,sex,morph,weight,length,acquisition_date,hatch_date,visual_traits,produced_by,status,breeding_line,is_breeder,notes
+Melanistic Ball Python,Ball Python,male,Normal,1500,120,2023-06-15,2022-08-22,Normal,Breeder Name,active,Line A,TRUE,
+Anery Cornsnake,Corn Snake,female,Amel,250,80,2023-05-10,2023-01-15,Amelanistic,Breeder Name,sold,Line B,FALSE,
+Enigma Leopard Gecko,Leopard Gecko,unknown,Super Snow,65,22,2023-07-01,2023-03-20,"Super Snow, Eclipse",Breeder Name,deceased,Line C,FALSE,nipped tail

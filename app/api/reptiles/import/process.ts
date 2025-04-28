@@ -20,7 +20,7 @@ interface ReptileImportRow {
   weight?: number
   length?: number
   visual_traits?: string | string[]
-  primary_genetics?: string | string[]
+  original_breeder?: string | null
   status?: Status
   breeding_line?: string
   lineage_path?: string
@@ -151,8 +151,8 @@ export async function previewImportData(parsedData: GenericObject[]): Promise<Im
     length: 'length',
     'visual traits': 'visual_traits',
     visual_traits: 'visual_traits',
-    'primary genetics': 'primary_genetics',
-    primary_genetics: 'primary_genetics',
+    'produced by': 'original_breeder',
+    produced_by: 'original_breeder',
     status: 'status',
     'breeding line': 'breeding_line',
     breeding_line: 'breeding_line',
@@ -475,8 +475,7 @@ export async function processImport(
           breeding_line: row.breeding_line || undefined,
           lineage_path: row.lineage_path || undefined,
           generation: typeof row.generation !== 'undefined' ? Number(row.generation) : undefined,
-          primary_genetics: Array.isArray(row.primary_genetics) ? row.primary_genetics : 
-                          (typeof row.primary_genetics === 'string' ? row.primary_genetics.split(',').map(g => g.trim()) : []),
+          original_breeder: row.original_breeder || '',
           location_id: null, // Not supported in import
           parent_clutch_id: null, // Not supported in import
           dam_id: null, // Not supported in import
