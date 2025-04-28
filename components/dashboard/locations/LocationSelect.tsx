@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -91,18 +90,17 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId,fi
             role="combobox"
             aria-expanded={open}
             className={cn(
-              "w-full justify-between text-foreground",
+              "w-full justify-between text-foreground truncate",
               !selectedLocation && "text-muted-foreground"
             )}
             disabled={disabled || isLoading}
           >
             {selectedLocation ? (
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 flex-shrink-0 opacity-70" />
-                <span className="truncate">{selectedLocation.displayName || selectedLocation.label}</span>
-                {selectedLocation && (
-                  <Badge variant="outline" className="ml-auto text-xs">Current</Badge>
-                )}
+              <div className="flex items-center gap-2 min-w-0 w-full truncate">
+                <span className="truncate">{selectedLocation.displayName.length > 20 ? `${selectedLocation.displayName.slice(0, 20)}...` : selectedLocation.displayName}</span>
+                {/* {selectedLocation && (
+                  <Badge variant="outline" className="flex-shrink-0 text-xs">Current</Badge>
+                )} */}
               </div>
             ) : (
               "Select location..."
@@ -110,7 +108,7 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId,fi
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[260px] p-0">
+        <PopoverContent className="w-[280px] p-0">
           <Command>
             <CommandInput placeholder="Search location..." className="h-9" />
             <CommandList>
@@ -172,9 +170,9 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId,fi
                           ) : (
                             <span>{location.displayName || location.label}</span>
                           )}
-                          {selectedLocation && (
+                          {/* {selectedLocation && (
                             <Badge variant="outline" className="ml-auto text-xs">Current</Badge>
-                          )}
+                          )} */}
                         </div>
                       </CommandItem>
                     );
@@ -188,4 +186,4 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId,fi
       
     </div>
   );
-} 
+}
