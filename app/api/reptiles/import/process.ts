@@ -9,7 +9,7 @@ import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/rept
 
 // Since we couldn't install xlsx and papaparse, we'll use a simpler approach
 // Type for CSV/Excel row from import
-interface ReptileImportRow {
+export interface ReptileImportRow {
   name: string
   reptile_code?: string
   sex: Sex
@@ -473,7 +473,6 @@ export async function processImport(
           is_breeder: typeof row.is_breeder !== 'undefined' ? parseBoolean(row.is_breeder) : false,
           retired_breeder: typeof row.retired_breeder !== 'undefined' ? parseBoolean(row.retired_breeder) : false,
           breeding_line: row.breeding_line || undefined,
-          lineage_path: row.lineage_path || undefined,
           generation: typeof row.generation !== 'undefined' ? Number(row.generation) : undefined,
           original_breeder: row.original_breeder || '',
           location_id: null, // Not supported in import

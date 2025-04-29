@@ -1,8 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { previewImportData, processImport, checkRateLimit, logImport } from '@/app/api/reptiles/import/process'
+import { checkRateLimit, ImportPreviewResponse, logImport, previewImportData, processImport, ReptileImportRow } from '@/app/api/reptiles/import/process'
 import { createClient } from '@/lib/supabase/server'
-import * as XLSX from 'xlsx-js-style'
+import { NextRequest, NextResponse } from 'next/server'
 import Papa from 'papaparse'
+import * as XLSX from 'xlsx-js-style'
+
+interface ImportRequestBody {
+  rows: ReptileImportRow[]
+  selectedRows: number[]
+  fileName: string
+}
 
 // Handle file upload for preview
 export async function POST(request: NextRequest) {
@@ -48,16 +54,15 @@ export async function POST(request: NextRequest) {
     }
     
     // Read and parse file based on type
-    let parsedData: Record<string, any>[] = []
+    let parsedData: Record<string, ReptileImportRow>[] = []
     if (file.type === 'text/csv') {
       const text = await file.text()
       const result = Papa.parse(text, {
         header: true,
         skipEmptyLines: true,
       })
-      // Make sure parsed data is properly formatted as Record<string, any>[] 
-      parsedData = (result.data as any[]).map(item => {
-        // Ensure each row is a proper object with string keys
+      // Make sure parsed data is properly formatted
+      parsedData = (result.data as Record<string, ReptileImportRow>[]).map(item => {
         if (typeof item === 'object' && item !== null) {
           return Object.fromEntries(
             Object.entries(item).map(([key, value]) => [
@@ -66,16 +71,15 @@ export async function POST(request: NextRequest) {
             ])
           );
         }
-        return {} as Record<string, any>;
+        return {} as Record<string, ReptileImportRow>;
       });
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
       const buffer = await file.arrayBuffer()
       const workbook = XLSX.read(buffer, { type: 'array' })
       const firstSheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[firstSheetName]
-      // Convert Excel data and ensure it's the right format
       const rawData = XLSX.utils.sheet_to_json(worksheet)
-      parsedData = (rawData as any[]).map(row => ({ ...row }));
+      parsedData = rawData as Record<string, ReptileImportRow>[];
     } else {
       return NextResponse.json(
         { error: 'Unsupported file type. Please upload CSV or Excel file.' },
@@ -84,14 +88,14 @@ export async function POST(request: NextRequest) {
     }
     
     // Get import preview
-    const previewResult = await previewImportData(parsedData, file.type)
+    const previewResult : ImportPreviewResponse = await previewImportData(parsedData)
     
     return NextResponse.json(previewResult)
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('Import preview error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to process file' },
+      { error: error instanceof Error ? error.message : 'Failed to process file' },
       { status: 500 }
     )
   }
@@ -112,7 +116,7 @@ export async function PUT(request: NextRequest) {
     }
     
     // Parse request body
-    const body = await request.json()
+    const body = await request.json() as ImportRequestBody
     const { rows, selectedRows, fileName } = body
     
     if (!rows || !selectedRows || !Array.isArray(selectedRows)) {
@@ -132,11 +136,11 @@ export async function PUT(request: NextRequest) {
     
     return NextResponse.json(importResult)
     
-  } catch (error: any) {
+  } catch (error) {
     console.error('Import processing error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to process import' },
+      { error: error instanceof Error ? error.message : 'Failed to process import' },
       { status: 500 }
     )
   }
-} 
+}
