@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { useTheme } from 'next-themes';
 import { TopLoader } from '../ui/TopLoader';
@@ -31,11 +31,12 @@ import { isToday } from 'date-fns';
 import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
 import { Badge } from '../ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface NavItem {
   name: string;
   href?: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   items?: NavItem[];
   section?: string;
 }
@@ -81,6 +82,12 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    section: 'Main',
+    name: 'Breeding',
+    href: '/breeding',
+    icon: Dna,
+  },
+  {
     section: 'Health & Growth',
     name: 'Enclosures',
     href: '/housing',
@@ -97,12 +104,6 @@ const navItems: NavItem[] = [
     name: 'Growth',
     href: '/growth',
     icon: LineChart,
-  },
-  {
-    section: 'Health & Growth',
-    name: 'Breeding',
-    href: '/breeding',
-    icon: Dna,
   },
   {
     section: 'Health & Growth',
@@ -208,84 +209,85 @@ export function Navigation() {
             <span className="font-semibold text-lg text-sidebar-foreground">Clutchly</span>
           )}
         </div>
+        <ScrollArea className='h-[85vh]'>
+          <nav className="p-3 2xl:p-4 space-y-4 2xl:space-y-5 pt-2 flex-1">
+            {Object.entries(groupedNavItems).map(([section, items]) => (
+              <div key={section} className="space-y-1">
+                {!isCollapsed && (
+                  <h2 className="mb-2 px-3 text-xs lg:text-sm font-semibold text-sidebar-foreground/60">
+                    {section}
+                  </h2>
+                )}
+                {items.map((item) => {
+                  const Icon = item.icon;
+                  if ('items' in item) {
+                    return (
+                      <Collapsible key={item.name} className="space-y-1">
+                        <CollapsibleTrigger
+                          className={cn(
+                            'relative flex w-full items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                            isCollapsed ? 'justify-center px-2' : 'px-3',
+                            'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                          )}
+                          onClick={() => toggleCollapsible(item.name)}
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                              <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]'}`} />
+                              {!isCollapsed &&<span>{item.name}</span>}
+                          </div>
+                          {!isCollapsed && (
+                            openCollapsible[item.name] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                          )}
+                          
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-1">
+                          {item.items && item.items.map((subItem) => (
+                            <p
+                              key={subItem.href}
+                              onClick={handleNavigation(subItem.href!)}
+                              className={cn(
+                                'relative flex items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                                isCollapsed ? 'justify-center px-2' : 'pl-9 pr-3',
+                                pathname === subItem.href
+                                  ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
+                                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                              )}
+                            >
+                              <subItem.icon className="w-4 h-4" />
+                              {!isCollapsed && subItem.name}
+                            </p>
+                          ))}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    );
+                  }
 
-        <nav className="p-3 2xl:p-4 space-y-4 2xl:space-y-5 pt-2 flex-1">
-          {Object.entries(groupedNavItems).map(([section, items]) => (
-            <div key={section} className="space-y-1">
-              {!isCollapsed && (
-                <h2 className="mb-2 px-3 text-xs lg:text-sm font-semibold text-sidebar-foreground/60">
-                  {section}
-                </h2>
-              )}
-              {items.map((item) => {
-                const Icon = item.icon;
-                if ('items' in item) {
                   return (
-                    <Collapsible key={item.name} className="space-y-1">
-                      <CollapsibleTrigger
-                        className={cn(
-                          'relative flex w-full items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
-                          isCollapsed ? 'justify-center px-2' : 'px-3',
-                          'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                        )}
-                        onClick={() => toggleCollapsible(item.name)}
-                      >
-                        <div className="flex items-center gap-3 flex-1">
-                            <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]'}`} />
-                            {!isCollapsed &&<span>{item.name}</span>}
-                        </div>
-                        {!isCollapsed && (
-                          openCollapsible[item.name] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                        )}
-                        
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="space-y-1">
-                        {item.items && item.items.map((subItem) => (
-                          <p
-                            key={subItem.href}
-                            onClick={handleNavigation(subItem.href!)}
-                            className={cn(
-                              'relative flex items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
-                              isCollapsed ? 'justify-center px-2' : 'pl-9 pr-3',
-                              pathname === subItem.href
-                                ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
-                                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                            )}
-                          >
-                            <subItem.icon className="w-4 h-4" />
-                            {!isCollapsed && subItem.name}
-                          </p>
-                        ))}
-                      </CollapsibleContent>
-                    </Collapsible>
+                    <p
+                      key={item.href}
+                      onClick={handleNavigation(item.href!)}
+                      className={cn(
+                        'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                        isCollapsed ? 'justify-center px-2' : 'px-3',
+                        pathname === item.href
+                          ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                      )}
+                    >
+                      <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]'}`} />
+                      {!isCollapsed && item.name}
+                      {todayFeedings.length > 0 && item.name === 'Feeding' && !isCollapsed && (
+                        <Badge className='absolute right-3 text-xs font-medium'>
+                          {todayFeedings.length}
+                        </Badge>
+                      )}
+                    </p>
                   );
-                }
-
-                return (
-                  <p
-                    key={item.href}
-                    onClick={handleNavigation(item.href!)}
-                    className={cn(
-                      'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
-                      isCollapsed ? 'justify-center px-2' : 'px-3',
-                      pathname === item.href
-                        ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                    )}
-                  >
-                    <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]'}`} />
-                    {!isCollapsed && item.name}
-                    {todayFeedings.length > 0 && item.name === 'Feeding' && !isCollapsed && (
-                      <Badge className='absolute right-3 text-xs font-medium'>
-                        {todayFeedings.length}
-                      </Badge>
-                    )}
-                  </p>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
+                })}
+              </div>
+            ))}
+          </nav>
+        </ScrollArea>
 
         <AccountAvatar isCollapsed={isCollapsed}/>
 
