@@ -154,7 +154,7 @@ export function BreedingProjectList({
       header: 'Species',
     },
     {
-      header: "Combo",
+      header: "Pairing",
       cell: ({ row }) => {
         const male_morph_name = row.original.male_morph_name;
         const female_morph_name = row.original.female_morph_name;
@@ -183,7 +183,7 @@ export function BreedingProjectList({
         return (
           <Badge
             variant="custom"
-            className={STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]}
+            className={`capitalize ${STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]}`}
           >
             {status}
           </Badge>
