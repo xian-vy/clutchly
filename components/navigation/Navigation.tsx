@@ -2,131 +2,24 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import {
-    ChevronDown,
-    ChevronLeft,
-    ChevronRight,
-    ChevronUp,
-    Dna,
-    DollarSign,
-    Download,
-    Heart,
-    LayoutDashboard,
-    LineChart,
-    Menu,
-    Package,
-    Plus,
-    Rat,
-    Settings,
-} from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useState, useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { useTheme } from 'next-themes';
 import { TopLoader } from '../ui/TopLoader';
-import { VscSnake } from "react-icons/vsc";
 import { useUpcomingFeedings } from '@/lib/hooks/useUpcomingFeedings';
 import { isToday } from 'date-fns';
 import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
 import { Badge } from '../ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '../ui/scroll-area';
+import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Menu } from 'lucide-react';
 
-interface NavItem {
-  name: string;
-  href?: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  items?: NavItem[];
-  section?: string;
-}
-
-const navItems: NavItem[] = [
-  {
-    name: 'Overview',
-    href: '/overview',
-    icon: LayoutDashboard,
-  },
-  {
-    section: 'Main',
-    name: 'Sales',
-    icon: DollarSign,
-    items: [
-      {
-        name: 'Add New',
-        href: '/sales/new',
-        icon: Plus,
-      },
-      {
-        name: 'All Sales',
-        href: '/sales',
-        icon: DollarSign,
-      },
-    ],
-  },
-  {
-    section: 'Main',
-    name: 'Reptiles',
-    icon: VscSnake,
-    items: [
-      {
-        name: 'Add New',
-        href: '/reptiles/new',
-        icon: Plus,
-      },
-      {
-        name: 'All Reptiles',
-        href: '/reptiles',
-        icon: VscSnake,
-      },
-    ],
-  },
-  {
-    section: 'Main',
-    name: 'Breeding',
-    href: '/breeding',
-    icon: Dna,
-  },
-  {
-    section: 'Health & Growth',
-    name: 'Enclosures',
-    href: '/housing',
-    icon: Package
-  },
-  {
-    section: 'Health & Growth',
-    name: 'Health',
-    href: '/health',
-    icon: Heart,
-  },
-  {
-    section: 'Health & Growth',
-    name: 'Growth',
-    href: '/growth',
-    icon: LineChart,
-  },
-  {
-    section: 'Health & Growth',
-    name: 'Feeding',
-    href: '/feeding',
-    icon: Rat,
-  },
-  {
-    section: 'System',
-    name: 'Backup',
-    href: '/download',
-    icon: Download,
-  },
-  {
-    section: 'System',
-    name: 'Settings',
-    href: '/settings',
-    icon: Settings,
-  },
-];
 
 // Group items by section
-const groupedNavItems = navItems.reduce((acc, item) => {
+const groupedNavItems = NAV_ITEMS.reduce((acc, item) => {
   const section = item.section || '';
   if (!acc[section]) {
     acc[section] = [];
@@ -210,7 +103,7 @@ export function Navigation() {
           )}
         </div>
         <ScrollArea className='h-[85vh]'>
-          <nav className="p-3 2xl:p-4 space-y-4 2xl:space-y-5 pt-2 flex-1">
+          <nav className="px-3 2xl:px-4 space-y-4 2xl:space-y-5 pt-2 3xl:pt-3 flex-1">
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && (
