@@ -13,9 +13,9 @@ export default function DashboardLayout({ children }: LayoutProps) {
     <QueryProvider>
         <div className="flex min-h-screen bg-background">
           <Navigation />
-          <div className="flex-1 lg:ml-[18rem] 3xl:ml-[20rem] transition-all duration-200">
+          <div className="flex-1 lg:ml-[var(--sidebar-width)]  3xl:ml-[var(--sidebar-width-3xl)] transition-all duration-200">
             <TopNavigation />
-            <div className="p-4 lg:p-6 2xl:p-8">
+            <div className="p-4 lg:p-6 2xl:p-8 max-w-[1520px] mx-auto">
                 <ProfileSetupDialog />
                 {children}
             </div>
