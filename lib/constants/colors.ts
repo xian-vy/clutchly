@@ -1,8 +1,9 @@
 export const STATUS_COLORS = {
-  active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  sold: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  active: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  sold: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   deceased: 'bg-[#111] text-white',
   planned : 'bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
+  completed :'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
 } as const;
 
 export const SEX_COLORS = {
