@@ -61,7 +61,7 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full focus-visible:ring-0">
-                    <div className="flex items-center w-full">
+                    <div className="flex items-center w-full 2xl:pr-2">
                         <div className="flex items-center gap-2 w-full flex-1">
                                 <Avatar className="cursor-pointer">
                                     <AvatarFallback className='bg-primary dark:bg-slate-800/90 text-white dark:text-primary'> {userEmail?.charAt(0).toUpperCase()}</AvatarFallback>
