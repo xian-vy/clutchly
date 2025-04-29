@@ -42,7 +42,8 @@ export function Navigation() {
   } = useUpcomingFeedings();
 
   const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
-
+  const pendingTodayFeedings = todayFeedings.filter(feeding => !feeding.isCompleted);
+  const hasPendingFeedings = pendingTodayFeedings.length > 0;
   const handleNavigation = (href: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     if (href !== pathname) {
@@ -173,7 +174,7 @@ export function Navigation() {
                     >
                       <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]'}`} />
                       {!isCollapsed && item.name}
-                      {todayFeedings.length > 0 && item.name === 'Feeding' && !isCollapsed && (
+                      {hasPendingFeedings && item.name === 'Feeding' && !isCollapsed && (
                         <Badge className='absolute right-3 text-xs font-medium'>
                           {todayFeedings.length}
                         </Badge>
