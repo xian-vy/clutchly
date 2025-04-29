@@ -113,7 +113,7 @@ const navItems: NavItem[] = [
   },
   {
     section: 'System',
-    name: 'Download',
+    name: 'Backup',
     href: '/download',
     icon: Download,
   },
