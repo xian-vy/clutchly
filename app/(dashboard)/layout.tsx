@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
           <Navigation />
           <div className="flex-1 lg:ml-[var(--sidebar-width)]  3xl:ml-[var(--sidebar-width-3xl)] transition-all duration-200">
             <TopNavigation />
-            <div className="p-4 lg:p-6 2xl:p-8 max-w-[1520px] mx-auto">
+            <div className="px-4 py-4 lg:px-6 lg:py-6 2xl:px-8 3xl:py-8 max-w-screen-2xl mx-auto">
                 <ProfileSetupDialog />
                 {children}
             </div>
