@@ -11,6 +11,7 @@ import {
     Settings,
 } from 'lucide-react';
 import { VscSnake } from "react-icons/vsc";
+import { PiChartLineUp } from "react-icons/pi";
 
 export interface NavItem {
     name: string;
@@ -30,7 +31,7 @@ export interface NavItem {
     {
       section: 'Main',
       name: 'Sales',
-      icon: DollarSign,
+      icon: PiChartLineUp,
       items: [
         {
           name: 'Add New',
