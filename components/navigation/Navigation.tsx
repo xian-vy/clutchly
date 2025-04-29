@@ -15,7 +15,7 @@ import { Badge } from '../ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '../ui/scroll-area';
 import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Menu } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Dot, Menu } from 'lucide-react';
 
 
 // Group items by section
@@ -106,7 +106,7 @@ export function Navigation() {
           )}
         </div>
         <ScrollArea className='h-[85vh] 3xl:h-[90vh]'>
-          <nav className="px-3 2xl:px-4 space-y-4 2xl:space-y-5 pt-2 3xl:pt-3 flex-1">
+          <nav className="px-3 2xl:px-4 space-y-3 3xl:space-y-5 pt-2 3xl:pt-3 flex-1">
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && (
@@ -136,20 +136,21 @@ export function Navigation() {
                           )}
                           
                         </CollapsibleTrigger>
-                        <CollapsibleContent className="space-y-1">
+                        <CollapsibleContent className={`space-y-1 border-l ${isCollapsed ? "" : "pl-5 ml-5"}`}>
                           {item.items && item.items.map((subItem) => (
                             <p
                               key={subItem.href}
                               onClick={handleNavigation(subItem.href!)}
                               className={cn(
                                 'relative flex items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
-                                isCollapsed ? 'justify-center px-2' : 'pl-9 pr-3',
+                                isCollapsed ? 'justify-center px-2' : 'pl-3 pr-3',
                                 pathname === subItem.href
                                   ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
                                   : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                               )}
                             >
-                              <subItem.icon className="w-4 h-4" />
+                              {/* <subItem.icon className="w-4 h-4" /> */}
+                              <Dot className="h-4 w-4" />
                               {!isCollapsed && subItem.name}
                             </p>
                           ))}
