@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { FiAlertCircle, FiCheckCircle, FiMail } from 'react-icons/fi'
 import { TopLoader } from '@/components/ui/TopLoader'
@@ -24,7 +23,8 @@ export function VerifyEmailForm() {
         setMessage('Verification email resent successfully!')
         setIsLoading(false)
       }, 1500)
-    } catch (error) {
+    } catch (error ) {
+      console.error('Error resending verification email:', error)
       setStatus('error')
       setMessage('Failed to resend verification email. Please try again.')
       setIsLoading(false)
@@ -53,7 +53,7 @@ export function VerifyEmailForm() {
           </div>
           <h1 className="text-2xl font-bold">Check your email</h1>
           <p className="mt-2 text-muted-foreground">
-            We've sent a verification link to your email address.
+            We&apos;ve sent a verification link to your email address.
           </p>
         </div>
 
@@ -99,7 +99,7 @@ export function VerifyEmailForm() {
         
         <div className="mt-6 text-center text-sm text-muted-foreground">
           <p>
-            Didn't receive an email? Check your spam folder or{' '}
+            Didn&apos;t receive an email? Check your spam folder or{' '}
             <button 
               onClick={handleResend}
               className="font-medium text-primary hover:underline"

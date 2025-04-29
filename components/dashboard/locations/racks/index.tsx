@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useResource } from '@/lib/hooks/useResource';
-import { Room, Rack, NewRack } from '@/lib/types/location';
+import { Room, Rack, NewRack, NewRoom } from '@/lib/types/location';
 import { getRooms } from '@/app/api/locations/rooms';
 import { createRack, deleteRack, getRacks, updateRack } from '@/app/api/locations/racks';
 import { RacksList } from './RacksList';
@@ -15,7 +15,7 @@ export function RacksManagement() {
   const {
     resources: rooms,
     isLoading: roomsLoading,
-  } = useResource<Room, any>({
+  } = useResource<Room, NewRoom>({
     resourceName: 'Room',
     queryKey: ['rooms'],
     getResources: getRooms,

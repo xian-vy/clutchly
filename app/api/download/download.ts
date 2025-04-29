@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { BackupType, backupConfigs } from '@/lib/types/download'
 import { SupabaseClient } from '@supabase/supabase-js'
+import { Clutch } from '@/lib/types/breeding'
+import { FeedingEvent, FeedingTarget } from '@/lib/types/feeding'
 
 const backupTypeSchema = z.enum([
   'reptiles',
@@ -335,7 +337,7 @@ async function getBreedingData(supabase: SupabaseClient, userId: string, filters
   // Create maps for quick lookup
   const reptileMap = new Map(reptiles?.map(r => [r.id, r]) || [])
   const speciesMap = new Map(species?.map(s => [s.id, s]) || [])
-  const clutchMap = new Map(projectIds.map(id => [id, []]))
+  const clutchMap = new Map<string | number, Clutch[]>(projectIds.map(id => [id, []]))
   clutches?.forEach(clutch  => {
     const projectClutches = clutchMap.get(clutch.breeding_project_id) || []
     projectClutches.push(clutch)
@@ -390,8 +392,8 @@ async function getFeedingData(supabase: SupabaseClient, userId: string, filters:
     .in('schedule_id', scheduleIds)
 
   // Create maps for quick lookup
-  const targetMap = new Map(scheduleIds.map(id => [id, []]))
-  const eventMap = new Map(scheduleIds.map(id => [id, []]))
+  const targetMap = new Map<string | number, FeedingTarget[]>(scheduleIds.map(id => [id, []]))
+  const eventMap = new Map<string | number, FeedingEvent[]>(scheduleIds.map(id => [id, []]))
   targets?.forEach(target => {
     const scheduleTargets = targetMap.get(target.schedule_id) || []
     scheduleTargets.push(target)
@@ -451,7 +453,7 @@ async function getLocationData(supabase: SupabaseClient, userId: string, filters
 
   // Create maps for quick lookup
   const parentMap = new Map(parentLocations?.map(l => [l.id, l]) || [])
-  const reptileMap = new Map(locationIds.map(id => [id, []]))
+  const reptileMap = new Map<string | number, {id : string, name :string, location_id : string}[]>(locationIds.map(id => [id, []]))
   reptiles?.forEach(reptile => {
     const locationReptiles = reptileMap.get(reptile.location_id) || []
     locationReptiles.push(reptile)

@@ -39,7 +39,6 @@ const FeedingEventsList = ({
     sortBy,
     schedule,
     queryClient,
-    activeTarget,
     onEventsUpdated,
     eventNotes,
     updatingEventId,

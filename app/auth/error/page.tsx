@@ -45,14 +45,17 @@ const errorMessages: ErrorMessages = {
   },
 }
 
-export default function AuthErrorPage({
-  searchParams,
-}: {
-  searchParams: { error?: string; error_description?: string }
-}) {
-  const error = searchParams.error || 'default'
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function AuthErrorPage({ searchParams }: PageProps) {
+  const params = await searchParams
+  const error = typeof params.error === 'string' ? params.error : 'default'
   const errorDetails = errorMessages[error] || errorMessages.default
-  const customMessage = searchParams.error_description
+  const customMessage = typeof params.error_description === 'string' 
+    ? params.error_description 
+    : errorDetails.message
 
   return (
     <AuthLayout mode="signin">
@@ -105,4 +108,4 @@ export default function AuthErrorPage({
       </div>
     </AuthLayout>
   )
-} 
+}

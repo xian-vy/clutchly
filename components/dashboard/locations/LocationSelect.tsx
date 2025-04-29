@@ -16,60 +16,23 @@ interface LocationSelectProps {
 }
 
 export function LocationSelect({ value, onChange, disabled, currentLocationId,filterByAvailability }: LocationSelectProps) {
-  const { availableLocations, isLoading, refetchLocations } = useLocations();
-  const [locations, setLocations] = useState<FormattedLocation[]>([]);
+  const { availableLocations, isLoading, refetchLocations,setSelectedLocationId } = useLocations();
   const [open, setOpen] = useState(false);
   
-  // Include current location in options even if it's not "available"
-  useEffect(() => {
-    // Create a function to fetch current location if needed
-    const fetchCurrentLocation = async () => {
-      if (!currentLocationId) {
-        setLocations(availableLocations);
-        return;
-      }
-      
-      // If the current value is not in available locations, we need to fetch it
-      const locationExists = availableLocations.some(loc => loc.id === currentLocationId);
-      
-      if (!locationExists && currentLocationId) {
-        try {
-          const response = await fetch(`/api/locations/${currentLocationId}`);
-          if (response.ok) {
-            const currentLocation = await response.json();
-            setLocations([
-              ...availableLocations,
-              {
-                ...currentLocation,
-                displayName: currentLocation.label || `Location ${currentLocation.id}`,
-                isCurrentLocation: true
-              }
-            ]);
-          } else {
-            setLocations(availableLocations);
-          }
-        } catch (error) {
-          console.error("Error fetching current location:", error);
-          setLocations(availableLocations);
-        }
-      } else {
-        setLocations(availableLocations);
-      }
-    };
-    
-    fetchCurrentLocation();
-    // Only run this effect when these dependencies change,
-    // stringify availableLocations to prevent the infinite loop
-  }, [currentLocationId, JSON.stringify(availableLocations)]);
-  
-  // Refresh locations when component mounts - only run ONCE
+
+
   useEffect(() => {
     refetchLocations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
+  useEffect(() => {
+
+    if (currentLocationId) {
+      setSelectedLocationId(currentLocationId);
+    }
+  }, [currentLocationId]);
+
   // Group locations by room and rack for better organization
-  const groupedLocations = locations.reduce((acc: Record<string, FormattedLocation[]>, location) => {
+  const groupedLocations = availableLocations?.reduce((acc: Record<string, FormattedLocation[]>, location) => {
     const roomKey = location.roomName  || 'Unknown Room';
     if (!acc[roomKey]) {
       acc[roomKey] = [];
@@ -79,7 +42,7 @@ export function LocationSelect({ value, onChange, disabled, currentLocationId,fi
   }, {});
 
   // Find the currently selected location for display
-  const selectedLocation = value ? locations.find(loc => loc.id === value) : null;
+  const selectedLocation = value ? availableLocations.find(loc => loc.id === value) : null;
   
   return (
     <div className="flex gap-2">

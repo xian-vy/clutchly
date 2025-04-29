@@ -509,7 +509,6 @@ export interface GeneticOutcomeResult {
 
 // Get data for genetic outcome analysis
 export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promise<GeneticOutcomeResult[]> {
-  const supabase = createClient()
   // Get detailed projects first
   const detailedProjects = await getDetailedBreedingProjects(filters)
   

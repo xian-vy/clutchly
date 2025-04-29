@@ -1,6 +1,6 @@
 'use client';
 
-import {  createFeedingEventsForToday, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
+import {  createFeedingEventsForToday, getFeedingEvents } from '@/app/api/feeding/events';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
 import { saveMultipleEvents, shouldHaveFeedingToday } from './utils';
+import { ScheduleStatus } from './FeedingTab';
 
 interface FeedingEventsListProps {
   scheduleId: string;
@@ -112,11 +113,11 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   };
 
   // Add a retry button functionality
-  const handleRetryLoadReptiles = () => {
-    if (activeTarget) {
-      loadReptilesByTarget(activeTarget);
-    }
-  };
+  // const handleRetryLoadReptiles = () => {
+  //   if (activeTarget) {
+  //     loadReptilesByTarget(activeTarget);
+  //   }
+  // };
 
   // Function to load reptiles based on target
   const loadReptilesByTarget = async (target: FeedingTargetWithDetails) => {
@@ -193,7 +194,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
         );
         
         // Optimistically update feeding status cache
-        queryClient.setQueryData(['feeding-status'], (oldData: any) => {
+        queryClient.setQueryData(['feeding-status'], (oldData: Record<string, ScheduleStatus> | undefined) => {
           if (!oldData || !oldData[scheduleId]) return oldData;
           const statusChange = eventToUpdate.fed !== fed ? 1 : 0;
           return {
@@ -208,11 +209,11 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       }
       
       // Make the API call
-      const updatedEvent = await updateFeedingEvent(eventId, {
-        fed,
-        fed_at: fed ? new Date().toISOString() : null,
-        notes: notes || null
-      });
+      // const updatedEvent = await updateFeedingEvent(eventId, {
+      //   fed,
+      //   fed_at: fed ? new Date().toISOString() : null,
+      //   notes: notes || null
+      // });
       
       toast.success(`Feeding ${fed ? 'completed' : 'unmarked'}`);
       
@@ -313,7 +314,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>No feeding targets defined</AlertTitle>
         <AlertDescription>
-          This schedule doesn't have any targets defined. Add rooms, racks, levels, or specific locations to this schedule.
+          This schedule doesn&apos;t have any targets defined. Add rooms, racks, levels, or specific locations to this schedule.
         </AlertDescription>
       </Alert>
     );
