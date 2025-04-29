@@ -1,7 +1,6 @@
 import { Footer } from '@/components/landing/Footer'
 import { HeroSection } from '@/components/landing/HeroSection'
 import { FeaturesSection } from '@/components/landing/FeaturesSection'
-import { PWAFeatures } from '@/components/landing/PWAFeatures'
 
 export default function LandingPage() {
   return (
@@ -17,7 +16,6 @@ export default function LandingPage() {
       <main className="flex-1 px-4 mx-auto">
         <HeroSection />
         <FeaturesSection />
-        <PWAFeatures />
       </main>
 
       <Footer />

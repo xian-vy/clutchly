@@ -7,30 +7,28 @@ export function FeaturesSection() {
   const features = [
     {
       icon: Database,
-      title: 'Morph & Biological Data',
+      title: 'Data Management',
       features: [
-        'Advanced genetic tracking and inheritance patterns',
+        'Biological and genetic data management',
         'Complete lineage and acquisition history',
         'Comprehensive health status monitoring',
-        'High-quality photo documentation system'
+        'Inventory management and tracking'
       ]
     },
     {
       icon: Heart,
       title: 'Health Management',
       features: [
-        'Automated vet visit scheduling and alerts',
-        'Medication tracking with smart reminders',
-        'Detailed shedding and behavior monitoring',
-        'Customizable feeding schedule management'
+        'Record and monitor health events',
+        'Customizable feeding schedule management',
+        'Reports and analytics'
       ]
     },
     {
       icon: LineChart,
       title: 'Growth Analytics',
       features: [
-        'Advanced measurement tracking system',
-        'AI-powered photo progress analysis',
+        'Detailed growth history tracking',
         'Interactive growth trend visualization',
         'Comparative species benchmarking'
       ]
@@ -39,10 +37,10 @@ export function FeaturesSection() {
       icon: Dna,
       title: 'Breeding Management',
       features: [
-        'AI-driven breeding compatibility analysis',
-        'Advanced clutch tracking system',
-        'Environmental parameter optimization',
-        'Comprehensive breeding success metrics'
+        'AI-assisted breeding compatibility analysis',
+        'Brood management and tracking',
+        'Pedigree analysis',
+        'Comprehensive breeding reports'
       ]
     }
   ]
@@ -55,10 +53,11 @@ export function FeaturesSection() {
       price: 0,
       badge: 'Get Started',
       features: [
-        'Manage up to 5 reptiles',
+        'Manage up to 50 reptiles',
         'Basic health tracking',
-        'Photo documentation',
-        'Mobile access'
+        'Breeding records',
+        'Growth Analytics',
+        'Pedigree analysis', 
       ]
     },
     {
@@ -69,11 +68,11 @@ export function FeaturesSection() {
       recommended: true,
       description: 'Enhanced tracking for serious keepers',
       features: [
-        'Manage up to 25 reptiles',
+        'Manage up to 999 reptiles',
         'Advanced health tracking',
         'Breeding records',
         'Growth analytics',
-        'Unlimited photos',
+        'Pedigree analysis',
         'Premium support'
       ]
     },
@@ -88,8 +87,8 @@ export function FeaturesSection() {
         'Complete genetic tracking',
         'Advanced breeding projects',
         'Full analytics dashboard',
-        'Facility management',
-        'API access',
+        'User management',
+        'Pedigree analysis',
         'Priority support'
       ]
     }
@@ -135,7 +134,7 @@ export function FeaturesSection() {
               <div 
                 key={plan.id} 
                 className={cn(
-                  "rounded-xl transition-all duration-200 hover:shadow-md overflow-hidden",
+                  "rounded-xl bg-background transition-all duration-200 hover:shadow-md overflow-hidden",
                   plan.recommended ? 
                     "border-2 border-primary shadow-sm" : 
                     "border border-border"
