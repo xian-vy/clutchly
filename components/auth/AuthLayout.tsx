@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
+import { CircleCheck,  Zap } from 'lucide-react'
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -32,7 +33,7 @@ export function AuthLayout({ children, mode }: AuthLayoutProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-xl text-muted-foreground mb-8"
+            className="text-sm lg:text-lg text-muted-foreground mb-8"
           >
             {mode === 'signin' 
               ? "Welcome back! Sign in to continue your herping journey and manage your reptile data with ease."
@@ -46,9 +47,7 @@ export function AuthLayout({ children, mode }: AuthLayoutProps) {
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <CircleCheck className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-medium">Easy Tracking</h3>
@@ -57,9 +56,7 @@ export function AuthLayout({ children, mode }: AuthLayoutProps) {
             </div>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+               <Zap className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-medium">Real-time Data</h3>
