@@ -136,7 +136,7 @@ export function Navigation() {
                           )}
                           
                         </CollapsibleTrigger>
-                        <CollapsibleContent className={`space-y-1 border-l ${isCollapsed ? "" : "pl-5 ml-5"}`}>
+                        <CollapsibleContent className={`space-y-1 ${isCollapsed ? "" : "border-l pl-5 ml-5"}`}>
                           {item.items && item.items.map((subItem) => (
                             <p
                               key={subItem.href}
