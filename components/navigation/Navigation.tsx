@@ -93,13 +93,16 @@ export function Navigation() {
         )}>
           <Image
             src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'}
-            width={35}
-            height={35}
-            alt="lutchly"
+            width={37}
+            height={37}
+            alt="clutchly"
             className="rounded-full"
           />
           {!isCollapsed && (
-            <span className="font-semibold text-lg text-sidebar-foreground">Clutchly</span>
+            <div className="flex flex-col items-start">
+               <span className="font-semibold text-lg text-sidebar-foreground">Clutchly</span>
+               <span className="text-xs font-medium text-muted-foreground">Reptile Husbandry Management</span>
+            </div>
           )}
         </div>
         <ScrollArea className='h-[85vh]'>
