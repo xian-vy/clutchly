@@ -98,7 +98,7 @@ const FeedingEventsList = ({
                       onClick={() => saveEventNotes(event.id, eventNotes[event.id] || null, schedule.id, events, queryClient, onEventsUpdated)}
                     >
                       {updatingEventId === event.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
                       ) : (
                         <Save className="h-4 w-4" />
                       )}

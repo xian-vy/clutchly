@@ -177,7 +177,7 @@ export function ReportsPanel({
               >
                 {isGeneratingReport ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />
                     Generating Report...
                   </>
                 ) : (
@@ -328,7 +328,7 @@ export function ReportsPanel({
               >
                 {isGeneratingReport ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />
                     Generating Advanced Report...
                   </>
                 ) : (

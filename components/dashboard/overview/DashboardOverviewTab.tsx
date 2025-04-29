@@ -137,7 +137,7 @@ export function DashboardOverviewTab() {
   if (isLoading) {
     return (
       <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
-        <Loader2 className='w-6 h-6 animate-spin text-black dark:text-white' />
+        <Loader2 className='w-4 h-4 animate-spin text-primary' />
       </div>
     );
   }

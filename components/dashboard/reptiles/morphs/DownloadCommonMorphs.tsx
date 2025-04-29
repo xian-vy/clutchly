@@ -84,7 +84,7 @@ export function DownloadCommonMorphs({ showInMorphsTab = false }: DownloadCommon
             >
               Download
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
               ) : (
                 <Download className="h-4 w-4" />
               )}
@@ -139,7 +139,7 @@ export function DownloadCommonMorphs({ showInMorphsTab = false }: DownloadCommon
                 disabled={selectedSpecies.length === 0 || isLoading}
               >
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
                 ) : (
                   'Download Selected'
                 )}

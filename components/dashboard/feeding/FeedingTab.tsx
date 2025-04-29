@@ -586,7 +586,7 @@ export function FeedingTab() {
                     <div className='flex-1'>
                     {statusLoading ? (
                         <div className="h-8 flex items-center justify-center mb-3">
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
                         </div>
                         ) : status && status.totalEvents > 0 && !status.isComplete && !isNewSchedule && (
                           <div className="mb-4">

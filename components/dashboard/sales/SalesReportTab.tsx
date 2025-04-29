@@ -140,7 +140,7 @@ export function SalesReportTab() {
         <TabsContent value="overview" className="space-y-6">
           {summaryLoading || speciesLoading || morphLoading ? (
             <div className="h-60 w-full flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
             </div>
           ) : (
             <>
@@ -157,7 +157,7 @@ export function SalesReportTab() {
         <TabsContent value="distributions" className="space-y-6">
           {(speciesLoading || morphLoading || summaryLoading) ? (
             <div className="h-60 w-full flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
             </div>
           ) : (
             <DistributionPieCharts 

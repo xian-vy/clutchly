@@ -149,7 +149,7 @@ export function BreedingReportsTab() {
         <TabsContent value="statistics" className="space-y-4">
           {statsLoading ? (
             <div className="h-60 w-full flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
             </div>
           ) : (
             <BreedingStatistics data={statsData} />
@@ -159,7 +159,7 @@ export function BreedingReportsTab() {
         <TabsContent value="projects" className="space-y-4">
           {detailedLoading ? (
             <div className="h-60 w-full flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
             </div>
           ) : (
             <ProjectPerformance data={detailedData} />
@@ -169,7 +169,7 @@ export function BreedingReportsTab() {
         <TabsContent value="genetics" className="space-y-4">
           {geneticLoading ? (
             <div className="h-60 w-full flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
             </div>
           ) : (
             <GeneticOutcomes data={geneticData} />

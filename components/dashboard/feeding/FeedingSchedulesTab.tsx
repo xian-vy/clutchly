@@ -106,7 +106,7 @@ export function FeedingSchedulesTab() {
   if (isLoading) {
     return (
       <div className='w-full flex flex-col justify-center items-center min-h-[250px]'>
-        <Loader2 className='w-6 h-6 animate-spin text-primary' />
+        <Loader2 className='w-4 h-4 animate-spin text-primary' />
       </div>
     );
   }
