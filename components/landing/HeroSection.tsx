@@ -37,9 +37,8 @@ export function HeroSection() {
               Management Platform
             </span>
           </h1>
-          <p className="mt-6 text-base xl:text-lg 2xl:text-xl text-muted-foreground max-w-2xl mx-auto">
-             Create reliable breeding records and manage health, growth, and husbandry with ease—Clutchly makes reptile data management intuitive for keepers and breeders alike.
-          </p>
+          <p className="mt-6 text-base xl:text-lg 2xl:text-xl text-muted-foreground max-w-lg xl:max-w-2xl mx-auto">
+          Clutchly simplifies reptile data management, allowing you to effortlessly maintain accurate breeding records, monitor health and growth, and optimize husbandry practices.          </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={() => handleNavigation('/auth/signup')}

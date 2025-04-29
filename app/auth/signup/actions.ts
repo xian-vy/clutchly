@@ -12,7 +12,7 @@ export async function signup(formData: FormData) {
   }
 
   // First, check if a user with this email already exists
-  const { data: { user } } = await supabase.auth.getUser()
+  // const { data: { user } } = await supabase.auth.getUser()
   
   // Try to sign in with provided email (without password) to check if it exists
   const { error: checkError } = await supabase.auth.signInWithOtp({
@@ -42,7 +42,7 @@ export async function signup(formData: FormData) {
   }
 
   // If no user exists, proceed with signup
-  const { error, data: signupData } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
     options: {

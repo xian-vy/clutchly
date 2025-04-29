@@ -166,7 +166,7 @@ export function HatchlingForm({
       // Create array of promises for multiple hatchlings
       const createPromises = Array.from({ length: values.quantity }, async (_, index) => {
         const { quantity, ...hatchlingValues } = values;
-        
+        console.log(quantity);
         // Generate unique code for each hatchling
         let uniqueCode = '';
         if (selectedMorph && speciesInfo) {

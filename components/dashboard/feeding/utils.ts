@@ -5,6 +5,7 @@ import { createFeedingEvent, updateFeedingEvent } from '@/app/api/feeding/events
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { QueryClient } from '@tanstack/react-query';
+import { ScheduleStatus } from './FeedingTab';
 
 // Interface for virtual events that don't exist in the DB yet
 export interface VirtualFeedingEvent {
@@ -327,7 +328,7 @@ export const saveMultipleEvents = async (
     await Promise.all(promises);
     
     // Update the status without refetching all data
-    queryClient.setQueryData(['feeding-status'], (oldData: any) => {
+    queryClient.setQueryData(['feeding-status'], (oldData: Record<string, ScheduleStatus> | undefined) => {
       if (!oldData) return {};
       return {
         ...oldData,

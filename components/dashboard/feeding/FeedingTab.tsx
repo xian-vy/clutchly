@@ -24,7 +24,7 @@ import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEvents } from './FeedingEvents';
 
-interface ScheduleStatus {
+export interface ScheduleStatus {
   totalEvents: number;
   completedEvents: number;
   isComplete: boolean;
