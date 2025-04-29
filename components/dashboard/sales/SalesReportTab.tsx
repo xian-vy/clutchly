@@ -110,6 +110,14 @@ export function SalesReportTab() {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
+          <div>
+            <TimeRangeSelector 
+              value={timePeriod} 
+              onChange={handleTimePeriodChange}
+              dateRange={dateRange}
+              onDateChange={handleDateRangeChange}
+            />
+          </div>
           <SalesFilters 
             onFilterChange={setFilters} 
             filters={filters}
@@ -121,14 +129,7 @@ export function SalesReportTab() {
         </div>
       </div>
       
-      <div>
-        <TimeRangeSelector 
-          value={timePeriod} 
-          onChange={handleTimePeriodChange}
-          dateRange={dateRange}
-          onDateChange={handleDateRangeChange}
-        />
-      </div>
+      
 
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
@@ -145,8 +146,8 @@ export function SalesReportTab() {
             <>
               <SalesSummaryStats 
                 data={salesSummary} 
-                speciesData={speciesData}
-                morphData={morphData}
+                // speciesData={speciesData}
+                // morphData={morphData}
               />
               <SalesByTimeChart data={salesSummary} period={timePeriod} />
             </>

@@ -13,7 +13,7 @@ import {
   Tooltip,
   Legend,
   Bar,
-  Line,
+  Area,
 } from "recharts";
 import { TimePeriod } from "../TimeRangeSelector";
 
@@ -222,22 +222,24 @@ export function SalesByTimeChart({ data, period }: SalesByTimeChartProps) {
                 color: 'var(--foreground)'
               }}
             />
+               <Area 
+                  type="monotone" 
+                  dataKey="count" 
+                  name="count" 
+                  stroke="var(--color-chart-1)"
+                  fill="var(--color-chart-1)"
+                  fillOpacity={0.2} 
+                  yAxisId="right"
+
+                />
             <Bar
               yAxisId="left"
               dataKey="revenue"
               fill="var(--color-chart-2)"
               name="revenue"
             />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="count"
-              stroke="var(--color-chart-1)"
-              strokeWidth={2}
-              dot={{ r: 4, fill: 'var(--color-chart-1)' }}
-              activeDot={{ r: 6, fill: 'var(--color-chart-1)' }}
-              name="count"
-            />
+
+           
           </ComposedChart>
         </ResponsiveContainer>
       </CardContent>

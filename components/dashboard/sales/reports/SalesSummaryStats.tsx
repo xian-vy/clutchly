@@ -6,22 +6,18 @@ import {
   Activity,
   ArrowDown,
   ArrowUp,
-  Diff,
-  Dna,
   DollarSign,
-  Shell,
   ShoppingCart,
-  TrendingUp,
   X
 } from "lucide-react";
 
 interface SalesSummaryStatsProps {
   data: SalesSummary | undefined;
-  speciesData?: { name: string; value: number }[];
-  morphData?: { name: string; value: number }[];
+  // speciesData?: { name: string; value: number }[];
+  // morphData?: { name: string; value: number }[];
 }
 
-export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummaryStatsProps) {
+export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
   if (!data) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -37,10 +33,10 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
   }
 
   // Calculate completed sales (for success rate)
-  const completedSales = data.sales_by_status.completed;
-  const successRate = data.total_sales > 0
-    ? ((completedSales / data.total_sales) * 100).toFixed(1)
-    : "0.0";
+  // const completedSales = data.sales_by_status.completed;
+  // const successRate = data.total_sales > 0
+  //   ? ((completedSales / data.total_sales) * 100).toFixed(1)
+  //   : "0.0";
 
   // Calculate refund rate
   const refundedSales = data.sales_by_status.refunded;
@@ -49,8 +45,8 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
     : "0.0";
 
   // Get top species and morph if available
-  const topSpecies = speciesData && speciesData.length > 0 ? speciesData[0] : null;
-  const topMorph = morphData && morphData.length > 0 ? morphData[0] : null;
+  // const topSpecies = speciesData && speciesData.length > 0 ? speciesData[0] : null;
+  // const topMorph = morphData && morphData.length > 0 ? morphData[0] : null;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -62,7 +58,7 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
             Total Sales
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col items-start">
           <div className="text-2xl font-bold">{data.total_sales}</div>
           <p className="text-xs text-muted-foreground">Records</p>
         </CardContent>
@@ -76,14 +72,14 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
             Total Revenue
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col items-start">
           <div className="text-2xl font-bold">${data.total_revenue.toFixed(2)}</div>
           <p className="text-xs text-muted-foreground">USD</p>
         </CardContent>
       </Card>
 
       {/* Average Price */}
-      <Card>
+      {/* <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
             <Diff className="h-4 w-4 mr-2 text-blue-500" />
@@ -94,10 +90,10 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
           <div className="text-2xl font-bold">${data.average_price.toFixed(2)}</div>
           <p className="text-xs text-muted-foreground">Per sale</p>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Success Rate */}
-      <Card>
+      {/* <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
             <TrendingUp className="h-4 w-4 mr-2 text-primary" />
@@ -115,7 +111,7 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
           </div>
           <p className="text-xs text-muted-foreground">Completed sales</p>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Refund Rate */}
       <Card>
@@ -125,7 +121,7 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
             Refund Rate
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent  className="flex flex-col items-start">
           <div className="text-2xl font-bold flex items-center">
             {refundRate}%
             {Number(refundRate) > 10 ? (
@@ -146,7 +142,7 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
             Cancelled Orders
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent  className="flex flex-col items-start">
           <div className="text-2xl font-bold">
             {data.sales_by_status.cancelled}
           </div>
@@ -159,7 +155,7 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
       </Card>
 
       {/* Top Selling Species */}
-      <Card>
+      {/* <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
             <Dna className="h-4 w-4 mr-2 text-indigo-500" />
@@ -174,10 +170,10 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
             {topSpecies ? `${topSpecies.value} sales` : "No data available"}
           </p>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Top Selling Morph */}
-      <Card>
+      {/* <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
             <Shell className="h-4 w-4 mr-2 text-emerald-500" />
@@ -192,7 +188,7 @@ export function SalesSummaryStats({ data, speciesData, morphData }: SalesSummary
             {topMorph ? `${topMorph.value} sales` : "No data available"}
           </p>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 } 
