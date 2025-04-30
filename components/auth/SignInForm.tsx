@@ -10,6 +10,15 @@ import { login } from '@/app/auth/signin/actions'
 import { useFormStatus } from 'react-dom'
 import { TopLoader } from '@/components/ui/TopLoader'
 import { Input } from '../ui/input'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+
+const formSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -17,7 +26,7 @@ function SubmitButton() {
   return (
     <motion.button 
       type="submit" 
-      className="relative w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group"
+      className="relative w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group cursor-pointer"
       disabled={pending}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
@@ -48,8 +57,20 @@ export function SignInForm() {
   
   const isLoading = isPending || isFormSubmitting
 
-  async function handleSignIn(formData: FormData) {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: ''
+    }
+  })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsFormSubmitting(true)
+    const formData = new FormData()
+    formData.append('email', values.email)
+    formData.append('password', values.password)
+    
     try {
       const result = await login(formData)
       
@@ -57,8 +78,6 @@ export function SignInForm() {
         setError(result.error)
         setIsFormSubmitting(false)
       } else {
-        // If no error, we'll be redirected by the server action
-        // Keep loading state active for the transition
         startTransition(() => {
           router.push('/overview')
         })
@@ -84,70 +103,80 @@ export function SignInForm() {
           </p>
         </div>
 
-        <motion.form 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          action={handleSignIn}
-          className="space-y-6"
-        >
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-foreground/80">
-              Email Address
-              <span className="ml-1 text-primary">*</span>
-            </label>
-            <div className="relative mt-1">
-              <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                className="w-full px-10 py-6 transition-all duration-500"
-                required
-              />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground/80">
+                    Email Address
+                    <span className="-ml-1 text-primary">*</span>
+                  </FormLabel>
+                  <div className="relative">
+                    <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="you@example.com"
+                        className="w-full px-10 py-6 transition-all duration-500"
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground/80">
+                    Password
+                    <span className="-ml-1 text-primary">*</span>
+                  </FormLabel>
+                  <div className="relative">
+                    <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        className="w-full px-10 py-6 transition-all duration-500"
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+              >
+                <FiAlertCircle className="text-destructive shrink-0 mt-0.5" />
+                <p className="text-sm text-destructive">{error}</p>
+              </motion.div>
+            )}
+
+            <SubmitButton />
+
+            <div className="text-center text-sm">
+              <span className="text-muted-foreground">Don&apos;t have an account?</span>{' '}
+              <Link href="/auth/signup" className="font-medium text-primary hover:text-primary/90 transition-colors">
+                Sign up
+              </Link>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-foreground/80">
-              Password
-              <span className="ml-1 text-primary">*</span>
-            </label>
-            <div className="relative mt-1">
-              <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-10 py-6 transition-all duration-500"
-                required
-              />
-            </div>
-          </div>
-
-          {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-start gap-3"
-            >
-              <FiAlertCircle className="text-destructive shrink-0 mt-0.5" />
-              <p className="text-sm text-destructive">{error}</p>
-            </motion.div>
-          )}
-
-          <SubmitButton />
-
-          <div className="text-center text-sm">
-            <span className="text-muted-foreground">Dont have an account?</span>{' '}
-            <Link href="/auth/signup" className="font-medium text-primary hover:text-primary/90 transition-colors">
-              Sign up
-            </Link>
-          </div>
-        </motion.form>
+          </form>
+        </Form>
       </div>
     </AuthLayout>
   )
-} 
+}

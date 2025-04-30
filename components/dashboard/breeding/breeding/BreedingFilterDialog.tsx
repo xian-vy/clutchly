@@ -13,6 +13,7 @@ import { useSpeciesStore } from "@/lib/stores/speciesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { STATUS_COLORS } from "@/lib/constants/colors";
 
 const breedingStatuses: BreedingStatus[] = ['active', 'completed', 'failed', 'planned'];
 
@@ -158,10 +159,11 @@ export function BreedingFilterDialog({
                       {breedingStatuses.map((status) => (
                         <Badge
                           key={status}
-                          variant="outline"
-                          className={`capitalize cursor-pointer ${
-                            field.value?.includes(status) ? "bg-primary/20 ring-2 ring-primary" : ""
+                          variant="custom"
+                          className={`capitalize ${STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]} cursor-pointer ${
+                            field.value?.includes(status) ? "ring-2 ring-primary" : ""
                           }`}
+
                           onClick={() => {
                             const newValue = field.value?.includes(status)
                               ? field.value.filter((s) => s !== status)
