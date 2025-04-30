@@ -129,7 +129,7 @@ export function Navigation() {
                           onClick={() => toggleCollapsible(item.name)}
                         >
                           <div className="flex items-center gap-3 flex-1">
-                              <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' || item.name === 'Sales' && 'stroke-[0.012rem]'}`} />
+                              <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' || item.name === 'Sales' ? 'stroke-[0.012rem]' : ''}`} />
                               {!isCollapsed &&<span>{item.name}</span>}
                           </div>
                           {!isCollapsed && (

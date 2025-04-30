@@ -5,6 +5,7 @@ import {
     Heart,
     LayoutDashboard,
     LineChart,
+    Network,
     Package,
     Plus,
     Rat,
@@ -70,7 +71,18 @@ export interface NavItem {
       href: '/breeding',
       icon: Dna,
       displayName: 'Breeding Management', 
-
+      items: [
+        {
+          name: 'Genetic Calculator',
+          href: '/genetic-calculator',
+          icon: Network,
+        },
+        {
+          name: 'Breeding Projects',
+          href: '/breeding',
+          icon: Dna,
+        },
+      ],
     },
     {
       section: 'Health & Growth',
