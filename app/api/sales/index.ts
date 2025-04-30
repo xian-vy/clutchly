@@ -15,9 +15,12 @@ export interface SalesFilterParams {
 }
 
 export async function getSalesRecords(): Promise<SaleRecord[]> {
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
   const { data, error } = await supabase
     .from('sales_records')
     .select('*')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error

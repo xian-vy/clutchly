@@ -5,7 +5,8 @@ import { Species, NewSpecies } from '@/lib/types/species'
 
 export async function getSpecies() {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
   const { data: species, error } = await supabase
     .from('species')
     .select(`
@@ -16,6 +17,7 @@ export async function getSpecies() {
       care_level,
       is_global
     `)
+    .or(`is_global.eq.true,user_id.eq.${userId}`)
     .order('name')
 
   if (error) throw error

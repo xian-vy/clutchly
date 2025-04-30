@@ -19,6 +19,10 @@ import {
     Sun
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { TopLoader } from '../ui/TopLoader';
+
 interface Props {
     isCollapsed : boolean
 }
@@ -28,6 +32,9 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
         queryKey: ['profile2'],
         queryFn: getProfile,
     }); 
+    const queryClient = useQueryClient();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
     if (isLoading) {
         return (
             <div className='mb-5 w-full'>
@@ -56,8 +63,23 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
     const userEmail = profile?.email;
     const userFullname = profile?.full_name;
 
+    const handleLogout = async () => {
+        try {
+            setIsLoggingOut(true);
+            await logout();
+            queryClient.clear();
+            window.location.reload();
+        } catch (error) {
+            console.error('Logout failed:', error);
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
+
+
   return (
     <div className='mb-5 w-full'>
+        {isLoggingOut &&  <TopLoader />}
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full focus-visible:ring-0">
@@ -88,7 +110,8 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
                         Theme
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => logout()}>
+                    <DropdownMenuItem  onClick={handleLogout}
+                    >
                         <LogOut className="mr-2 cursor-pointer" />
                         <span>Log out</span>
                     </DropdownMenuItem>
