@@ -6,35 +6,65 @@ import { Reptile } from '@/lib/types/reptile'
 import { GeneticCalculatorResponse } from '@/lib/types/genetic-calculator'
 import { Card } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Loader2, AlertTriangle } from 'lucide-react'
+import { Loader2, AlertTriangle, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useQuery } from '@tanstack/react-query'
 import { useMorphsStore } from '@/lib/stores/morphsStore'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
+import { useSpeciesStore } from '@/lib/stores/speciesStore'
 
 const GeneticCalculatorTab = () => {
+  const [speciesId, setSpeciesId] = useState<string>('')
   const [dam, setDam] = useState<Reptile | null>(null)
   const [sire, setSire] = useState<Reptile | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [calculation, setCalculation] = useState<GeneticCalculatorResponse | null>(null)
   const {morphs} = useMorphsStore()
+  const { species,  } = useSpeciesStore()
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
 
+  const { selectedSpeciesId, maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
+    reptiles,
+    speciesId : speciesId || '',
+  });
+
+  const { Select: SpeciesSelect } = useSelectList({
+    data: species,
+    getValue: (species) => species.id.toString(),
+    getLabel: (species) => species.name,
+  })
+
   const { Select: DamSelect } = useSelectList({
-    data: reptiles || [],
+    data: femaleReptiles,
     getValue: (reptile) => reptile.id,
     getLabel: (reptile) => `${reptile.name} (${reptile.reptile_code})`,
+    disabled : !selectedSpeciesId,
   })
 
   const { Select: SireSelect } = useSelectList({
-    data: reptiles || [],
+    data: maleReptiles,
     getValue: (reptile) => reptile.id,
     getLabel: (reptile) => `${reptile.name} (${reptile.reptile_code})`,
+    disabled : !selectedSpeciesId,
   })
 
   const handleCalculate = async () => {
@@ -67,22 +97,27 @@ const GeneticCalculatorTab = () => {
     }
   };
 
+  const handleSpeciesChange = (value: string) => {
+    setSpeciesId(value)
+    setDam(null)
+    setSire(null)
+    setCalculation(null)
+  }
+
   const handleDamChange = (value: string) => {
-    const selectedDam = reptiles?.find(r => r.id === value) || null;
+    const selectedDam = femaleReptiles?.find(r => r.id === value) || null;
     setDam(selectedDam);
     setCalculation(null); // Reset calculation when parents change
   };
 
   const handleSireChange = (value: string) => {
-    const selectedSire = reptiles?.find(r => r.id === value) || null;
+    const selectedSire = maleReptiles?.find(r => r.id === value) || null;
     setSire(selectedSire);
     setCalculation(null); // Reset calculation when parents change
   };
 
   return (
     <div className="space-y-6">
-
-
       <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>AI-Powered Analysis</AlertTitle>
@@ -94,6 +129,14 @@ const GeneticCalculatorTab = () => {
 
       <Card className="p-6">
         <div className="space-y-6">
+          <div>
+            <h3 className="text-sm font-medium mb-2">Species</h3>
+            <SpeciesSelect
+              value={selectedSpeciesId}
+              onValueChange={handleSpeciesChange}
+              placeholder="Select species..."
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
             <div className='md:h-[120px]'>
               <h3 className="text-sm font-medium mb-2">Dam (F)</h3>
@@ -163,51 +206,65 @@ const GeneticCalculatorTab = () => {
           <div className="space-y-6">
             <div>
               <h4 className="text-sm font-medium mb-2">Possible Morphs</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {calculation.result.possible_morphs.map((morph, index) => (
-                  <Card key={index} className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h5 className="font-medium">{morph.name}</h5>
-                        <p className="text-sm text-muted-foreground">{morph.description}</p>
-                      </div>
-                      <div className="text-sm font-medium">
-                        {(morph.probability * 100).toFixed(1)}%
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Morph</TableHead>
+                    <TableHead>Probability</TableHead>
+                    <TableHead>Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {calculation.result.possible_morphs.map((morph, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{morph.name}</TableCell>
+                      <TableCell>{(morph.probability * 100).toFixed(1)}%</TableCell>
+                      <TableCell className="text-muted-foreground">{morph.description}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
 
             <div>
               <h4 className="text-sm font-medium mb-2">Possible Het Traits</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {calculation.result.possible_hets.map((het, index) => (
-                  <Card key={index} className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h5 className="font-medium">{het.trait}</h5>
-                        <p className="text-sm text-muted-foreground">{het.description}</p>
-                      </div>
-                      <div className="text-sm font-medium">
-                        {(het.probability * 100).toFixed(1)}%
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Trait</TableHead>
+                    <TableHead>Probability</TableHead>
+                    <TableHead>Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {calculation.result.possible_hets.map((het, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{het.trait}</TableCell>
+                      <TableCell>{(het.probability * 100).toFixed(1)}%</TableCell>
+                      <TableCell className="text-muted-foreground">{het.description}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
 
-            <div>
-              <h4 className="text-sm font-medium mb-2">Summary</h4>
-              <p className="text-sm">{calculation.result.probability_summary}</p>
-            </div>
+            <Collapsible>
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium">
+                <ChevronDown className="h-4 w-4" />
+                Summary & Detailed Analysis
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-4">
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Summary</h4>
+                  <p className="text-sm">{calculation.result.probability_summary}</p>
+                </div>
 
-            <div>
-              <h4 className="text-sm font-medium mb-2">Detailed Analysis</h4>
-              <p className="text-sm whitespace-pre-wrap">{calculation.result.detailed_analysis}</p>
-            </div>
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Detailed Analysis</h4>
+                  <p className="text-sm whitespace-pre-wrap">{calculation.result.detailed_analysis}</p>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         </Card>
       )}
