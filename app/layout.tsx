@@ -9,7 +9,10 @@ const sourceSans = Source_Sans_3({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Clutchly - Reptile Data Management Platform",
-  description: "Create high-quality reptile breeding records with Clutchly, the open source platform that makes reptile data management intuitive.",
+  description: "Clutchly simplifies reptile data management, allowing you to effortlessly maintain accurate breeding records, monitor health and growth, and optimize husbandry practices.",
+  other: {
+    'google-site-verification': 'vVikk-GsXog3O1npUfmjcRoob951D1XWIJ4gOLsBjOQ',
+  },
 };
 
 export default function RootLayout({
