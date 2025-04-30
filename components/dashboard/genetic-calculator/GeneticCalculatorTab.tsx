@@ -28,9 +28,10 @@ import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpe
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DonutChart } from './charts/DonutChart'
+import { Species } from '@/lib/types/species'
 
 const GeneticCalculatorTab = () => {
-  const [speciesId, setSpeciesId] = useState<string>('')
+  const [selectedSpecies, setSelectedSpecies] = useState<Species | null>( null)
   const [dam, setDam] = useState<Reptile | null>(null)
   const [sire, setSire] = useState<Reptile | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
@@ -45,7 +46,7 @@ const GeneticCalculatorTab = () => {
 
   const { selectedSpeciesId, maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
     reptiles,
-    speciesId : speciesId || '',
+    speciesId : selectedSpecies?.id.toString() || '',
   });
 
   const { Select: SpeciesSelect } = useSelectList({
@@ -80,7 +81,7 @@ const GeneticCalculatorTab = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          input: { dam, sire }
+          input: { dam, sire, selectedSpecies }
         })
       });
 
@@ -99,7 +100,7 @@ const GeneticCalculatorTab = () => {
   };
 
   const handleSpeciesChange = (value: string) => {
-    setSpeciesId(value)
+    setSelectedSpecies(species.find(s => s.id.toString() === value) || null)
     setDam(null)
     setSire(null)
     setCalculation(null)

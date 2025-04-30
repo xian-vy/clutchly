@@ -1,4 +1,5 @@
 import { Reptile } from './reptile'
+import { Species } from './species'
 
 export interface GeneticCalculation {
   id: string
@@ -33,6 +34,7 @@ export type NewGeneticCalculation = Omit<GeneticCalculation, 'id' | 'user_id' | 
 export interface GeneticCalculatorInput {
   dam: Reptile
   sire: Reptile
+  species : Species
 }
 
 export interface GeneticCalculatorResponse {

@@ -49,15 +49,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Check rate limit
-    if (isRateLimited(userId)) {
-      return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded. Please wait 1 minute between calculations.',
-          rateLimited: true 
-        },
-        { status: 429 }
-      );
-    }
+     if (isRateLimited(userId)) {
+       return NextResponse.json(
+         { 
+           error: 'Rate limit exceeded. Please wait 1 minute between calculations.',
+           rateLimited: true 
+         },
+         { status: 429 }
+       );
+     }
 
     // Check if calculation already exists in history
     const { data: existingCalculation } = await supabase
@@ -81,16 +81,20 @@ export async function POST(request: NextRequest) {
     const systemPrompt = `You are a professional reptile genetic calculator. Your task is to analyze the genetic makeup of two reptiles and predict possible offspring outcomes.
 
 Rules:
-1. Consider both visual traits and het traits in your calculations
-2. Provide probabilities for each possible morph and het combination
-3. Explain the genetic inheritance patterns clearly
-4. Consider dominant, recessive, and co-dominant traits
-5. Account for multiple gene interactions
-6. Provide a detailed analysis of the genetic possibilities
+1. ALWAYS consider visual morphs first - these are the primary inheritable traits
+2. Visual morphs should be calculated even if no het traits are present
+3. Consider both visual traits and het traits in your calculations when available
+4. Provide probabilities for each possible morph and het combination
+5. Explain the genetic inheritance patterns clearly
+6. Consider dominant, recessive, and co-dominant traits
+7. Account for multiple gene interactions
+8. If parents have visual morphs but no hets, focus analysis on the visual traits
+9. Never return "unknown morphs" if parents have visible morphs
 
 Input:
 Dam: ${JSON.stringify(input.dam)}
 Sire: ${JSON.stringify(input.sire)}
+Species : ${JSON.stringify(input.species)}
 
 Please provide a detailed genetic analysis in the following JSON format:
 {
