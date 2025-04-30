@@ -1,14 +1,7 @@
 'use client'
-import React from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { GeneticCalculation } from '@/lib/types/genetic-calculator'
-import { format } from 'date-fns'
 import { getGeneticCalculations } from '@/app/api/genetic-calculations/history'
-import { Reptile } from '@/lib/types/reptile'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
-import { useMorphsStore } from '@/lib/stores/morphsStore'
-import { ChevronDown, Dna } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Collapsible,
   CollapsibleContent,
@@ -22,41 +15,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Cell,
-  Legend,
-  Tooltip
-} from 'recharts'
+import { useMorphsStore } from '@/lib/stores/morphsStore'
+import { GeneticCalculation } from '@/lib/types/genetic-calculator'
+import { Reptile } from '@/lib/types/reptile'
+import { useQuery } from '@tanstack/react-query'
+import { format } from 'date-fns'
+import { ChevronDown } from 'lucide-react'
+import { DonutChart } from './charts/DonutChart'
 
-const COLORS = [
-  'var(--color-chart-1)',
-  'var(--color-chart-2)',
-  'var(--color-chart-3)',
-  'var(--color-chart-4)',
-  'var(--color-chart-5)',
-  'var(--color-chart-6)',
-  'var(--color-chart-7)',
-  'var(--color-chart-8)'
-]
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <Card className="shadow-md border-border/50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/75">
-        <CardContent className="p-3 space-y-1">
-          <p className="font-medium text-foreground">{label}</p>
-          <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
-            <span>Probability: {(payload[0].value * 100).toFixed(1)}%</span>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-  return null
-}
 
 const GeneticHistoryTab = () => {
   const { morphs } = useMorphsStore()
@@ -88,15 +54,6 @@ const GeneticHistoryTab = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Dna className="h-5 w-5" />
-            Genetic Calculation History
-          </CardTitle>
-        </CardHeader>
-      </Card>
-
       <div className="space-y-4">
         {history.map((calculation) => {
           const damInfo = reptiles.find((reptile) => reptile.id === calculation.dam_id)
@@ -104,16 +61,6 @@ const GeneticHistoryTab = () => {
           const damMorph = morphs.find((m) => m.id.toString() === damInfo?.morph_id.toString())
           const sireMorph = morphs.find((m) => m.id.toString() === sireInfo?.morph_id.toString())
 
-          // Format data for pie charts
-          const morphData = calculation.result.possible_morphs.map(morph => ({
-            name: morph.name,
-            value: morph.probability
-          }))
-
-          const hetData = calculation.result.possible_hets.map(het => ({
-            name: het.trait,
-            value: het.probability
-          }))
 
           return (
             <Card key={calculation.id} className="p-4">
@@ -159,91 +106,33 @@ const GeneticHistoryTab = () => {
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <Card className="shadow-none border">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Possible Morphs</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="h-[300px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={morphData}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                innerRadius={60}
-                                paddingAngle={2}
-                                label={({ name, percent }) => 
-                                  `${name}: ${(percent * 100).toFixed(0)}%`
-                                }
-                              >
-                                {morphData.map((_, index) => (
-                                  <Cell 
-                                    key={`cell-${index}`} 
-                                    fill={COLORS[index % COLORS.length]} 
-                                  />
-                                ))}
-                              </Pie>
-                              <Tooltip content={<CustomTooltip />} />
-                              <Legend 
-                                formatter={(value) => value}
-                                wrapperStyle={{ 
-                                  fontSize: '13px',
-                                  color: 'var(--color-foreground)',
-                                  paddingTop: '20px'
-                                }}
-                              />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      <Card className="shadow-none border">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-sm">Possible Morphs</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <DonutChart 
+                              data={calculation.result.possible_morphs.map(morph => ({
+                                name: morph.name,
+                                value: morph.probability
+                              }))} 
+                            />
+                          </CardContent>
+                        </Card>
 
-                    <Card className="shadow-none border">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Possible Het Traits</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="h-[300px]">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={hetData}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                innerRadius={60}
-                                paddingAngle={2}
-                                label={({ name, percent }) => 
-                                  `${name}: ${(percent * 100).toFixed(0)}%`
-                                }
-                              >
-                                {hetData.map((_, index) => (
-                                  <Cell 
-                                    key={`cell-${index}`} 
-                                    fill={COLORS[index % COLORS.length]} 
-                                  />
-                                ))}
-                              </Pie>
-                              <Tooltip content={<CustomTooltip />} />
-                              <Legend 
-                                formatter={(value) => value}
-                                wrapperStyle={{ 
-                                  fontSize: '13px',
-                                  color: 'var(--color-foreground)',
-                                  paddingTop: '20px'
-                                }}
-                              />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </CardContent>
-                    </Card>
+                        <Card className="shadow-none border">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-sm">Possible Het Traits</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <DonutChart 
+                              data={calculation.result.possible_hets.map(het => ({
+                                name: het.trait,
+                                value: het.probability
+                              }))} 
+                            />
+                          </CardContent>
+                        </Card>
                   </div>
 
                   <div>

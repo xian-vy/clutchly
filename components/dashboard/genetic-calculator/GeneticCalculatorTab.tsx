@@ -4,7 +4,6 @@ import { useSelectList } from '@/lib/hooks/useSelectList'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { Reptile } from '@/lib/types/reptile'
 import { GeneticCalculatorResponse } from '@/lib/types/genetic-calculator'
-import { Card } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Loader2, AlertTriangle, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
@@ -27,6 +26,8 @@ import {
 } from "@/components/ui/collapsible"
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DonutChart } from './charts/DonutChart'
 
 const GeneticCalculatorTab = () => {
   const [speciesId, setSpeciesId] = useState<string>('')
@@ -204,6 +205,35 @@ const GeneticCalculatorTab = () => {
           <h3 className="text-lg font-semibold mb-4">Genetic Analysis Results</h3>
           
           <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Card className="shadow-none border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Possible Morphs</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DonutChart 
+                    data={calculation.result.possible_morphs.map(morph => ({
+                      name: morph.name,
+                      value: morph.probability
+                    }))} 
+                  />
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-none border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Possible Het Traits</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DonutChart 
+                    data={calculation.result.possible_hets.map(het => ({
+                      name: het.trait,
+                      value: het.probability
+                    }))} 
+                  />
+                </CardContent>
+              </Card>
+            </div>
             <div>
               <h4 className="text-sm font-medium mb-2">Possible Morphs</h4>
               <Table>
