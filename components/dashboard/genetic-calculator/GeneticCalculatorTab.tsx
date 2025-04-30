@@ -1,32 +1,28 @@
 'use client'
 import React, { useState } from 'react'
 import { useSelectList } from '@/lib/hooks/useSelectList'
-import { useResource } from '@/lib/hooks/useResource'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { Reptile } from '@/lib/types/reptile'
 import { GeneticCalculatorResponse } from '@/lib/types/genetic-calculator'
 import { Card } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Loader2, Info, AlertTriangle } from 'lucide-react'
+import { Loader2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useQuery } from '@tanstack/react-query'
+import { useMorphsStore } from '@/lib/stores/morphsStore'
 
 const GeneticCalculatorTab = () => {
   const [dam, setDam] = useState<Reptile | null>(null)
   const [sire, setSire] = useState<Reptile | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [calculation, setCalculation] = useState<GeneticCalculatorResponse | null>(null)
+  const {morphs} = useMorphsStore()
 
-  const { 
-    resources: reptiles, 
-  } = useResource({
-    resourceName: 'Reptile',
+  const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
+    queryFn: getReptiles,
   });
 
   const { Select: DamSelect } = useSelectList({
@@ -85,14 +81,7 @@ const GeneticCalculatorTab = () => {
 
   return (
     <div className="space-y-6">
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertTitle>How to use the Genetic Calculator</AlertTitle>
-        <AlertDescription>
-          Select a dam (female) and sire (male) from your reptiles to calculate possible offspring genetics. 
-          The calculator will analyze both visual traits and het traits to predict possible outcomes.
-        </AlertDescription>
-      </Alert>
+
 
       <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
@@ -106,7 +95,7 @@ const GeneticCalculatorTab = () => {
       <Card className="p-6">
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
-            <div>
+            <div className='md:h-[120px]'>
               <h3 className="text-sm font-medium mb-2">Dam (F)</h3>
               <DamSelect
                 value={dam?.id || ''}
@@ -115,13 +104,13 @@ const GeneticCalculatorTab = () => {
               />
               {dam && (
                 <div className="mt-2 text-sm text-muted-foreground">
-                  <p>Morph: {dam.morph_id}</p>
+                  <p>Morph: {morphs.find((morph) => morph.id.toString() === dam.morph_id.toString())?.name}</p>
                   <p>Visual Traits: {dam.visual_traits?.join(', ') || 'None'}</p>
                   <p>Het Traits: {dam.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', ') || 'None'}</p>
                 </div>
               )}
             </div>
-            <div>
+            <div className='md:h-[120px]'>
               <h3 className="text-sm font-medium mb-2">Sire (M)</h3>
               <SireSelect
                 value={sire?.id || ''}
@@ -130,7 +119,7 @@ const GeneticCalculatorTab = () => {
               />
               {sire && (
                 <div className="mt-2 text-sm text-muted-foreground">
-                  <p>Morph: {sire.morph_id}</p>
+                  <p>Morph: {morphs.find((morph) => morph.id.toString() === sire.morph_id.toString())?.name}</p>
                   <p>Visual Traits: {sire.visual_traits?.join(', ') || 'None'}</p>
                   <p>Het Traits: {sire.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', ') || 'None'}</p>
                 </div>
