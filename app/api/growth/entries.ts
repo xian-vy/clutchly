@@ -5,10 +5,13 @@ import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth'
 
 export async function getGrowthEntries() {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
+
   const { data: growthEntries, error } = await supabase
     .from('growth_entries')
     .select('*')
+    .eq('user_id', userId)
     .order('date', { ascending: false })
 
   if (error) throw error

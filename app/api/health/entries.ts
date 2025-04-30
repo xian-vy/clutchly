@@ -5,10 +5,12 @@ import { CreateHealthLogEntryInput, HealthLogEntry } from '@/lib/types/health'
 
 export async function getHealthLogs() {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id  
   const { data: healthLogs, error } = await supabase
     .from('health_log_entries')
     .select('*')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error

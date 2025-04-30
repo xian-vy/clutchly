@@ -5,10 +5,12 @@ import { NewRoom, Room } from '@/lib/types/location'
 
 export async function getRooms() {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id  
   const { data: rooms, error } = await supabase
     .from('rooms')
     .select('*')
+    .eq('user_id', userId)
     .order('name', { ascending: true })
 
   if (error) throw error

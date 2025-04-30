@@ -5,7 +5,8 @@ import { Morph, NewMorph } from '@/lib/types/morph'
 
 export async function getMorphs() {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
   const { data: morphs, error } = await supabase
     .from('morphs')
     .select(`
@@ -17,6 +18,7 @@ export async function getMorphs() {
       is_global,
       species:species(name)
     `)
+    .or(`is_global.eq.true,user_id.eq.${userId}`)
     .order('name')
 
   if (error) throw error

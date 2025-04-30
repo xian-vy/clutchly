@@ -8,10 +8,13 @@ import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/rept
 
 export async function getReptiles() {
   const supabase = await createClient()
-  
+  const currentUser= await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
+
   const { data: reptiles, error } = await supabase
     .from('reptiles')
     .select('*')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error
