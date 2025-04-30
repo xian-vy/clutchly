@@ -78,11 +78,23 @@ const GeneticCalculatorTab = () => {
 
     setIsCalculating(true);
     try {
+      const damDetails = {
+         id: dam.id,
+         morph : morphs.find((morph) => morph.id.toString() === dam.morph_id.toString())?.name,
+         visual_traits : dam.visual_traits?.join(', '),
+         het_traits : dam.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', '),
+      }
+      const sireDetails = {
+        id: sire.id,
+         morph : morphs.find((morph) => morph.id.toString() === sire.morph_id.toString())?.name,
+         visual_traits : sire.visual_traits?.join(', '),
+         het_traits : sire.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', '),
+      }
       const response = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          input: { dam, sire, selectedSpecies }
+          input: { dam:damDetails,sire:sireDetails, selectedSpecies }
         })
       });
 

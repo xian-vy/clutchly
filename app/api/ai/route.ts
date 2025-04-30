@@ -48,16 +48,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check rate limit
-     if (isRateLimited(userId)) {
-       return NextResponse.json(
-         { 
-           error: 'Rate limit exceeded. Please wait 1 minute between calculations.',
-           rateLimited: true 
-         },
-         { status: 429 }
-       );
-     }
+    // // Check rate limit
+      if (isRateLimited(userId)) {
+        return NextResponse.json(
+          { 
+            error: 'Rate limit exceeded. Please wait 1 minute between calculations.',
+            rateLimited: true 
+          },
+          { status: 429 }
+        );
+      }
 
     // Check if calculation already exists in history
     const { data: existingCalculation } = await supabase
@@ -78,23 +78,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const systemPrompt = `You are a professional reptile genetic calculator. Your task is to analyze the genetic makeup of two reptiles and predict possible offspring outcomes.
+    const systemPrompt = `You are a professional reptile genetic calculator. Your task is to analyze the genetic makeup of two reptiles and predict possible offspring outcomes based on their species-specific genetic inheritance patterns.
 
 Rules:
-1. ALWAYS consider visual morphs first - these are the primary inheritable traits
-2. Visual morphs should be calculated even if no het traits are present
-3. Consider both visual traits and het traits in your calculations when available
-4. Provide probabilities for each possible morph and het combination
-5. Explain the genetic inheritance patterns clearly
-6. Consider dominant, recessive, and co-dominant traits
-7. Account for multiple gene interactions
-8. If parents have visual morphs but no hets, focus analysis on the visual traits
+1. ALWAYS consider the specific species being bred and apply appropriate genetic inheritance rules
+2. Visual morphs are primary inheritable traits and must be calculated first
+3. Consider both visual traits and het traits in calculations when available
+4. For each species, apply:
+   - Species-specific inheritance patterns
+   - Known genetic combinations and interactions
+   - Documented morph compatibility rules
+   - Species-specific probability calculations
+5. Provide accurate probabilities that sum to 100%
+6. Consider all inheritance types:
+   - Simple recessive
+   - Dominant
+   - Co-dominant
+   - Incomplete dominant
+   - Polygenic traits
+   - Sex-linked traits where applicable
+7. Account for:
+   - Multiple gene interactions
+   - Complex trait combinations
+   - Known genetic incompatibilities
+   - Super forms where applicable
+8. Provide detailed explanations of genetic mechanisms
 9. Never return "unknown morphs" if parents have visible morphs
+10. Include genetic probability ratios in Punnett square format when applicable
 
 Input:
 Dam: ${JSON.stringify(input.dam)}
 Sire: ${JSON.stringify(input.sire)}
-Species : ${JSON.stringify(input.species)}
+Species: ${JSON.stringify(input.species)}
 
 Please provide a detailed genetic analysis in the following JSON format:
 {
@@ -145,10 +160,29 @@ IMPORTANT: Respond ONLY with the JSON object, no additional text or markdown for
     let result;
     try {
       const content = data.choices[0].message.content;
-      const jsonContent = extractJsonFromMarkdown(content);
+      // Sanitize the content before parsing
+      const sanitizedContent = content
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+        .replace(/\\[^"\\\/bfnrtu]/g, '\\\\$&') // Escape unescaped backslashes
+        .replace(/\r?\n/g, '\\n') // Handle newlines properly
+        .trim();
+      
+      const jsonContent = extractJsonFromMarkdown(sanitizedContent);
+      
+      // Additional validation before parsing
+      if (!jsonContent.startsWith('{') || !jsonContent.endsWith('}')) {
+        throw new Error('Invalid JSON format');
+      }
+      
       result = JSON.parse(jsonContent);
+      
+      // Validate the expected structure
+      if (!result.possible_morphs || !result.possible_hets || !result.probability_summary || !result.detailed_analysis) {
+        throw new Error('Invalid response structure');
+      }
     } catch (error) {
       console.error('Error parsing AI response:', error);
+      console.error('Raw content:', data.choices[0].message.content);
       throw new Error('Failed to parse AI response');
     }
 
