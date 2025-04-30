@@ -20,7 +20,7 @@ import { GeneticCalculation } from '@/lib/types/genetic-calculator'
 import { Reptile } from '@/lib/types/reptile'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Loader2 } from 'lucide-react'
 import { DonutChart } from './charts/DonutChart'
 
 
@@ -39,7 +39,7 @@ const GeneticHistoryTab = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <Loader2 className='w-4 h-4 animate-spin text-primary' />
       </div>
     )
   }
@@ -67,9 +67,13 @@ const GeneticHistoryTab = () => {
               <Collapsible>
                 <CollapsibleTrigger className="w-full">
                   <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium">Calculation #{calculation.id}</h3>
-                      <p className="text-sm text-muted-foreground">
+                    <div className='flex flex-col items-start justify-center'>
+                      <h3 className="flex items-center gap-2 text-xs sm:text-sm">
+                        <span className='font-medium text-blue-600 dark:text-blue-500'>{sireMorph?.name}</span>
+                        x
+                        <span className='font-medium text-pink-600 dark:text-pink-500'>{damMorph?.name}</span>
+                      </h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {format(new Date(calculation.created_at), 'PPp')}
                       </p>
                     </div>
@@ -78,7 +82,6 @@ const GeneticHistoryTab = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4 pt-4">
                   <div>
-                    <h4 className="text-sm font-medium mb-2">Parents</h4>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm font-medium">Dam</p>

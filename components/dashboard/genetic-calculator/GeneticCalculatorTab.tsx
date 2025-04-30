@@ -9,7 +9,7 @@ import { Loader2, AlertTriangle, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMorphsStore } from '@/lib/stores/morphsStore'
 import {
   Table,
@@ -38,6 +38,7 @@ const GeneticCalculatorTab = () => {
   const [calculation, setCalculation] = useState<GeneticCalculatorResponse | null>(null)
   const {morphs} = useMorphsStore()
   const { species,  } = useSpeciesStore()
+  const queryClient = useQueryClient();
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
@@ -92,6 +93,8 @@ const GeneticCalculatorTab = () => {
 
       const data: GeneticCalculatorResponse = await response.json();
       setCalculation(data);
+      queryClient.invalidateQueries({ queryKey: ['genetic-calculations-history'] });
+
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to calculate genetics');
     } finally {
