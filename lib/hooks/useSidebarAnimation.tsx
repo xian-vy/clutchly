@@ -18,7 +18,7 @@ const useSidebarAnimation = ({ isCollapsed } : Props) => {
     // Update for 3xl screens
     document.documentElement.style.setProperty(
       '--sidebar-width-3xl', 
-      isCollapsed ? '4rem' : '20rem'
+      isCollapsed ? '4rem' : '19rem'
     );
     
     // Remove the transition class after the transition completes

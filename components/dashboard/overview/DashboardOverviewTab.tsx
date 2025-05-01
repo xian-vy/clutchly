@@ -5,11 +5,15 @@ import { getHealthLogs, getHealthLogsByDate } from '@/app/api/health/entries';
 import { getGrowthEntries, getGrowthEntriesByDate } from '@/app/api/growth/entries';
 import { getBreedingProjects, getBreedingProjectsByDate } from '@/app/api/breeding/projects';
 import { getClutches, getAllClutchesByDate } from '@/app/api/breeding/clutches';
+import { getSalesSummary } from '@/app/api/sales';
+import { getExpensesSummary } from '@/app/api/expenses';
 import { useResource } from '@/lib/hooks/useResource';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { Reptile, NewReptile } from '@/lib/types/reptile';
 import { Clutch } from '@/lib/types/breeding';
+import { SalesSummary } from '@/lib/types/sales';
+import { ExpensesSummary } from '@/lib/types/expenses';
 import { useEffect, useMemo, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
@@ -18,16 +22,17 @@ import { StatsCards } from './StatsCards';
 import { ActionItems } from './ActionItems';
 import { RecentActivity } from './RecentActivity';
 import { CollectionOverview } from './CollectionOverview';
-import { DateRangePicker } from './DateRangePicker';
+import { TimeRangeSelector, TimePeriod } from './TimeRangeSelector';
+import { SalesExpensesChart } from './SalesExpensesChart';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { FeedingOverview } from './FeedingOverview';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function DashboardOverviewTab() {
-  const [allClutches, setAllClutches] = useState<Clutch[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
   
   // Format date string for API calls
   const formatDateForApi = (date: Date) => {
@@ -48,8 +53,8 @@ export function DashboardOverviewTab() {
   });
   
   // Get species and morph data from their respective stores
-  const { species, isLoading: speciesLoading,fetchSpecies } = useSpeciesStore();
-  const { morphs, isLoading: morphsLoading, fetchMorphs} = useMorphsStore();
+  const { species, isLoading: speciesLoading, fetchSpecies } = useSpeciesStore();
+  const { morphs, isLoading: morphsLoading, fetchMorphs } = useMorphsStore();
 
   
   useEffect(() => {
@@ -65,6 +70,7 @@ export function DashboardOverviewTab() {
       endDate: dateRange.to ? formatDateForApi(dateRange.to) : undefined,
     };
   }, [dateRange]);
+
   // Fetch health logs using React Query with date filtering
   const { data: healthLogs = [], isLoading: healthLoading } = useQuery({
     queryKey: ['health-logs', dateFilterParams],
@@ -92,36 +98,52 @@ export function DashboardOverviewTab() {
       : getBreedingProjects(),
   });
 
+  // Fetch sales summary data using React Query with date filtering and period
+  const { data: salesSummary, isLoading: salesLoading } = useQuery<SalesSummary>({
+    queryKey: ['sales-summary', dateFilterParams, timePeriod],
+    queryFn: () => getSalesSummary({
+      ...dateFilterParams,
+      period: timePeriod === 'custom' ? undefined : timePeriod,
+    }),
+  });
 
-  // Fetch clutches for all breeding projects
-  useEffect(() => {
-    async function fetchAllClutches() {
-      try {
-        if (dateFilterParams) {
-          const clutches = await getAllClutchesByDate(dateFilterParams);
-          setAllClutches(clutches);
-        } else if (breedingProjects.length) {
-          const clutchPromises = breedingProjects.map(project => getClutches(project.id));
-          const clutchesArrays = await Promise.all(clutchPromises);
-          setAllClutches(clutchesArrays.flat());
-        }
-      } catch (error) {
-        console.error("Error fetching clutches:", error);
-        setAllClutches([]);
+  // Fetch expenses summary data using React Query with date filtering
+  const { data: expensesSummary, isLoading: expensesLoading } = useQuery<ExpensesSummary>({
+    queryKey: ['expenses-summary', dateFilterParams],
+    queryFn: () => getExpensesSummary(dateFilterParams),
+  });
+
+
+  // Fetch clutches using React Query with date filtering
+  const { data: allClutches = [], isLoading: clutchesLoading } = useQuery<Clutch[]>({
+    queryKey: ['clutches', dateFilterParams, breedingProjects],
+    queryFn: async () => {
+      if (dateFilterParams) {
+        return getAllClutchesByDate(dateFilterParams);
+      } else if (breedingProjects.length) {
+        const clutchPromises = breedingProjects.map(project => getClutches(project.id));
+        const clutchesArrays = await Promise.all(clutchPromises);
+        return clutchesArrays.flat();
       }
-    }
-    
-    fetchAllClutches();
-  }, [breedingProjects, dateFilterParams]);
+      return [];
+    },
+    enabled: !breedingLoading, // Only run when breeding projects are loaded
+  });
   
   // Handle date range changes
   const handleDateRangeChange = (newRange: DateRange | undefined) => {
     setDateRange(newRange);
   };
+
+  // Handle time period changes
+  const handlePeriodChange = (newPeriod: TimePeriod) => {
+    setTimePeriod(newPeriod);
+  };
   
   // Clear all filters
   const clearFilters = () => {
     setDateRange(undefined);
+    setTimePeriod('monthly');
   };
   
   const isLoading = 
@@ -130,9 +152,12 @@ export function DashboardOverviewTab() {
     morphsLoading || 
     healthLoading || 
     growthLoading || 
-    breedingLoading 
+    breedingLoading ||
+    salesLoading ||
+    expensesLoading ||
+    clutchesLoading
   
-  const hasActiveFilters = !!dateRange;
+  const hasActiveFilters = !!dateRange || timePeriod !== 'monthly';
   
   if (isLoading) {
     return (
@@ -143,47 +168,81 @@ export function DashboardOverviewTab() {
   }
   
   return (
-    <div className="space-y-2 md:space-y-3 xl:space-y-6 max-w-screen-2xl mx-auto">
+    <div className="space-y-2 md:space-y-3 xl:space-y-4 max-w-screen-2xl mx-auto">
       <Card className="border-none shadow-none !py-0">
         <CardHeader className="px-0 pt-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-lg sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold">Overview</CardTitle>
-            
-            <div className="flex flex-wrap items-center gap-2">
-              <DateRangePicker 
-                dateRange={dateRange}
-                onDateRangeChange={handleDateRangeChange}
-              />
-              
-              {hasActiveFilters && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={clearFilters}
-                  className="h-9"
-                >
-                  <FilterX className="h-4 w-4 mr-2" />
-                  Clear
-                </Button>
-              )}
-            </div>
+            <CardTitle className="text-lg sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold">Dashboard</CardTitle>
           </div>
         </CardHeader>
       </Card>
       
-      {/* Stats cards - responsive grid */}
-      <ScrollArea className="w-full -mx-4 px-4 sm:mx-0 sm:px-0 pb-4 sm:pb-0">
-        <div className="min-w-[640px]">
-          <StatsCards 
-            reptiles={reptiles} 
-            healthLogs={healthLogs} 
-            breedingProjects={breedingProjects} 
-            growthEntries={growthEntries} 
-          />
+      <Tabs defaultValue="0" className="space-y-2 md:space-y-3 xl:space-y-6 ">
+        <div className="flex w-full justify-between">
+            <div>
+                <TabsList>
+                  <TabsTrigger value="0">Overview</TabsTrigger>
+                  <TabsTrigger value="1">Sales</TabsTrigger>
+                </TabsList>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+                <TimeRangeSelector
+                  dateRange={dateRange}
+                  onDateRangeChange={handleDateRangeChange}
+                  period={timePeriod}
+                  onPeriodChange={handlePeriodChange}
+                />
+                
+                {hasActiveFilters && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={clearFilters}
+                    className="h-9"
+                  >
+                    <FilterX className="h-4 w-4 " />
+                    Clear
+                  </Button>
+                )}
+            </div>
         </div>
-      </ScrollArea>
+        <TabsContent value="0">
+                <StatsCards 
+                  reptiles={reptiles} 
+                  healthLogs={healthLogs}
+                  growthEntries={growthEntries}
+                  salesSummary={salesSummary}
+                  expensesSummary={expensesSummary}
+                  breedingProjects={breedingProjects}
+                  tabIndex={0}
+                />
+        </TabsContent>
+        <TabsContent value="1">
+                <StatsCards 
+                  reptiles={reptiles} 
+                  healthLogs={healthLogs}
+                  growthEntries={growthEntries}
+                  salesSummary={salesSummary}
+                  expensesSummary={expensesSummary}
+                  breedingProjects={breedingProjects}
+                  tabIndex={1}
+                />
+        </TabsContent>
+      </Tabs>
 
-      <FeedingOverview  />
+
+      {/* Sales vs Expenses Chart */}
+      <div className="w-full">
+        <SalesExpensesChart
+          salesSummary={salesSummary}
+          expensesSummary={expensesSummary}
+          period={timePeriod}
+          startDate={dateRange?.from}
+          endDate={dateRange?.to}
+        />
+      </div>
+
+      <FeedingOverview />
       
       {/* Collection overview */}
       <div className="w-full">
@@ -195,11 +254,9 @@ export function DashboardOverviewTab() {
           morphs={morphs}
         />
       </div>
-
-
       
       {/* Main dashboard content - stacked layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1  gap-6">
         {/* Action items */}
         <div>
           <ActionItems 

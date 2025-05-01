@@ -101,7 +101,7 @@ export function RecentActivity({ reptiles, healthLogs, growthEntries }: RecentAc
       {recentActivity.length > 0 && (
         <CardFooter className="pt-0">
           <Button variant="outline" className="w-full" asChild>
-            <Link href="/activity">View All Activity</Link>
+            <Link href="#">View All Activity</Link>
           </Button>
         </CardFooter>
       )}
