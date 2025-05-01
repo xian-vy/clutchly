@@ -107,7 +107,7 @@ export function Navigation() {
           )}
         </div>
         <ScrollArea className='h-full'>
-          <nav className="px-3 2xl:px-4 space-y-3 3xl:space-y-5 pt-2 3xl:pt-3 flex-1">
+          <nav className="px-3 2xl:px-4 space-y-3 3xl:space-y-5 pt-1 2xl:pt-1.5 flex-1">
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && (

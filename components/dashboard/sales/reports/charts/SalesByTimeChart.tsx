@@ -243,6 +243,7 @@ export function SalesByTimeChart({ data, period }: SalesByTimeChartProps) {
               dataKey="revenue"
               fill="var(--color-chart-1)"
               name="revenue"
+              radius={[4,4,0,0]}
             />
 
            
