@@ -1,5 +1,4 @@
-'use server'
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/client';
 import { FeedingTarget, NewFeedingSchedule, FeedingScheduleWithTargets, TargetType } from '@/lib/types/feeding';
 
 // Get all feeding schedules for the current user

@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { Location, NewLocation } from '@/lib/types/location'
 import { updateRackDimensions } from './racks'
 

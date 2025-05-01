@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { GrowthEntry } from '@/lib/types/growth'
 import { HealthLogEntry } from '@/lib/types/health'
 import { Reptile } from '@/lib/types/reptile'
