@@ -1,25 +1,32 @@
 'use client';
 
 import { Card, CardContent } from "@/components/ui/card";
-import { BreedingProject } from "@/lib/types/breeding";
+import { ExpensesSummary } from "@/lib/types/expenses";
 import { GrowthEntry } from "@/lib/types/growth";
 import { HealthLogEntry } from "@/lib/types/health";
 import { Reptile } from "@/lib/types/reptile";
+import { SalesSummary } from "@/lib/types/sales";
 import { differenceInDays, parseISO } from "date-fns";
-import { Dna, Heart, LineChart, Turtle } from "lucide-react";
+import { BarChart, DollarSign, Heart, LineChart, Turtle, Wallet } from "lucide-react";
 import Link from "next/link";
 
 interface StatsCardsProps {
   reptiles: Reptile[];
   healthLogs: HealthLogEntry[];
-  breedingProjects: BreedingProject[];
   growthEntries: GrowthEntry[];
+  salesSummary?: SalesSummary;
+  expensesSummary?: ExpensesSummary;
 }
 
-export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntries }: StatsCardsProps) {
+export function StatsCards({ 
+  reptiles, 
+  healthLogs, 
+  growthEntries, 
+  salesSummary, 
+  expensesSummary 
+}: StatsCardsProps) {
   // Calculate statistics
   const activeReptiles = reptiles.filter(r => r.status === 'active').length;
-  const breedingPairs = breedingProjects.filter(p => p.status === 'active').length;
   const unresolvedHealthIssues = healthLogs.filter(h => !h.resolved).length;
   
   // Calculate reptiles due for growth measurement
@@ -38,6 +45,11 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
     // Growth records due if none or last one older than 30 days
     return !lastGrowthEntry || daysSinceLastMeasurement > 30;
   }).length;
+
+  // Extract sales and expenses data
+  const totalSales = salesSummary?.total_revenue ?? 0;
+  const totalExpenses = expensesSummary?.totalExpenses ?? 0;
+  const totalProfit = totalSales - totalExpenses;
 
   const stats = [
     {
@@ -68,18 +80,36 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
       iconColor: reptilesDueForMeasurement > 0 ? "text-green-500" : "text-muted-foreground"
     },
     {
-      title: "Breeding Projects",
-      value: breedingPairs.toString(),
-      icon: Dna,
-      description: "Active breeding projects",
-      link: "/breeding",
+      title: "Total Sales",
+      value: `$${totalSales.toFixed(2)}`,
+      icon: DollarSign,
+      description: "Revenue from all sales",
+      link: "/sales",
+      color: "bg-emerald-50 dark:bg-emerald-950",
+      iconColor: "text-emerald-500"
+    },
+    {
+      title: "Total Expenses",
+      value: `$${totalExpenses.toFixed(2)}`,
+      icon: Wallet,
+      description: "Cost of all expenses",
+      link: "/expenses",
+      color: "bg-amber-50 dark:bg-amber-950",
+      iconColor: "text-amber-500"
+    },
+    {
+      title: "Net Profit",
+      value: `$${totalProfit.toFixed(2)}`,
+      icon: BarChart,
+      description: "Sales less expenses",
+      link: "/reports",
       color: "bg-purple-50 dark:bg-purple-950",
-      iconColor: "text-purple-500"
+      iconColor: totalProfit >= 0 ? "text-purple-500" : "text-red-500"
     },
   ];
 
   return (
-    <div className="grid  grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-5 3xl:gap-10">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 xl:gap-5 3xl:gap-10">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
@@ -92,7 +122,7 @@ export function StatsCards({ reptiles, healthLogs, breedingProjects, growthEntri
                         <div className={`rounded-full flex-shrink-0 `}>
                           <Icon className={`h-4 w-4 sm:h-5 sm:w-5 text-primary`} />
                         </div>
-                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium   truncate">
+                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium truncate">
                          {stat.title}
                         </p>
                     </div>  
