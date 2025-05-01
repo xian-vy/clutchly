@@ -1,13 +1,14 @@
 'use client';
 
 import { Card, CardContent } from "@/components/ui/card";
+import { BreedingProject } from "@/lib/types/breeding";
 import { ExpensesSummary } from "@/lib/types/expenses";
 import { GrowthEntry } from "@/lib/types/growth";
 import { HealthLogEntry } from "@/lib/types/health";
 import { Reptile } from "@/lib/types/reptile";
 import { SalesSummary } from "@/lib/types/sales";
 import { differenceInDays, parseISO } from "date-fns";
-import { BarChart, DollarSign, Heart, LineChart, Turtle, Wallet } from "lucide-react";
+import { BarChart, Dna, DollarSign, Heart, LineChart, Turtle, Wallet } from "lucide-react";
 import Link from "next/link";
 
 interface StatsCardsProps {
@@ -16,6 +17,8 @@ interface StatsCardsProps {
   growthEntries: GrowthEntry[];
   salesSummary?: SalesSummary;
   expensesSummary?: ExpensesSummary;
+  breedingProjects: BreedingProject[];
+  tabIndex  : number
 }
 
 export function StatsCards({ 
@@ -23,12 +26,16 @@ export function StatsCards({
   healthLogs, 
   growthEntries, 
   salesSummary, 
-  expensesSummary 
+  expensesSummary ,
+  breedingProjects,
+  tabIndex
 }: StatsCardsProps) {
   // Calculate statistics
   const activeReptiles = reptiles.filter(r => r.status === 'active').length;
   const unresolvedHealthIssues = healthLogs.filter(h => !h.resolved).length;
-  
+  const breedingPairs = breedingProjects.filter(p => p.status === 'active').length;
+  const totalReptileSold = salesSummary?.total_sales
+
   // Calculate reptiles due for growth measurement
   const reptilesDueForMeasurement = reptiles.filter(reptile => {
     const lastGrowthEntry = growthEntries
@@ -59,7 +66,8 @@ export function StatsCards({
       description: "Active reptiles in your collection",
       link: "/reptiles",
       color: "bg-blue-50 dark:bg-blue-950",
-      iconColor: "text-blue-500"
+      iconColor: "text-blue-500",
+      tabIndex : 0,
     },
     {
       title: "Health Issues",
@@ -68,7 +76,8 @@ export function StatsCards({
       description: "Unresolved health issues",
       link: "/health",
       color: "bg-red-50 dark:bg-red-950",
-      iconColor: unresolvedHealthIssues > 0 ? "text-red-500" : "text-muted-foreground"
+      iconColor: unresolvedHealthIssues > 0 ? "text-red-500" : "text-muted-foreground",
+      tabIndex : 0,
     },
     {
       title: "Growth Records",
@@ -77,7 +86,25 @@ export function StatsCards({
       description: "Reptiles needing measurement",
       link: "/growth",
       color: "bg-green-50 dark:bg-green-950",
-      iconColor: reptilesDueForMeasurement > 0 ? "text-green-500" : "text-muted-foreground"
+      iconColor: reptilesDueForMeasurement > 0 ? "text-green-500" : "text-muted-foreground",
+      tabIndex : 0,
+    },
+    {
+      title: "Breeding Projects",
+      value: breedingPairs.toString(),
+      icon: Dna,
+      description: "Active breeding projects",
+      link: "/breeding",
+      tabIndex : 0,
+
+    },
+    {
+      title: "Reptile Sold",
+      value: totalReptileSold,
+      icon: Turtle,
+      description: "Total Reptiles Sold",
+      link: "/sales",
+      tabIndex : 1
     },
     {
       title: "Total Sales",
@@ -86,7 +113,8 @@ export function StatsCards({
       description: "Revenue from all sales",
       link: "/sales",
       color: "bg-emerald-50 dark:bg-emerald-950",
-      iconColor: "text-emerald-500"
+      iconColor: "text-emerald-500",
+      tabIndex : 1
     },
     {
       title: "Total Expenses",
@@ -95,7 +123,8 @@ export function StatsCards({
       description: "Cost of all expenses",
       link: "/expenses",
       color: "bg-amber-50 dark:bg-amber-950",
-      iconColor: "text-amber-500"
+      iconColor: "text-amber-500",
+      tabIndex : 1
     },
     {
       title: "Net Profit",
@@ -104,13 +133,16 @@ export function StatsCards({
       description: "Sales less expenses",
       link: "/reports",
       color: "bg-purple-50 dark:bg-purple-950",
-      iconColor: totalProfit >= 0 ? "text-purple-500" : "text-red-500"
+      iconColor: totalProfit >= 0 ? "text-purple-500" : "text-red-500",
+      tabIndex : 1
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3  3xl:grid-cols-6 gap-4 xl:gap-5 3xl:gap-10">
-      {stats.map((stat, index) => {
+    <div className="grid grid-cols-2 md:grid-cols-2  xl:grid-cols-4 gap-4 xl:gap-5 3xl:gap-10">
+      {stats
+      .filter((st) => st.tabIndex === tabIndex)
+      .map((stat, index) => {
         const Icon = stat.icon;
         return (
           <Link href={stat.link} key={index}>

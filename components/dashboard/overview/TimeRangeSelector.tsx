@@ -117,7 +117,7 @@ export function TimeRangeSelector({
           value={period} 
           onValueChange={(value: TimePeriod) => handlePeriodChange(value)}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-[140px] !h-8">
             <SelectValue placeholder="Select period" />
           </SelectTrigger>
           <SelectContent>

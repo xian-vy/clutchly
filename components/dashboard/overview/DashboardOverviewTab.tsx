@@ -27,8 +27,8 @@ import { SalesExpensesChart } from './SalesExpensesChart';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { FeedingOverview } from './FeedingOverview';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function DashboardOverviewTab() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -167,48 +167,68 @@ export function DashboardOverviewTab() {
   }
   
   return (
-    <div className="space-y-2 md:space-y-3 xl:space-y-6 max-w-screen-2xl mx-auto">
+    <div className="space-y-2 md:space-y-3 xl:space-y-4 max-w-screen-2xl mx-auto">
       <Card className="border-none shadow-none !py-0">
         <CardHeader className="px-0 pt-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-lg sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold">Overview</CardTitle>
-            
-            <div className="flex flex-wrap items-center gap-2">
-              <TimeRangeSelector
-                dateRange={dateRange}
-                onDateRangeChange={handleDateRangeChange}
-                period={timePeriod}
-                onPeriodChange={handlePeriodChange}
-              />
-              
-              {hasActiveFilters && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={clearFilters}
-                  className="h-9"
-                >
-                  <FilterX className="h-4 w-4 mr-2" />
-                  Clear
-                </Button>
-              )}
-            </div>
+            <CardTitle className="text-lg sm:text-xl 2xl:text-2xl 3xl:text-3xl font-bold">Dashboard</CardTitle>
           </div>
         </CardHeader>
       </Card>
       
-      {/* Stats cards - responsive grid */}
-      <ScrollArea className="w-full -mx-4 px-4 sm:mx-0 sm:px-0 pb-4 sm:pb-0">
-        <div className="min-w-[640px]">
-          <StatsCards 
-            reptiles={reptiles} 
-            healthLogs={healthLogs}
-            growthEntries={growthEntries}
-            salesSummary={salesSummary}
-            expensesSummary={expensesSummary}
-          />
+      <Tabs defaultValue="0" className="space-y-2 md:space-y-3 xl:space-y-6 ">
+        <div className="flex w-full justify-between">
+            <div>
+                <TabsList>
+                  <TabsTrigger value="0">Overview</TabsTrigger>
+                  <TabsTrigger value="1">Sales</TabsTrigger>
+                </TabsList>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+                <TimeRangeSelector
+                  dateRange={dateRange}
+                  onDateRangeChange={handleDateRangeChange}
+                  period={timePeriod}
+                  onPeriodChange={handlePeriodChange}
+                />
+                
+                {hasActiveFilters && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={clearFilters}
+                    className="h-9"
+                  >
+                    <FilterX className="h-4 w-4 " />
+                    Clear
+                  </Button>
+                )}
+            </div>
         </div>
-      </ScrollArea>
+        <TabsContent value="0">
+                <StatsCards 
+                  reptiles={reptiles} 
+                  healthLogs={healthLogs}
+                  growthEntries={growthEntries}
+                  salesSummary={salesSummary}
+                  expensesSummary={expensesSummary}
+                  breedingProjects={breedingProjects}
+                  tabIndex={0}
+                />
+        </TabsContent>
+        <TabsContent value="1">
+                <StatsCards 
+                  reptiles={reptiles} 
+                  healthLogs={healthLogs}
+                  growthEntries={growthEntries}
+                  salesSummary={salesSummary}
+                  expensesSummary={expensesSummary}
+                  breedingProjects={breedingProjects}
+                  tabIndex={1}
+                />
+        </TabsContent>
+      </Tabs>
+
 
       {/* Sales vs Expenses Chart */}
       <div className="w-full">
