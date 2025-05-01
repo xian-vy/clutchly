@@ -85,11 +85,11 @@ export function Navigation() {
         className={cn(
           "fixed flex flex-col h-[100vh] inset-y-0 left-0 z-40 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-          isCollapsed ? "w-16" : "w-[18rem] 3xl:w-[20rem]"
+          isCollapsed ? "w-16" : "w-[18rem] 3xl:w-[19rem]"
         )}
       >
         <div className={cn(
-          "flex h-16 items-center border-b border-sidebar-border ",
+          "flex h-16 items-center border-b border-sidebar-border py-2.5",
           isCollapsed ? "justify-center px-2" : "gap-2 px-4 2xl:px-5"
         )}>
           <Image
