@@ -3,7 +3,6 @@
 import { getReptileLineage } from '@/app/api/reptiles/lineage';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
@@ -11,9 +10,8 @@ import { Morph } from '@/lib/types/morph';
 import { HetTrait, Reptile } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { CircleHelp, Mars, Venus, Users, Network, Dna } from 'lucide-react';
+import { CircleHelp, Mars, Venus,  Dna } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { VscSnake } from 'react-icons/vsc';
 import ReactFlow, {
   applyNodeChanges,
   Background,
@@ -110,31 +108,59 @@ const GroupNode = ({ data, id }: NodeProps<CustomNodeData>) => {
             <DialogTitle>Offspring without Descendants</DialogTitle>
           </DialogHeader>
           {data.parentId && (
-            <div className="p-3 mb-2 bg-muted/50 rounded-md">
+            <div className="p-3 mb-2 rounded-md">
               <div className="font-semibold mb-1">Parents:</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].dam_id && (
                   <div className="flex items-center gap-2 p-2 border rounded-md">
-                    <Venus className="h-4 w-4 text-red-500" />
-                    <div>
-                      <div className="font-medium">
+                    <div className='space-y-1'>
+                      <div className="flex items-center gap-2 font-medium">
+                        <Venus className="h-4 w-4 text-red-500" />
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.name || 'Unknown Dam'}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
+                      </div>
+                      <div>
+                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
+                            <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                              {trait}
+                            </Badge>
+                            ))}
+                          </div>
+                      <div>
+                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
+                            <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                              {trait.percentage + "% het " + trait.trait}
+                            </Badge>
+                            ))}
                       </div>
                     </div>
                   </div>
                 )}
                 {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].sire_id && (
                   <div className="flex items-center gap-2 p-2 border rounded-md">
-                    <Mars className="h-4 w-4 text-blue-400" />
-                    <div>
-                      <div className="font-medium">
+                    <div className='space-y-1'>
+                      <div className="flex items-center gap-2 font-medium">
+                        <Mars className="h-4 w-4 text-blue-400" />
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.name || 'Unknown Sire'}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
+                      </div>
+                      <div>
+                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
+                            <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                              {trait}
+                            </Badge>
+                            ))}
+                          </div>
+                      <div>
+                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
+                            <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                              {trait.percentage + "% het " + trait.trait}
+                            </Badge>
+                            ))}
                       </div>
                     </div>
                   </div>
@@ -147,9 +173,9 @@ const GroupNode = ({ data, id }: NodeProps<CustomNodeData>) => {
               {data.groupedReptiles?.map((reptile) => {
                 const morphName = morphs.find((m: Morph) => m.id.toString() === reptile.morph_id.toString())?.name || 'Unknown';
                 return (
-                  <div key={reptile.id} className="border rounded-md p-3 shadow-sm">
+                  <div key={reptile.id} className="border rounded-md p-3 ">
                     <div className="flex items-center justify-between">
-                      <div className="font-bold">{reptile.name}</div>
+                      <div className="font-medium">{reptile.name}</div>
                       <div>
                         {reptile.sex === 'male' ? (
                           <Mars className="h-4 w-4 text-blue-400" />
@@ -175,14 +201,14 @@ const GroupNode = ({ data, id }: NodeProps<CustomNodeData>) => {
                         </Badge>
                       ))}
                     </div>
-                    <div className="flex gap-1 mt-2">
+                    {/* <div className="flex gap-1 mt-2">
                       {reptile.generation && (
                         <Badge variant="outline">Gen {reptile.generation}</Badge>
                       )}
                       {reptile.breeding_line && (
                         <Badge variant="secondary">{reptile.breeding_line}</Badge>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 );
               })}
