@@ -1,10 +1,11 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, ComposedChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format, parseISO, isValid } from 'date-fns';
 import { TimePeriod } from '../TimeRangeSelector';
 import { formatCurrency } from '@/lib/utils';
+import { AreaChart } from 'lucide-react';
 
 interface ExpensesByTimeChartProps {
   data: {
@@ -88,7 +89,7 @@ export function ExpensesByTimeChart({ data, period }: ExpensesByTimeChartProps) 
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={transformedData}>
+            <ComposedChart data={transformedData}>
               <XAxis
                 dataKey="date"
                 stroke="#888888"
@@ -138,14 +139,21 @@ export function ExpensesByTimeChart({ data, period }: ExpensesByTimeChartProps) 
                   return null;
                 }}
               />
-              <Line
+              <defs>
+               <linearGradient id="amountGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-chart-6)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="var(--color-chart-6)" stopOpacity={0.1} />
+              </linearGradient>
+              </defs>
+              <Area
                 type="monotone"
                 dataKey="amount"
-                stroke="#8884d8"
-                strokeWidth={2}
                 dot={false}
+                strokeWidth={1.5}
+                fill="url(#amountGradient)"
+                stroke="var(--color-chart-6)"
               />
-            </LineChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       </CardContent>

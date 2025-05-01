@@ -456,6 +456,7 @@ export function SalesExpensesChart({
             />
             <YAxis
               fontSize={12}
+              stroke="var(--color-chart-1)"
 
             />
             <Tooltip content={<CustomTooltip />} />
@@ -487,7 +488,7 @@ export function SalesExpensesChart({
               dataKey="expenses"
               stroke="var(--color-chart-6)"
               fill="url(#expensesGradient)"
-              strokeWidth={1}
+              strokeWidth={1.5}
               connectNulls={true}
               scale="point"
             />
@@ -496,7 +497,7 @@ export function SalesExpensesChart({
               dataKey="sales"
               stroke="var(--color-chart-1)"
               fill="url(#salesGradient)"
-              strokeWidth={1}
+              strokeWidth={1.5}
               connectNulls={true}
               scale="point"
             />

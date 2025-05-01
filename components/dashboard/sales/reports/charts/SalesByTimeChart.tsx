@@ -221,21 +221,27 @@ export function SalesByTimeChart({ data, period }: SalesByTimeChartProps) {
                 fontSize: '13px',
                 color: 'var(--foreground)'
               }}
-            />
+            />  
+              <defs>
+               <linearGradient id="countGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0.1} />
+              </linearGradient>
+              </defs>
                <Area 
                   type="monotone" 
                   dataKey="count" 
                   name="count" 
-                  stroke="var(--color-chart-1)"
-                  fill="var(--color-chart-1)"
+                  stroke="var(--color-chart-2)"
+                  fill="url(#countGradient)"
                   fillOpacity={0.2} 
+                  strokeWidth={1.5}
                   yAxisId="right"
-
                 />
             <Bar
               yAxisId="left"
               dataKey="revenue"
-              fill="var(--color-chart-2)"
+              fill="var(--color-chart-1)"
               name="revenue"
             />
 
