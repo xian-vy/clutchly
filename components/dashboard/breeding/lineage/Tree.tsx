@@ -11,7 +11,7 @@ import { HetTrait, Reptile } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { CircleHelp, Mars, Venus,  Dna } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import ReactFlow, {
   applyNodeChanges,
   Background,
@@ -62,7 +62,7 @@ interface CustomNodeData {
 }
 
 // Special node for showing grouped descendants without offspring
-const GroupNode = ({ data, id }: NodeProps<CustomNodeData>) => {
+const GroupNode = ({ data }: NodeProps<CustomNodeData>) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { morphs } = useMorphsStore();
   const { data: reptiles = [] } = useQuery<Reptile[]>({
@@ -288,6 +288,9 @@ function Flow({ reptileId }: { reptileId: string }) {
     sire: null,
     child: null
   });
+  const [initialLayoutDone, setInitialLayoutDone] = useState<boolean>(false);
+  // Use a ref instead of state for positions to avoid re-renders
+  const nodePositionsRef = useRef<Map<string, { x: number, y: number }>>(new Map());
   
   const { morphs } = useMorphsStore();
   
@@ -410,15 +413,25 @@ function Flow({ reptileId }: { reptileId: string }) {
         // Constants for layout
         const Y_SPACING = 200;
         const NODE_WIDTH = 250;
-        const HORIZONTAL_SPACING = 50;
+        const HORIZONTAL_SPACING = 100;
         
-        // Calculate horizontal position
-        const totalWidth = (nodesInGeneration.length * NODE_WIDTH) + 
-                          ((nodesInGeneration.length - 1) * HORIZONTAL_SPACING);
-        const startX = -totalWidth / 2;
+        // Get position either from memory or calculate new position
+        let x, y;
         
-        const x = startX + (position * (NODE_WIDTH + HORIZONTAL_SPACING));
-        const y = generation * Y_SPACING;
+        if (initialLayoutDone && nodePositionsRef.current.has(reptileNode.id)) {
+          // Use stored position if available after initial layout
+          const storedPosition = nodePositionsRef.current.get(reptileNode.id)!;
+          x = storedPosition.x;
+          y = storedPosition.y;
+        } else {
+          // Calculate horizontal position
+          const totalWidth = (nodesInGeneration.length * NODE_WIDTH) + 
+                            ((nodesInGeneration.length - 1) * HORIZONTAL_SPACING);
+          const startX = -totalWidth / 2;
+          
+          x = startX + (position * (NODE_WIDTH + HORIZONTAL_SPACING));
+          y = generation * Y_SPACING;
+        }
         
         // Create the flow node
         const morphName = morphs.find((m: Morph) => m.id.toString() === reptileNode.morph_id.toString())?.name || 'Unknown';
@@ -474,43 +487,51 @@ function Flow({ reptileId }: { reptileId: string }) {
           // Constants for layout (same as regular nodes)
           const Y_SPACING = 200;
           const NODE_WIDTH = 250;
-          const HORIZONTAL_SPACING = 50;
+          const HORIZONTAL_SPACING = 100;
           
           // Calculate x position - find other parent and position between them if possible
           let x = 0;
+          let y = 0;
           let partnerNodeId = null;
           
-          // Find possible breeding partners (look for common offspring)
-          const offspring = node.childrenWithoutDescendants[0]; // First offspring to identify parents
-          
-          if (offspring) {
-            // Check which one of the parents this node is
-            if (offspring.dam_id === node.id && offspring.sire_id) {
-              partnerNodeId = offspring.sire_id;
-            } else if (offspring.sire_id === node.id && offspring.dam_id) {
-              partnerNodeId = offspring.dam_id;
-            }
-          }
-          
-          // Get partner node position if it exists
-          const partnerNode = partnerNodeId ? nodeMap.get(partnerNodeId) : null;
-          const currentNode = nodeMap.get(node.id);
-          
-          if (currentNode && partnerNode) {
-            // Position the group node between the two parents
-            x = (currentNode.position.x + partnerNode.position.x) / 2;
-          } else if (currentNode) {
-            // Position slightly to the right of the single parent
-            x = currentNode.position.x + NODE_WIDTH / 2 + HORIZONTAL_SPACING;
+          if (initialLayoutDone && nodePositionsRef.current.has(groupNodeId)) {
+            // Use stored position if available after initial layout
+            const storedPosition = nodePositionsRef.current.get(groupNodeId)!;
+            x = storedPosition.x;
+            y = storedPosition.y;
           } else {
-            // Fallback position
-            const totalWidth = ((nodesCount + 1) * NODE_WIDTH) + 
-                              (nodesCount * HORIZONTAL_SPACING);
-            const startX = -totalWidth / 2;
-            x = startX + (nodesCount * (NODE_WIDTH + HORIZONTAL_SPACING));
+            // Find possible breeding partners (look for common offspring)
+            const offspring = node.childrenWithoutDescendants[0]; // First offspring to identify parents
+            
+            if (offspring) {
+              // Check which one of the parents this node is
+              if (offspring.dam_id === node.id && offspring.sire_id) {
+                partnerNodeId = offspring.sire_id;
+              } else if (offspring.sire_id === node.id && offspring.dam_id) {
+                partnerNodeId = offspring.dam_id;
+              }
+            }
+            
+            // Get partner node position if it exists
+            const partnerNode = partnerNodeId ? nodeMap.get(partnerNodeId) : null;
+            const currentNode = nodeMap.get(node.id);
+            
+            if (currentNode && partnerNode) {
+              // Position the group node between the two parents
+              x = (currentNode.position.x + partnerNode.position.x) / 2;
+            } else if (currentNode) {
+              // Position slightly to the right of the single parent
+              x = currentNode.position.x + NODE_WIDTH / 2 + HORIZONTAL_SPACING;
+            } else {
+              // Fallback position
+              const totalWidth = ((nodesCount + 1) * NODE_WIDTH) + 
+                                (nodesCount * HORIZONTAL_SPACING);
+              const startX = -totalWidth / 2;
+              x = startX + (nodesCount * (NODE_WIDTH + HORIZONTAL_SPACING));
+            }
+            
+            y = generation * Y_SPACING;
           }
-          
-          const y = generation * Y_SPACING;
           
           // Create group node
           const groupNode: Node<CustomNodeData> = {
@@ -669,7 +690,7 @@ function Flow({ reptileId }: { reptileId: string }) {
       
       return { nodes: flowNodes, edges: flowEdges };
     },
-    [morphs, reptileId, selectedReptile, highlightedNodes],
+    [morphs, reptileId, selectedReptile, highlightedNodes, initialLayoutDone],
   );
 
   useEffect(() => {
@@ -679,9 +700,22 @@ function Flow({ reptileId }: { reptileId: string }) {
         
         // Pass cached reptiles to the lineage function
         const lineageData = await getReptileLineage(reptileId, reptiles);
+        
+        // Create the initial layout
         const { nodes, edges } = createFlowElements(lineageData);
+        
+        // Set the initial layout
         setNodes(nodes);
         setEdges(edges);
+        
+        // Store all initial node positions in the ref
+        nodePositionsRef.current = new Map();
+        nodes.forEach(node => {
+          nodePositionsRef.current.set(node.id, { x: node.position.x, y: node.position.y });
+        });
+        
+        // Mark initial layout as complete
+        setInitialLayoutDone(true);
       } catch (error) {
         console.error('Failed to load reptile lineage:', error);
         setNodes([]);
@@ -710,27 +744,39 @@ function Flow({ reptileId }: { reptileId: string }) {
       return;
     }
 
-    setSelectedReptile(node.id);
-    
     // Find parents for this node
     const parentInfo = parentRelationships.get(node.id);
     
-    // Update highlighted nodes
+    // Batch state updates to improve performance
+    setSelectedReptile(node.id);
     setHighlightedNodes({
       dam: parentInfo?.dam || null,
       sire: parentInfo?.sire || null,
       child: node.id
     });
- 
   }, [parentRelationships, selectedReptile]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      setNodes((nds) => applyNodeChanges(changes, nds));
+      // Apply changes to nodes
+      setNodes((nds) => {
+        const updatedNodes = applyNodeChanges(changes, nds);
+        
+        // Only update positions for position type changes
+        changes.forEach(change => {
+          if (change.type === 'position' && change.position) {
+            nodePositionsRef.current.set(change.id, { 
+              x: change.position.x, 
+              y: change.position.y 
+            });
+          }
+        });
+        
+        return updatedNodes;
+      });
     },
     [setNodes]
   );
-
 
   // Add legend component
   const Legend = () => (
@@ -774,6 +820,7 @@ function Flow({ reptileId }: { reptileId: string }) {
       attributionPosition="bottom-left"
       nodesDraggable={true}
       onNodesChange={onNodesChange} 
+      proOptions={{ hideAttribution: true }}
     >
       <Controls />
       <Background />
