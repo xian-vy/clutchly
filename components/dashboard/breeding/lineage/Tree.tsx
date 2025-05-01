@@ -3,13 +3,15 @@
 import { getReptileLineage } from '@/app/api/reptiles/lineage';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
 import { HetTrait, Reptile } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { CircleHelp, Mars, Venus } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { CircleHelp, Mars, Venus,  Dna } from 'lucide-react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import ReactFlow, {
   applyNodeChanges,
   Background,
@@ -27,6 +29,7 @@ import 'reactflow/dist/style.css';
 
 interface ReptileNode extends Reptile {
   children: ReptileNode[];
+  childrenWithoutDescendants: Reptile[];
   parents: {
     dam: ReptileNode | null;
     sire: ReptileNode | null;
@@ -48,10 +51,174 @@ interface CustomNodeData {
   isSelected?: boolean;
   isHighlighted?: boolean;
   isParentOf?: string;
-  selectedReptileName : string;
+  selectedReptileName: string;
   visualTraits: string[];
   hetTraits: HetTrait[];
+  isGroupNode?: boolean;
+  groupedReptiles?: Reptile[];
+  nodeType?: string;
+  count?: number;
+  parentId?: string;
 }
+
+// Special node for showing grouped descendants without offspring
+const GroupNode = ({ data }: NodeProps<CustomNodeData>) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { morphs } = useMorphsStore();
+  const { data: reptiles = [] } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  });
+
+  return (
+    <>
+      <div
+        className={cn(
+          'px-4 py-2 shadow-lg rounded-md border border-dashed border-primary/70 bg-primary/10 dark:bg-primary/20 min-w-[200px] transition-all duration-300 hover:border-primary cursor-pointer',
+          data.isSelected && 'ring-1 ring-primary shadow-2xl z-50',
+        )}
+        style={{ boxShadow: 'none', outline: 'none' }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setDialogOpen(true);
+        }}
+      >
+        <Handle 
+          type="target" 
+          position={Position.Top} 
+          style={{ border: 'none', background: 'transparent' }} 
+        />
+        <div className="flex flex-col items-center gap-2 py-1">
+          <div className="flex items-center gap-2">
+            <Dna className="h-4 w-4 text-primary" />
+            <span className="font-medium text-primary">Show {data.count} Offspring</span>
+          </div>
+          <div className="text-xs text-muted-foreground">Without descendants</div>
+        </div>
+        <Handle 
+          type="source" 
+          position={Position.Bottom} 
+          style={{ border: 'none', background: 'transparent' }} 
+        />
+      </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-4xl lg:max-w-screen-md 2xl:max-w-screen-lg max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Offspring without Descendants</DialogTitle>
+          </DialogHeader>
+          {data.parentId && (
+            <div className="p-3 mb-2 rounded-md">
+              <div className="font-semibold mb-1">Parents:</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].dam_id && (
+                  <div className="flex items-center gap-2 p-2 border rounded-md">
+                    <div className='space-y-1'>
+                      <div className="flex items-center gap-2 font-medium">
+                        <Venus className="h-4 w-4 text-red-500" />
+                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.name || 'Unknown Dam'}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
+                      </div>
+                      <div>
+                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
+                            <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                              {trait}
+                            </Badge>
+                            ))}
+                          </div>
+                      <div>
+                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
+                            <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                              {trait.percentage + "% het " + trait.trait}
+                            </Badge>
+                            ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].sire_id && (
+                  <div className="flex items-center gap-2 p-2 border rounded-md">
+                    <div className='space-y-1'>
+                      <div className="flex items-center gap-2 font-medium">
+                        <Mars className="h-4 w-4 text-blue-400" />
+                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.name || 'Unknown Sire'}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
+                      </div>
+                      <div>
+                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
+                            <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                              {trait}
+                            </Badge>
+                            ))}
+                          </div>
+                      <div>
+                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
+                            <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                              {trait.percentage + "% het " + trait.trait}
+                            </Badge>
+                            ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <ScrollArea className="max-h-[60vh]">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-1">
+              {data.groupedReptiles?.map((reptile) => {
+                const morphName = morphs.find((m: Morph) => m.id.toString() === reptile.morph_id.toString())?.name || 'Unknown';
+                return (
+                  <div key={reptile.id} className="border rounded-md p-3 ">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium">{reptile.name}</div>
+                      <div>
+                        {reptile.sex === 'male' ? (
+                          <Mars className="h-4 w-4 text-blue-400" />
+                        ) : reptile.sex === 'female' ? (
+                          <Venus className="h-4 w-4 text-red-500" />
+                        ) : (
+                          <CircleHelp className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-sm font-medium mt-1">{morphName}</div>
+                    <div className="flex gap-1 flex-wrap mt-2">
+                      {reptile.visual_traits?.map((trait, i) => (
+                        <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                          {trait}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex gap-1 flex-wrap mt-1">
+                      {reptile.het_traits?.map((trait, i) => (
+                        <Badge key={i} className="bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs">
+                          {trait.percentage + "% het " + trait.trait}
+                        </Badge>
+                      ))}
+                    </div>
+                    {/* <div className="flex gap-1 mt-2">
+                      {reptile.generation && (
+                        <Badge variant="outline">Gen {reptile.generation}</Badge>
+                      )}
+                      {reptile.breeding_line && (
+                        <Badge variant="secondary">{reptile.breeding_line}</Badge>
+                      )}
+                    </div> */}
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
 
 const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
   <div
@@ -99,18 +266,13 @@ const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
           {data.breeding_line && (
             <Badge variant="secondary">{data.breeding_line}</Badge>
           )}
-          {/* {data.isParentOf && (
-            <p className='text-xs bg-slate-700/20 dark:bg-slate-700/50 px-2 py-1 rounded-md'>
-              {data.isParent === 'dam' ? 'Dam of' : 'Sire of'} {data.selectedReptileName}
-            </p>
-          )} */}
         </div>
     </div>
     <Handle type="source" position={Position.Bottom} />
   </div>
 );
 
-const nodeTypes = { custom: CustomNode };
+const nodeTypes = { custom: CustomNode, group: GroupNode };
 
 // Create a flow component that uses the ReactFlow hooks inside the provider context
 function Flow({ reptileId }: { reptileId: string }) {
@@ -126,6 +288,9 @@ function Flow({ reptileId }: { reptileId: string }) {
     sire: null,
     child: null
   });
+  const [initialLayoutDone, setInitialLayoutDone] = useState<boolean>(false);
+  // Use a ref instead of state for positions to avoid re-renders
+  const nodePositionsRef = useRef<Map<string, { x: number, y: number }>>(new Map());
   
   const { morphs } = useMorphsStore();
   
@@ -248,15 +413,25 @@ function Flow({ reptileId }: { reptileId: string }) {
         // Constants for layout
         const Y_SPACING = 200;
         const NODE_WIDTH = 250;
-        const HORIZONTAL_SPACING = 50;
+        const HORIZONTAL_SPACING = 100;
         
-        // Calculate horizontal position
-        const totalWidth = (nodesInGeneration.length * NODE_WIDTH) + 
-                          ((nodesInGeneration.length - 1) * HORIZONTAL_SPACING);
-        const startX = -totalWidth / 2;
+        // Get position either from memory or calculate new position
+        let x, y;
         
-        const x = startX + (position * (NODE_WIDTH + HORIZONTAL_SPACING));
-        const y = generation * Y_SPACING;
+        if (initialLayoutDone && nodePositionsRef.current.has(reptileNode.id)) {
+          // Use stored position if available after initial layout
+          const storedPosition = nodePositionsRef.current.get(reptileNode.id)!;
+          x = storedPosition.x;
+          y = storedPosition.y;
+        } else {
+          // Calculate horizontal position
+          const totalWidth = (nodesInGeneration.length * NODE_WIDTH) + 
+                            ((nodesInGeneration.length - 1) * HORIZONTAL_SPACING);
+          const startX = -totalWidth / 2;
+          
+          x = startX + (position * (NODE_WIDTH + HORIZONTAL_SPACING));
+          y = generation * Y_SPACING;
+        }
         
         // Create the flow node
         const morphName = morphs.find((m: Morph) => m.id.toString() === reptileNode.morph_id.toString())?.name || 'Unknown';
@@ -295,9 +470,135 @@ function Flow({ reptileId }: { reptileId: string }) {
         return flowNode;
       }
       
-       // Create all nodes first
-       for (const node of allTreeNodes.values()) {
+      // Create all nodes first
+      for (const node of allTreeNodes.values()) {
         createNode(node);
+        
+        // Add group nodes for children without descendants if any exist
+        if (node.childrenWithoutDescendants && node.childrenWithoutDescendants.length > 0) {
+          const pairId = node.id; // Use the parent ID that has the grouped children
+          const groupNodeId = `group-${pairId}`;
+          const generation = (generationMap.get(node.id) || 0) + 1;
+          
+          // Calculate position for group node
+          const nodesInGeneration = nodesByGeneration.get(generation) || [];
+          const nodesCount = nodesInGeneration.length;
+          
+          // Constants for layout (same as regular nodes)
+          const Y_SPACING = 200;
+          const NODE_WIDTH = 250;
+          const HORIZONTAL_SPACING = 100;
+          
+          // Calculate x position - find other parent and position between them if possible
+          let x = 0;
+          let y = 0;
+          let partnerNodeId = null;
+          
+          if (initialLayoutDone && nodePositionsRef.current.has(groupNodeId)) {
+            // Use stored position if available after initial layout
+            const storedPosition = nodePositionsRef.current.get(groupNodeId)!;
+            x = storedPosition.x;
+            y = storedPosition.y;
+          } else {
+            // Find possible breeding partners (look for common offspring)
+            const offspring = node.childrenWithoutDescendants[0]; // First offspring to identify parents
+            
+            if (offspring) {
+              // Check which one of the parents this node is
+              if (offspring.dam_id === node.id && offspring.sire_id) {
+                partnerNodeId = offspring.sire_id;
+              } else if (offspring.sire_id === node.id && offspring.dam_id) {
+                partnerNodeId = offspring.dam_id;
+              }
+            }
+            
+            // Get partner node position if it exists
+            const partnerNode = partnerNodeId ? nodeMap.get(partnerNodeId) : null;
+            const currentNode = nodeMap.get(node.id);
+            
+            if (currentNode && partnerNode) {
+              // Position the group node between the two parents
+              x = (currentNode.position.x + partnerNode.position.x) / 2;
+            } else if (currentNode) {
+              // Position slightly to the right of the single parent
+              x = currentNode.position.x + NODE_WIDTH / 2 + HORIZONTAL_SPACING;
+            } else {
+              // Fallback position
+              const totalWidth = ((nodesCount + 1) * NODE_WIDTH) + 
+                                (nodesCount * HORIZONTAL_SPACING);
+              const startX = -totalWidth / 2;
+              x = startX + (nodesCount * (NODE_WIDTH + HORIZONTAL_SPACING));
+            }
+            
+            y = generation * Y_SPACING;
+          }
+          
+          // Create group node
+          const groupNode: Node<CustomNodeData> = {
+            id: groupNodeId,
+            position: { x, y },
+            type: 'group',
+            data: {
+              name: `Children of ${node.name}`,
+              sex: 'unknown',
+              morph_name: '',
+              isGroupNode: true,
+              nodeType: 'childrenWithoutDescendants',
+              count: node.childrenWithoutDescendants.length,
+              groupedReptiles: node.childrenWithoutDescendants,
+              parentId: node.id,
+              selectedReptileName: '',
+              visualTraits: [],
+              hetTraits: [],
+            },
+            style: {
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              boxShadow: 'none'
+            }
+          };
+          
+          flowNodes.push(groupNode);
+          
+          // Add edge from parent to group
+          flowEdges.push({
+            id: `${node.id}-${groupNodeId}`,
+            source: node.id,
+            target: groupNodeId,
+            type: 'bezier',
+            style: { 
+              stroke: '#94a3b8', 
+              strokeWidth: 1.5,
+              strokeOpacity: 0.6,
+              strokeDasharray: '5,5',
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: '#94a3b8',
+            },
+          });
+          
+          // Add edge from partner parent to group if it exists
+          if (partnerNodeId && nodeMap.has(partnerNodeId)) {
+            flowEdges.push({
+              id: `${partnerNodeId}-${groupNodeId}`,
+              source: partnerNodeId,
+              target: groupNodeId,
+              type: 'bezier',
+              style: { 
+                stroke: '#94a3b8', 
+                strokeWidth: 1.5,
+                strokeOpacity: 0.6,
+                strokeDasharray: '5,5',
+              },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: '#94a3b8',
+              },
+            });
+          }
+        }
       }
       
       // Then create all edges
@@ -348,7 +649,6 @@ function Flow({ reptileId }: { reptileId: string }) {
                 stroke: '#2196f3', 
                 strokeWidth: isHighlighted ? 2 : 1.5,
                 strokeOpacity: isHighlighted ? 1 : 0.6,
-                // strokeDasharray: '5,5',
               },
               labelBgPadding: [4, 2],
               labelBgBorderRadius: 4,
@@ -361,11 +661,36 @@ function Flow({ reptileId }: { reptileId: string }) {
             processedEdges.add(edgeId);
           }
         }
+        
+        // Add edges to children with descendants (regular nodes)
+        for (const child of node.children) {
+          const edgeId = `${id}-${child.id}`;
+          if (!processedEdges.has(edgeId)) {
+            flowEdges.push({
+              id: edgeId,
+              source: id,
+              target: child.id,
+              type: 'bezier',
+              style: { 
+                stroke: child.sex === 'female' ? '#e91e63' : 
+                         child.sex === 'male' ? '#2196f3' : '#94a3b8',
+                strokeWidth: 1.5,
+                strokeOpacity: 0.6,
+              },
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: child.sex === 'female' ? '#e91e63' : 
+                       child.sex === 'male' ? '#2196f3' : '#94a3b8',
+              },
+            });
+            processedEdges.add(edgeId);
+          }
+        }
       }
       
       return { nodes: flowNodes, edges: flowEdges };
     },
-    [morphs, reptileId, selectedReptile, highlightedNodes],
+    [morphs, reptileId, selectedReptile, highlightedNodes, initialLayoutDone],
   );
 
   useEffect(() => {
@@ -375,9 +700,22 @@ function Flow({ reptileId }: { reptileId: string }) {
         
         // Pass cached reptiles to the lineage function
         const lineageData = await getReptileLineage(reptileId, reptiles);
+        
+        // Create the initial layout
         const { nodes, edges } = createFlowElements(lineageData);
+        
+        // Set the initial layout
         setNodes(nodes);
         setEdges(edges);
+        
+        // Store all initial node positions in the ref
+        nodePositionsRef.current = new Map();
+        nodes.forEach(node => {
+          nodePositionsRef.current.set(node.id, { x: node.position.x, y: node.position.y });
+        });
+        
+        // Mark initial layout as complete
+        setInitialLayoutDone(true);
       } catch (error) {
         console.error('Failed to load reptile lineage:', error);
         setNodes([]);
@@ -392,6 +730,9 @@ function Flow({ reptileId }: { reptileId: string }) {
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     event.preventDefault();
     
+    // Skip group nodes - they are handled internally
+    if (node.type === 'group') return;
+    
     // Reset if clicking the same node
     if (selectedReptile === node.id) {
       setSelectedReptile('');
@@ -403,27 +744,39 @@ function Flow({ reptileId }: { reptileId: string }) {
       return;
     }
 
-    setSelectedReptile(node.id);
-    
     // Find parents for this node
     const parentInfo = parentRelationships.get(node.id);
     
-    // Update highlighted nodes
+    // Batch state updates to improve performance
+    setSelectedReptile(node.id);
     setHighlightedNodes({
       dam: parentInfo?.dam || null,
       sire: parentInfo?.sire || null,
       child: node.id
     });
- 
   }, [parentRelationships, selectedReptile]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      setNodes((nds) => applyNodeChanges(changes, nds));
+      // Apply changes to nodes
+      setNodes((nds) => {
+        const updatedNodes = applyNodeChanges(changes, nds);
+        
+        // Only update positions for position type changes
+        changes.forEach(change => {
+          if (change.type === 'position' && change.position) {
+            nodePositionsRef.current.set(change.id, { 
+              x: change.position.x, 
+              y: change.position.y 
+            });
+          }
+        });
+        
+        return updatedNodes;
+      });
     },
     [setNodes]
   );
-
 
   // Add legend component
   const Legend = () => (
@@ -436,11 +789,18 @@ function Flow({ reptileId }: { reptileId: string }) {
           <Mars className="h-3 w-3 text-blue-400" />
         </div>
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center mb-1">
         <div className="w-4 h-0.5 bg-red-500 mr-2"></div>
         <div className="flex items-center">
           <span className="text-xs mr-1">Dam</span>
           <Venus className="h-3 w-3 text-red-500" />
+        </div>
+      </div>
+      <div className="flex items-center">
+        <div className="w-4 h-0.5 bg-slate-400 dashed mr-2" style={{ borderStyle: 'dashed' }}></div>
+        <div className="flex items-center">
+          <span className="text-xs mr-1">Grouped Offspring</span>
+          <Dna className="h-3 w-3 text-primary" />
         </div>
       </div>
     </div>
@@ -460,6 +820,7 @@ function Flow({ reptileId }: { reptileId: string }) {
       attributionPosition="bottom-left"
       nodesDraggable={true}
       onNodesChange={onNodesChange} 
+      proOptions={{ hideAttribution: true }}
     >
       <Controls />
       <Background />
@@ -472,6 +833,18 @@ function Flow({ reptileId }: { reptileId: string }) {
 export function ReptileTree({ reptileId }: ReptileTreeProps) {
   return (
     <div style={{ width: '100%', height: '800px' }}>
+      <style jsx global>{`
+        /* Override ReactFlow node styling for group nodes */
+        .react-flow__node-group {
+          background: transparent !important;
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+        .react-flow__node-group .react-flow__handle {
+          opacity: 0 !important;
+        }
+      `}</style>
       <ReactFlowProvider>
         <Flow reptileId={reptileId} />
       </ReactFlowProvider>

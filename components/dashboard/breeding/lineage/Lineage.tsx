@@ -17,14 +17,23 @@ const Lineage = () => {
 
   return (
     <div>
-      <div className="flex items-center float-right max-w-[270px] w-full">
-          <ReptileSelect
-                value={selectedReptileId}
-                onValueChange={setSelectedReptileId}
-                placeholder="Select a reptile"
-            />
+      <div className="flex w-full items-center justify-between">
+          <div>
+                <h2 className="text-sm lg:text-lg font-semibold tracking-tight text-start">Pedigree Tree</h2>
+                <p className="text-sm text-muted-foreground">
+                   Explore lineage and ancestry through an interactive pedigree tree.
+                </p>
+          </div>
+          <div className="flex items-center float-right max-w-[270px] w-full">
+                <ReptileSelect
+                      value={selectedReptileId}
+                      onValueChange={setSelectedReptileId}
+                      placeholder="Select a reptile"
+                  />
+          </div>
       </div>
       {selectedReptileId !== '' &&  <ReptileTree reptileId={selectedReptileId} /> }
+
     </div>
   )
 }
