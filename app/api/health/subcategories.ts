@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { HealthLogSubcategory } from '@/lib/types/health'
 
 export async function getHealthSubcategories(categoryId?: string) {

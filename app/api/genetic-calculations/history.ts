@@ -1,5 +1,4 @@
-'use server'
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/client"
 import { GeneticCalculation } from "@/lib/types/genetic-calculator"
 
 export async function getGeneticCalculations() : Promise<GeneticCalculation[]> {

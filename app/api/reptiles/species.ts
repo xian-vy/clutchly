@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { Species, NewSpecies } from '@/lib/types/species'
 
 export async function getSpecies() {

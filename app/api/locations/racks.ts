@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { NewRack, Rack, NewLocation } from '@/lib/types/location'
 import { bulkCreateLocations } from './locations'
 

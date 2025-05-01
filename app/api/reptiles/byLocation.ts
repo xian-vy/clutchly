@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { Reptile } from '@/lib/types/reptile';
 
 interface ReptileWithDetails extends Reptile {

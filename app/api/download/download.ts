@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { z } from 'zod'
 import { BackupType, backupConfigs } from '@/lib/types/download'
 import { SupabaseClient } from '@supabase/supabase-js'

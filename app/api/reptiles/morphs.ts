@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { Morph, NewMorph } from '@/lib/types/morph'
 
 export async function getMorphs() {

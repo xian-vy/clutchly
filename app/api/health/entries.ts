@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { CreateHealthLogEntryInput, HealthLogEntry } from '@/lib/types/health'
 
 export async function getHealthLogs() {

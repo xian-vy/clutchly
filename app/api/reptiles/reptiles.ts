@@ -1,6 +1,5 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { CreateGrowthEntryInput } from '@/lib/types/growth'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { createFeedingEventForNewLocation } from '@/app/api/feeding/events'

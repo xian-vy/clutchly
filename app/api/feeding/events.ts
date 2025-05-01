@@ -1,5 +1,4 @@
-'use server'
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/client';
 import { FeedingEvent, FeedingEventWithDetails, NewFeedingEvent } from '@/lib/types/feeding';
 import { startOfDay } from 'date-fns';
 
