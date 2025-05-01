@@ -7,7 +7,6 @@ import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi'
 import { AuthLayout } from './AuthLayout'
 import { signup } from '@/app/auth/signup/actions'
-import { useFormStatus } from 'react-dom'
 import { TopLoader } from '@/components/ui/TopLoader'
 import { Input } from '../ui/input'
 import { useForm } from 'react-hook-form'
@@ -28,19 +27,22 @@ const formSchema = z.object({
   path: ["confirmPassword"],
 });
 
-function SubmitButton() {
-  const { pending } = useFormStatus()
+type T = {
+  isLoading : boolean
+}
+
+function SubmitButton({isLoading} : T) {
   
   return (
     <motion.button 
       type="submit" 
       className="relative w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group cursor-pointer"
-      disabled={pending}
+      disabled={isLoading}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
     >
       <span className="relative z-10">
-        {pending ? (
+        {isLoading ? (
           <span className="flex items-center justify-center">
             <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -234,7 +236,7 @@ export function SignUpForm() {
               </motion.div>
             )}
 
-            <SubmitButton />
+            <SubmitButton isLoading={isLoading} />
 
             <div className="text-center text-sm">
               <span className="text-muted-foreground">Already have an account?</span>{' '}
