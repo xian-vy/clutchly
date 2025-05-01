@@ -31,7 +31,7 @@ interface StatusItem {
 
 interface DistributionPieChartsProps {
   data: ExpenseRecord[];
-  timePeriod: TimePeriod;
+  period: TimePeriod;
 }
 
 // Custom tooltip component
@@ -58,7 +58,7 @@ const CustomTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) =
   return null;
 };
 
-export function DistributionPieCharts({ data, timePeriod }: DistributionPieChartsProps) {
+export function DistributionPieCharts({ data }: DistributionPieChartsProps) {
   if (!data || data.length === 0) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -9,38 +9,24 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 
-export type TimePeriod = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
+export type TimePeriod = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
 
 interface TimeRangeSelectorProps {
-  value?: TimePeriod;
-  onChange?: (value: TimePeriod) => void;
+  value: TimePeriod;
+  onChange: (value: TimePeriod) => void;
   dateRange?: DateRange;
   onDateChange?: (date: DateRange | undefined) => void;
-  
-  // Alternative props naming to support ExpenseReportTab
-  timePeriod?: TimePeriod;
-  onTimePeriodChange?: (value: TimePeriod) => void;
-  onDateRangeChange?: (date: DateRange | undefined) => void;
 }
 
 export function TimeRangeSelector({ 
   value, 
   onChange, 
   dateRange, 
-  onDateChange,
-  // Support for alternative prop names
-  timePeriod,
-  onTimePeriodChange,
-  onDateRangeChange
+  onDateChange
 }: TimeRangeSelectorProps) {
-  // Use the prop that is provided (prefer the original naming)
-  const actualTimePeriod = value || timePeriod || 'monthly';
-  const handleTimePeriodChange = onChange || onTimePeriodChange || (() => {});
-  const handleDateRangeChange = onDateChange || onDateRangeChange || (() => {});
-
   return (
     <div className="flex items-center gap-2">
-      <Select value={actualTimePeriod} onValueChange={handleTimePeriodChange}>
+      <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-[140px] !h-8 dark:border-none">
           <SelectValue placeholder="Select period" />
         </SelectTrigger>
@@ -48,13 +34,14 @@ export function TimeRangeSelector({
           <SelectItem value="daily">Daily</SelectItem>
           <SelectItem value="weekly">Weekly</SelectItem>
           <SelectItem value="monthly">Monthly</SelectItem>
+          <SelectItem value="quarterly">Quarterly</SelectItem>
           <SelectItem value="yearly">Yearly</SelectItem>
           <SelectItem value="custom">Custom Range</SelectItem>
         </SelectContent>
       </Select>
 
       {/* Custom Date Range */}
-      {actualTimePeriod === 'custom' && (
+      {value === 'custom' && (
         <Popover modal>
           <PopoverTrigger asChild>
             <Button
@@ -85,7 +72,7 @@ export function TimeRangeSelector({
               mode="range"
               defaultMonth={dateRange?.from}
               selected={dateRange}
-              onSelect={handleDateRangeChange}
+              onSelect={onDateChange}
               numberOfMonths={2}
             />
           </PopoverContent>

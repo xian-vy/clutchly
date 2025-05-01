@@ -1,17 +1,18 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EXPENSE_STATUS_COLORS } from '@/lib/constants/colors';
-import { ExpenseRecord } from '@/lib/types/expenses';
-import { Filter } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-interface ExpenseFilterDialogProps {
-  onFilterChange: (filters: ExpenseFilters) => void;
+export interface ExpenseFilterDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onApplyFilters: (filters: ExpenseFilters) => void;
+  currentFilters: ExpenseFilters;
 }
 
 export interface ExpenseFilters {
@@ -20,31 +21,34 @@ export interface ExpenseFilters {
   dateTo?: string;
   amountFrom?: number;
   amountTo?: number;
+  category?: string;
+  vendor?: string;
 }
 
-export function ExpenseFilterDialog({ onFilterChange }: ExpenseFilterDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [filters, setFilters] = useState<ExpenseFilters>({});
+export function ExpenseFilterDialog({ 
+  open, 
+  onOpenChange, 
+  onApplyFilters, 
+  currentFilters 
+}: ExpenseFilterDialogProps) {
+  const [filters, setFilters] = useState<ExpenseFilters>(currentFilters);
 
-  const handleFilterChange = (newFilters: ExpenseFilters) => {
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+  // Update local filters when current filters change
+  useEffect(() => {
+    setFilters(currentFilters);
+  }, [currentFilters]);
+
+  const handleApply = () => {
+    onApplyFilters(filters);
+    onOpenChange(false);
   };
 
   const handleReset = () => {
-    const resetFilters: ExpenseFilters = {};
-    setFilters(resetFilters);
-    onFilterChange(resetFilters);
+    setFilters({});
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Filter className="mr-2 h-4 w-4" />
-          Filter
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Filter Expenses</DialogTitle>
@@ -56,20 +60,48 @@ export function ExpenseFilterDialog({ onFilterChange }: ExpenseFilterDialogProps
             </Label>
             <Select
               value={filters.status}
-              onValueChange={(value) => handleFilterChange({ ...filters, status: value })}
+              onValueChange={(value) => setFilters({ ...filters, status: value })}
             >
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(EXPENSE_STATUS_COLORS).map(([status, color]) => (
+                <SelectItem value="">All Statuses</SelectItem>
+                {Object.entries(EXPENSE_STATUS_COLORS).map(([status]) => (
                   <SelectItem key={status} value={status}>
-                    {status}
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="category" className="text-right">
+              Category
+            </Label>
+            <Input
+              id="category"
+              className="col-span-3"
+              value={filters.category || ''}
+              onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+              placeholder="Filter by category"
+            />
+          </div>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="vendor" className="text-right">
+              Vendor
+            </Label>
+            <Input
+              id="vendor"
+              className="col-span-3"
+              value={filters.vendor || ''}
+              onChange={(e) => setFilters({ ...filters, vendor: e.target.value })}
+              placeholder="Filter by vendor name"
+            />
+          </div>
+          
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="dateFrom" className="text-right">
               Date From
@@ -78,8 +110,8 @@ export function ExpenseFilterDialog({ onFilterChange }: ExpenseFilterDialogProps
               id="dateFrom"
               type="date"
               className="col-span-3"
-              value={filters.dateFrom}
-              onChange={(e) => handleFilterChange({ ...filters, dateFrom: e.target.value })}
+              value={filters.dateFrom || ''}
+              onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -90,8 +122,8 @@ export function ExpenseFilterDialog({ onFilterChange }: ExpenseFilterDialogProps
               id="dateTo"
               type="date"
               className="col-span-3"
-              value={filters.dateTo}
-              onChange={(e) => handleFilterChange({ ...filters, dateTo: e.target.value })}
+              value={filters.dateTo || ''}
+              onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -102,8 +134,8 @@ export function ExpenseFilterDialog({ onFilterChange }: ExpenseFilterDialogProps
               id="amountFrom"
               type="number"
               className="col-span-3"
-              value={filters.amountFrom}
-              onChange={(e) => handleFilterChange({ ...filters, amountFrom: Number(e.target.value) })}
+              value={filters.amountFrom || ''}
+              onChange={(e) => setFilters({ ...filters, amountFrom: Number(e.target.value) })}
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -114,8 +146,8 @@ export function ExpenseFilterDialog({ onFilterChange }: ExpenseFilterDialogProps
               id="amountTo"
               type="number"
               className="col-span-3"
-              value={filters.amountTo}
-              onChange={(e) => handleFilterChange({ ...filters, amountTo: Number(e.target.value) })}
+              value={filters.amountTo || ''}
+              onChange={(e) => setFilters({ ...filters, amountTo: Number(e.target.value) })}
             />
           </div>
         </div>
@@ -123,7 +155,7 @@ export function ExpenseFilterDialog({ onFilterChange }: ExpenseFilterDialogProps
           <Button variant="outline" onClick={handleReset}>
             Reset
           </Button>
-          <Button onClick={() => setIsOpen(false)}>Apply</Button>
+          <Button onClick={handleApply}>Apply</Button>
         </div>
       </DialogContent>
     </Dialog>

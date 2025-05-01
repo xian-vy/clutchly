@@ -11,10 +11,10 @@ interface ExpensesByTimeChartProps {
     expense_date: string;
     amount: number;
   }[];
-  timePeriod: TimePeriod;
+  period: TimePeriod;
 }
 
-export function ExpensesByTimeChart({ data, timePeriod }: ExpensesByTimeChartProps) {
+export function ExpensesByTimeChart({ data, period }: ExpensesByTimeChartProps) {
   // Transform the data to have a 'date' property instead of 'expense_date'
   const transformedData = data.map(item => ({
     ...item,
@@ -42,13 +42,15 @@ export function ExpensesByTimeChart({ data, timePeriod }: ExpensesByTimeChartPro
         }
         
         // Format based on time period
-        switch (timePeriod) {
+        switch (period) {
           case 'daily':
             return format(date, 'MMM d');
           case 'weekly':
             return format(date, 'MMM d');
           case 'monthly':
             return format(date, 'MMM yyyy');
+          case 'quarterly':
+            return format(date, 'QQQ yyyy');
           case 'yearly':
             return format(date, 'yyyy');
           default:
@@ -81,7 +83,7 @@ export function ExpensesByTimeChart({ data, timePeriod }: ExpensesByTimeChartPro
     <Card>
       <CardHeader>
         <CardTitle>Expenses Over Time</CardTitle>
-        <CardDescription>Trends in expenses over the {timePeriod} period</CardDescription>
+        <CardDescription>Trends in expenses over the {period} period</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">

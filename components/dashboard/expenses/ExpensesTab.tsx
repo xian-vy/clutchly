@@ -14,6 +14,7 @@ export function ExpensesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedExpenseForDetails, setSelectedExpenseForDetails] = useState<ExpenseRecord | null>(null)
   const [filters, setFilters] = useState<ExpenseFilters>({})
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false)
 
   const {
     resources: expenses,
@@ -55,14 +56,10 @@ export function ExpensesTab() {
     setSelectedExpenseForDetails(expense)
   }
 
-  const filteredExpenses = expenses?.filter((expense) => {
-    if (filters.status && expense.status !== filters.status) return false
-    if (filters.dateFrom && new Date(expense.expense_date) < new Date(filters.dateFrom)) return false
-    if (filters.dateTo && new Date(expense.expense_date) > new Date(filters.dateTo)) return false
-    if (filters.amountFrom && expense.amount < filters.amountFrom) return false
-    if (filters.amountTo && expense.amount > filters.amountTo) return false
-    return true
-  })
+  const handleApplyFilters = (newFilters: ExpenseFilters) => {
+    setFilters(newFilters)
+    setIsFilterDialogOpen(false)
+  }
 
   if (isLoading) {
     return (
@@ -79,11 +76,16 @@ export function ExpensesTab() {
 
 
       <ExpenseRecordList
-        expenses={filteredExpenses || []}
+        expenses={expenses || []}
         onEdit={handleEditExpense}
         onDelete={handleDelete}
         onViewDetails={handleViewDetails}
         onAddNew={handleAddExpense}
+        filters={filters}
+        onOpenFilterDialog={() => setIsFilterDialogOpen(true)}
+        isFilterDialogOpen={isFilterDialogOpen}
+        onApplyFilters={handleApplyFilters}
+        onCloseFilterDialog={() => setIsFilterDialogOpen(false)}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

@@ -33,14 +33,14 @@ export function ExpenseReportTab() {
     // Wait for date range selection
     if (period !== 'custom') {
       setDateRange(undefined);
-      setFilters((prev: ExpensesFilterParams) => ({
+      setFilters(prev => ({
         ...prev,
         period,
         startDate: undefined,
         endDate: undefined
       }));
     } else {
-      setFilters((prev: ExpensesFilterParams) => ({
+      setFilters(prev => ({
         ...prev,
         period
       }));
@@ -53,12 +53,19 @@ export function ExpenseReportTab() {
     
     if (timePeriod === 'custom' && newRange) {
       const updatedFilters = { ...filters };
+      
       if (newRange.from) {
         updatedFilters.startDate = format(newRange.from, 'yyyy-MM-dd');
+      } else {
+        delete updatedFilters.startDate;
       }
+      
       if (newRange.to) {
         updatedFilters.endDate = format(newRange.to, 'yyyy-MM-dd');
+      } else {
+        delete updatedFilters.endDate;
       }
+      
       setFilters(updatedFilters);
     }
   };
@@ -99,10 +106,10 @@ export function ExpenseReportTab() {
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
             <TimeRangeSelector
-              timePeriod={timePeriod}
+              value={timePeriod}
+              onChange={handleTimePeriodChange}
               dateRange={dateRange}
-              onTimePeriodChange={handleTimePeriodChange}
-              onDateRangeChange={handleDateRangeChange}
+              onDateChange={handleDateRangeChange}
             />
             <Button variant="outline" size="sm" onClick={handleResetFilters}>
               <FilterX className=" h-4 w-4" />
@@ -122,7 +129,7 @@ export function ExpenseReportTab() {
           {expensesByCategory && (
             <ExpensesByTimeChart
               data={expensesByCategory}
-              timePeriod={timePeriod}
+              period={timePeriod}
             />
           )}
         </TabsContent>
@@ -131,7 +138,7 @@ export function ExpenseReportTab() {
           {expensesByCategory && (
             <DistributionPieCharts
               data={expensesByCategory}
-              timePeriod={timePeriod}
+              period={timePeriod}
             />
           )}
         </TabsContent>
