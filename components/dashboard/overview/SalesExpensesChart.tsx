@@ -102,6 +102,28 @@ export function SalesExpensesChart({
     // Create a map to store combined data by period
     const combinedDataMap = new Map<string, ChartDataItem>();
     
+    // For monthly view, ensure we always have 12 months in Jan-Dec order
+    if (period === 'monthly') {
+      const currentYear = new Date().getFullYear();
+      // Create data for all 12 months of the current year in order
+      for (let month = 0; month < 12; month++) {
+        const monthDate = new Date(currentYear, month, 1);
+        const periodKey = format(monthDate, 'yyyy-MM');
+        const periodLabel = format(monthDate, 'MMM yy');
+        const periodStartDate = new Date(currentYear, month, 1);
+        const periodEndDate = new Date(currentYear, month + 1, 0);
+
+        combinedDataMap.set(periodKey, {
+          period: periodLabel,
+          sales: 0,
+          expenses: 0,
+          profit: 0,
+          periodStartDate,
+          periodEndDate
+        });
+      }
+    }
+    
     // Process sales data
     if (salesSummary?.monthly_sales) {
       salesSummary.monthly_sales.forEach(item => {
