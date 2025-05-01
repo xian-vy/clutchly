@@ -1,11 +1,10 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Area, ComposedChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, ComposedChart,  ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format, parseISO, isValid } from 'date-fns';
 import { TimePeriod } from '../TimeRangeSelector';
 import { formatCurrency } from '@/lib/utils';
-import { AreaChart } from 'lucide-react';
 
 interface ExpensesByTimeChartProps {
   data: {
