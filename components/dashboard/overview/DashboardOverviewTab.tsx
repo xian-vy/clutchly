@@ -31,7 +31,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { FeedingOverview } from './FeedingOverview';
 
 export function DashboardOverviewTab() {
-  const [allClutches, setAllClutches] = useState<Clutch[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
   
@@ -114,26 +113,22 @@ export function DashboardOverviewTab() {
     queryFn: () => getExpensesSummary(dateFilterParams),
   });
 
-  // Fetch clutches for all breeding projects
-  useEffect(() => {
-    async function fetchAllClutches() {
-      try {
-        if (dateFilterParams) {
-          const clutches = await getAllClutchesByDate(dateFilterParams);
-          setAllClutches(clutches);
-        } else if (breedingProjects.length) {
-          const clutchPromises = breedingProjects.map(project => getClutches(project.id));
-          const clutchesArrays = await Promise.all(clutchPromises);
-          setAllClutches(clutchesArrays.flat());
-        }
-      } catch (error) {
-        console.error("Error fetching clutches:", error);
-        setAllClutches([]);
+
+  // Fetch clutches using React Query with date filtering
+  const { data: allClutches = [], isLoading: clutchesLoading } = useQuery<Clutch[]>({
+    queryKey: ['clutches', dateFilterParams, breedingProjects],
+    queryFn: async () => {
+      if (dateFilterParams) {
+        return getAllClutchesByDate(dateFilterParams);
+      } else if (breedingProjects.length) {
+        const clutchPromises = breedingProjects.map(project => getClutches(project.id));
+        const clutchesArrays = await Promise.all(clutchPromises);
+        return clutchesArrays.flat();
       }
-    }
-    
-    fetchAllClutches();
-  }, [breedingProjects, dateFilterParams]);
+      return [];
+    },
+    enabled: !breedingLoading, // Only run when breeding projects are loaded
+  });
   
   // Handle date range changes
   const handleDateRangeChange = (newRange: DateRange | undefined) => {
@@ -240,7 +235,7 @@ export function DashboardOverviewTab() {
       </div>
       
       {/* Main dashboard content - stacked layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1  gap-6">
         {/* Action items */}
         <div>
           <ActionItems 

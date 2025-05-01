@@ -136,7 +136,7 @@ export function ActionItems({
       {alertItems.length > 0 && (
         <CardFooter className="pt-0">
           <Button variant="outline" className="w-full" asChild>
-            <Link href="/tasks">View All Tasks</Link>
+            <Link href="#">View All Tasks</Link>
           </Button>
         </CardFooter>
       )}

@@ -14,8 +14,6 @@ import {
   Tooltip,
   Legend,
   Area,
-  Bar,
-  Line,
   TooltipProps,
 } from "recharts";
 
@@ -425,20 +423,18 @@ export function SalesExpensesChart({
               bottom: 5,
             }}
             className="[&>svg>path]:fill-transparent"
+            maxBarSize={25}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
             <XAxis 
               dataKey="period" 
               fontSize={12} 
+              axisLine={false}
+              tickLine={false}
             />
             <YAxis
               fontSize={12}
-              label={{
-                value: 'Amount ($)',
-                angle: -90,
-                position: 'insideLeft',
-                style: { fill: 'var(--color-muted-foreground)' }
-              }}
+
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
@@ -453,26 +449,34 @@ export function SalesExpensesChart({
                 color: 'var(--foreground)'
               }}
             />
-            <Area 
-              type="monotone" 
-              dataKey="sales"
-              stroke="var(--color-chart-2)"
-              fill="var(--color-chart-2)"
-              fillOpacity={0.2} 
-            />
+            <defs>
+              <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.5} />
+                <stop offset="50%" stopColor="var(--color-chart-1)" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="expensesGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-chart-6)" stopOpacity={0.5} />
+                <stop offset="50%" stopColor="var(--color-chart-6)" stopOpacity={0.1} />
+              </linearGradient>
+            </defs>
+          
             <Area 
               type="monotone" 
               dataKey="expenses"
-              stroke="var(--color-chart-1)"
-              fill="var(--color-chart-1)"
-              fillOpacity={0.2} 
+              stroke="var(--color-chart-6)"
+              fill="url(#expensesGradient)"
+              strokeWidth={1}
+              connectNulls={true}
+              scale="point"
             />
-            <Line 
+              <Area 
               type="monotone" 
-              dataKey="profit"
-              stroke="var(--color-chart-3)"
-              dot={true}
-              strokeWidth={2}
+              dataKey="sales"
+              stroke="var(--color-chart-1)"
+              fill="url(#salesGradient)"
+              strokeWidth={1}
+              connectNulls={true}
+              scale="point"
             />
           </ComposedChart>
         </ResponsiveContainer>
