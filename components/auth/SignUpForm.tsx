@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { FiMail, FiLock, FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi'
+import { FiMail, FiLock, FiAlertCircle, FiCheckCircle, FiInfo, FiKey } from 'react-icons/fi'
 import { AuthLayout } from './AuthLayout'
 import { signup } from '@/app/auth/signup/actions'
 import { TopLoader } from '@/components/ui/TopLoader'
@@ -18,10 +18,14 @@ const formSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
+    .max(32, 'Password must be at most 32 characters')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
-  confirmPassword: z.string()
+  confirmPassword: z.string(),
+  inviteCode: z.string()
+    .min(8, 'Invite code must be atleast 8 characters')
+    .max(16, 'Invite code must be at most 16 characters')
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -77,7 +81,8 @@ export function SignUpForm() {
     defaultValues: {
       email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      inviteCode: ''
     }
   })
 
@@ -86,6 +91,7 @@ export function SignUpForm() {
     const formData = new FormData()
     formData.append('email', values.email)
     formData.append('password', values.password)
+    formData.append('inviteCode', values.inviteCode)
     
     try {
       const result = await signup(formData)
@@ -203,6 +209,36 @@ export function SignUpForm() {
                         placeholder="••••••••"
                         className="w-full px-10 py-6 transition-all duration-500"
                         {...field}
+                      />
+                    </FormControl>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="inviteCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground/80">
+                    Invite Code
+                    <span className="-ml-1 text-primary">*</span>
+                  </FormLabel>
+                  <div className="relative">
+                    <FiKey className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="XXXXXXXX"
+                        className="w-full px-10 py-6 transition-all duration-500 uppercase"
+                        maxLength={16}
+                        {...field}
+                        onChange={(e) => {
+                          e.target.value = e.target.value.toUpperCase();
+                          field.onChange(e);
+                        }}
                       />
                     </FormControl>
                   </div>
