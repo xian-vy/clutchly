@@ -67,8 +67,8 @@ export function ExpenseRecordList({
     if (filters.status) count++;
     if (filters.dateFrom) count++;
     if (filters.dateTo) count++;
-    if (filters.amountFrom) count++;
-    if (filters.amountTo) count++;
+    if (filters.amountFrom !== undefined && filters.amountFrom > 0) count++;
+    if (filters.amountTo !== undefined && filters.amountTo < 20000) count++;
     if (filters.category) count++;
     if (filters.vendor) count++;
     return count;
