@@ -1,13 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useResource } from '@/lib/hooks/useResource';
-import { ProfileType, ProfileFormData, Profile } from '@/lib/types/profile';
+import { Profile, ProfileFormData } from '@/lib/types/profile';
 import { 
   getProfile, 
   createProfile, 
   updateProfile, 
-  deleteProfile 
 } from '@/app/api/profiles/profiles';
 import { 
   Dialog,
@@ -16,17 +14,42 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog';
-import { 
-  Card, 
-  CardContent 
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Form } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, User, Building, Home, Sparkles, Trophy, Medal, ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Sparkles } from 'lucide-react';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { ProfileStep1 } from './ProfileStep1';
+import { ProfileStep2 } from './ProfileStep2';
+import { ProfileStep3 } from './ProfileStep3';
+import { useQuery } from '@tanstack/react-query';
 
-// Adapter functions for useResource
+// Validation schemas for each step
+export const profileStep1Schema = z.object({
+  full_name: z.string().min(6, "Please enter your name at least 6 characters"),
+  collection_size: z.number().nullable().optional(),
+});
+
+export const profileStep2Schema = z.object({
+  account_type: z.enum(['keeper', 'breeder', 'facility'], {
+    required_error: "Please select an account type",
+  }),
+});
+
+export const profileStep3Schema = z.object({
+  selected_species: z.array(z.string()).min(1, "Please select at least one species"),
+});
+
+// Combined schema for the full form
+export const profileFormSchema = profileStep1Schema
+  .merge(profileStep2Schema)
+  .merge(profileStep3Schema);
+
+export type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
 async function getProfiles(): Promise<Profile[]> {
   try {
     const profile = await getProfile();
@@ -37,38 +60,44 @@ async function getProfiles(): Promise<Profile[]> {
   }
 }
 
-async function updateProfileWithId(id: string, data: ProfileFormData): Promise<Profile> {
-  return updateProfile(data);
-}
+
 
 export function ProfileSetupDialog() {
   const [step, setStep] = useState(1);
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const {
-    resources: profiles,
-    isLoading,
-    handleCreate,
-    handleUpdate,
-    refetch
-  } = useResource<Profile, ProfileFormData>({
-    resourceName: 'Profile',
+  // Load species using the species store
+  const { fetchSpecies } = useSpeciesStore();
+  
+  // Access morphs store for later use
+  const { downloadCommonMorphs } = useMorphsStore();
+  
+  const { data: profiles, isLoading } = useQuery({
     queryKey: ['profile'],
-    getResources: getProfiles,
-    createResource: createProfile,
-    updateResource: updateProfileWithId,
-    deleteResource: deleteProfile,
+    queryFn: getProfiles
+  })
+
+  const profile = profiles ? profiles[0] : null;
+
+  const isProfileComplete = profile ? (!!profile.full_name && !!profile.account_type && (profile.selected_species && profile.selected_species.length > 0)) : false;
+  
+  // Initialize the form with react-hook-form and zod validation
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      full_name: '',
+      account_type: 'keeper',
+      collection_size: null,
+      selected_species: []
+    },
+    mode: 'onChange'
   });
 
-  const profile = profiles[0];
-  const isProfileComplete = profile ? (!!profile.full_name && !!profile.account_type) : false;
-  
-  const [formData, setFormData] = useState<ProfileFormData>({
-    full_name: '',
-    account_type: 'keeper',
-    collection_size: null
-  });
+  // Fetch species on component mount
+  useEffect(() => {
+    fetchSpecies();
+  }, [fetchSpecies]);
 
   // Set dialog state once profile data is loaded
   useEffect(() => {
@@ -81,52 +110,70 @@ export function ProfileSetupDialog() {
   // Update form data when profile changes
   useEffect(() => {
     if (profile) {
-      setFormData({
+      form.reset({
         full_name: profile.full_name || '',
         account_type: profile.account_type || 'keeper',
-        collection_size: profile.collection_size
+        collection_size: profile.collection_size,
+        selected_species: profile.selected_species || []
       });
     }
-  }, [profile]);
+  }, [profile, form]);
 
-  const handleNextStep = () => {
-    if (step === 1 && !formData.full_name.trim()) {
-      toast.error("Please enter your name");
-      return;
+  const handleNextStep = async () => {
+    let canProceed = false;
+    
+    if (step === 1) {
+      const step1Valid = await form.trigger(['full_name', 'collection_size']);
+      canProceed = step1Valid;
+    } else if (step === 2) {
+      const step2Valid = await form.trigger(['account_type']);
+      canProceed = step2Valid;
     }
-    setStep(step + 1);
+    
+    if (canProceed) {
+      setStep(step + 1);
+    }
   };
 
   const handlePrevStep = () => {
     setStep(step - 1);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.full_name.trim()) {
-      toast.error("Please enter your name");
-      return;
-    }
-    
+  const onSubmit = async (data: ProfileFormValues) => {
     setIsSubmitting(true);
     try {
-      console.log('Submitting profile data:', formData);
+      // Convert the form data to match ProfileFormData
+      const profileData: ProfileFormData = {
+        full_name: data.full_name,
+        account_type: data.account_type,
+        collection_size: data.collection_size || null,
+        selected_species: data.selected_species
+      };
       
+      if (data.selected_species && data.selected_species.length > 0) {
+        // Download morphs for the selected species
+        await downloadCommonMorphs(data.selected_species);
+      }
       if (profile) {
-        await handleUpdate(formData);
+        // Set the selected resource before update
+        const success = await updateProfile(profileData);
+        if (success) {
+          console.log("Profile updated successfully");
+        } else {
+          console.error("Profile update failed");
+          toast.error("There was a problem updating your profile. Please try again.");
+        }
       } else {
-        await handleCreate(formData);
+        await createProfile(profileData);
+        console.log("Profile created successfully");
       }
       
       toast.success("Your profile has been successfully set up!");
       
-      // Refresh profile data
-      await refetch();
-      
+
       // Only close the dialog if profile setup succeeded
       setTimeout(() => {
-        if (formData.full_name && formData.account_type) {
+        if (data.full_name && data.account_type && data.selected_species && data.selected_species.length > 0) {
           setOpen(false);
         } else {
           toast.error("Profile setup failed. Please try again.");
@@ -137,14 +184,8 @@ export function ProfileSetupDialog() {
       toast.error("There was a problem updating your profile. Please try again.");
     } finally {
       setIsSubmitting(false);
+     window.location.reload();
     }
-  };
-
-  const selectAccountType = (type: ProfileType) => {
-    setFormData({
-      ...formData,
-      account_type: type
-    });
   };
 
   // Don't render at all if loading
@@ -162,179 +203,39 @@ export function ProfileSetupDialog() {
         <div className="w-full h-1 bg-muted">
           <div 
             className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${step === 1 ? 50 : 100}%` }}
+            style={{ width: `${step === 1 ? 33 : step === 2 ? 66 : 100}%` }}
           />
         </div>
         
         <DialogHeader className="p-6 pb-3">
-          <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+          <DialogTitle className="!text-2xl md:!text-3xl font-bold text-center flex items-center justify-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             Welcome to Clutchly
             <Sparkles className="h-5 w-5 text-primary" />
           </DialogTitle>
           <DialogDescription className="text-center text-base opacity-90">
-            {step === 1 ? 
-              "Let's personalize your experience" : 
-              "Choose your account type"
-            }
+            {step === 1 ? "Let's personalize your experience" : 
+             step === 2 ? "Choose your account type" :
+             "What species do you have in your collection?"}
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6 p-6 pt-4">
-          {step === 1 ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="full_name" className=" text-sm font-medium flex items-center gap-2">
-                  <User className="h-4 w-4 text-primary" />
-                  Your Name
-                </label>
-                <Input
-                  id="full_name"
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  placeholder="Enter your name"
-                  required
-                  className="w-full transition-all border-input/50 focus:border-primary/50 text-base py-6"
-                  autoFocus
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="collection_size" className=" text-sm font-medium flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Approximate Collection Size
-                </label>
-                <Input
-                  id="collection_size"
-                  type="number"
-                  min="0"
-                  value={formData.collection_size || ''}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    collection_size: e.target.value ? parseInt(e.target.value) : null 
-                  })}
-                  placeholder="Number of animals"
-                  className="w-full transition-all border-input/50 focus:border-primary/50 text-base py-6"
-                />
-                <p className="text-xs text-muted-foreground">
-                  This helps us personalize your experience
-                </p>
-              </div>
-              
-              <Button
-                type="button"
-                onClick={handleNextStep}
-                className="w-full mt-4 py-6 transition-all bg-primary hover:bg-primary/90 text-white font-medium text-base"
-              >
-                Continue
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <p className="text-sm font-medium">
-                  Select your account type
-                </p>
-                <div className="grid grid-cols-1 gap-3">
-                  <AccountTypeCard 
-                    title="Keeper"
-                    description="Manage personal collection"
-                    icon={<Home className="h-7 w-7 mb-2 text-primary" />}
-                    selected={formData.account_type === 'keeper'}
-                    onClick={() => selectAccountType('keeper')}
-                  />
-                  
-                  <AccountTypeCard 
-                    title="Breeder"
-                    description="Track breeding projects and genetics"
-                    icon={<Trophy className="h-7 w-7 mb-2 text-primary" />}
-                    selected={formData.account_type === 'breeder'}
-                    onClick={() => selectAccountType('breeder')}
-                  />
-                  
-                  <AccountTypeCard 
-                    title="Facility"
-                    description="Manage multiple collections and teams"
-                    icon={<Building className="h-7 w-7 mb-2 text-primary" />}
-                    selected={formData.account_type === 'facility'}
-                    onClick={() => selectAccountType('facility')}
-                  />
-                </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handlePrevStep}
-                  className="flex-1 py-6 border-primary/20 hover:border-primary/40 font-medium text-base"
-                >
-                  Back
-                </Button>
-                
-                <Button 
-                  type="submit" 
-                  className="flex-1 py-6 transition-all bg-primary hover:bg-primary/90 text-white font-medium text-base"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />
-                      Setting up...
-                    </>
-                  ) : (
-                    'Complete Setup'
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 pt-4">
+            {step === 1 ? (
+              <ProfileStep1 form={form} onNext={handleNextStep} />
+            ) : step === 2 ? (
+              <ProfileStep2 form={form} onNext={handleNextStep} onPrev={handlePrevStep} />
+            ) : (
+              <ProfileStep3 
+                form={form} 
+                onPrev={handlePrevStep} 
+                isSubmitting={isSubmitting} 
+              />
+            )}
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-// Helper component for account type selection
-function AccountTypeCard({ 
-  title, 
-  description, 
-  icon, 
-  selected, 
-  onClick 
-}: { 
-  title: string; 
-  description: string;
-  icon: React.ReactNode; 
-  selected: boolean; 
-  onClick: () => void;
-}) {
-  return (
-    <Card 
-      className={cn(
-        "cursor-pointer border-2 transition-all hover:shadow-md p-1",
-        selected 
-          ? "border-primary bg-primary/5" 
-          : "border-border hover:border-primary/30"
-      )}
-      onClick={onClick}
-    >
-      <CardContent className="flex items-center p-4">
-        <div className={cn(
-          "flex items-center justify-center w-14 h-14 rounded-full mr-4",
-          selected ? "bg-primary/10" : "bg-muted"
-        )}>
-          {icon}
-        </div>
-        <div className="flex-1">
-          <div className="text-lg font-medium flex items-center">
-            {title}
-            {selected && <Medal className="h-4 w-4 ml-2 text-primary" />}
-          </div>
-          <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
-        </div>
-      </CardContent>
-    </Card>
   );
 } 

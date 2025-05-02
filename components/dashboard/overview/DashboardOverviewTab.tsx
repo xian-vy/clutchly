@@ -29,6 +29,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { FeedingOverview } from './FeedingOverview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Profile } from '@/lib/types/profile';
+import { getProfile } from '@/app/api/profiles/profiles';
 
 export function DashboardOverviewTab() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -54,13 +56,18 @@ export function DashboardOverviewTab() {
   
   // Get species and morph data from their respective stores
   const { species, isLoading: speciesLoading, fetchSpecies } = useSpeciesStore();
-  const { morphs, isLoading: morphsLoading, fetchMorphs } = useMorphsStore();
+  const { morphs, isLoading: morphsLoading,  } = useMorphsStore();
 
   
   useEffect(() => {
     fetchSpecies();
-    fetchMorphs();
   }, [])
+
+
+  const { data: profile } = useQuery<Profile>({
+    queryKey: ['profile2'],
+    queryFn: getProfile
+  })
   
   // Create date filter params for API calls
   const dateFilterParams = useMemo(() => {
@@ -77,6 +84,7 @@ export function DashboardOverviewTab() {
     queryFn: () => dateFilterParams 
       ? getHealthLogsByDate(dateFilterParams) 
       : getHealthLogs(),
+      enabled : !!profile
   });
   
   // Fetch growth entries using React Query with date filtering
@@ -85,6 +93,8 @@ export function DashboardOverviewTab() {
     queryFn: () => dateFilterParams 
       ? getGrowthEntriesByDate(dateFilterParams) 
       : getGrowthEntries(),
+      enabled : !!profile
+
   });
   
   // Fetch breeding projects using React Query with date filtering
@@ -96,6 +106,7 @@ export function DashboardOverviewTab() {
           dateField: 'start_date' 
         }) 
       : getBreedingProjects(),
+      enabled : !!profile
   });
 
   // Fetch sales summary data using React Query with date filtering and period
@@ -105,12 +116,14 @@ export function DashboardOverviewTab() {
       ...dateFilterParams,
       period: timePeriod === 'custom' ? undefined : timePeriod,
     }),
+    enabled : !!profile
   });
 
   // Fetch expenses summary data using React Query with date filtering
   const { data: expensesSummary, isLoading: expensesLoading } = useQuery<ExpensesSummary>({
     queryKey: ['expenses-summary', dateFilterParams],
     queryFn: () => getExpensesSummary(dateFilterParams),
+    enabled : !!profile
   });
 
 
@@ -127,7 +140,7 @@ export function DashboardOverviewTab() {
       }
       return [];
     },
-    enabled: !breedingLoading, // Only run when breeding projects are loaded
+    enabled: !breedingLoading && !!profile, // Only run when breeding projects are loaded
   });
   
   // Handle date range changes

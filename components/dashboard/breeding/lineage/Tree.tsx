@@ -704,7 +704,7 @@ function Flow({ reptileId }: { reptileId: string }) {
       
       return { nodes: flowNodes, edges: flowEdges };
     },
-    [morphs, reptileId, selectedReptile, highlightedNodes, initialLayoutDone],
+    [morphs, reptileId, selectedReptile, highlightedNodes, initialLayoutDone,reptiles],
   );
 
   useEffect(() => {

@@ -50,6 +50,7 @@ export async function createProfile(profileData: ProfileFormData) {
       full_name: profileData.full_name,
       account_type: profileData.account_type,
       collection_size: profileData.collection_size,
+      selected_species: profileData.selected_species,
       is_active: true
     }
     
@@ -83,7 +84,8 @@ export async function updateProfile(profileData: ProfileFormData) {
     .update({
       full_name: profileData.full_name,
       account_type: profileData.account_type,
-      collection_size: profileData.collection_size
+      collection_size: profileData.collection_size,
+      selected_species: profileData.selected_species
     })
     .eq('id', user.id)
     .select()
@@ -122,11 +124,15 @@ export async function isProfileComplete() {
   
   const { data, error } = await supabase
     .from('profiles')
-    .select('full_name, account_type')
+    .select('full_name, account_type, selected_species')
     .eq('id', user.id)
     .single()
     
   if (error || !data) return false
   
-  return !!data.full_name && !!data.account_type
+  // Check for name, account type, and at least one selected species
+  return !!data.full_name && 
+         !!data.account_type && 
+         Array.isArray(data.selected_species) && 
+         data.selected_species.length > 0;
 } 
