@@ -122,8 +122,8 @@ export async function getReptileLineage(reptileId: string, cachedReptiles?: Rept
         parentPairs.set(parentPairKey, new Set());
       }
       
-      // Only add to the set if this reptile doesn't have descendants
-      if (!hasDescendants.has(reptile.id)) {
+      // Only add to the set if this reptile doesn't have descendants AND is not already shown in the tree
+      if (!hasDescendants.has(reptile.id) && !processedReptiles.has(reptile.id)) {
         parentPairs.get(parentPairKey)!.add(reptile.id);
       }
     }
