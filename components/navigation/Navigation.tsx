@@ -15,7 +15,15 @@ import { Badge } from '../ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '../ui/scroll-area';
 import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Dot, Menu } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Dot, Loader2, Menu } from 'lucide-react';
+import dynamic from 'next/dynamic'
+const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
+ {
+  loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
+    <Loader2 className="animate-spin w-4 h-4 text-primary" />
+  </div>,
+ }
+)
 
 
 // Group items by section
@@ -40,6 +48,7 @@ export function Navigation() {
   const { 
     upcomingFeedings, 
   } = useUpcomingFeedings();
+  const [dialogToOpen , setDialogToOpen] = React.useState<"Reptile" | "Sale" | "Expense" | null>(null)
 
   const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
   const pendingTodayFeedings = todayFeedings.filter(feeding => !feeding.isCompleted);
@@ -58,7 +67,9 @@ export function Navigation() {
       [name]: !prevState[name],
     }));
   };
-
+  const handleAddNew =(type : "Reptile" | "Sale" | "Expense") => {
+    setDialogToOpen(type)
+  }
   return (
     <>
     { isPending && <TopLoader />}
@@ -141,7 +152,11 @@ export function Navigation() {
                           {item.items && item.items.map((subItem) => (
                             <p
                               key={subItem.href}
-                              onClick={handleNavigation(subItem.href!)}
+                              onClick={   
+                                 subItem.action ?
+                                 ()=> handleAddNew(subItem.type as "Reptile" | "Sale" | "Expense")
+                                : handleNavigation(subItem.href!)
+                              }
                               className={cn(
                                 'relative flex items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
                                 isCollapsed ? 'justify-center px-2' : 'pl-3 pr-3',
@@ -202,6 +217,7 @@ export function Navigation() {
             <ChevronLeft className="h-4 w-4" />
           )}
         </Button>
+       {dialogToOpen && <AddNewShortcut type={dialogToOpen} />}
       </div>
     </>
   );
