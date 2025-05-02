@@ -27,11 +27,10 @@ export interface ExpenseRecord {
   expense_date: string
   amount: number
   category: ExpenseCategoryType
-  description: string
   status: ExpenseStatusType
   vendor_name: string
   vendor_contact?: string
-  receipt_url?: string
+  receipt?: string
   notes?: string
   created_at: string
   updated_at: string
@@ -49,10 +48,9 @@ export interface NewExpenseRecord {
   expense_date: string
   amount: number
   category: ExpenseCategoryType
-  description: string
   status: ExpenseStatusType
   vendor_name: string
   vendor_contact?: string
-  receipt_url?: string
+  receipt?: string
   notes?: string
 } 
