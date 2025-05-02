@@ -1,6 +1,6 @@
 'use client';
 
-import {  createFeedingEventsForToday, getFeedingEvents } from '@/app/api/feeding/events';
+import {  createFeedingEventsForToday, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -209,11 +209,19 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       }
       
       // Make the API call
-      // const updatedEvent = await updateFeedingEvent(eventId, {
-      //   fed,
-      //   fed_at: fed ? new Date().toISOString() : null,
-      //   notes: notes || null
-      // });
+      const updatedEvent = await updateFeedingEvent(eventId, {
+        fed,
+        fed_at: fed ? new Date().toISOString() : null,
+        notes: notes || null
+      });
+
+        // Update cache with server response
+        queryClient.setQueryData(['feeding-events', scheduleId], 
+          currentEvents.map(event => 
+            event.id === eventId ? { ...event, ...updatedEvent } : event
+          )
+        );
+ 
       
       toast.success(`Feeding ${fed ? 'completed' : 'unmarked'}`);
       

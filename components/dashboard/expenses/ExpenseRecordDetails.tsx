@@ -52,21 +52,18 @@ export function ExpenseRecordDetails({ expense, onEdit, onClose }: ExpenseRecord
             <span className="text-sm font-medium">Vendor</span>
             <span className="col-span-3">{expense.vendor_name}</span>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <span className="text-sm font-medium">Description</span>
-            <span className="col-span-3">{expense.description}</span>
-          </div>
+
           {expense.notes && (
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Notes</span>
               <span className="col-span-3">{expense.notes}</span>
             </div>
           )}
-          {expense.receipt_url && (
+          {expense.receipt && (
             <div className="grid grid-cols-4 items-center gap-4">
               <span className="text-sm font-medium">Receipt</span>
               <a
-                href={expense.receipt_url}
+                href={expense.receipt}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="col-span-3 text-primary hover:underline"

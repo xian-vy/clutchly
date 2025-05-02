@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { EXPENSE_STATUS_COLORS } from '@/lib/constants/colors';
+import { EXPENSE_STATUS_COLORS, YES_NO_COLORS } from '@/lib/constants/colors';
 import { ExpenseRecord, ExpenseStatusType } from '@/lib/types/expenses';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
@@ -67,8 +67,8 @@ export function ExpenseRecordList({
     if (filters.status) count++;
     if (filters.dateFrom) count++;
     if (filters.dateTo) count++;
-    if (filters.amountFrom) count++;
-    if (filters.amountTo) count++;
+    if (filters.amountFrom !== undefined && filters.amountFrom > 0) count++;
+    if (filters.amountTo !== undefined && filters.amountTo < 20000) count++;
     if (filters.category) count++;
     if (filters.vendor) count++;
     return count;
@@ -106,6 +106,23 @@ export function ExpenseRecordList({
           </Badge>
         );
       },
+    },
+    {
+      id: "notes",
+      accessorKey: "notes",
+      header: "Notes",
+      cell: ({ row }) => {
+        const notes = row.getValue("notes") as string | null;
+        const label = notes && notes.length > 0 ? "yes" : "no";
+        return (
+          <Badge
+            variant="custom"
+            className={`${YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]} capitalize`}
+          >
+            {label}
+          </Badge>
+        );
+      }
     },
     {
       id: 'actions',

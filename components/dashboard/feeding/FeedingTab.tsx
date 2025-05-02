@@ -507,7 +507,7 @@ export function FeedingTab() {
 
       </div>
 
-      <div className="grid grid-cols-1 3xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {schedules
           .sort((a, b) => {
             const statusA = scheduleStatus[a.id];

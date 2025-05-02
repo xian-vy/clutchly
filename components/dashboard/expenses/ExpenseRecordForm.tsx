@@ -19,11 +19,10 @@ export function ExpenseRecordForm({ initialData, onSubmit, onCancel }: ExpenseRe
     expense_date: initialData?.expense_date || new Date().toISOString().split('T')[0],
     amount: initialData?.amount || 0,
     category: initialData?.category || 'food',
-    description: initialData?.description || '',
     status: initialData?.status || 'pending',
     vendor_name: initialData?.vendor_name || '',
     vendor_contact: initialData?.vendor_contact || '',
-    receipt_url: initialData?.receipt_url || '',
+    receipt: initialData?.receipt || '',
     notes: initialData?.notes || ''
   })
 
@@ -66,12 +65,12 @@ export function ExpenseRecordForm({ initialData, onSubmit, onCancel }: ExpenseRe
             value={formData.category}
             onValueChange={(value) => setFormData({ ...formData, category: value as ExpenseCategoryType })}
           >
-            <SelectTrigger>
+            <SelectTrigger  className='w-full'>
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
               {Object.values(ExpenseCategory).map((category) => (
-                <SelectItem key={category} value={category}>
+                <SelectItem key={category} value={category || ""}>
                   {category.charAt(0).toUpperCase() + category.slice(1)}
                 </SelectItem>
               ))}
@@ -85,12 +84,12 @@ export function ExpenseRecordForm({ initialData, onSubmit, onCancel }: ExpenseRe
             value={formData.status}
             onValueChange={(value) => setFormData({ ...formData, status: value as ExpenseStatusType })}
           >
-            <SelectTrigger>
+            <SelectTrigger className='w-full'>
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
               {Object.values(ExpenseStatus).map((status) => (
-                <SelectItem key={status} value={status}>
+                <SelectItem key={status} value={status || ""}>
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </SelectItem>
               ))}
@@ -99,42 +98,34 @@ export function ExpenseRecordForm({ initialData, onSubmit, onCancel }: ExpenseRe
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="vendor_name">Vendor Name</Label>
-        <Input
-          id="vendor_name"
-          value={formData.vendor_name}
-          onChange={(e) => setFormData({ ...formData, vendor_name: e.target.value })}
-          required
-        />
-      </div>
+        <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="vendor_name">Vendor Name</Label>
+              <Input
+                id="vendor_name"
+                value={formData.vendor_name}
+                onChange={(e) => setFormData({ ...formData, vendor_name: e.target.value })}
+                required
+              />
+            </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="vendor_contact">Vendor Contact</Label>
-        <Input
-          id="vendor_contact"
-          value={formData.vendor_contact}
-          onChange={(e) => setFormData({ ...formData, vendor_contact: e.target.value })}
-        />
+            <div className="space-y-2">
+              <Label htmlFor="vendor_contact">Vendor Contact</Label>
+              <Input
+                id="vendor_contact"
+                value={formData.vendor_contact}
+                onChange={(e) => setFormData({ ...formData, vendor_contact: e.target.value })}
+              />
+            </div>
       </div>
-
+    
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="receipt_url">Receipt URL</Label>
+        <Label htmlFor="receipt_url">Receipt (Optional)</Label>
         <Input
           id="receipt_url"
           type="url"
-          value={formData.receipt_url}
-          onChange={(e) => setFormData({ ...formData, receipt_url: e.target.value })}
+          value={formData.receipt}
+          onChange={(e) => setFormData({ ...formData, receipt: e.target.value })}
         />
       </div>
 

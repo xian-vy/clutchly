@@ -93,8 +93,15 @@ export function ExpensesTab() {
           <DialogTitle>{selectedExpense ? 'Edit Expense' : 'Add Expense'}</DialogTitle>
           <ExpenseRecordForm
             initialData={selectedExpense}
-            onSubmit={selectedExpense ? handleUpdate : handleCreate}
-            onCancel={handleFormClose}
+            onSubmit={async (data) => {
+                const success = selectedExpense 
+                  ? await handleUpdate(data)
+                  : await handleCreate(data);
+                if (success) {
+                  setIsDialogOpen(false);
+              }
+            }}
+              onCancel={handleFormClose}
           />
         </DialogContent>
       </Dialog>
