@@ -21,6 +21,8 @@ export interface NavItem {
     items?: NavItem[];
     section?: string;
     displayName?: string;
+    type? :  "Reptile" | "Sale" | "Expense"
+    action? : boolean
 }
   
  export const NAV_ITEMS: NavItem[] = [
@@ -38,6 +40,8 @@ export interface NavItem {
           name: 'Add New',
           href: '/sales/new',
           icon: Plus,
+          type: "Sale",
+          action : true
         },
         {
           name: 'All Sales',
@@ -56,6 +60,8 @@ export interface NavItem {
           name: 'Add New',
           href: '/expenses/new',
           icon: Plus,
+          type: "Expense",
+          action : true
         },
         {
           name: 'All Expenses',
@@ -74,6 +80,8 @@ export interface NavItem {
           name: 'Add New',
           href: '/reptiles/new',
           icon: Plus,
+          type: "Reptile",
+          action : true
         },
         {
           name: 'All Reptiles',
