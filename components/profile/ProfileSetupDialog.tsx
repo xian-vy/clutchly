@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ProfileFormData } from '@/lib/types/profile';
+import { Profile, ProfileFormData } from '@/lib/types/profile';
 import { 
   getProfile, 
   createProfile, 
@@ -50,6 +50,15 @@ export const profileFormSchema = profileStep1Schema
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+async function getProfiles(): Promise<Profile[]> {
+  try {
+    const profile = await getProfile();
+    return profile ? [profile] : [];
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return [];
+  }
+}
 
 
 
@@ -64,10 +73,12 @@ export function ProfileSetupDialog() {
   // Access morphs store for later use
   const { downloadCommonMorphs } = useMorphsStore();
   
-  const { data: profile, isLoading } = useQuery({
+  const { data: profiles, isLoading } = useQuery({
     queryKey: ['profile'],
-    queryFn: getProfile
+    queryFn: getProfiles
   })
+
+  const profile = profiles ? profiles[0] : null;
 
   const isProfileComplete = profile ? (!!profile.full_name && !!profile.account_type && (profile.selected_species && profile.selected_species.length > 0)) : false;
   
@@ -197,7 +208,7 @@ export function ProfileSetupDialog() {
         </div>
         
         <DialogHeader className="p-6 pb-3">
-          <DialogTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
+          <DialogTitle className="!text-2xl md:!text-3xl font-bold text-center flex items-center justify-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             Welcome to Clutchly
             <Sparkles className="h-5 w-5 text-primary" />
