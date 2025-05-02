@@ -1,13 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useResource } from '@/lib/hooks/useResource';
-import { ProfileFormData, Profile } from '@/lib/types/profile';
+import { ProfileFormData } from '@/lib/types/profile';
 import { 
   getProfile, 
   createProfile, 
   updateProfile, 
-  deleteProfile 
 } from '@/app/api/profiles/profiles';
 import { 
   Dialog,
@@ -27,6 +25,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { ProfileStep1 } from './ProfileStep1';
 import { ProfileStep2 } from './ProfileStep2';
 import { ProfileStep3 } from './ProfileStep3';
+import { useQuery } from '@tanstack/react-query';
 
 // Validation schemas for each step
 export const profileStep1Schema = z.object({
@@ -51,20 +50,8 @@ export const profileFormSchema = profileStep1Schema
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-// Adapter functions for useResource
-async function getProfiles(): Promise<Profile[]> {
-  try {
-    const profile = await getProfile();
-    return profile ? [profile] : [];
-  } catch (error) {
-    console.error('Error fetching profile:', error);
-    return [];
-  }
-}
 
-async function updateProfileWithId(id: string, data: ProfileFormData): Promise<Profile> {
-  return updateProfile(data);
-}
+
 
 export function ProfileSetupDialog() {
   const [step, setStep] = useState(1);
@@ -77,22 +64,11 @@ export function ProfileSetupDialog() {
   // Access morphs store for later use
   const { downloadCommonMorphs } = useMorphsStore();
   
-  const {
-    resources: profiles,
-    isLoading,
-    handleCreate,
-    handleUpdate,
-    refetch
-  } = useResource<Profile, ProfileFormData>({
-    resourceName: 'Profile',
+  const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
-    getResources: getProfiles,
-    createResource: createProfile,
-    updateResource: updateProfileWithId,
-    deleteResource: deleteProfile,
-  });
+    queryFn: getProfile
+  })
 
-  const profile = profiles[0];
   const isProfileComplete = profile ? (!!profile.full_name && !!profile.account_type && (profile.selected_species && profile.selected_species.length > 0)) : false;
   
   // Initialize the form with react-hook-form and zod validation
@@ -167,18 +143,23 @@ export function ProfileSetupDialog() {
         // Download morphs for the selected species
         await downloadCommonMorphs(data.selected_species);
       }
-      
       if (profile) {
-        await handleUpdate(profileData);
+        // Set the selected resource before update
+        const success = await updateProfile(profileData);
+        if (success) {
+          console.log("Profile updated successfully");
+        } else {
+          console.error("Profile update failed");
+          toast.error("There was a problem updating your profile. Please try again.");
+        }
       } else {
-        await handleCreate(profileData);
+        await createProfile(profileData);
+        console.log("Profile created successfully");
       }
       
       toast.success("Your profile has been successfully set up!");
       
-      // Refresh profile data
-      await refetch();
-      
+
       // Only close the dialog if profile setup succeeded
       setTimeout(() => {
         if (data.full_name && data.account_type && data.selected_species && data.selected_species.length > 0) {
@@ -192,7 +173,7 @@ export function ProfileSetupDialog() {
       toast.error("There was a problem updating your profile. Please try again.");
     } finally {
       setIsSubmitting(false);
-      window.location.reload();
+     window.location.reload();
     }
   };
 
