@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { checkInviteCode } from '@/app/api/invite-codes/invite-codes'
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
@@ -9,6 +10,16 @@ export async function signup(formData: FormData) {
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
+    inviteCode: formData.get('inviteCode') as string
+  }
+
+  // Validate invite code
+  const isInviteCodeValid = await checkInviteCode(data.inviteCode)
+  if (!isInviteCodeValid) {
+    return {
+      error: 'Invalid or already used invite code',
+      status: 'invalid_invite_code'
+    }
   }
 
   // First, check if a user with this email already exists
@@ -47,6 +58,9 @@ export async function signup(formData: FormData) {
     password: data.password,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      data: {
+        invite_code: data.inviteCode // Store the invite code with user metadata
+      }
     },
   })
 
@@ -63,6 +77,9 @@ export async function signup(formData: FormData) {
       status: 'error'
     }
   }
+
+  // Note: We'll mark the invite code as used when the user confirms their email
+  // This is handled in the auth callback route
 
   redirect('/auth/verify-email')
 }
