@@ -56,19 +56,38 @@ export function DashboardOverviewTab() {
   
   // Get species and morph data from their respective stores
   const { species, isLoading: speciesLoading, fetchSpecies } = useSpeciesStore();
-  const { morphs, isLoading: morphsLoading,  } = useMorphsStore();
+  const { morphs, isLoading: morphsLoading,downloadCommonMorphs  } = useMorphsStore();
 
   
   useEffect(() => {
     fetchSpecies();
   }, [])
 
-
+ 
   const { data: profile } = useQuery<Profile>({
     queryKey: ['profile2'],
     queryFn: getProfile
   })
-  
+
+  // In the event local storage has been cleared (Refetch morphs base on profile sp selection)
+  useEffect(() => {
+    if (morphs.length === 0 && profile) {
+       async function fetchMorphs() {
+        if (!profile) {
+          console.error('No profile found to download common morphs');
+          return;
+        }
+        const speciesIds = profile.selected_species
+        if (!speciesIds) {
+          console.error('No species IDs found in profile');
+          return;
+        }
+       await downloadCommonMorphs(speciesIds);
+      }
+      fetchMorphs()
+    }
+  }, [profile, morphs,downloadCommonMorphs]);
+
   // Create date filter params for API calls
   const dateFilterParams = useMemo(() => {
     if (!dateRange) return undefined;
