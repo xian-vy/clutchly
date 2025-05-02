@@ -89,7 +89,7 @@ const GroupNode = ({ data }: NodeProps<CustomNodeData>) => {
     <>
       <div
         className={cn(
-          'px-4 py-2 shadow-lg rounded-md border border-dashed border-primary/70 bg-primary/10 dark:bg-primary/20 min-w-[200px] transition-all duration-300 hover:border-primary cursor-pointer',
+          'px-4 py-2 shadow-lg rounded-md border-1 border-dashed border-primary/70 bg-primary/5 min-w-[200px] transition-all duration-300 hover:border-primary cursor-pointer',
           data.isSelected && 'ring-1 ring-primary shadow-2xl z-50',
         )}
         style={{ boxShadow: 'none', outline: 'none' }}
@@ -106,9 +106,9 @@ const GroupNode = ({ data }: NodeProps<CustomNodeData>) => {
         <div className="flex flex-col items-center gap-2 py-1">
           <div className="flex items-center gap-2">
             <Dna className="h-4 w-4 text-primary" />
-            <span className="font-medium text-primary">Show {data.count} Offspring</span>
+            <span className="font-medium text-primary text-sm sm:text-[0.9rem]">Show {data.count} Offspring</span>
           </div>
-          <div className="text-xs text-muted-foreground">Without descendants</div>
+          <div className="text-xs sm:text-[0.8rem] text-muted-foreground font-medium">Without descendants</div>
         </div>
         <Handle 
           type="source" 
@@ -244,8 +244,8 @@ const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
         'ring-1 ring-amber-500 shadow-xl bg-amber-50 dark:bg-amber-900/30 border-amber-500 z-40',
       data.isParentOf && 
         (data.isParent === 'dam' 
-          ? 'ring-1 ring-red-500 shadow-xl bg-red-50 dark:bg-red-900/30 border-red-500 z-40'
-          : 'ring-1 ring-blue-500 shadow-xl bg-blue-50 dark:bg-blue-900/30 border-blue-500 z-40')
+          ? 'ring-1 ring-red-500 shadow-xl bg-white dark:bg-red-900/30 border-red-500 z-40'
+          : 'ring-1 ring-blue-500 shadow-xl bg-white dark:bg-blue-900/30 border-blue-500 z-40')
     )}
   >
     <Handle type="target" position={Position.Top} />
