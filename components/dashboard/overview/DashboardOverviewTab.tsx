@@ -168,7 +168,8 @@ export function DashboardOverviewTab() {
     breedingLoading ||
     salesLoading ||
     expensesLoading ||
-    clutchesLoading
+    clutchesLoading ||
+    !profile
   
   const hasActiveFilters = !!dateRange || timePeriod !== 'monthly';
   
