@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import { Edit, Eye, Filter, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { SalesFilterDialog, SalesFiltersState } from './SalesFilterDialog';
-import { PAYMENT_COLORS, SALES_STATUS_COLORS } from '@/lib/constants/colors';
+import { PAYMENT_COLORS, SALES_STATUS_COLORS, YES_NO_COLORS } from '@/lib/constants/colors';
 
 
 // Payment method colors
@@ -201,6 +201,23 @@ export function SalesRecordList({
       cell: ({ row }) => {
         const invoiceNumber = row.getValue("invoice_number") as string;
         return invoiceNumber || "-";
+      }
+    },
+    {
+      id: "notes",
+      accessorKey: "notes",
+      header: "Notes",
+      cell: ({ row }) => {
+        const notes = row.getValue("notes") as string | null;
+        const label = notes && notes.length > 0 ? "yes" : "no";
+        return (
+          <Badge
+            variant="custom"
+            className={`${YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]} capitalize`}
+          >
+            {label}
+          </Badge>
+        );
       }
     },
     {
