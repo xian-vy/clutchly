@@ -2,293 +2,30 @@
 
 import { getReptileLineage } from '@/app/api/reptiles/lineage';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
-import { HetTrait, Reptile } from '@/lib/types/reptile';
-import { cn } from '@/lib/utils';
+import { Reptile } from '@/lib/types/reptile';
 import { useQuery } from '@tanstack/react-query';
-import { CircleHelp, Mars, Venus,  Dna } from 'lucide-react';
-import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import ReactFlow, {
   applyNodeChanges,
   Background,
   Controls,
   Edge,
-  Handle,
   MarkerType,
   Node,
   NodeChange,
-  NodeProps,
-  Position,
   ReactFlowProvider
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import CustomNode, { CustomNodeData } from './CustomNode';
+import GroupNode from './GroupNode';
+import Legend from './Legend';
+import { ReptileNode } from './types';
 
-type GroupedReptilesType = Record<string, Reptile[]>;
-
-interface ReptileNode extends Reptile {
-  children: ReptileNode[];
-  childrenWithoutDescendants: Reptile[];
-  parents: {
-    dam: ReptileNode | null;
-    sire: ReptileNode | null;
-  };
-}
-
-interface ReptileTreeProps {
-  reptileId: string;
-}
-
-interface CustomNodeData {
-  name: string;
-  species_name?: string;
-  sex: string;
-  isParent?: 'dam' | 'sire';
-  generation?: number;
-  breeding_line?: string;
-  morph_name: string;
-  isSelected?: boolean;
-  isHighlighted?: boolean;
-  isParentOf?: string;
-  selectedReptileName: string;
-  visualTraits: string[];
-  hetTraits: HetTrait[];
-  isGroupNode?: boolean;
-  groupedReptiles?: Reptile[];
-  nodeType?: string;
-  count?: number;
-  parentId?: string;
-}
-
-// Special node for showing grouped descendants without offspring
-const GroupNode = ({ data }: NodeProps<CustomNodeData>) => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const { morphs } = useMorphsStore();
-  const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  });
-
-  // Group offspring by morph
-  const groupedByMorph: GroupedReptilesType = useMemo(() => {
-    if (!data.groupedReptiles) return {};
-    return data.groupedReptiles.reduce((acc, reptile) => {
-      const morphName = morphs.find((m: Morph) => m.id.toString() === reptile.morph_id.toString())?.name || 'Unknown';
-      if (!acc[morphName]) {
-        acc[morphName] = [];
-      }
-      acc[morphName].push(reptile);
-      return acc;
-    }, {} as GroupedReptilesType);
-  }, [data.groupedReptiles, morphs]);
-
-  return (
-    <>
-      <div
-        className={cn(
-          'px-4 py-2 shadow-lg rounded-md border-1 border-dashed border-primary/70 bg-primary/5 min-w-[200px] transition-all duration-300 hover:border-primary cursor-pointer',
-          data.isSelected && 'ring-1 ring-primary shadow-2xl z-50',
-        )}
-        style={{ boxShadow: 'none', outline: 'none' }}
-        onClick={(e) => {
-          e.stopPropagation();
-          setDialogOpen(true);
-        }}
-      >
-        <Handle 
-          type="target" 
-          position={Position.Top} 
-          style={{ border: 'none', background: 'transparent' }} 
-        />
-        <div className="flex flex-col items-center gap-2 py-1">
-          <div className="flex items-center gap-2">
-            <Dna className="h-4 w-4 text-primary" />
-            <span className="font-medium text-primary text-sm sm:text-[0.9rem]">Show {data.count} Offspring</span>
-          </div>
-          <div className="text-xs sm:text-[0.8rem] text-muted-foreground font-medium">Without descendants</div>
-        </div>
-        <Handle 
-          type="source" 
-          position={Position.Bottom} 
-          style={{ border: 'none', background: 'transparent' }} 
-        />
-      </div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-4xl lg:max-w-screen-md 2xl:max-w-screen-lg max-h-[90vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Offspring without Descendants</DialogTitle>
-            <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
-              Showing {data.count} offspring grouped by morphs
-            </p>
-          </DialogHeader>
-
-          {data.parentId && (
-            <div className="p-2 rounded-lg ">
-              <div className="font-semibold text-sm sm:text-base mb-2">Parents Information</div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].dam_id && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-card border">
-                    <Venus className="h-4 w-4 text-red-500 mt-1" />
-                    <div className='space-y-2 flex-1'>
-                      <div>
-                        <div className="text-lg font-semibold">
-                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.name || 'Unknown Dam'}
-                        </div>
-                        <div className="text-sm font-medium text-muted-foreground">
-                          {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
-                          <Badge key={i} variant="secondary">{trait}</Badge>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
-                          <Badge key={i} variant="outline">{trait.percentage}% het {trait.trait}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Similar structure for sire, just changing the icon and color */}
-                {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].sire_id && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-card border">
-                    <Mars className="h-4 w-4 text-blue-400 mt-1" />
-                    <div className='space-y-2 flex-1'>
-                      <div>
-                        <div className="text-lg font-semibold">
-                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.name || 'Unknown Sire'}
-                        </div>
-                        <div className="text-sm font-medium text-muted-foreground">
-                          {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
-                          <Badge key={i} variant="secondary">{trait}</Badge>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
-                          <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          <ScrollArea className="max-h-[60vh]">
-            <div className="space-y-6 p-1">
-            {Object.entries(groupedByMorph).map(([morphName, reptiles]: [string, Reptile[]]) => (
-                <div key={morphName} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="text-xs sm:text-sm font-semibold">{morphName}</div>
-                    <Badge variant="secondary">{reptiles.length}</Badge>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {reptiles.map((reptile) => (
-                      <div key={reptile.id} className="flex flex-col gap-2 p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="font-semibold text-xs sm:text-sm ">{reptile.name}</div>
-                          {reptile.sex === 'male' ? (
-                            <Mars className="h-4 w-4 text-blue-400" />
-                          ) : reptile.sex === 'female' ? (
-                            <Venus className="h-4 w-4 text-red-500" />
-                          ) : (
-                            <CircleHelp className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-1.5">
-                          {reptile.visual_traits?.map((trait, i) => (
-                            <Badge key={i} variant="secondary">{trait}</Badge>
-                          ))}
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-1.5">
-                          {reptile.het_traits?.map((trait, i) => (
-                            <Badge key={i} variant="secondary">
-                              {trait.percentage}% het {trait.trait}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-};
-
-const CustomNode = ({ data}: NodeProps<CustomNodeData>) => (
-  <div
-    className={cn(
-      'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
-      data.isSelected && 
-        'ring-1 ring-primary shadow-2xl  border-primary z-50',
-      data.isHighlighted && !data.isSelected && 
-        'ring-1 ring-amber-500 shadow-xl bg-amber-50 dark:bg-amber-900/30 border-amber-500 z-40',
-      data.isParentOf && 
-        (data.isParent === 'dam' 
-          ? 'ring-1 ring-red-500 shadow-xl bg-white dark:bg-red-900/30 border-red-500 z-40'
-          : 'ring-1 ring-blue-500 shadow-xl bg-white dark:bg-blue-900/30 border-blue-500 z-40')
-    )}
-  >
-    <Handle type="target" position={Position.Top} />
-    <div className="flex flex-col items-center gap-1.5">
-        <div className="flex items-center gap-3">
-              <div className="font-bold">{data.name || 'Unknown'}</div>
-              <>
-                {data.sex === 'male' ? (
-                  <Mars className="h-4 w-4 text-blue-400"/>
-                ) : data.sex === 'female' ? (
-                  <Venus className="h-4 w-4 text-red-500"/>
-                ) :(
-                  <CircleHelp className="h-4 w-4 text-muted-foreground"/>
-                )}
-              </>
-        </div>
-        <div className="text-sm  font-medium">{data.morph_name || 'N/A'}</div>
-        <div className="flex gap-2 flex-wrap w-full justify-center">
-          {data.visualTraits?.map((trait, index) => (
-            <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs' >{trait}</Badge>
-          ))}
-        </div>
-        <div className="flex gap-2 flex-wrap w-full justify-center">
-          {data.hetTraits?.map((trait, index) => (
-            <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs'>{trait.percentage + "% het " +  trait.trait}</Badge>
-          ))}
-        </div>
-        <div className="flex gap-2 justify-center flex-wrap w-full">
-          {data.generation && (
-            <Badge variant="outline">Gen {data.generation}</Badge>
-          )}
-          {data.breeding_line && (
-            <Badge variant="secondary">{data.breeding_line}</Badge>
-          )}
-        </div>
-    </div>
-    <Handle type="source" position={Position.Bottom} />
-  </div>
-);
-
+// Define node types
 const nodeTypes = { custom: CustomNode, group: GroupNode };
 
-// Create a flow component that uses the ReactFlow hooks inside the provider context
 function Flow({ reptileId }: { reptileId: string }) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -704,7 +441,7 @@ function Flow({ reptileId }: { reptileId: string }) {
       
       return { nodes: flowNodes, edges: flowEdges };
     },
-    [morphs, reptileId, selectedReptile, highlightedNodes, initialLayoutDone,reptiles],
+    [morphs, reptileId, selectedReptile, highlightedNodes, initialLayoutDone, reptiles],
   );
 
   useEffect(() => {
@@ -792,34 +529,6 @@ function Flow({ reptileId }: { reptileId: string }) {
     [setNodes]
   );
 
-  // Add legend component
-  const Legend = () => (
-    <div className="absolute bottom-24 right-8 bg-white dark:bg-slate-900 p-3 rounded-md shadow-md border border-gray-200 dark:border-gray-800 z-10">
-      <div className="text-sm font-medium mb-2">Legend</div>
-      <div className="flex items-center mb-1">
-        <div className="w-4 h-0.5 bg-blue-400 mr-2"></div>
-        <div className="flex items-center">
-          <span className="text-xs mr-1">Sire</span>
-          <Mars className="h-3 w-3 text-blue-400" />
-        </div>
-      </div>
-      <div className="flex items-center mb-1">
-        <div className="w-4 h-0.5 bg-red-500 mr-2"></div>
-        <div className="flex items-center">
-          <span className="text-xs mr-1">Dam</span>
-          <Venus className="h-3 w-3 text-red-500" />
-        </div>
-      </div>
-      <div className="flex items-center">
-        <div className="w-4 h-0.5 bg-slate-400 dashed mr-2" style={{ borderStyle: 'dashed' }}></div>
-        <div className="flex items-center">
-          <span className="text-xs mr-1">Grouped Offspring</span>
-          <Dna className="h-3 w-3 text-primary" />
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <ReactFlow
       nodes={nodes}
@@ -843,8 +552,12 @@ function Flow({ reptileId }: { reptileId: string }) {
   );
 }
 
+interface FlowChartProps {
+  reptileId: string;
+}
+
 // Main component that wraps everything with the ReactFlowProvider
-export function ReptileTree({ reptileId }: ReptileTreeProps) {
+const FlowChart = ({ reptileId }: FlowChartProps) => {
   return (
     <div style={{ width: '100%', height: '800px' }}>
       <style jsx global>{`
@@ -864,4 +577,6 @@ export function ReptileTree({ reptileId }: ReptileTreeProps) {
       </ReactFlowProvider>
     </div>
   );
-}
+};
+
+export default FlowChart; 
