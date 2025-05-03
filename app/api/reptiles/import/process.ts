@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { CreateGrowthEntryInput } from '@/lib/types/growth'
 import { Morph, NewMorph } from '@/lib/types/morph'
-import { NewReptile, Reptile, Sex, Status } from '@/lib/types/reptile'
+import { HetTrait, NewReptile, Reptile, Sex, Status } from '@/lib/types/reptile'
 import { NewSpecies, Species } from '@/lib/types/species'
 import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
 
@@ -20,6 +20,7 @@ export interface ReptileImportRow {
   weight?: number
   length?: number
   visual_traits?: string | string[]
+  het_traits?: string | string[]
   original_breeder?: string | null
   status?: Status
   breeding_line?: string
@@ -28,6 +29,8 @@ export interface ReptileImportRow {
   is_breeder?: boolean | string
   retired_breeder?: boolean | string
   notes?: string
+  dam_name?: string
+  sire_name?: string
 }
 
 // Generic object type to avoid 'any'
@@ -43,6 +46,10 @@ export interface ImportPreviewResponse {
   speciesCount: number
   morphCount: number
   totalRows: number
+  parentRelationships: {
+    validParents: Record<number, { dam?: string; sire?: string }>
+    invalidParents: Record<number, { dam?: string; sire?: string; error: string }>
+  }
 }
 
 // Response for the final import
@@ -151,6 +158,9 @@ export async function previewImportData(parsedData: GenericObject[]): Promise<Im
     length: 'length',
     'visual traits': 'visual_traits',
     visual_traits: 'visual_traits',
+    'het traits': 'het_traits',
+    'hets': 'het_traits',
+    het_traits: 'het_traits',
     'produced by': 'original_breeder',
     produced_by: 'original_breeder',
     status: 'status',
@@ -164,6 +174,12 @@ export async function previewImportData(parsedData: GenericObject[]): Promise<Im
     'retired breeder': 'retired_breeder',
     retired_breeder: 'retired_breeder',
     notes: 'notes',
+    dam: 'dam_name',
+    dam_name: 'dam_name',
+    mother: 'dam_name',
+    sire: 'sire_name',
+    sire_name: 'sire_name',
+    father: 'sire_name'
   }
 
   const mappedHeaders: Record<string, string> = {}
@@ -175,6 +191,10 @@ export async function previewImportData(parsedData: GenericObject[]): Promise<Im
   // Validate each row
   const validRows: number[] = []
   const invalidRows: Record<number, string> = {}
+  const parentRelationships = {
+    validParents: {} as Record<number, { dam?: string; sire?: string }>,
+    invalidParents: {} as Record<number, { dam?: string; sire?: string; error: string }>
+  }
   
   const normalizedRows = rows.map(row => {
     const normalizedRow: Record<string, unknown> = {}
@@ -218,6 +238,97 @@ export async function previewImportData(parsedData: GenericObject[]): Promise<Im
     } else {
       invalidRows[index] = validation.error || 'Unknown error'
     }
+    
+    // Check for parent references
+    if (row.dam_name || row.sire_name) {
+      // Track parent references for later validation
+      const parents: { dam?: string; sire?: string } = {}
+      if (row.dam_name) parents.dam = row.dam_name
+      if (row.sire_name) parents.sire = row.sire_name
+      
+      parentRelationships.validParents[index] = parents
+    }
+  })
+
+  // Validate parent relationships
+  // First, create a map of reptile names in the current import
+  const nameMap = new Map<string, number>()
+  normalizedRows.forEach((row, index) => {
+    if (row.name) {
+      nameMap.set(row.name.toString().toLowerCase(), index)
+    }
+  })
+  
+  // Check each parent reference
+  Object.entries(parentRelationships.validParents).forEach(([rowIndexStr, parents]) => {
+    const rowIndex = parseInt(rowIndexStr)
+    const currentRow = normalizedRows[rowIndex]
+    
+    // Check for dam reference
+    if (parents.dam) {
+      const damNameLower = parents.dam.toLowerCase()
+      const damIndex = nameMap.get(damNameLower)
+      
+      // If dam is in the import but appears after current row
+      if (damIndex !== undefined && damIndex > rowIndex) {
+        // Move to invalid parents
+        const error = `Dam '${parents.dam}' appears later in import (row ${damIndex + 1}). Please reorder rows.`
+        parentRelationships.invalidParents[rowIndex] = {
+          ...parents,
+          error
+        }
+        delete parentRelationships.validParents[rowIndex]
+        return
+      }
+      
+      // Check if the referenced dam is the right sex
+      if (damIndex !== undefined) {
+        const damRow = normalizedRows[damIndex]
+        if (damRow.sex && damRow.sex.toString().toLowerCase() !== 'female') {
+          // Move to invalid parents
+          const error = `Dam '${parents.dam}' is not female (sex: ${damRow.sex})`
+          parentRelationships.invalidParents[rowIndex] = {
+            ...parents,
+            error
+          }
+          delete parentRelationships.validParents[rowIndex]
+          return
+        }
+      }
+    }
+    
+    // Check for sire reference
+    if (parents.sire) {
+      const sireNameLower = parents.sire.toLowerCase()
+      const sireIndex = nameMap.get(sireNameLower)
+      
+      // If sire is in the import but appears after current row
+      if (sireIndex !== undefined && sireIndex > rowIndex) {
+        // Move to invalid parents
+        const error = `Sire '${parents.sire}' appears later in import (row ${sireIndex + 1}). Please reorder rows.`
+        parentRelationships.invalidParents[rowIndex] = {
+          ...parents,
+          error
+        }
+        delete parentRelationships.validParents[rowIndex]
+        return
+      }
+      
+      // Check if the referenced sire is the right sex
+      if (sireIndex !== undefined) {
+        const sireRow = normalizedRows[sireIndex]
+        if (sireRow.sex && sireRow.sex.toString().toLowerCase() !== 'male') {
+          // Move to invalid parents
+          const error = `Sire '${parents.sire}' is not male (sex: ${sireRow.sex})`
+          parentRelationships.invalidParents[rowIndex] = {
+            ...parents,
+            error
+          }
+          delete parentRelationships.validParents[rowIndex]
+          return
+        }
+      }
+    }
   })
 
   // Count unique species and morphs
@@ -237,7 +348,8 @@ export async function previewImportData(parsedData: GenericObject[]): Promise<Im
     invalidRows,
     speciesCount: uniqueSpecies.size,
     morphCount: uniqueMorphs.size,
-    totalRows: rows.length
+    totalRows: rows.length,
+    parentRelationships
   }
 }
 
@@ -249,6 +361,55 @@ function parseBoolean(value: unknown): boolean {
     return ['true', '1', 'yes'].includes(lowerValue)
   }
   return !!value
+}
+
+// Helper to parse het traits from string format like "66% het albino, 33% het stripe"
+function parseHetTraits(hetString: string | string[] | undefined): HetTrait[] | null {
+  if (!hetString) return null;
+  
+  const traits: HetTrait[] = [];
+  
+  // If already an array, process each item
+  const hetItems = Array.isArray(hetString) ? hetString : hetString.split(',');
+  
+  for (const item of hetItems) {
+    // Trim each item to remove whitespace
+    const trimmedItem = item.trim();
+    if (!trimmedItem) continue;
+    
+    // Parse percentage if it exists (e.g., "66% het albino")
+    const percentMatch = trimmedItem.match(/(\d+)%\s*(?:het)?\s*(.*)/i);
+    
+    if (percentMatch) {
+      const percentage = parseInt(percentMatch[1], 10);
+      const trait = percentMatch[2].trim();
+      
+      if (trait && !isNaN(percentage)) {
+        traits.push({
+          trait,
+          percentage,
+          source: 'breeding_odds', // Assume breeding odds as default source
+          verified: false // Default to unverified
+        });
+      }
+    } else {
+      // No percentage found, assume 100% (e.g., "het albino")
+      const traitMatch = trimmedItem.match(/(?:het)?\s*(.*)/i);
+      if (traitMatch) {
+        const trait = traitMatch[1].trim();
+        if (trait) {
+          traits.push({
+            trait,
+            percentage: 100,
+            source: 'breeding_odds',
+            verified: false
+          });
+        }
+      }
+    }
+  }
+  
+  return traits.length > 0 ? traits : null;
 }
 
 // Process the import after user confirmation
@@ -303,12 +464,24 @@ export async function processImport(
       })
     }
     
-    // Fetch existing reptiles for sequence number generation
+    // Fetch existing reptiles for sequence number generation and parent lookup
     const { data: existingReptiles } = await supabase
       .from('reptiles')
       .select('*')
+      .eq('user_id', userId)
     
-    // Step 2: Process species that don't exist yet
+    // Create a map of existing reptile names for parent lookup
+    const existingReptileMap = new Map<string, string>()
+    if (existingReptiles) {
+      existingReptiles.forEach(reptile => {
+        existingReptileMap.set(reptile.name.toLowerCase(), reptile.id)
+      })
+    }
+    
+    // Create a map to store imported reptile IDs by name
+    const importedReptileMap = new Map<string, string>()
+    
+    // Steps 2 & 3: Process species and morphs that don't exist yet
     const newSpecies: NewSpecies[] = []
     for (const row of selectedRows) {
       if (!row.species) continue
@@ -350,7 +523,7 @@ export async function processImport(
       }
     }
     
-    // Step 3: Process morphs that don't exist yet
+    // Step 4: Process morphs that don't exist yet
     for (const row of selectedRows) {
       if (!row.morph) continue
       
@@ -393,7 +566,7 @@ export async function processImport(
       }
     }
     
-    // Step 4: Create reptiles
+    // Step 4: First pass - Create reptiles without setting parents
     for (const row of selectedRows) {
       try {
         const speciesId = speciesMap[String(row.species).toLowerCase()]
@@ -463,7 +636,7 @@ export async function processImport(
           morph_id: row.morph ? morphMap[String(row.morph).toLowerCase()]?.toString() : "",
           visual_traits: Array.isArray(row.visual_traits) ? row.visual_traits : 
                        (typeof row.visual_traits === 'string' ? row.visual_traits.split(',').map(t => t.trim()) : null),
-          het_traits: null, // Not supported in import
+          het_traits: parseHetTraits(row.het_traits),
           weight: row.weight ? Number(row.weight) : 0,
           length: row.length ? Number(row.length) : 0,
           hatch_date: row.hatch_date || null,
@@ -493,6 +666,8 @@ export async function processImport(
         
         if (createdReptile) {
           response.reptiles.push(createdReptile)
+          // Store the created reptile ID for parent linking
+          importedReptileMap.set(createdReptile.name.toLowerCase(), createdReptile.id)
           
           // Only create growth entry if weight or length is provided
           if (row.weight || row.length) {
@@ -517,6 +692,76 @@ export async function processImport(
         console.error('Error processing row:', error)
         const errorMessage = error instanceof Error ? error.message : String(error)
         response.errors.push(`Error processing ${row.name}: ${errorMessage}`)
+      }
+    }
+    
+    // Step 5: Second pass - Update reptiles with parent references
+    for (const row of selectedRows) {
+      if (!row.dam_name && !row.sire_name) continue
+      
+      try {
+        // Look up the reptile we just created
+        const reptileName = row.name.toLowerCase()
+        const reptileId = importedReptileMap.get(reptileName)
+        
+        if (!reptileId) {
+          response.errors.push(`Could not find reptile ID for ${row.name} to set parents`)
+          continue
+        }
+        
+        let damId: string | null = null
+        let sireId: string | null = null
+        
+        // Look up dam
+        if (row.dam_name) {
+          const damName = row.dam_name.toLowerCase()
+          // Check imported reptiles first, then existing reptiles
+          damId = importedReptileMap.get(damName) || existingReptileMap.get(damName) || null
+          
+          if (!damId) {
+            response.errors.push(`Could not find dam "${row.dam_name}" for reptile ${row.name}`)
+          }
+        }
+        
+        // Look up sire
+        if (row.sire_name) {
+          const sireName = row.sire_name.toLowerCase()
+          // Check imported reptiles first, then existing reptiles
+          sireId = importedReptileMap.get(sireName) || existingReptileMap.get(sireName) || null
+          
+          if (!sireId) {
+            response.errors.push(`Could not find sire "${row.sire_name}" for reptile ${row.name}`)
+          }
+        }
+        
+        // Only update if we found at least one parent
+        if (damId || sireId) {
+          const updateData: { dam_id?: string; sire_id?: string } = {}
+          if (damId) updateData.dam_id = damId
+          if (sireId) updateData.sire_id = sireId
+          
+          const { error: updateError } = await supabase
+            .from('reptiles')
+            .update(updateData)
+            .eq('id', reptileId)
+          
+          if (updateError) {
+            throw updateError
+          }
+          
+          // Update the reptile in our response array
+          const reptileIndex = response.reptiles.findIndex(r => r.id === reptileId)
+          if (reptileIndex !== -1) {
+            response.reptiles[reptileIndex] = {
+              ...response.reptiles[reptileIndex],
+              ...updateData
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error updating parent references:', error)
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        response.errors.push(`Error setting parents for ${row.name}: ${errorMessage}`)
       }
     }
     

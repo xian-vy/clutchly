@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ImportPreviewResponse, ImportResponse } from '@/app/api/reptiles/import/process'
-import { CheckCircle, AlertCircle, FileSpreadsheet, Upload, Info, Download, RefreshCcw } from 'lucide-react'
+import { CheckCircle, AlertCircle, FileSpreadsheet, Upload, Info, Download, RefreshCcw, Network } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useMorphsStore } from '@/lib/stores/morphsStore'
@@ -313,11 +313,19 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
               <Info className="h-4 w-4" />
               <AlertTitle>Import Guidelines</AlertTitle>
               <AlertDescription>
-                <ul className="text-sm list-disc pl-5 mt-2 space-y-1">
-                  <li>Maximum file size: 2MB</li>
-                  <li>Maximum 500 rows per file</li>
-                  <li>Required fields: name, sex, species, acquisition_date</li>
-                  <li>CSV or Excel (.xlsx) formats only</li>
+                <ul className="text-sm list-disc pl-5 mt-2 space-y-1 grid lg:grid-cols-2 gap-x-3 lg:gap-x-6">
+                  <>
+                    <li>Maximum file size: 2MB</li>
+                    <li>Maximum 500 rows per file</li>
+                    <li>Required fields: name, sex, species, acquisition_date</li>
+                    <li>CSV or Excel (.xlsx) formats only</li>
+                  </>
+                  <>
+                    <li>For parent relationships, use mother and father fields</li>
+                    <li>Parents must appear before their offspring in the file</li>
+                    <li>Visual traits should be in format: "albino, normal"</li>
+                    <li>Het traits should be in format: "66% albino, 33% stripe"</li>
+                  </>
                 </ul>
                 <div className="mt-2">
                   <Link 
@@ -391,7 +399,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
               </div>
             </div>
             
-            <div className="border rounded-md max-h-[200px] overflow-auto">
+            <div className="border rounded-md max-h-[200px] overflow-auto sm:max-w-[850px]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -404,8 +412,12 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                     <TableHead>Species</TableHead>
                     <TableHead>Sex</TableHead>
                     <TableHead>Morph</TableHead>
+                    <TableHead>Visuals</TableHead>
+                    <TableHead>Hets</TableHead>
                     <TableHead>Weight</TableHead>
                     <TableHead>Length</TableHead>
+                    <TableHead>Dam</TableHead>
+                    <TableHead>Sire</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -413,6 +425,11 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                     const isValid = previewData.validRows.includes(index)
                     const isSelected = selectedRows.includes(index)
                     const errorMessage = !isValid ? previewData.invalidRows[index] : null
+                    
+                    // Parent relationship status
+                    const hasParents = row.dam_name || row.sire_name
+                    const hasParentError = previewData.parentRelationships.invalidParents[index]
+                    const parentErrorMessage = hasParentError ? hasParentError.error : null
                     
                     return (
                       <TableRow key={index} className={!isValid ? 'bg-red-50 dark:bg-red-950/10' : ''}>
@@ -441,12 +458,68 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                             disabled={!isValid}
                           />
                         </TableCell>
-                        <TableCell>{row.name}</TableCell>
+                        <TableCell>
+                          {row.name}
+                          {hasParents && (
+                            <span className="ml-2">
+                              {hasParentError ? (
+                                <AlertCircle 
+                                  className="h-3 w-3 md:h-4 md:w-4 inline-block text-orange-500"
+                                  onClick={() => {
+                                    if (parentErrorMessage) {
+                                      toast.warning(parentErrorMessage, {
+                                        description: `Parent issue in row ${index + 1}`
+                                      })
+                                    }
+                                  }}
+                                />
+                              ) : (
+                                <Network className="h-3 w-3 md:h-4 md:w-4 inline-block text-blue-500" />
+                              )}
+                            </span>
+                          )}
+                        </TableCell>
                         <TableCell>{row.species}</TableCell>
                         <TableCell>{row.sex}</TableCell>
                         <TableCell>{row.morph || '-'}</TableCell>
+                        <TableCell>{row.visual_traits || '-'}</TableCell>
+                        <TableCell>{row.het_traits || '-'}</TableCell>
                         <TableCell>{row.weight || '-'}</TableCell>
                         <TableCell>{row.length || '-'}</TableCell>
+                        <TableCell>
+                          {row.dam_name ? (
+                            <span>
+                              {row.dam_name}
+                              {hasParentError && hasParentError.dam && (
+                                <AlertCircle 
+                                  className="h-3 w-3 md:h-4 md:w-4 ml-1 inline-block text-orange-500"
+                                  onClick={() => {
+                                    toast.warning(`Issue with dam: ${hasParentError.error}`, {
+                                      description: `Row ${index + 1}`
+                                    })
+                                  }}
+                                />
+                              )}
+                            </span>
+                          ) : '-'}
+                        </TableCell>
+                        <TableCell>
+                          {row.sire_name ? (
+                            <span>
+                              {row.sire_name}
+                              {hasParentError && hasParentError.sire && (
+                                <AlertCircle 
+                                  className="h-3 w-3 md:h-4 md:w-4 ml-1 inline-block text-orange-500"
+                                  onClick={() => {
+                                    toast.warning(`Issue with sire: ${hasParentError.error}`, {
+                                      description: `Row ${index + 1}`
+                                    })
+                                  }}
+                                />
+                              )}
+                            </span>
+                          ) : '-'}
+                        </TableCell>
                       </TableRow>
                     )
                   })}
@@ -538,6 +611,27 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                   <p className="text-2xl font-bold text-red-500">{importResult.errors.length}</p>
                 </CardContent>
               </Card>
+            </div>
+            
+            {/* Parent relationships summary */}
+            <div className="mt-4">
+              <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
+                <Network className="h-4 w-4" />
+                Parent Relationships
+              </h4>
+              <div className="text-sm text-muted-foreground">
+                {importResult.errors.filter(e => e.includes('dam') || e.includes('sire') || e.includes('parent')).length > 0 ? (
+                  <Alert variant="warning" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Parent Linking Issues</AlertTitle>
+                    <AlertDescription>
+                      Some parents could not be linked. Check the error details below.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <p>All parent relationships were successfully established.</p>
+                )}
+              </div>
             </div>
             
             {importResult.errors.length > 0 && (
