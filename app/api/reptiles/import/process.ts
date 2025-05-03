@@ -262,7 +262,7 @@ export async function previewImportData(parsedData: GenericObject[]): Promise<Im
   // Check each parent reference
   Object.entries(parentRelationships.validParents).forEach(([rowIndexStr, parents]) => {
     const rowIndex = parseInt(rowIndexStr)
-    const currentRow = normalizedRows[rowIndex]
+    //const currentRow = normalizedRows[rowIndex]
     
     // Check for dam reference
     if (parents.dam) {

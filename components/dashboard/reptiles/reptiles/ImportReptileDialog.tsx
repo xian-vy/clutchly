@@ -323,8 +323,8 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                   <>
                     <li>For parent relationships, use mother and father fields</li>
                     <li>Parents must appear before their offspring in the file</li>
-                    <li>Visual traits should be in format: "albino, normal"</li>
-                    <li>Het traits should be in format: "66% albino, 33% stripe"</li>
+                    <li>Visual traits should be in format: &quot;albino, normal&quot;</li>
+                    <li>Het traits should be in format: &quot;66% albino, 33% stripe&quot;</li>
                   </>
                 </ul>
                 <div className="mt-2">
