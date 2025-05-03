@@ -439,6 +439,7 @@ export async function processImport(
   try {
     // Track species and morphs by name to avoid duplicates
     const speciesMap: Record<string, number> = {}
+    // Change morphMap to use compound keys (species_id:morph_name)
     const morphMap: Record<string, number> = {}
     
     // Step 1: Fetch existing species and morphs
@@ -455,12 +456,14 @@ export async function processImport(
     
     const { data: existingMorphs } = await supabase
       .from('morphs')
-      .select('id, name')
+      .select('id, name, species_id')
       .or(`user_id.eq.${userId},is_global.eq.true`)
     
     if (existingMorphs) {
       existingMorphs.forEach(morph => {
-        morphMap[morph.name.toLowerCase()] = morph.id
+        // Use compound key with species_id and morph name
+        const compoundKey = `${morph.species_id}:${morph.name.toLowerCase()}`
+        morphMap[compoundKey] = morph.id
       })
     }
     
@@ -528,12 +531,19 @@ export async function processImport(
       if (!row.morph) continue
       
       const morphName = String(row.morph).trim()
-      const morphKey = morphName.toLowerCase()
       const speciesName = String(row.species).trim()
       const speciesKey = speciesName.toLowerCase()
       const speciesId = speciesMap[speciesKey]
       
-      if (!morphMap[morphKey] && speciesId) {
+      if (!speciesId) {
+        response.errors.push(`Species not found for morph ${morphName}`)
+        continue
+      }
+      
+      // Create compound key with species_id and morph name
+      const compoundKey = `${speciesId}:${morphName.toLowerCase()}`
+      
+      if (!morphMap[compoundKey]) {
         // Create new morph
         const newMorph: NewMorph = {
           name: morphName,
@@ -551,7 +561,7 @@ export async function processImport(
         if (morphError) throw morphError
         
         if (createdMorph) {
-          morphMap[morphKey] = createdMorph.id
+          morphMap[compoundKey] = createdMorph.id
           response.morphsAdded.push({
             user_id: userId,
             id: createdMorph.id,
@@ -591,7 +601,11 @@ export async function processImport(
         // Get morph name for reptile code generation
         let morphName = ""
         if (row.morph) {
-          const morphId = morphMap[String(row.morph).toLowerCase()]
+          const speciesId = speciesMap[String(row.species).toLowerCase()]
+          // Use compound key to look up the morph
+          const compoundKey = `${speciesId}:${String(row.morph).toLowerCase()}`
+          const morphId = morphMap[compoundKey]
+          
           if (morphId) {
             const matchedMorph = existingMorphs?.find(m => m.id === morphId) || 
               response.morphsAdded.find(m => m.id === morphId)
@@ -633,7 +647,11 @@ export async function processImport(
           reptile_code: reptileCode || null,
           sex: (String(row.sex).toLowerCase() as Sex),
           species_id: speciesId.toString(),
-          morph_id: row.morph ? morphMap[String(row.morph).toLowerCase()]?.toString() : "",
+          morph_id: row.morph ? (() => {
+            const speciesId = speciesMap[String(row.species).toLowerCase()]
+            const compoundKey = `${speciesId}:${String(row.morph).toLowerCase()}`
+            return morphMap[compoundKey]?.toString() || ""
+          })() : "",
           visual_traits: Array.isArray(row.visual_traits) ? row.visual_traits : 
                        (typeof row.visual_traits === 'string' ? row.visual_traits.split(',').map(t => t.trim()) : null),
           het_traits: parseHetTraits(row.het_traits),
