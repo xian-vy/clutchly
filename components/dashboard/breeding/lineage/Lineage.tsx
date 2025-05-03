@@ -1,9 +1,9 @@
 'use client'
 import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { useState } from 'react';
-import { ReptileTree } from './Tree';
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
+import FlowChart from './components/FlowChart';
 
 const Lineage = () => {
   const { data: reptiles = [] } = useQuery({
@@ -32,7 +32,7 @@ const Lineage = () => {
                   />
           </div>
       </div>
-      {selectedReptileId !== '' &&  <ReptileTree reptileId={selectedReptileId} /> }
+      {selectedReptileId !== '' &&   <FlowChart reptileId={selectedReptileId} />}
 
     </div>
   )
