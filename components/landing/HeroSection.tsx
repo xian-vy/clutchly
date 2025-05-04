@@ -45,23 +45,18 @@ export function HeroSection() {
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm md:text-base xl:text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
               disabled={isPending}
             >
-              {isPending ? (
-                <>
-                  <span className="animate-pulse">Loading...</span>
-                </>
-              ) : (
+              
                 <>
                   Get Started
                   <ArrowRight className="h-5 w-5" />
                 </>
-              )}
             </button>
             <button
               onClick={() => handleNavigation('/auth/signin')}
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background/50 backdrop-blur-sm px-8 py-3 text-sm md:text-base xl:text-lg font-medium transition-all hover:bg-secondary hover:scale-[1.02] active:scale-[0.98]"
               disabled={isPending}
             >
-              {isPending ? 'Loading...' : 'Sign In'}
+              { 'Sign In'}
             </button>
           </div>
         </div>

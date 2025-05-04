@@ -2,6 +2,7 @@ import { Database, Dna, Heart, LineChart, Check, Zap } from 'lucide-react'
 import { FeatureCard } from './FeatureCard'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import PedigreeFeatureCard from './PedigreeFeatureCard'
 
 export function FeaturesSection() {
   const features = [
@@ -115,6 +116,24 @@ export function FeaturesSection() {
           ))}
         </div>
 
+        {/* Pedigree Feature Showcase */}
+        <div className="mt-24">
+          <div className="flex flex-col items-center gap-4 text-center mb-8">
+            <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+              Spotlight Feature
+            </span>
+            <h2 className="text-center text-xl lg:text-2xl font-bold tracking-tight xl:text-3xl">
+              Interactive Pedigree Analysis
+            </h2>
+            <p className="text-muted-foreground text-sm lg:text-base max-w-[600px]">
+              Visualize your reptile&apos;s complete lineage with our interactive pedigree tree
+            </p>
+          </div>
+          <div className="w-full max-w-5xl mx-auto">
+            <PedigreeFeatureCard />
+          </div>
+        </div>
+
         {/* Subscription Plans */}
         <div className="mt-32 mb-8">
           <div className="flex flex-col items-center gap-4 text-center mb-16">
@@ -209,4 +228,4 @@ export function FeaturesSection() {
       </div>
     </section>
   )
-} 
+}

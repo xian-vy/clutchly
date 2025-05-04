@@ -32,7 +32,7 @@ const Lineage = () => {
                   />
           </div>
       </div>
-      {selectedReptileId !== '' &&   <FlowChart reptileId={selectedReptileId} />}
+      {selectedReptileId !== '' &&   <FlowChart reptileId={selectedReptileId} reptiles={reptiles} />}
 
     </div>
   )
