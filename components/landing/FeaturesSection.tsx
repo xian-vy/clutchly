@@ -126,7 +126,7 @@ export function FeaturesSection() {
               Interactive Pedigree Analysis
             </h2>
             <p className="text-muted-foreground text-sm lg:text-base max-w-[600px]">
-              Visualize your reptiles' complete lineage with our interactive pedigree tree
+              Visualize your reptile&apos;s complete lineage with our interactive pedigree tree
             </p>
           </div>
           <div className="w-full max-w-5xl mx-auto">
