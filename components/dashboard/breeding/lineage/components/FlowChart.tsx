@@ -26,6 +26,7 @@ const nodeTypes = { custom: CustomNode, group: GroupNode };
 interface FlowChartProps {
   reptileId: string;
   reptiles : Reptile[];
+  isFeature? :boolean
 }
 function Flow({ reptileId,reptiles }: FlowChartProps) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
@@ -537,7 +538,7 @@ function Flow({ reptileId,reptiles }: FlowChartProps) {
       fitViewOptions={{ padding: 0.5 }}
       minZoom={0.1}
       maxZoom={2}
-      defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+      defaultViewport={{ x: 0, y: 0, zoom: 1 }}
       attributionPosition="bottom-left"
       nodesDraggable={true}
       onNodesChange={onNodesChange} 
@@ -553,9 +554,9 @@ function Flow({ reptileId,reptiles }: FlowChartProps) {
 
 
 // Main component that wraps everything with the ReactFlowProvider
-const FlowChart = ({ reptileId, reptiles }: FlowChartProps) => {
+const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {
   return (
-    <div style={{ width: '100%', height: '800px' }}>
+    <div style={{ width: '100%', height:  isFeature ? '500px' : "800px"}}>
       <style jsx global>{`
         /* Override ReactFlow node styling for group nodes */
         .react-flow__node-group {
