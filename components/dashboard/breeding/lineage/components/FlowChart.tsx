@@ -1,11 +1,9 @@
 'use client';
 
 import { getReptileLineage } from '@/app/api/reptiles/lineage';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
 import { Reptile } from '@/lib/types/reptile';
-import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import ReactFlow, {
   applyNodeChanges,
@@ -25,8 +23,11 @@ import { ReptileNode } from './types';
 
 // Define node types
 const nodeTypes = { custom: CustomNode, group: GroupNode };
-
-function Flow({ reptileId }: { reptileId: string }) {
+interface FlowChartProps {
+  reptileId: string;
+  reptiles : Reptile[];
+}
+function Flow({ reptileId,reptiles }: FlowChartProps) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedReptile, setSelectedReptile] = useState<string>(reptileId);
@@ -45,10 +46,7 @@ function Flow({ reptileId }: { reptileId: string }) {
   
   const { morphs } = useMorphsStore();
   
-  const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  });
+
 
   // Keep track of parent-child relationships for quick lookup
   const [parentRelationships, setParentRelationships] = useState<Map<string, {
@@ -552,12 +550,10 @@ function Flow({ reptileId }: { reptileId: string }) {
   );
 }
 
-interface FlowChartProps {
-  reptileId: string;
-}
+
 
 // Main component that wraps everything with the ReactFlowProvider
-const FlowChart = ({ reptileId }: FlowChartProps) => {
+const FlowChart = ({ reptileId, reptiles }: FlowChartProps) => {
   return (
     <div style={{ width: '100%', height: '800px' }}>
       <style jsx global>{`
@@ -573,7 +569,7 @@ const FlowChart = ({ reptileId }: FlowChartProps) => {
         }
       `}</style>
       <ReactFlowProvider>
-        <Flow reptileId={reptileId} />
+        <Flow reptileId={reptileId} reptiles={reptiles} />
       </ReactFlowProvider>
     </div>
   );
