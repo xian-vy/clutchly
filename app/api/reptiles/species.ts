@@ -4,8 +4,16 @@ import { Species, NewSpecies } from '@/lib/types/species'
 
 export async function getSpecies() {
   const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
+  const currentUser = await supabase.auth.getUser()
   const userId = currentUser.data.user?.id
+  
+  // get the user's profile to get selected_species
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('selected_species')
+    .eq('id', userId)
+    .single()
+    
   const { data: species, error } = await supabase
     .from('species')
     .select(`
@@ -20,7 +28,17 @@ export async function getSpecies() {
     .order('name')
 
   if (error) throw error
-  return (species as unknown) as Species[]
+  
+  const selectedSpecies = profile?.selected_species || []
+  const sortedSpecies = [...species].sort((a, b) => {
+    const aSelected = selectedSpecies.includes(a.id.toString())
+    const bSelected = selectedSpecies.includes(b.id.toString())
+    if (aSelected && !bSelected) return -1
+    if (!aSelected && bSelected) return 1
+    return a.name.localeCompare(b.name)
+  })
+
+  return (sortedSpecies as unknown) as Species[]
 }
 
 export async function getSpeciesById(id: string) {
@@ -118,4 +136,4 @@ export async function getGlobalSpecies() {
 
   if (error) throw error
   return (species as unknown) as Species[]
-} 
+}
