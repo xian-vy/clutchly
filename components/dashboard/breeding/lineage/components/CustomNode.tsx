@@ -16,7 +16,7 @@ interface Props {
 const CustomNode = ({ data }: Props) => (
   <div
     className={cn(
-      'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/50 min-w-[250px] transition-all duration-300',
+      'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/50 w-[250px] transition-all duration-300',
       data.isSelected && 
         'ring-1 ring-primary shadow-2xl  border-primary z-50',
       data.isHighlighted && !data.isSelected && 
@@ -28,7 +28,7 @@ const CustomNode = ({ data }: Props) => (
     )}
   >
     <Handle type="target" position={Position.Top} />
-    <div className="flex flex-col items-center gap-1.5 justify-center h-[140px] ">
+    <div className="flex flex-col items-center gap-1.5 justify-center h-[200px] ">
         <div className="flex items-center gap-2">
               <div className="font-bold text-base lg:text-lg text-black dark:text-white">{data.name || 'Unknown'}</div>
               <>

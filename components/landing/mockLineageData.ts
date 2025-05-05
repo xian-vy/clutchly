@@ -78,6 +78,38 @@ export const mockMorphs: Morph[] = [
     name: 'Mojave',
     description: 'A co-dominant mutation that lightens the pattern and creates a blue-tinted pattern.',
     is_global: true
+  },
+  {
+    id: 9,
+    user_id: 'demo-user',
+    species_id: 1,
+    name: 'Enchi',
+    description: 'A co-dominant mutation that creates a reduced pattern with orange and gold coloration.',
+    is_global: true
+  },
+  {
+    id: 10,
+    user_id: 'demo-user',
+    species_id: 1,
+    name: 'Yellow Belly',
+    description: 'A co-dominant mutation that enhances yellows on the sides and creates a flame pattern.',
+    is_global: true
+  },
+  {
+    id: 11,
+    user_id: 'demo-user',
+    species_id: 1,
+    name: 'Cinnamon',
+    description: 'A co-dominant mutation that darkens the pattern and creates a rich, cinnamon-brown coloration.',
+    is_global: true
+  },
+  {
+    id: 12,
+    user_id: 'demo-user',
+    species_id: 1,
+    name: 'Lesser',
+    description: 'A co-dominant mutation that lightens the pattern and creates a clean, bright appearance.',
+    is_global: true
   }
 ];
 
@@ -174,6 +206,12 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 50,
           source: 'visual_parent',
           verified: false
+        },
+        {
+          trait: 'Mojave',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
         }
       ]
     },
@@ -198,6 +236,12 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 100,
           source: 'breeding_odds',
           verified: true
+        },
+        {
+          trait: 'Mojave',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
         }
       ]
     },
@@ -215,10 +259,22 @@ export const generateMockReptiles = (): Reptile[] => {
       is_breeder: false,
       retired_breeder: false,
       morph_id: '1', // Normal
-      visual_traits: [],
+      visual_traits: ['Normal'],
       het_traits: [
         {
           trait: 'Clown',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Pastel',
+          percentage: 66,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Mojave',
           percentage: 50,
           source: 'breeding_odds',
           verified: false
@@ -240,7 +296,20 @@ export const generateMockReptiles = (): Reptile[] => {
       retired_breeder: false,
       morph_id: '3', // Clown
       visual_traits: ['Clown'],
-      het_traits: []
+      het_traits: [
+        {
+          trait: 'Pastel',
+          percentage: 66,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Mojave',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
     },
 
     // Breeding partner for root to produce offspring
@@ -257,7 +326,20 @@ export const generateMockReptiles = (): Reptile[] => {
       retired_breeder: false,
       morph_id: '5', // Pied
       visual_traits: ['Pied'],
-      het_traits: []
+      het_traits: [
+        {
+          trait: 'Enchi',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
     },
 
     // Breeding partner for sibling1
@@ -274,7 +356,20 @@ export const generateMockReptiles = (): Reptile[] => {
       retired_breeder: false,
       morph_id: '6', // Spider
       visual_traits: ['Spider'],
-      het_traits: []
+      het_traits: [
+        {
+          trait: 'Pinstripe',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        },
+        {
+          trait: 'Pied',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
     },
     
     // Offspring of sibling1 (demonstrating that siblings can have offspring)
@@ -297,6 +392,30 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 50,
           source: 'breeding_odds',
           verified: false
+        },
+        {
+          trait: 'Spider',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Pinstripe',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Pied',
+          percentage: 25,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Mojave',
+          percentage: 25,
+          source: 'breeding_odds',
+          verified: false
         }
       ]
     },
@@ -317,6 +436,30 @@ export const generateMockReptiles = (): Reptile[] => {
         {
           trait: 'Clown',
           percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Pastel',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Pinstripe',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Pied',
+          percentage: 25,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Mojave',
+          percentage: 25,
           source: 'breeding_odds',
           verified: false
         }
@@ -349,6 +492,24 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 50,
           source: 'breeding_odds',
           verified: false
+        },
+        {
+          trait: 'Enchi',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 25,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Mojave',
+          percentage: 25,
+          source: 'breeding_odds',
+          verified: false
         }
       ]
     },
@@ -371,6 +532,30 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 50,
           source: 'breeding_odds',
           verified: false
+        },
+        {
+          trait: 'Pastel',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Enchi',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 25,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Mojave',
+          percentage: 25,
+          source: 'breeding_odds',
+          verified: false
         }
       ]
     },
@@ -391,6 +576,30 @@ export const generateMockReptiles = (): Reptile[] => {
         {
           trait: 'Clown',
           percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Pastel',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Enchi',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 25,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Mojave',
+          percentage: 25,
           source: 'breeding_odds',
           verified: false
         }
@@ -417,6 +626,18 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 100,
           source: 'breeding_odds',
           verified: true
+        },
+        {
+          trait: 'Mojave',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Cinnamon',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
         }
       ]
     },
@@ -435,7 +656,26 @@ export const generateMockReptiles = (): Reptile[] => {
       retired_breeder: false,
       morph_id: '3', // Clown
       visual_traits: ['Clown'],
-      het_traits: []
+      het_traits: [
+        {
+          trait: 'Pastel',
+          percentage: 66,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Mojave',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Cinnamon',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
     },
     
     // Maternal Grandmother (2nd generation) - Pastel
@@ -444,15 +684,28 @@ export const generateMockReptiles = (): Reptile[] => {
       id: grandDam1Id,
       name: 'BP000014',
       sex: 'female' as const,
-      dam_id: greatGrandDam1Id,
-      sire_id: greatGrandSire1Id,
+      dam_id: null,
+      sire_id: null,
       generation: -1,
       breeding_line: 'Pastel Project',
       is_breeder: false,
       retired_breeder: true,
       morph_id: '2', // Pastel
       visual_traits: ['Pastel'],
-      het_traits: []
+      het_traits: [
+        {
+          trait: 'Cinnamon',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        },
+        {
+          trait: 'Lesser',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
     },
     
     // Maternal Grandfather (2nd generation) - het Clown
@@ -468,10 +721,16 @@ export const generateMockReptiles = (): Reptile[] => {
       is_breeder: false,
       retired_breeder: true,
       morph_id: '1', // Normal
-      visual_traits: [],
+      visual_traits: ['Normal'],
       het_traits: [
         {
           trait: 'Clown',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        },
+        {
+          trait: 'Mojave',
           percentage: 100,
           source: 'breeding_odds',
           verified: true
@@ -493,7 +752,14 @@ export const generateMockReptiles = (): Reptile[] => {
       retired_breeder: true,
       morph_id: '2', // Pastel
       visual_traits: ['Pastel'],
-      het_traits: []
+      het_traits: [
+        {
+          trait: 'Lesser',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        }
+      ]
     },
     {
       ...baseReptile,
@@ -507,8 +773,15 @@ export const generateMockReptiles = (): Reptile[] => {
       is_breeder: false,
       retired_breeder: true,
       morph_id: '1', // Normal
-      visual_traits: [],
-      het_traits: []
+      visual_traits: ['Normal'],
+      het_traits: [
+        {
+          trait: 'Cinnamon',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        }
+      ]
     },
     {
       ...baseReptile,
@@ -522,8 +795,15 @@ export const generateMockReptiles = (): Reptile[] => {
       is_breeder: false,
       retired_breeder: true,
       morph_id: '1', // Normal
-      visual_traits: [],
-      het_traits: []
+      visual_traits: ['Normal'],
+      het_traits: [
+        {
+          trait: 'Mojave',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        }
+      ]
     },
     {
       ...baseReptile,
@@ -538,7 +818,14 @@ export const generateMockReptiles = (): Reptile[] => {
       retired_breeder: true,
       morph_id: '3', // Clown
       visual_traits: ['Clown'],
-      het_traits: []
+      het_traits: [
+        {
+          trait: 'Yellow Belly',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        }
+      ]
     },
     
     // New - Breeding partner for greatGrandSire2 (BP000019)
@@ -555,7 +842,20 @@ export const generateMockReptiles = (): Reptile[] => {
       retired_breeder: true,
       morph_id: '8', // Mojave
       visual_traits: ['Mojave'],
-      het_traits: []
+      het_traits: [
+        {
+          trait: 'Enchi',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: true
+        },
+        {
+          trait: 'Lesser',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
     },
     
     // New - Offspring of greatGrandSire2 (BP000019) with no descendants
@@ -564,8 +864,8 @@ export const generateMockReptiles = (): Reptile[] => {
       id: greatGrandOffspring1Id,
       name: 'BP000021',
       sex: 'female' as const,
-      dam_id:greatGrandDam2Id ,
-      sire_id:  greatGrandSire2Id,
+      dam_id: greatGrandDam2Id,
+      sire_id: greatGrandSire2Id,
       generation: -1,
       breeding_line: 'Clown-Mojave Project',
       is_breeder: false,
@@ -578,6 +878,12 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 100,
           source: 'breeding_odds',
           verified: false
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
         }
       ]
     },
@@ -586,8 +892,8 @@ export const generateMockReptiles = (): Reptile[] => {
       id: greatGrandOffspring2Id,
       name: 'BP000022',
       sex: 'male' as const,
-      dam_id:greatGrandDam2Id,
-      sire_id:  greatGrandSire2Id ,
+      dam_id: greatGrandDam2Id,
+      sire_id: greatGrandSire2Id,
       generation: -1,
       breeding_line: 'Clown-Mojave Project',
       is_breeder: false,
@@ -598,6 +904,12 @@ export const generateMockReptiles = (): Reptile[] => {
         {
           trait: 'Clown',
           percentage: 100,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 50,
           source: 'breeding_odds',
           verified: false
         }

@@ -348,7 +348,6 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
         // Check if we already created a connector for this parent pair
         let connectorNodeId: string;
         if (createdConnectorNodes.has(parentPairKey)) {
-          // Use existing connector node
           connectorNodeId = createdConnectorNodes.get(parentPairKey)!;
         } else {
           // Create a new connector node
@@ -387,6 +386,7 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
               stroke: '#e91e63', 
               strokeWidth: 1.5,
             },
+            animated: selectedReptile === reptileId, // Animate if this is the selected reptile's parent line
           });
           
           // Sire edge (male parent)
@@ -399,6 +399,7 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
               stroke: '#2196f3', 
               strokeWidth: 1.5,
             },
+            animated: selectedReptile === reptileId, // Animate if this is the selected reptile's parent line
           });
         }
         
@@ -782,12 +783,11 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
     >
       {!isFeature &&
        <>
-          <Legend />
-          <Controls />
+          <Background />
        </> 
-      }
-                <Background />
-
+      }     
+      <Legend />
+      <Controls />
     </ReactFlow>
   );
 }
