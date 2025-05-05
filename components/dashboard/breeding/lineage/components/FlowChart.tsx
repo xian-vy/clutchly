@@ -19,6 +19,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import CustomNode from './CustomNode';
 import GroupNode from './GroupNode';
+import ConnectorNode from './ConnectorNode';
 import Legend from './Legend';
 import { CustomNodeData, ReptileNode } from './types';
 
@@ -49,7 +50,8 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
   // Define node types with memo to pass reptiles prop
   const customNodeTypes = useMemo(() => ({
     custom: (props: NodeProps<CustomNodeData>) => <CustomNode {...props} reptiles={reptiles} />,
-    group: (props: NodeProps<CustomNodeData>) => <GroupNode {...props} reptiles={reptiles} />
+    group: (props: NodeProps<CustomNodeData>) => <GroupNode {...props} reptiles={reptiles} />,
+    connector: (props: NodeProps<CustomNodeData>) => <ConnectorNode {...props} />
   }), [reptiles]);
 
   // Keep track of parent-child relationships for quick lookup
@@ -228,6 +230,131 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
         createNode(node);
       }
       
+      // Create connector nodes between parents and their children
+      // Store created connector nodes to avoid duplicates
+      const createdConnectorNodes = new Map<string, string>(); // Map of damId:sireId -> connectorNodeId
+      
+      // Process each node that has both parents
+      for (const reptileId of allTreeNodes.keys()) {
+        const parentInfo = parentChildMap.get(reptileId);
+        if (!parentInfo || !parentInfo.dam || !parentInfo.sire) continue;
+        
+        const damId = parentInfo.dam;
+        const sireId = parentInfo.sire;
+        
+        // Skip if either parent is not in our tree
+        if (!nodeMap.has(damId) || !nodeMap.has(sireId)) continue;
+        
+        // Create a consistent key for the parent pair
+        const parentPairKey = damId < sireId 
+          ? `${damId}:${sireId}`
+          : `${sireId}:${damId}`;
+        
+        // Check if we already created a connector for this parent pair
+        let connectorNodeId: string;
+        if (createdConnectorNodes.has(parentPairKey)) {
+          // Use existing connector node
+          connectorNodeId = createdConnectorNodes.get(parentPairKey)!;
+        } else {
+          // Create a new connector node
+          connectorNodeId = `connector-${parentPairKey}`;
+          createdConnectorNodes.set(parentPairKey, connectorNodeId);
+          
+          // Get parent nodes
+          const damNode = nodeMap.get(damId)!;
+          const sireNode = nodeMap.get(sireId)!;
+          
+          // Calculate position for connector node - in the middle between parents and slightly below
+          const damGen = generationMap.get(damId) || 0;
+          const sireGen = generationMap.get(sireId) || 0;
+          const maxGen = Math.max(damGen, sireGen);
+          
+          // Constants for layout
+          const Y_SPACING = 200;
+          const CONNECTOR_Y_OFFSET = Y_SPACING * 0.4; // 40% down from parents to children
+          
+          // Calculate position
+          let x, y;
+          
+          if (initialLayoutDone && nodePositionsRef.current.has(connectorNodeId)) {
+            // Use stored position if available
+            const storedPosition = nodePositionsRef.current.get(connectorNodeId)!;
+            x = storedPosition.x;
+            y = storedPosition.y;
+          } else {
+            // Position between the two parents
+            x = (damNode.position.x + sireNode.position.x) / 2;
+            y = maxGen * Y_SPACING + CONNECTOR_Y_OFFSET;
+          }
+          
+          // Create the connector node
+          const connectorNode: Node<CustomNodeData> = {
+            id: connectorNodeId,
+            position: { x, y },
+            type: 'connector',
+            data: {
+              name: 'Connector',
+              sex: 'unknown',
+              morph_name: '',
+              isConnectorNode: true,
+              connectedDamId: damId,
+              connectedSireId: sireId,
+              connectedChildrenIds: [reptileId],
+              selectedReptileName: '',
+              visualTraits: [],
+              hetTraits: [],
+            }
+          };
+          
+          flowNodes.push(connectorNode);
+          
+          // Add edges from both parents to the connector node
+          // Dam edge (female parent)
+          flowEdges.push({
+            id: `${damId}-${connectorNodeId}`,
+            source: damId,
+            target: connectorNodeId,
+            type: 'default',
+            style: { 
+              stroke: '#e91e63', 
+              strokeWidth: 1.5,
+            },
+          });
+          
+          // Sire edge (male parent)
+          flowEdges.push({
+            id: `${sireId}-${connectorNodeId}`,
+            source: sireId,
+            target: connectorNodeId,
+            type: 'default',
+            style: { 
+              stroke: '#2196f3', 
+              strokeWidth: 1.5,
+            },
+          });
+        }
+        
+        // Add edge from connector to child
+        const isHighlighted = highlightedNodes.child === reptileId;
+        
+        // Add an edge from the connector to the child
+        flowEdges.push({
+          id: `${connectorNodeId}-${reptileId}`,
+          source: connectorNodeId,
+          target: reptileId,
+          type: 'default',
+          style: { 
+            stroke: '#555', 
+            strokeWidth: isHighlighted ? 2 : 1.5,
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#555',
+          },
+          animated: isHighlighted,
+        });
+      }
+      
       // Create group nodes for children without descendants
       const createdGroupNodes = new Map<string, string>(); // Map of parentPair -> groupNodeId
       
@@ -323,102 +450,144 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
         
         flowNodes.push(groupNode);
         
-        // Add edges from both parents to the group node
-        // Dam edge (female)
-        flowEdges.push({
-          id: `${damId}-${groupNodeId}`,
-          source: damId,
-          target: groupNodeId,
-          type: 'bezier',
-          style: { 
-            stroke: '#28865f', 
-            strokeWidth: 1.5,
-            strokeOpacity: 0.6,
-            strokeDasharray: '5,5',
-          },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            color: '#28865f',
-          },
-        });
+        // Check if a connector node exists for this parent pair
+        const connectorKey = parentPairKey;
+        const connectorNodeId = createdConnectorNodes.get(connectorKey);
         
-        // Sire edge (male)
-        flowEdges.push({
-          id: `${sireId}-${groupNodeId}`,
-          source: sireId,
-          target: groupNodeId,
-          type: 'bezier',
-          style: { 
-            stroke: '#28865f', 
-            strokeWidth: 1.5,
-            strokeOpacity: 0.6,
-            strokeDasharray: '5,5',
-          },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            color: '#28865f',
-          },
-        });
+        if (connectorNodeId) {
+          // Connect the group node to the connector
+          flowEdges.push({
+            id: `${connectorNodeId}-${groupNodeId}`,
+            source: connectorNodeId,
+            target: groupNodeId,
+            type: 'default',
+            style: { 
+              stroke: '#28865f', 
+              strokeWidth: 1.5,
+              strokeOpacity: 0.6,
+              strokeDasharray: '5,5',
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: '#28865f',
+            },
+          });
+        } else {
+          // If no connector node exists, connect directly to parents (fallback)
+          // Dam edge (female)
+          flowEdges.push({
+            id: `${damId}-${groupNodeId}`,
+            source: damId,
+            target: groupNodeId,
+            type: 'bezier',
+            style: { 
+              stroke: '#28865f', 
+              strokeWidth: 1.5,
+              strokeOpacity: 0.6,
+              strokeDasharray: '5,5',
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: '#28865f',
+            },
+          });
+          
+          // Sire edge (male)
+          flowEdges.push({
+            id: `${sireId}-${groupNodeId}`,
+            source: sireId,
+            target: groupNodeId,
+            type: 'bezier',
+            style: { 
+              stroke: '#28865f', 
+              strokeWidth: 1.5,
+              strokeOpacity: 0.6,
+              strokeDasharray: '5,5',
+            },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: '#28865f',
+            },
+          });
+        }
       }
       
       // Then create all edges
       const processedEdges = new Set<string>();
       
       for (const [id, node] of allTreeNodes.entries()) {
-        // Add parent edges
-        if (node.parents.dam) {
-          const edgeId = `${node.parents.dam.id}-${id}`;
-          if (!processedEdges.has(edgeId)) {
-            const isHighlighted = 
-              (highlightedNodes.child === id && highlightedNodes.dam === node.parents.dam.id);
-            
-            flowEdges.push({
-              id: edgeId,
-              source: node.parents.dam.id,
-              target: id,
-              type: 'bezier',
-              style: { 
-                stroke: '#e91e63', 
-                strokeWidth: isHighlighted ? 2 : 1.5,
-                strokeOpacity: isHighlighted ? 1 : 0.6,
-              },
-              labelBgPadding: [4, 2],
-              labelBgBorderRadius: 4,
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: '#e91e63',
-              },
-              animated: isHighlighted,
-            });
-            processedEdges.add(edgeId);
-          }
-        }
+        // Skip adding direct parent edges since we're now using connector nodes
+        // Only add edges for nodes that don't have both parents (since those are handled by connector nodes)
+        const parentPairKey = node.parents.dam && node.parents.sire 
+          ? (node.parents.dam.id < node.parents.sire.id 
+              ? `${node.parents.dam.id}:${node.parents.sire.id}`
+              : `${node.parents.sire.id}:${node.parents.dam.id}`)
+          : null;
+
+        const hasConnector = parentPairKey && 
+                           node.parents.dam && 
+                           node.parents.sire && 
+                           nodeMap.has(node.parents.dam.id) && 
+                           nodeMap.has(node.parents.sire.id) &&
+                           // Check if a connector node exists for this parent pair
+                           createdConnectorNodes.has(parentPairKey);
         
-        if (node.parents.sire) {
-          const edgeId = `${node.parents.sire.id}-${id}`;
-          if (!processedEdges.has(edgeId)) {
-            const isHighlighted = 
-              (highlightedNodes.child === id && highlightedNodes.sire === node.parents.sire.id);
+        if (!hasConnector) {
+          // Add parent edges for nodes with only one parent
+          if (node.parents.dam) {
+            const edgeId = `${node.parents.dam.id}-${id}`;
+            if (!processedEdges.has(edgeId)) {
+              const isHighlighted = 
+                (highlightedNodes.child === id && highlightedNodes.dam === node.parents.dam.id);
               
-            flowEdges.push({
-              id: edgeId,
-              source: node.parents.sire.id,
-              target: id,
-              type: 'bezier', 
-              style: { 
-                stroke: '#2196f3', 
-                strokeWidth: isHighlighted ? 2 : 1.5,
-                strokeOpacity: isHighlighted ? 1 : 0.6,
-              },
-              labelBgPadding: [4, 2],
-              labelBgBorderRadius: 4,
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: '#2196f3',
-              },
-              animated: isHighlighted,
-            });
-            processedEdges.add(edgeId);
+              flowEdges.push({
+                id: edgeId,
+                source: node.parents.dam.id,
+                target: id,
+                type: 'bezier',
+                style: { 
+                  stroke: '#e91e63', 
+                  strokeWidth: isHighlighted ? 2 : 1.5,
+                  strokeOpacity: isHighlighted ? 1 : 0.6,
+                },
+                labelBgPadding: [4, 2],
+                labelBgBorderRadius: 4,
+                markerEnd: {
+                  type: MarkerType.ArrowClosed,
+                  color: '#e91e63',
+                },
+                animated: isHighlighted,
+              });
+              processedEdges.add(edgeId);
+            }
+          }
+          
+          if (node.parents.sire) {
+            const edgeId = `${node.parents.sire.id}-${id}`;
+            if (!processedEdges.has(edgeId)) {
+              const isHighlighted = 
+                (highlightedNodes.child === id && highlightedNodes.sire === node.parents.sire.id);
+                
+              flowEdges.push({
+                id: edgeId,
+                source: node.parents.sire.id,
+                target: id,
+                type: 'bezier', 
+                style: { 
+                  stroke: '#2196f3', 
+                  strokeWidth: isHighlighted ? 2 : 1.5,
+                  strokeOpacity: isHighlighted ? 1 : 0.6,
+                },
+                labelBgPadding: [4, 2],
+                labelBgBorderRadius: 4,
+                markerEnd: {
+                  type: MarkerType.ArrowClosed,
+                  color: '#2196f3',
+                },
+                animated: isHighlighted,
+              });
+              processedEdges.add(edgeId);
+            }
           }
         }
         
@@ -426,24 +595,37 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
         for (const child of node.children) {
           const edgeId = `${id}-${child.id}`;
           if (!processedEdges.has(edgeId)) {
-            flowEdges.push({
-              id: edgeId,
-              source: id,
-              target: child.id,
-              type: 'bezier',
-              style: { 
-                stroke: child.sex === 'female' ? '#e91e63' : 
+            // Check if a connector node exists for this parent-child relationship
+            const childParentPairKey = child.parents.dam && child.parents.sire &&
+              (child.parents.dam.id === id || child.parents.sire.id === id)
+              ? (child.parents.dam.id < child.parents.sire.id 
+                  ? `${child.parents.dam.id}:${child.parents.sire.id}`
+                  : `${child.parents.sire.id}:${child.parents.dam.id}`)
+              : null;
+              
+            const childHasConnector = childParentPairKey && createdConnectorNodes.has(childParentPairKey);
+            
+            // Only add the edge if there's no connector node handling this relationship
+            if (!childHasConnector) {
+              flowEdges.push({
+                id: edgeId,
+                source: id,
+                target: child.id,
+                type: 'bezier',
+                style: { 
+                  stroke: child.sex === 'female' ? '#e91e63' : 
+                          child.sex === 'male' ? '#2196f3' : '#94a3b8',
+                  strokeWidth: 1.5,
+                  strokeOpacity: 0.6,
+                },
+                markerEnd: {
+                  type: MarkerType.ArrowClosed,
+                  color: child.sex === 'female' ? '#e91e63' : 
                          child.sex === 'male' ? '#2196f3' : '#94a3b8',
-                strokeWidth: 1.5,
-                strokeOpacity: 0.6,
-              },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: child.sex === 'female' ? '#e91e63' : 
-                       child.sex === 'male' ? '#2196f3' : '#94a3b8',
-              },
-            });
-            processedEdges.add(edgeId);
+                },
+              });
+              processedEdges.add(edgeId);
+            }
           }
         }
       }
@@ -579,6 +761,17 @@ const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {
           box-shadow: none !important;
         }
         .react-flow__node-group .react-flow__handle {
+          opacity: 0 !important;
+        }
+        
+        /* Styles for connector nodes */
+        .react-flow__node-connector {
+          background: transparent !important;
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+        .react-flow__node-connector .react-flow__handle {
           opacity: 0 !important;
         }
       `}</style>
