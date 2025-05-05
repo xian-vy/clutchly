@@ -1,6 +1,5 @@
 'use client';
 
-import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,20 +7,18 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
 import { Reptile } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
 import { CircleHelp, Dna, Mars, Venus } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import { Handle, NodeProps, Position } from 'reactflow';
-import { CustomNodeData } from './CustomNode';
-import { GroupedReptilesType } from './types';
+import { Handle, Position } from 'reactflow';
+import { CustomNodeData, GroupedReptilesType } from './types';
 
-const GroupNode = ({ data }: NodeProps<CustomNodeData>) => {
+interface Props {
+  reptiles?: Reptile[];
+  data: CustomNodeData;
+}
+const GroupNode = ({ reptiles = [], data }: Props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { morphs } = useMorphsStore();
-  const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  });
 
   // Group offspring by morph
   const groupedByMorph: GroupedReptilesType = useMemo(() => {

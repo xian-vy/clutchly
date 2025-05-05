@@ -4,7 +4,7 @@ import { getReptileLineage } from '@/app/api/reptiles/lineage';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
 import { Reptile } from '@/lib/types/reptile';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import ReactFlow, {
   applyNodeChanges,
   Background,
@@ -13,16 +13,15 @@ import ReactFlow, {
   MarkerType,
   Node,
   NodeChange,
-  ReactFlowProvider
+  ReactFlowProvider,
+  NodeProps
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import CustomNode, { CustomNodeData } from './CustomNode';
+import CustomNode from './CustomNode';
 import GroupNode from './GroupNode';
 import Legend from './Legend';
-import { ReptileNode } from './types';
+import { CustomNodeData, ReptileNode } from './types';
 
-// Define node types
-const nodeTypes = { custom: CustomNode, group: GroupNode };
 interface FlowChartProps {
   reptileId: string;
   reptiles : Reptile[];
@@ -47,7 +46,11 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
   
   const { morphs } = useMorphsStore();
   
-
+  // Define node types with memo to pass reptiles prop
+  const customNodeTypes = useMemo(() => ({
+    custom: (props: NodeProps<CustomNodeData>) => <CustomNode {...props} reptiles={reptiles} />,
+    group: (props: NodeProps<CustomNodeData>) => <GroupNode {...props} reptiles={reptiles} />
+  }), [reptiles]);
 
   // Keep track of parent-child relationships for quick lookup
   const [parentRelationships, setParentRelationships] = useState<Map<string, {
@@ -532,7 +535,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
     <ReactFlow
       nodes={nodes}
       edges={edges}
-      nodeTypes={nodeTypes}
+      nodeTypes={customNodeTypes}
       onNodeClick={handleNodeClick}
       fitView
       fitViewOptions={{ padding: 0.5 }}
@@ -550,8 +553,6 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
     </ReactFlow>
   );
 }
-
-
 
 // Main component that wraps everything with the ReactFlowProvider
 const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {

@@ -2,33 +2,18 @@
 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { HetTrait, Reptile } from '@/lib/types/reptile';
+import {  Reptile } from '@/lib/types/reptile';
 import { CircleHelp, Mars, Venus } from 'lucide-react';
-import { Handle, NodeProps, Position } from 'reactflow';
+import { Handle, Position } from 'reactflow';
+import { CustomNodeData } from './types';
 
-export interface CustomNodeData {
-  name: string;
-  species_name?: string;
-  sex: string;
-  isParent?: 'dam' | 'sire';
-  generation?: number;
-  breeding_line?: string;
-  morph_name: string;
-  isSelected?: boolean;
-  isHighlighted?: boolean;
-  isParentOf?: string;
-  selectedReptileName: string;
-  visualTraits: string[];
-  hetTraits: HetTrait[];
-  isGroupNode?: boolean;
-  groupedReptiles?: Reptile[];
-  nodeType?: string;
-  count?: number;
-  parentId?: string;
+interface Props {
+  reptiles?: Reptile[];
+  data: CustomNodeData;
 }
 
 
-const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
+const CustomNode = ({ data }: Props) => (
   <div
     className={cn(
       'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/60 min-w-[200px] transition-all duration-300',
