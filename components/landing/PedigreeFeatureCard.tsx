@@ -17,10 +17,10 @@ const PedigreeFeatureCard = () => {
   return (
     <Card className="overflow-hidden  border-0 bg-background/10">
       <CardContent className="p-0">
-        <div className="w-full h-[500px] overflow-hidden">
+        <div className="w-full h-[800px] overflow-hidden">
           {mockReptiles.length > 0 && (
             <FlowChart 
-              reptileId="root-reptile" 
+              reptileId="dam-reptile" 
               reptiles={mockReptiles} 
               isFeature={true}
             />

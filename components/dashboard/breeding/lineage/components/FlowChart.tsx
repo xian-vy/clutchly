@@ -45,11 +45,14 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
   // Configure dagre with our chosen separation values
   dagreGraph.setGraph({
     rankdir: direction,
-    nodesep: 80,  // Horizontal separation between nodes
+    nodesep: 100,  // Increased horizontal separation between nodes
     ranksep: 150, // Vertical separation between ranks
-    align: 'UL',  // Align nodes to upper left
-    marginx: 20,  // Margin on x-axis
-    marginy: 20,  // Margin on y-axis
+    align: 'DL',  // Changed from UL to DL for better downward alignment
+    marginx: 30,  // Increased margin on x-axis
+    marginy: 30,  // Increased margin on y-axis
+    edgesep: 80,  // Explicit edge separation
+    acyclicer: 'greedy', // Add acyclicer for better handling of cycles
+    ranker: 'network-simplex' // Use network-simplex algorithm for better hierarchy
   });
 
   // Add nodes to the dagre graph with their dimensions
@@ -79,6 +82,31 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
   // Apply the calculated positions to the nodes
   const layoutedNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
+    
+    // Fix connector node alignment to be truly centered between its sources
+    if (node.type === 'connector' && node.data?.connectedDamId && node.data?.connectedSireId) {
+      // Find the parent nodes
+      const damNode = nodes.find(n => n.id === node.data.connectedDamId);
+      const sireNode = nodes.find(n => n.id === node.data.connectedSireId);
+      
+      // If both parents exist, position connector centered between them
+      if (damNode && sireNode) {
+        const damPos = dagreGraph.node(damNode.id);
+        const sirePos = dagreGraph.node(sireNode.id);
+        
+        if (damPos && sirePos) {
+          // Center the connector between the two parents
+          const centerX = (damPos.x + sirePos.x) / 2;
+          return {
+            ...node,
+            position: {
+              x: centerX - CONNECTOR_SIZE / 2,
+              y: nodeWithPosition.y - CONNECTOR_SIZE / 2,
+            },
+          };
+        }
+      }
+    }
     
     return {
       ...node,
@@ -756,7 +784,7 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
 // Main component that wraps everything with the ReactFlowProvider
 const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {
   return (
-    <div style={{ width: '100%', height:  isFeature ? '500px' : "800px"}}>
+    <div style={{ width: '100%', height:  isFeature ? "800px" : "1000px"}}>
       <style jsx global>{`
         /* Override ReactFlow node styling for group nodes */
         .react-flow__node-group {
