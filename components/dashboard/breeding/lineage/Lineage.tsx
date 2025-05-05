@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import FlowChart from './components/FlowChart';
+import { Expand, Minimize } from 'lucide-react';
 
 const Lineage = () => {
   const { data: reptiles = [] } = useQuery({
@@ -13,10 +14,14 @@ const Lineage = () => {
  
   const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(prev => !prev);
+  };
 
   return (
-    <div>
+    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-background px-6 py-2' : ''}`}>
       <div className="flex w-full items-center justify-between">
           <div>
                 <h2 className="text-sm lg:text-lg font-semibold tracking-tight text-start">Pedigree Tree</h2>
@@ -24,7 +29,17 @@ const Lineage = () => {
                    Explore lineage and ancestry through an interactive pedigree tree.
                 </p>
           </div>
-          <div className="flex items-center float-right max-w-[270px] w-full">
+          <div className="flex items-center max-w-[270px] w-full gap-3">
+                <button 
+                  onClick={toggleFullscreen}
+                  className="p-2 hover:bg-muted rounded-md transition-colors"
+                  aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                >
+                    {isFullscreen ? 
+                      <Minimize className="h-4 w-4 text-muted-foreground" /> : 
+                      <Expand className="h-4 w-4 text-muted-foreground" />
+                    }
+                </button>
                 <ReptileSelect
                       value={selectedReptileId}
                       onValueChange={setSelectedReptileId}
