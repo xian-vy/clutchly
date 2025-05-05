@@ -28,7 +28,7 @@ interface FlowChartProps {
   reptiles : Reptile[];
   isFeature? :boolean
 }
-function Flow({ reptileId,reptiles }: FlowChartProps) {
+function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedReptile, setSelectedReptile] = useState<string>(reptileId);
@@ -544,9 +544,9 @@ function Flow({ reptileId,reptiles }: FlowChartProps) {
       onNodesChange={onNodesChange} 
       proOptions={{ hideAttribution: true }}
     >
+      {!isFeature && <Legend /> }
       <Controls />
       <Background />
-      <Legend />
     </ReactFlow>
   );
 }
@@ -570,7 +570,7 @@ const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {
         }
       `}</style>
       <ReactFlowProvider>
-        <Flow reptileId={reptileId} reptiles={reptiles} />
+        <Flow reptileId={reptileId} reptiles={reptiles} isFeature={isFeature} />
       </ReactFlowProvider>
     </div>
   );
