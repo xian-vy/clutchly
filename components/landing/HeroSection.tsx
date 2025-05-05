@@ -29,9 +29,9 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2">
+            {/* <div className="absolute -top-8 left-1/2 -translate-x-1/2">
               <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-            </div>
+            </div> */}
             <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               Welcome to Clutchly
             </span>
