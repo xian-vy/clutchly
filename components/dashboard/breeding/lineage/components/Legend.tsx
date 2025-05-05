@@ -3,7 +3,7 @@
 import { Dna, Mars, Venus, Circle } from 'lucide-react';
 
 const Legend = () => (
-  <div className="absolute bottom-24 right-8 bg-white dark:bg-slate-900 p-3 rounded-md shadow-md border border-gray-200 dark:border-gray-800 z-10">
+  <div className="absolute bottom-0 right-2 bg-white dark:bg-slate-900 p-3 rounded-md shadow-md border border-gray-200 dark:border-gray-800 z-10">
     <div className="text-sm font-medium mb-2">Legend</div>
     <div className="flex items-center mb-1">
       <div className="w-4 h-0.5 bg-blue-400 mr-2"></div>
