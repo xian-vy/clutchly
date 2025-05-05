@@ -127,7 +127,7 @@ export function FeaturesSection() {
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>
-        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
+        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-screen-md">
           {features.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
