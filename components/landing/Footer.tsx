@@ -9,30 +9,33 @@ export function Footer() {
   const { theme } = useTheme()
   
   return (
-    <footer className="w-full mx-auto border-t border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-10 py-8">
-      <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo and Description */}
-          <div className="flex flex-col space-y-4">
-            <div className="flex items-center gap-2">
-              <Image 
-                src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'} 
-                width={37} 
-                height={37} 
-                alt="clutchly" 
-                className="rounded-full" 
-              />
-              <span className="font-bold text-lg">Clutchly</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              A comprehensive reptile data management platform for breeders and enthusiasts.
-            </p>
+    <footer className="w-full mx-auto border-t border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-10 py-16 relative">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,var(--color-primary)/15%_0%,transparent_70%)]" />
+      
+      <div className="container mx-auto relative flex flex-col items-center">
+        {/* Logo and Description */}
+        <div className="flex flex-col items-center space-y-4 mb-12 text-center max-w-md">
+          <div className="flex flex-col items-center gap-2">
+            <Image 
+              src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'} 
+              width={45} 
+              height={45} 
+              alt="clutchly" 
+              className="rounded-full" 
+            />
+            <span className="font-bold text-xl">Clutchly</span>
           </div>
-          
+          <p className="text-sm text-muted-foreground">
+            A comprehensive reptile data management platform for breeders and enthusiasts.
+          </p>
+        </div>
+        
+        {/* Links Section */}
+        <div className="flex flex-col items-start md:flex-row md:items-center justify-between gap-12 md:gap-24 mb-12 w-full max-w-screen-md" >
           {/* Product Links */}
-          <div>
+          <div className="flex flex-col items-start md:items-center">
             <h3 className="font-semibold mb-4">Product</h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-start md:text-center">
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Features</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Download</Link></li>
@@ -41,9 +44,9 @@ export function Footer() {
           </div>
           
           {/* Resources Links */}
-          <div>
+          <div className="flex flex-col items-start md:items-center">
             <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-start md:text-center">
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Documentation</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Community</Link></li>
@@ -52,9 +55,9 @@ export function Footer() {
           </div>
           
           {/* Company Links */}
-          <div>
+          <div className="flex flex-col items-start md:items-center ">
             <h3 className="font-semibold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-sm text-start md:text-center">
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">About</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacy</Link></li>
@@ -63,42 +66,46 @@ export function Footer() {
           </div>
         </div>
         
-        {/* Bottom Section with Copyright and Social Links */}
-        <div className="flex flex-col md:flex-row justify-between items-center mt-8 pt-8 border-t border-border/50">
-          <p className="text-sm text-muted-foreground mb-4 md:mb-0">
-            © {new Date().getFullYear()} Clutchly. Built with ❤️ for the reptile community
-          </p>
-          <div className="flex items-center gap-4">
-            <Link
-              href="#"
-              className="p-2 rounded-md hover:bg-secondary/80 transition-colors"
-              aria-label="Facebook"
-            >
-              <Facebook className="h-5 w-5" />
-            </Link>
-            <Link
-              href="#"
-              className="p-2 rounded-md hover:bg-secondary/80 transition-colors"
-              aria-label="Twitter"
-            >
-              <Twitter className="h-5 w-5" />
-            </Link>
-            <Link
-              href="#"
-              className="p-2 rounded-md hover:bg-secondary/80 transition-colors"
-              aria-label="Instagram"
-            >
-              <Instagram className="h-5 w-5" />
-            </Link>
-            <Link
-              href="#"
-              className="p-2 rounded-md hover:bg-secondary/80 transition-colors"
-              aria-label="GitHub"
-            >
-              <Github className="h-5 w-5" />
-            </Link>
+        {/* Social Links */}
+        <div className="flex items-center gap-4 mb-8">
+          <Link
+            href="#"
+            className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
+            aria-label="Facebook"
+          >
+            <Facebook className="h-5 w-5" />
+          </Link>
+          <Link
+            href="#"
+            className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
+            aria-label="Twitter"
+          >
+            <Twitter className="h-5 w-5" />
+          </Link>
+          <Link
+            href="#"
+            className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
+            aria-label="Instagram"
+          >
+            <Instagram className="h-5 w-5" />
+          </Link>
+          <Link
+            href="#"
+            className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
+            aria-label="GitHub"
+          >
+            <Github className="h-5 w-5" />
+          </Link>
+          <div className="ml-2">
             <ThemeToggle />
           </div>
+        </div>
+        <hr className='bg-input/20 w-full max-w-screen-lg'/>
+        {/* Copyright */}
+        <div className="pt-8  w-full max-w-sm text-center">
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Clutchly. Built with ❤️ for the reptile community
+          </p>
         </div>
       </div>
     </footer>

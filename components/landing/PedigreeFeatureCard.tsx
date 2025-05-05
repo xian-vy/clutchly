@@ -15,7 +15,7 @@ const PedigreeFeatureCard = () => {
   }, []);
 
   return (
-    <Card className="overflow-hidden  border-0 bg-background/10">
+    <Card className="overflow-hidden   bg-background/10">
       <CardContent className="p-0">
         <div className="w-full h-[800px] overflow-hidden">
           {mockReptiles.length > 0 && (

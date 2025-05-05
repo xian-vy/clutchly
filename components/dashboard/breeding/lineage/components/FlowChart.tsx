@@ -784,9 +784,10 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
        <>
           <Legend />
           <Controls />
-          <Background />
        </> 
       }
+                <Background />
+
     </ReactFlow>
   );
 }
