@@ -1,8 +1,9 @@
-import { Database, Dna, Heart, LineChart, Check, Zap } from 'lucide-react'
+import { Database, Dna, Heart, LineChart, Check, Zap, Package } from 'lucide-react'
 import { FeatureCard } from './FeatureCard'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import PedigreeFeatureCard from './PedigreeFeatureCard'
+import { PiChartLineUp } from 'react-icons/pi'
 
 export function FeaturesSection() {
   const features = [
@@ -42,6 +43,22 @@ export function FeaturesSection() {
         'Brood management and tracking',
         'Pedigree analysis',
         'Comprehensive breeding reports'
+      ]
+    },
+    {
+      icon: Package,
+      title: 'Enclosure Management',
+      features: [
+        'Enclosure setup and reptile assignment tracking',
+        'Rack system management',
+      ]
+    },
+    {
+      icon: PiChartLineUp,
+      title: 'Sales and Expense Tracking',
+      features: [
+        'Sales and expense tracking for existing reptile collections',
+        'Interactive sales and expenses analytics dashboard',
       ]
     }
   ]
@@ -110,14 +127,14 @@ export function FeaturesSection() {
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>
-        <div className="mt-16 grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
           {features.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
         </div>
 
         {/* Pedigree Feature Showcase */}
-        <div className="mt-24">
+        <div className="mt-24 hidden sm:block">
           <div className="flex flex-col items-center gap-4 text-center mb-8">
             <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               Spotlight Feature
