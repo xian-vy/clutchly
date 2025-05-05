@@ -46,7 +46,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
     <>
       <div
         className={cn(
-          'px-4 py-2 shadow-md rounded-md border border-primary/50 bg-primary/5 min-w-[200px] transition-all duration-300 hover:border-primary cursor-pointer',
+          'px-4 py-2 dark:shadow-md rounded-md border-2 border-dashed border-gray-400 dark:border-gray-700 bg-gray-50 dark:bg-slate-900/30 min-w-[250px]  transition-all duration-300 hover:border-primary cursor-pointer',
           data.isSelected && 'ring-2 ring-primary shadow-lg z-50',
         )}
         onClick={(e) => {
@@ -59,17 +59,17 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
           position={Position.Top} 
           style={{ border: 'none', background: 'transparent' }} 
         />
-        <div className="flex flex-col items-center gap-2 py-1">
+        <div className="flex flex-col items-center justify-center gap-2 h-[140px]">
           <div className="flex items-center gap-2">
-            <Dna className="h-4 w-4 text-primary" />
-            <span className="font-medium text-primary text-sm sm:text-[0.9rem]">
+            <Dna className="h-5 w-5 text-foreground" />
+            <span className="font-bold text-foreground text-sm lg:text-base">
               {data.count} Offspring
             </span>
           </div>
-          <div className="text-xs sm:text-[0.8rem] text-muted-foreground font-medium">Without descendants</div>
-          <div className="flex items-center text-xs text-primary/70 gap-1 mt-1">
+          <div className="text-xs sm:text-sm lg:text-base  text-foreground font-medium">Without descendants</div>
+          <div className="flex items-center text-sm lg:text-base text-muted-foreground gap-1 mt-1">
             <span>View details</span>
-            <ChevronRight className="h-3 w-3" />
+            <ChevronRight className="h-4 w-4" />
           </div>
         </div>
         <Handle 

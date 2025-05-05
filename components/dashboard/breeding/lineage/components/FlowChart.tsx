@@ -34,8 +34,6 @@ interface FlowChartProps {
 const NODE_WIDTH = 250;
 const NODE_HEIGHT = 120;
 const CONNECTOR_SIZE = 40;
-const GROUP_WIDTH = 200;
-const GROUP_HEIGHT = 100;
 
 // Layout algorithm helper using dagre library
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => {
@@ -64,8 +62,9 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
       width = CONNECTOR_SIZE;
       height = CONNECTOR_SIZE;
     } else if (node.type === 'group') {
-      width = GROUP_WIDTH;
-      height = GROUP_HEIGHT;
+      // Use the same dimensions as regular nodes for consistent spacing
+      width = NODE_WIDTH;
+      height = NODE_HEIGHT;
     }
 
     dagreGraph.setNode(node.id, { width, height });
@@ -108,11 +107,24 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
       }
     }
     
+    // For regular nodes and group nodes, adjust position based on type
+    let nodeWidth = NODE_WIDTH;
+    let nodeHeight = NODE_HEIGHT;
+    
+    if (node.type === 'connector') {
+      nodeWidth = CONNECTOR_SIZE;
+      nodeHeight = CONNECTOR_SIZE;
+    } else if (node.type === 'group') {
+      // For consistent placement, use regular node dimensions in calculation
+      nodeWidth = NODE_WIDTH;
+      nodeHeight = NODE_HEIGHT;
+    }
+    
     return {
       ...node,
       position: {
-        x: nodeWithPosition.x - (node.type === 'connector' ? CONNECTOR_SIZE / 2 : NODE_WIDTH / 2),
-        y: nodeWithPosition.y - (node.type === 'connector' ? CONNECTOR_SIZE / 2 : NODE_HEIGHT / 2),
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
       },
     };
   });
@@ -402,6 +414,7 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
           style: { 
             stroke: '#555', 
             strokeWidth: isHighlighted ? 2 : 1.5,
+            strokeDasharray: '5,5', // Make all offspring connections dashed
           },
           markerEnd: {
             type: MarkerType.ArrowClosed,
@@ -492,14 +505,13 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
             target: groupNodeId,
             type: 'smoothstep',
             style: { 
-              stroke: '#28865f', 
+              stroke: '#555',  // Changed to gray
               strokeWidth: 1.5,
-              strokeOpacity: 0.6,
-              strokeDasharray: '5,5',
+              strokeDasharray: '5,5', // Make all offspring connections dashed
             },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: '#28865f',
+              color: '#555', // Changed to gray
             },
           });
         } else {
@@ -511,14 +523,13 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
             target: groupNodeId,
             type: 'smoothstep',
             style: { 
-              stroke: '#28865f', 
+              stroke: '#555',  // Changed to gray
               strokeWidth: 1.5,
-              strokeOpacity: 0.6,
-              strokeDasharray: '5,5',
+              strokeDasharray: '5,5', // Make all offspring connections dashed
             },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: '#28865f',
+              color: '#555', // Changed to gray
             },
           });
           
@@ -529,14 +540,13 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
             target: groupNodeId,
             type: 'smoothstep',
             style: { 
-              stroke: '#28865f', 
+              stroke: '#555',  // Changed to gray
               strokeWidth: 1.5,
-              strokeOpacity: 0.6,
-              strokeDasharray: '5,5',
+              strokeDasharray: '5,5', // Make all offspring connections dashed
             },
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: '#28865f',
+              color: '#555', // Changed to gray
             },
           });
         }
