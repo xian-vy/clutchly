@@ -553,6 +553,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
       nodesDraggable={true}
       onNodesChange={onNodesChange} 
       proOptions={{ hideAttribution: true }}
+      onInit={(instance)=> instance.fitView()}
     >
       {!isFeature &&
        <>
