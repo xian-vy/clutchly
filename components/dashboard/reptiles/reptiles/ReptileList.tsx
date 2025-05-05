@@ -48,12 +48,12 @@ export function ReptileList({
   const filteredReptiles = useMemo(() => {
     return reptiles.filter(reptile => {
       // Species filter
-      if (filters.species?.length && !filters.species.includes(reptile.species_id)) {
+      if (filters.species?.length && !filters.species.includes(reptile.species_id.toString())) {
         return false;
       }
       
       // Morph filter
-      if (filters.morphs?.length && !filters.morphs.includes(reptile.morph_id)) {
+      if (filters.morphs?.length && !filters.morphs.includes(reptile.morph_id.toString())) {
         return false;
       }
       
