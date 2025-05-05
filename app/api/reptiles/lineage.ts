@@ -182,11 +182,11 @@ export async function getReptileLineage(reptileId: string, cachedReptiles?: Rept
       continue;
     }
     
+    // Get both parents
     const parent1 = processedReptiles.get(parent1Id)!;
     const parent2 = processedReptiles.get(parent2Id)!;
     
-    // Add the children without descendants to the first parent
-    // We'll only store them in one parent to avoid duplication
+    // Create the list of children without descendants
     const childrenWithoutDescendants: Reptile[] = [];
     for (const childId of childrenIds) {
       const reptile = reptileMap.get(childId);
@@ -195,11 +195,10 @@ export async function getReptileLineage(reptileId: string, cachedReptiles?: Rept
       }
     }
     
-    // Only keep track of the grouped children in one parent (the first one)
+    // Store the children in both parents to support connecting to both
     if (childrenWithoutDescendants.length > 0) {
       parent1.childrenWithoutDescendants = childrenWithoutDescendants;
-      // Set an empty array for the second parent to avoid duplication
-      parent2.childrenWithoutDescendants = [];
+      parent2.childrenWithoutDescendants = childrenWithoutDescendants;
     }
   }
   

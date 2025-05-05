@@ -36,4 +36,6 @@ export interface CustomNodeData {
   nodeType?: string;
   count?: number;
   parentId?: string;
+  parentIds?: string[];
+  parentNames?: string[];
 }

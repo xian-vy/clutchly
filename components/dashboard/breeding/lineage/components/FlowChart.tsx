@@ -226,132 +226,139 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
       // Create all nodes first
       for (const node of allTreeNodes.values()) {
         createNode(node);
-        
-        // Add group nodes for children without descendants if any exist
-        if (node.childrenWithoutDescendants && node.childrenWithoutDescendants.length > 0) {
-          const pairId = node.id; // Use the parent ID that has the grouped children
-          const groupNodeId = `group-${pairId}`;
-          const generation = (generationMap.get(node.id) || 0) + 1;
-          
-          // Calculate position for group node
-          const nodesInGeneration = nodesByGeneration.get(generation) || [];
-          const nodesCount = nodesInGeneration.length;
-          
-          // Constants for layout (same as regular nodes)
-          const Y_SPACING = 200;
-          const NODE_WIDTH = 250;
-          const HORIZONTAL_SPACING = 100;
-          
-          // Calculate x position - find other parent and position between them if possible
-          let x = 0;
-          let y = 0;
-          let partnerNodeId = null;
-          
-          if (initialLayoutDone && nodePositionsRef.current.has(groupNodeId)) {
-            // Use stored position if available after initial layout
-            const storedPosition = nodePositionsRef.current.get(groupNodeId)!;
-            x = storedPosition.x;
-            y = storedPosition.y;
-          } else {
-            // Find possible breeding partners (look for common offspring)
-            const offspring = node.childrenWithoutDescendants[0]; // First offspring to identify parents
-            
-            if (offspring) {
-              // Check which one of the parents this node is
-              if (offspring.dam_id === node.id && offspring.sire_id) {
-                partnerNodeId = offspring.sire_id;
-              } else if (offspring.sire_id === node.id && offspring.dam_id) {
-                partnerNodeId = offspring.dam_id;
-              }
-            }
-            
-            // Get partner node position if it exists
-            const partnerNode = partnerNodeId ? nodeMap.get(partnerNodeId) : null;
-            const currentNode = nodeMap.get(node.id);
-            
-            if (currentNode && partnerNode) {
-              // Position the group node between the two parents
-              x = (currentNode.position.x + partnerNode.position.x) / 2;
-            } else if (currentNode) {
-              // Position slightly to the right of the single parent
-              x = currentNode.position.x + NODE_WIDTH / 2 + HORIZONTAL_SPACING;
-            } else {
-              // Fallback position
-              const totalWidth = ((nodesCount + 1) * NODE_WIDTH) + 
-                                (nodesCount * HORIZONTAL_SPACING);
-              const startX = -totalWidth / 2;
-              x = startX + (nodesCount * (NODE_WIDTH + HORIZONTAL_SPACING));
-            }
-            
-            y = generation * Y_SPACING;
-          }
-          
-          // Create group node
-          const groupNode: Node<CustomNodeData> = {
-            id: groupNodeId,
-            position: { x, y },
-            type: 'group',
-            data: {
-              name: `Children of ${node.name}`,
-              sex: 'unknown',
-              morph_name: '',
-              isGroupNode: true,
-              nodeType: 'childrenWithoutDescendants',
-              count: node.childrenWithoutDescendants.length,
-              groupedReptiles: node.childrenWithoutDescendants,
-              parentId: node.id,
-              selectedReptileName: '',
-              visualTraits: [],
-              hetTraits: [],
-            },
-            style: {
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              boxShadow: 'none'
-            }
-          };
-          
-          flowNodes.push(groupNode);
-          
-          // Add edge from parent to group
-          flowEdges.push({
-            id: `${node.id}-${groupNodeId}`,
-            source: node.id,
-            target: groupNodeId,
-            type: 'bezier',
-            style: { 
-              stroke: '#94a3b8', 
-              strokeWidth: 1.5,
-              strokeOpacity: 0.6,
-              strokeDasharray: '5,5',
-            },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              color: '#94a3b8',
-            },
-          });
-          
-          // Add edge from partner parent to group if it exists
-          if (partnerNodeId && nodeMap.has(partnerNodeId)) {
-            flowEdges.push({
-              id: `${partnerNodeId}-${groupNodeId}`,
-              source: partnerNodeId,
-              target: groupNodeId,
-              type: 'bezier',
-              style: { 
-                stroke: '#94a3b8', 
-                strokeWidth: 1.5,
-                strokeOpacity: 0.6,
-                strokeDasharray: '5,5',
-              },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: '#94a3b8',
-              },
-            });
-          }
+      }
+      
+      // Create group nodes for children without descendants
+      const createdGroupNodes = new Map<string, string>(); // Map of parentPair -> groupNodeId
+      
+      for (const node of allTreeNodes.values()) {
+        // Skip if no children without descendants
+        if (!node.childrenWithoutDescendants || node.childrenWithoutDescendants.length === 0) {
+          continue;
         }
+        
+        // Get the first offspring to find both parents
+        const offspring = node.childrenWithoutDescendants[0];
+        if (!offspring || !offspring.dam_id || !offspring.sire_id) {
+          continue;
+        }
+        
+        // Create a consistent key for the parent pair
+        const parentPairKey = offspring.dam_id < offspring.sire_id 
+          ? `${offspring.dam_id}:${offspring.sire_id}`
+          : `${offspring.sire_id}:${offspring.dam_id}`;
+        
+        // Skip if we already created a group node for this parent pair
+        if (createdGroupNodes.has(parentPairKey)) {
+          continue;
+        }
+        
+        // Get both parent nodes
+        const damId = offspring.dam_id;
+        const sireId = offspring.sire_id;
+        
+        if (!nodeMap.has(damId) || !nodeMap.has(sireId)) {
+          continue;
+        }
+        
+        // Record that we've created a group node for this parent pair
+        const groupNodeId = `group-${parentPairKey}`;
+        createdGroupNodes.set(parentPairKey, groupNodeId);
+        
+        // Get parent positions
+        const damNode = nodeMap.get(damId)!;
+        const sireNode = nodeMap.get(sireId)!;
+        
+        // Calculate the generation (1 below the lowest parent generation)
+        const damGeneration = generationMap.get(damId) || 0;
+        const sireGeneration = generationMap.get(sireId) || 0;
+        const generation = Math.max(damGeneration, sireGeneration) + 1;
+        
+        // Constants for layout
+        const Y_SPACING = 200;
+        
+        // Calculate position for group node - in the middle between parents
+        let x, y;
+        
+        if (initialLayoutDone && nodePositionsRef.current.has(groupNodeId)) {
+          // Use stored position if available after initial layout
+          const storedPosition = nodePositionsRef.current.get(groupNodeId)!;
+          x = storedPosition.x;
+          y = storedPosition.y;
+        } else {
+          // Position the group node between the two parents
+          x = (damNode.position.x + sireNode.position.x) / 2;
+          y = generation * Y_SPACING;
+        }
+        
+        // Create group node
+        const groupNode: Node<CustomNodeData> = {
+          id: groupNodeId,
+          position: { x, y },
+          type: 'group',
+          data: {
+            name: `Children without descendants`,
+            sex: 'unknown',
+            morph_name: '',
+            isGroupNode: true,
+            nodeType: 'childrenWithoutDescendants',
+            count: node.childrenWithoutDescendants.length,
+            groupedReptiles: node.childrenWithoutDescendants,
+            parentIds: [damId, sireId], // Store both parent IDs
+            parentNames: [
+              reptiles.find((r: Reptile) => r.id === damId)?.name || 'Unknown Dam',
+              reptiles.find((r: Reptile) => r.id === sireId)?.name || 'Unknown Sire'
+            ],
+            selectedReptileName: '',
+            visualTraits: [],
+            hetTraits: [],
+          },
+          style: {
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            boxShadow: 'none'
+          }
+        };
+        
+        flowNodes.push(groupNode);
+        
+        // Add edges from both parents to the group node
+        // Dam edge (female)
+        flowEdges.push({
+          id: `${damId}-${groupNodeId}`,
+          source: damId,
+          target: groupNodeId,
+          type: 'bezier',
+          style: { 
+            stroke: '#28865f', 
+            strokeWidth: 1.5,
+            strokeOpacity: 0.6,
+            strokeDasharray: '5,5',
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#28865f',
+          },
+        });
+        
+        // Sire edge (male)
+        flowEdges.push({
+          id: `${sireId}-${groupNodeId}`,
+          source: sireId,
+          target: groupNodeId,
+          type: 'bezier',
+          style: { 
+            stroke: '#28865f', 
+            strokeWidth: 1.5,
+            strokeOpacity: 0.6,
+            strokeDasharray: '5,5',
+          },
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: '#28865f',
+          },
+        });
       }
       
       // Then create all edges
@@ -547,9 +554,13 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
       onNodesChange={onNodesChange} 
       proOptions={{ hideAttribution: true }}
     >
-      {!isFeature && <Legend /> }
-      <Controls />
-      <Background />
+      {!isFeature &&
+       <>
+          <Legend />
+          <Controls />
+          <Background />
+       </> 
+      }
     </ReactFlow>
   );
 }

@@ -74,64 +74,62 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
             </p>
           </DialogHeader>
 
-          {data.parentId && (
-            <div className="p-2 rounded-lg ">
-              <div className="font-semibold text-sm sm:text-base mb-2">Parents Information</div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].dam_id && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-card border">
-                    <Venus className="h-4 w-4 text-red-500 mt-1" />
-                    <div className='space-y-2 flex-1'>
-                      <div>
-                        <div className="text-lg font-semibold">
-                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.name || 'Unknown Dam'}
-                        </div>
-                        <div className="text-sm font-medium text-muted-foreground">
-                          {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
-                        </div>
+          <div className="p-2 rounded-lg ">
+            <div className="font-semibold text-sm sm:text-base mb-2">Parents Information</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].dam_id && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card border">
+                  <Venus className="h-4 w-4 text-red-500 mt-1" />
+                  <div className='space-y-2 flex-1'>
+                    <div>
+                      <div className="text-lg font-semibold">
+                        {data.parentNames?.[0] || reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.name || 'Unknown Dam'}
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
-                          <Badge key={i} variant="secondary">{trait}</Badge>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
-                          <Badge key={i} variant="outline">{trait.percentage}% het {trait.trait}</Badge>
-                        ))}
+                      <div className="text-sm font-medium text-muted-foreground">
+                        {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                       </div>
                     </div>
-                  </div>
-                )}
-                
-                {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].sire_id && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-card border">
-                    <Mars className="h-4 w-4 text-blue-400 mt-1" />
-                    <div className='space-y-2 flex-1'>
-                      <div>
-                        <div className="text-lg font-semibold">
-                          {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.name || 'Unknown Sire'}
-                        </div>
-                        <div className="text-sm font-medium text-muted-foreground">
-                          {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
-                          <Badge key={i} variant="secondary">{trait}</Badge>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
-                          <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
-                        ))}
-                      </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
+                        <Badge key={i} variant="secondary">{trait}</Badge>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
+                        <Badge key={i} variant="outline">{trait.percentage}% het {trait.trait}</Badge>
+                      ))}
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+              
+              {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].sire_id && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-card border">
+                  <Mars className="h-4 w-4 text-blue-400 mt-1" />
+                  <div className='space-y-2 flex-1'>
+                    <div>
+                      <div className="text-lg font-semibold">
+                        {data.parentNames?.[1] || reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.name || 'Unknown Sire'}
+                      </div>
+                      <div className="text-sm font-medium text-muted-foreground">
+                        {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
+                        <Badge key={i} variant="secondary">{trait}</Badge>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
+                        <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
           <ScrollArea className="max-h-[60vh]">
             <div className="space-y-6 p-1">
