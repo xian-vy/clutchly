@@ -67,14 +67,14 @@ const CustomNode = ({ data }: NodeProps<CustomNodeData>) => (
             <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs'>{trait.percentage + "% het " +  trait.trait}</Badge>
           ))}
         </div>
-        <div className="flex gap-2 justify-center flex-wrap w-full">
+        {/* <div className="flex gap-2 justify-center flex-wrap w-full">
           {data.generation && (
             <Badge variant="outline">Gen {data.generation}</Badge>
           )}
           {data.breeding_line && (
             <Badge variant="secondary">{data.breeding_line}</Badge>
           )}
-        </div>
+        </div> */}
     </div>
     <Handle type="source" position={Position.Bottom} />
   </div>
