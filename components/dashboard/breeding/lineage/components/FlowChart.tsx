@@ -783,9 +783,9 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
       {!isFeature &&
        <>
           <Legend />
-          <Controls />
        </> 
       }
+                <Controls />
                 <Background />
 
     </ReactFlow>

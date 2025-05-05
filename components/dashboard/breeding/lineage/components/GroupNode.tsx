@@ -46,7 +46,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
     <>
       <div
         className={cn(
-          'px-4 py-2 dark:shadow-md rounded-md border-2 border-dashed border-gray-400 dark:border-gray-700 bg-gray-50 dark:bg-slate-900/30 min-w-[250px]  transition-all duration-300 hover:border-primary cursor-pointer',
+          'px-4 py-2.5 dark:shadow-md rounded-md border-2 border-dashed border-gray-400 dark:border-gray-700 bg-gray-50 dark:bg-slate-900/30 w-[250px]  transition-all duration-300 hover:border-primary cursor-pointer -mt-[10px]',
           data.isSelected && 'ring-2 ring-primary shadow-lg z-50',
         )}
         onClick={(e) => {
@@ -54,12 +54,22 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
           setDrawerOpen(true);
         }}
       >
-        <Handle 
-          type="target" 
-          position={Position.Top} 
-          style={{ border: 'none', background: 'transparent' }} 
-        />
-        <div className="flex flex-col items-center justify-center gap-2 h-[140px]">
+        <div className="relative">
+          <Handle 
+            type="target" 
+            position={Position.Top} 
+            style={{ 
+              border: 'none', 
+              background: 'transparent',
+              width: '20px',
+              height: '20px',
+              top: '-15px',
+              left: '50%',
+              transform: 'translateX(-50%)'
+            }} 
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center gap-2 min-h-[200px]">
           <div className="flex items-center gap-2">
             <Dna className="h-5 w-5 text-foreground" />
             <span className="font-bold text-foreground text-sm lg:text-base">
@@ -72,11 +82,21 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
             <ChevronRight className="h-4 w-4" />
           </div>
         </div>
-        <Handle 
-          type="source" 
-          position={Position.Bottom} 
-          style={{ border: 'none', background: 'transparent' }} 
-        />
+        <div className="relative">
+          <Handle 
+            type="source" 
+            position={Position.Bottom} 
+            style={{ 
+              border: 'none', 
+              background: 'transparent',
+              width: '20px',
+              height: '20px',
+              bottom: '-10px',
+              left: '50%',
+              transform: 'translateX(-50%)'
+            }} 
+          />
+        </div>
       </div>
 
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -225,4 +245,4 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
   );
 };
 
-export default GroupNode; 
+export default GroupNode;
