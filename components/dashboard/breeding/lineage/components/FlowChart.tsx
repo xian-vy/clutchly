@@ -22,13 +22,77 @@ import GroupNode from './GroupNode';
 import ConnectorNode from './ConnectorNode';
 import Legend from './Legend';
 import { CustomNodeData, ReptileNode } from './types';
+import dagre from 'dagre';
 
 interface FlowChartProps {
   reptileId: string;
-  reptiles : Reptile[];
-  isFeature? :boolean
+  reptiles: Reptile[];
+  isFeature?: boolean
 }
-function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
+
+// Constants for layout
+const NODE_WIDTH = 250;
+const NODE_HEIGHT = 120;
+const CONNECTOR_SIZE = 40;
+const GROUP_WIDTH = 200;
+const GROUP_HEIGHT = 100;
+
+// Layout algorithm helper using dagre library
+const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  
+  // Configure dagre with our chosen separation values
+  dagreGraph.setGraph({
+    rankdir: direction,
+    nodesep: 80,  // Horizontal separation between nodes
+    ranksep: 150, // Vertical separation between ranks
+    align: 'UL',  // Align nodes to upper left
+    marginx: 20,  // Margin on x-axis
+    marginy: 20,  // Margin on y-axis
+  });
+
+  // Add nodes to the dagre graph with their dimensions
+  nodes.forEach((node) => {
+    let width = NODE_WIDTH;
+    let height = NODE_HEIGHT;
+
+    if (node.type === 'connector') {
+      width = CONNECTOR_SIZE;
+      height = CONNECTOR_SIZE;
+    } else if (node.type === 'group') {
+      width = GROUP_WIDTH;
+      height = GROUP_HEIGHT;
+    }
+
+    dagreGraph.setNode(node.id, { width, height });
+  });
+
+  // Add edges to the dagre graph
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  // Calculate the layout
+  dagre.layout(dagreGraph);
+
+  // Apply the calculated positions to the nodes
+  const layoutedNodes = nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    
+    return {
+      ...node,
+      position: {
+        x: nodeWithPosition.x - (node.type === 'connector' ? CONNECTOR_SIZE / 2 : NODE_WIDTH / 2),
+        y: nodeWithPosition.y - (node.type === 'connector' ? CONNECTOR_SIZE / 2 : NODE_HEIGHT / 2),
+      },
+    };
+  });
+
+  return { nodes: layoutedNodes, edges };
+};
+
+function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedReptile, setSelectedReptile] = useState<string>(reptileId);
@@ -165,13 +229,8 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
         const nodesInGeneration = nodesByGeneration.get(generation) || [];
         const position = nodesInGeneration.indexOf(reptileNode.id);
         
-        // Constants for layout
-        const Y_SPACING = 200;
-        const NODE_WIDTH = 250;
-        const HORIZONTAL_SPACING = 100;
-        
         // Get position either from memory or calculate new position
-        let x, y;
+        let x = 0, y = 0;
         
         if (initialLayoutDone && nodePositionsRef.current.has(reptileNode.id)) {
           // Use stored position if available after initial layout
@@ -179,13 +238,9 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
           x = storedPosition.x;
           y = storedPosition.y;
         } else {
-          // Calculate horizontal position
-          const totalWidth = (nodesInGeneration.length * NODE_WIDTH) + 
-                            ((nodesInGeneration.length - 1) * HORIZONTAL_SPACING);
-          const startX = -totalWidth / 2;
-          
-          x = startX + (position * (NODE_WIDTH + HORIZONTAL_SPACING));
-          y = generation * Y_SPACING;
+          // Set dummy initial positions - we'll use dagre for proper layout later
+          x = position * 300;
+          y = generation * 200;
         }
         
         // Create the flow node
@@ -213,7 +268,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
             isHighlighted: reptileNode.id === highlightedNodes.dam || reptileNode.id === highlightedNodes.sire,
             isParentOf: isParentOf,
             isParent: isParent,
-            selectedReptileName : reptiles.find((r: Reptile) => r.id.toString() === selectedReptile)?.name || 'Unknown',
+            selectedReptileName: reptiles.find((r: Reptile) => r.id.toString() === selectedReptile)?.name || 'Unknown',
             visualTraits: reptileNode.visual_traits || [],
             hetTraits: reptileNode.het_traits || [],
           },
@@ -260,37 +315,10 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
           connectorNodeId = `connector-${parentPairKey}`;
           createdConnectorNodes.set(parentPairKey, connectorNodeId);
           
-          // Get parent nodes
-          const damNode = nodeMap.get(damId)!;
-          const sireNode = nodeMap.get(sireId)!;
-          
-          // Calculate position for connector node - in the middle between parents and slightly below
-          const damGen = generationMap.get(damId) || 0;
-          const sireGen = generationMap.get(sireId) || 0;
-          const maxGen = Math.max(damGen, sireGen);
-          
-          // Constants for layout
-          const Y_SPACING = 200;
-          const CONNECTOR_Y_OFFSET = Y_SPACING * 0.4; // 40% down from parents to children
-          
-          // Calculate position
-          let x, y;
-          
-          if (initialLayoutDone && nodePositionsRef.current.has(connectorNodeId)) {
-            // Use stored position if available
-            const storedPosition = nodePositionsRef.current.get(connectorNodeId)!;
-            x = storedPosition.x;
-            y = storedPosition.y;
-          } else {
-            // Position between the two parents
-            x = (damNode.position.x + sireNode.position.x) / 2;
-            y = maxGen * Y_SPACING + CONNECTOR_Y_OFFSET;
-          }
-          
-          // Create the connector node
+          // Initial dummy position - will be adjusted by dagre later
           const connectorNode: Node<CustomNodeData> = {
             id: connectorNodeId,
-            position: { x, y },
+            position: { x: 0, y: 0 },
             type: 'connector',
             data: {
               name: 'Connector',
@@ -314,7 +342,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
             id: `${damId}-${connectorNodeId}`,
             source: damId,
             target: connectorNodeId,
-            type: 'default',
+            type: 'smoothstep',
             style: { 
               stroke: '#e91e63', 
               strokeWidth: 1.5,
@@ -326,7 +354,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
             id: `${sireId}-${connectorNodeId}`,
             source: sireId,
             target: connectorNodeId,
-            type: 'default',
+            type: 'smoothstep',
             style: { 
               stroke: '#2196f3', 
               strokeWidth: 1.5,
@@ -342,7 +370,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
           id: `${connectorNodeId}-${reptileId}`,
           source: connectorNodeId,
           target: reptileId,
-          type: 'default',
+          type: 'smoothstep',
           style: { 
             stroke: '#555', 
             strokeWidth: isHighlighted ? 2 : 1.5,
@@ -392,36 +420,10 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
         const groupNodeId = `group-${parentPairKey}`;
         createdGroupNodes.set(parentPairKey, groupNodeId);
         
-        // Get parent positions
-        const damNode = nodeMap.get(damId)!;
-        const sireNode = nodeMap.get(sireId)!;
-        
-        // Calculate the generation (1 below the lowest parent generation)
-        const damGeneration = generationMap.get(damId) || 0;
-        const sireGeneration = generationMap.get(sireId) || 0;
-        const generation = Math.max(damGeneration, sireGeneration) + 1;
-        
-        // Constants for layout
-        const Y_SPACING = 200;
-        
-        // Calculate position for group node - in the middle between parents
-        let x, y;
-        
-        if (initialLayoutDone && nodePositionsRef.current.has(groupNodeId)) {
-          // Use stored position if available after initial layout
-          const storedPosition = nodePositionsRef.current.get(groupNodeId)!;
-          x = storedPosition.x;
-          y = storedPosition.y;
-        } else {
-          // Position the group node between the two parents
-          x = (damNode.position.x + sireNode.position.x) / 2;
-          y = generation * Y_SPACING;
-        }
-        
-        // Create group node
+        // Initial dummy position - will be adjusted by dagre later
         const groupNode: Node<CustomNodeData> = {
           id: groupNodeId,
-          position: { x, y },
+          position: { x: 0, y: 0 },
           type: 'group',
           data: {
             name: `Children without descendants`,
@@ -460,7 +462,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
             id: `${connectorNodeId}-${groupNodeId}`,
             source: connectorNodeId,
             target: groupNodeId,
-            type: 'default',
+            type: 'smoothstep',
             style: { 
               stroke: '#28865f', 
               strokeWidth: 1.5,
@@ -479,7 +481,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
             id: `${damId}-${groupNodeId}`,
             source: damId,
             target: groupNodeId,
-            type: 'bezier',
+            type: 'smoothstep',
             style: { 
               stroke: '#28865f', 
               strokeWidth: 1.5,
@@ -497,7 +499,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
             id: `${sireId}-${groupNodeId}`,
             source: sireId,
             target: groupNodeId,
-            type: 'bezier',
+            type: 'smoothstep',
             style: { 
               stroke: '#28865f', 
               strokeWidth: 1.5,
@@ -544,7 +546,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
                 id: edgeId,
                 source: node.parents.dam.id,
                 target: id,
-                type: 'bezier',
+                type: 'smoothstep',
                 style: { 
                   stroke: '#e91e63', 
                   strokeWidth: isHighlighted ? 2 : 1.5,
@@ -572,7 +574,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
                 id: edgeId,
                 source: node.parents.sire.id,
                 target: id,
-                type: 'bezier', 
+                type: 'smoothstep', 
                 style: { 
                   stroke: '#2196f3', 
                   strokeWidth: isHighlighted ? 2 : 1.5,
@@ -611,7 +613,7 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
                 id: edgeId,
                 source: id,
                 target: child.id,
-                type: 'bezier',
+                type: 'smoothstep',
                 style: { 
                   stroke: child.sex === 'female' ? '#e91e63' : 
                           child.sex === 'male' ? '#2196f3' : '#94a3b8',
@@ -630,7 +632,10 @@ function Flow({ reptileId,reptiles,isFeature }: FlowChartProps) {
         }
       }
       
-      return { nodes: flowNodes, edges: flowEdges };
+      // Apply automatic layout using dagre
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(flowNodes, flowEdges);
+      
+      return { nodes: layoutedNodes, edges: layoutedEdges };
     },
     [morphs, reptileId, selectedReptile, highlightedNodes, initialLayoutDone, reptiles],
   );
@@ -782,4 +787,4 @@ const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {
   );
 };
 
-export default FlowChart; 
+export default FlowChart;
