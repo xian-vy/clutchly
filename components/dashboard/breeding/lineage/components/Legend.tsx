@@ -1,6 +1,6 @@
 'use client';
 
-import { Dna, Mars, Venus } from 'lucide-react';
+import { Dna, Mars, Venus, Circle } from 'lucide-react';
 
 const Legend = () => (
   <div className="absolute bottom-24 right-8 bg-white dark:bg-slate-900 p-3 rounded-md shadow-md border border-gray-200 dark:border-gray-800 z-10">
@@ -19,11 +19,18 @@ const Legend = () => (
         <Venus className="h-3 w-3 text-red-500" />
       </div>
     </div>
+    <div className="flex items-center mb-1">
+      <div className="w-4 h-0.5 bg-slate-400 mr-2"></div>
+      <div className="flex items-center">
+        <span className="text-xs mr-1">Connection</span>
+        <Circle className="h-3 w-3 fill-slate-400/60 text-slate-400" strokeWidth={1.5} />
+      </div>
+    </div>
     <div className="flex items-center">
-      <div className="w-4 h-0.5 bg-slate-400 dashed mr-2" style={{ borderStyle: 'dashed' }}></div>
+      <div className="w-4 h-0.5 bg-emerald-600 dashed mr-2" style={{ borderStyle: 'dashed' }}></div>
       <div className="flex items-center">
         <span className="text-xs mr-1">Grouped Offspring</span>
-        <Dna className="h-3 w-3 text-primary" />
+        <Dna className="h-3 w-3 text-emerald-600" />
       </div>
     </div>
   </div>
