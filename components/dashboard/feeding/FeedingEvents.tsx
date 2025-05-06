@@ -377,8 +377,8 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   return (
     <div className="space-y-6">
       {sortedDates.map(date => (
-        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none mb-5 pt-0 gap-0">
-          <CardHeader className="py-3 px-4 ">
+        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none  pt-0 gap-0">
+          <CardHeader className="py-3 px-2 sm:px:4 ">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Button
@@ -407,7 +407,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
                   value={sortBy}
                   onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph' | 'all')}
                 >
-                  <SelectTrigger className="w-[120px] !h-8 text-xs">
+                  <SelectTrigger className="w-[120px] !h-8 !text-xs dark:!border-0 hidden sm:flex">
                     <SelectValue placeholder="Sort By" />
                   </SelectTrigger>
                   <SelectContent>
@@ -420,19 +420,19 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
                 {expandedDates[date] && (
                   <Button 
                     size="sm" 
-                    variant="outline" 
-                    className="h-8 text-xs"
+                    variant="default" 
+                    className="h-7 sm:h-8 text-xs"
                     onClick={() => handleFeedAll(date)}
                     disabled={feedingAll}
                   >
                     {feedingAll ? (
                       <>
-                        <Loader2 className="h-4 w-4 mr-1 animate-spin text-primary" />
+                        <Loader2 className="h-3 w-3 animate-spin text-primary" />
                         Feeding All...
                       </>
                     ) : (
                       <>
-                        <Check className="h-3 w-3 mr-1" />
+                        <Check className="h-3 w-3" />
                         Feed All
                       </>
                     )}
