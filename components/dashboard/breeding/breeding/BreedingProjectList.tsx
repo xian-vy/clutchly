@@ -207,6 +207,14 @@ export function BreedingProjectList({
       },
     },
     {
+      accessorKey: 'clutchCount',
+      header: 'Clutches',
+    },
+    {
+      accessorKey: 'hatchlingCount',
+      header: 'Hatchlings',
+    },
+    {
       id: 'actions',
       cell: ({ row }) => {
         const project = row.original;
