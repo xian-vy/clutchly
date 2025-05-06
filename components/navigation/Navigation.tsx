@@ -44,7 +44,7 @@ export function Navigation() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   useSidebarAnimation({ isCollapsed }); 
-  const [openCollapsible, setOpenCollapsible] = useState<Record<string, boolean>>({});
+  const [openSection, setOpenSection] = useState<string | null>(null);
   const { 
     upcomingFeedings, 
   } = useUpcomingFeedings();
@@ -61,11 +61,9 @@ export function Navigation() {
       });
     }
   };
+
   const toggleCollapsible = (name: string) => {
-    setOpenCollapsible(prevState => ({
-      ...prevState,
-      [name]: !prevState[name],
-    }));
+    setOpenSection(current => current === name ? null : name);
   };
   const handleAddNew =(type : "Reptile" | "Sale" | "Expense") => {
     setDialogToOpen(type)
@@ -130,7 +128,11 @@ export function Navigation() {
                   const Icon = item.icon;
                   if ('items' in item) {
                     return (
-                      <Collapsible key={item.name} className="space-y-1">
+                      <Collapsible 
+                        key={item.name} 
+                        className="space-y-1"
+                        open={openSection === item.name}
+                      >
                         <CollapsibleTrigger
                           className={cn(
                             'relative flex w-full items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-1.5 3xl:py-2.5',
@@ -144,7 +146,7 @@ export function Navigation() {
                               {!isCollapsed &&<span>{item.name}</span>}
                           </div>
                           {!isCollapsed && (
-                            openCollapsible[item.name] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                            openSection === item.name ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
                           )}
                           
                         </CollapsibleTrigger>

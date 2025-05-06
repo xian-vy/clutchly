@@ -36,7 +36,7 @@ export interface NavItem {
         section: 'Main',
         name: 'Catalog',
         icon: Images,
-        href: '/showroom',
+        href: '/catalog',
       },
       {
       section: 'Main',
