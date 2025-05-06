@@ -72,6 +72,7 @@ export function ClutchesList({
       queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
       queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
       queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+      queryClient.invalidateQueries({ queryKey: ['clutches'] });
       setClutchDialogOpen(false);
       setEditingClutch(null);
     } catch (error) {

@@ -48,22 +48,22 @@ const FeedingEventsList = ({
   return (
     <div>
       <CardContent className="py-0 px-4">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[60px] py-3 text-center">Fed</TableHead>
-                <TableHead className="w-[160px] py-3">Reptile</TableHead>
-                <TableHead className="w-[120px] py-3">Morph</TableHead>
-                <TableHead className="w-[120px] py-3">Species</TableHead>
-                <TableHead className="w-[300px] py-3">Notes</TableHead>
-                <TableHead className="w-[70px] py-3"></TableHead>
+                <TableHead className="w-[60px] py-1 sm:py-2 xl:py-3 text-center">Fed</TableHead>
+                <TableHead className="w-[160px] py-1 sm:py-2 xl:py-3">Reptile</TableHead>
+                <TableHead className="w-[120px] py-1 sm:py-2 xl:py-3">Morph</TableHead>
+                <TableHead className="w-[120px] py-1 sm:py-2 xl:py-3">Species</TableHead>
+                <TableHead className="w-[300px] py-1 sm:py-2 xl:py-3">Notes</TableHead>
+                <TableHead className="w-[70px] py-1 sm:py-2 xl:py-3"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {getSortedReptiles(eventsByDate[date], sortBy).map((event) => (
                 <TableRow key={event.id} className={event.fed ? "bg-muted/30" : ""}>
-                  <TableCell className="text-center py-3">
+                  <TableCell className="text-center py-1 sm:py-2 xl:py-3">
                     <div className="flex justify-center">
                       <Checkbox 
                         checked={event.fed}
@@ -74,28 +74,28 @@ const FeedingEventsList = ({
                       />
                     </div>
                   </TableCell>
-                  <TableCell className="py-3">
+                  <TableCell className="py-1 sm:py-2 xl:py-3">
                     <div className="font-normal">
                       {event.reptile_name}
                     </div>
                   </TableCell>
-                  <TableCell className="py-3">{event.morph_name}</TableCell>
-                  <TableCell className="py-3">{event.species_name}</TableCell>
-                  <TableCell className="py-3">
+                  <TableCell className="py-1 sm:py-2 xl:py-3">{event.morph_name}</TableCell>
+                  <TableCell className="py-1 sm:py-2 xl:py-3">{event.species_name}</TableCell>
+                  <TableCell className="py-1 sm:py-2 xl:py-3">
                     <Textarea 
                       placeholder="Add notes (optional)"
                       value={eventNotes[event.id] || ''}
                       onChange={(e) => handleNotesChange(event.id, e.target.value)}
-                      className="min-h-[30px] text-xs"
+                      className="min-h-[30px] min-w-[150px] text-xs"
                     />
                   </TableCell>
-                  <TableCell className="py-3 text-right">
+                  <TableCell className="py-1 sm:py-2 xl:py-3 text-right">
                     <Button 
                       size="sm" 
                       variant="ghost" 
                       disabled={updatingEventId === event.id}
                       onClick={() => saveEventNotes(event.id, eventNotes[event.id] || null, schedule.id, events, queryClient, onEventsUpdated)}
-                    >
+                 >
                       {updatingEventId === event.id ? (
                         <Loader2 className="h-4 w-4 animate-spin text-primary" />
                       ) : (

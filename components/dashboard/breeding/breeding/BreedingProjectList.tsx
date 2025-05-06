@@ -176,21 +176,6 @@ export function BreedingProjectList({
       header: 'Dam (F)',
     },
     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status") as keyof typeof STATUS_COLORS;
-        return (
-          <Badge
-            variant="custom"
-            className={`capitalize ${STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]}`}
-          >
-            {status}
-          </Badge>
-        );
-      },
-    },
-    {
       accessorKey: 'start_date',
       header: 'Start Date',
       cell: ({ row }) => {
@@ -213,6 +198,21 @@ export function BreedingProjectList({
     {
       accessorKey: 'hatchlingCount',
       header: 'Hatchlings',
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("status") as keyof typeof STATUS_COLORS;
+        return (
+          <Badge
+            variant="custom"
+            className={`capitalize ${STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]}`}
+          >
+            {status}
+          </Badge>
+        );
+      },
     },
     {
       id: 'actions',

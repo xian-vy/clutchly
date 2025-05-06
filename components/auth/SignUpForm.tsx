@@ -132,7 +132,7 @@ export function SignUpForm() {
   return (
     <AuthLayout mode="signup">
       {isLoading && <TopLoader />}
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-3 sm:space-y-5 md:space-y-8">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold">Create Account</h2>
           <p className="mt-2 text-muted-foreground">

@@ -1,4 +1,5 @@
 import {
+  Bug,
     Dna,
     DollarSign,
     Download,
@@ -9,7 +10,6 @@ import {
     Network,
     Package,
     Plus,
-    Rat,
     Settings,
 } from 'lucide-react';
 import { VscSnake } from "react-icons/vsc";
@@ -139,7 +139,7 @@ export interface NavItem {
       section: 'Health & Growth',
       name: 'Feeding',
       href: '/feeding',
-      icon: Rat,
+      icon: Bug,
     },
     {
       section: 'System',
