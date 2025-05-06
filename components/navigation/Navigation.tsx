@@ -118,7 +118,7 @@ export function Navigation() {
           )}
         </div>
         <ScrollArea className='h-full'>
-          <nav className="px-3 2xl:px-4 space-y-3 3xl:space-y-5 pt-1 2xl:pt-1.5 flex-1">
+          <nav className="px-3 2xl:px-4 space-y-2 2xl:space-y-3 3xl:space-y-5 pt-1 3xl:pt-1.5 flex-1">
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && (
@@ -133,7 +133,7 @@ export function Navigation() {
                       <Collapsible key={item.name} className="space-y-1">
                         <CollapsibleTrigger
                           className={cn(
-                            'relative flex w-full items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                            'relative flex w-full items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-1.5 3xl:py-2.5',
                             isCollapsed ? 'justify-center px-2' : 'px-3',
                             'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                           )}
