@@ -3,6 +3,16 @@ import { Clutch, NewClutch } from '@/lib/types/breeding'
 
 const supabase = createClient()
 
+export async function getAllClutches(): Promise<Clutch[]> {
+  const { data, error } = await supabase
+    .from('clutches')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
 export async function getClutches(breedingProjectId: string): Promise<Clutch[]> {
   const { data, error } = await supabase
     .from('clutches')

@@ -371,36 +371,27 @@ export function FeedingScheduleForm({
                 </FormLabel>
                 <div>
                   {targetType === 'room' && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col gap-2">
                       {rooms.map((room) => (
                         <div key={room.id} className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={`room-${room.id}`}
-                            checked={field.value.some(target => 
-                              target.target_type === 'room' && target.target_id === room.id
-                            )}
-                            onCheckedChange={(checked) => {
-                              const currentValue = [...field.value];
-                              if (checked) {
-                                field.onChange([
-                                  ...currentValue,
-                                  { target_type: 'room', target_id: room.id }
-                                ]);
-                              } else {
-                                field.onChange(
-                                  currentValue.filter(
-                                    target => !(target.target_type === 'room' && target.target_id === room.id)
-                                  )
-                                );
-                              }
+                          <RadioGroup
+                            value={field.value.length > 0 ? field.value[0].target_id : ''}
+                            onValueChange={(value) => {
+                              field.onChange([
+                                { target_type: 'room', target_id: value }
+                              ]);
                             }}
-                          />
-                          <label
-                            htmlFor={`room-${room.id}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           >
-                            {room.name}
-                          </label>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value={room.id} id={`room-${room.id}`} />
+                              <label
+                                htmlFor={`room-${room.id}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {room.name}
+                              </label>
+                            </div>
+                          </RadioGroup>
                         </div>
                       ))}
                     </div>

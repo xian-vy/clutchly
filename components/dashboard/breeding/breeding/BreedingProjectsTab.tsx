@@ -3,15 +3,19 @@
 import { createBreedingProject, deleteBreedingProject, getBreedingProjects, updateBreedingProject } from '@/app/api/breeding/projects';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
-import { BreedingProject, NewBreedingProject } from '@/lib/types/breeding';
+import { BreedingProject, Clutch, NewBreedingProject } from '@/lib/types/breeding';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { BreedingProjectDetails } from './BreedingProjectDetails';
 import { BreedingProjectForm } from './BreedingProjectForm';
 import { BreedingProjectList } from './BreedingProjectList';
 import { Badge } from '@/components/ui/badge';
 import { STATUS_COLORS } from '@/lib/constants/colors';
 import { format } from 'date-fns';
+import { useQuery } from '@tanstack/react-query';
+import { Reptile } from '@/lib/types/reptile';
+import { getReptiles } from '@/app/api/reptiles/reptiles';
+import { getAllClutches } from '@/app/api/breeding/clutches';
 
 export function BreedingProjectsTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -35,8 +39,52 @@ export function BreedingProjectsTab() {
     deleteResource: deleteBreedingProject,
   });
 
+  const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  });
+
+  const { data: allClutches = [], isLoading: clutchesLoading } = useQuery<Clutch[]>({
+    queryKey: ['clutches'],
+    queryFn: () => getAllClutches(), 
+  });
 
 
+  const getProjectStats = useMemo(() => {
+    if (!reptiles || !allClutches) return () => null;
+    if (reptilesLoading || clutchesLoading) return () => null;
+    const statsMap = new Map<string, { clutchCount: number; hatchlingCount: number; totalReptiles: number }>();
+    return (project: BreedingProject) => {
+      // Check if we already calculated stats for this project
+      const cached = statsMap.get(project.id);
+      if (cached) return cached;
+
+      // Calculate stats if not cached
+      const projectReptiles = reptiles.filter(r => 
+        r.project_ids?.includes(project.id)
+      );
+
+      const projectClutches = allClutches.filter(c => 
+        c.breeding_project_id === project.id
+      );
+
+      const projectClutchIds = projectClutches.map(c => c.id);
+
+      const hatchlingCount = reptiles.filter(r => 
+        r.parent_clutch_id && projectClutchIds.includes(r.parent_clutch_id)
+      ).length;
+
+      const stats = {
+        clutchCount: projectClutches.length,
+        hatchlingCount,
+        totalReptiles: projectReptiles.length
+      };
+
+      // Cache the result
+      statsMap.set(project.id, stats);
+      return stats;
+    };
+  }, [reptiles, allClutches, reptilesLoading, clutchesLoading]);
 
   if (projectsLoading) {
     return (
@@ -54,7 +102,15 @@ export function BreedingProjectsTab() {
   return (
     <div className="space-y-6">
       <BreedingProjectList
-        projects={projects}
+       projects={projects.map(project => {
+        const stats = getProjectStats(project);
+        return {
+          ...project,
+          clutchCount: stats?.clutchCount || 0,
+          hatchlingCount: stats?.hatchlingCount || 0,
+          totalReptiles: stats?.totalReptiles || 0
+        };
+      })}
         onEdit={(project) => {
           setSelectedProject(project);
           setIsDialogOpen(true);

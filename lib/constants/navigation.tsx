@@ -3,6 +3,7 @@ import {
     DollarSign,
     Download,
     Heart,
+    Images,
     LayoutDashboard,
     LineChart,
     Network,
@@ -32,6 +33,12 @@ export interface NavItem {
       icon: LayoutDashboard,
     },
     {
+        section: 'Main',
+        name: 'Catalog',
+        icon: Images,
+        href: '/catalog',
+      },
+      {
       section: 'Main',
       name: 'Sales',
       icon: PiChartLineUp,
