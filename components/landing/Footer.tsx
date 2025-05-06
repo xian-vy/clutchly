@@ -23,7 +23,7 @@ export function Footer() {
               alt="clutchly" 
               className="rounded-full" 
             />
-            <span className="font-bold text-xl">Clutchly</span>
+            <span className="font-bold text-xl md:text-2xl xl:text-3xl">Clutchly</span>
           </div>
           <p className="text-sm text-muted-foreground">
             A comprehensive reptile data management platform for breeders and enthusiasts.
@@ -31,11 +31,11 @@ export function Footer() {
         </div>
         
         {/* Links Section */}
-        <div className="flex flex-col items-start md:flex-row md:items-center justify-between gap-12 md:gap-24 mb-12 w-full max-w-screen-md" >
+        <div className="flex flex-col items-start sm:flex-row md:items-center justify-between gap-12 md:gap-24 mb-12 w-full max-w-[500px] lg:max-w-screen-md" >
           {/* Product Links */}
-          <div className="flex flex-col items-start md:items-center">
+          <div className="flex flex-col items-start sm:items-center">
             <h3 className="font-semibold mb-4">Product</h3>
-            <ul className="space-y-2 text-sm text-start md:text-center">
+            <ul className="space-y-2 text-sm text-start sm:text-center">
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Features</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Download</Link></li>
@@ -44,9 +44,9 @@ export function Footer() {
           </div>
           
           {/* Resources Links */}
-          <div className="flex flex-col items-start md:items-center">
+          <div className="flex flex-col items-start sm:items-center">
             <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm text-start md:text-center">
+            <ul className="space-y-2 text-sm text-start sm:text-center">
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Documentation</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Community</Link></li>
@@ -55,9 +55,9 @@ export function Footer() {
           </div>
           
           {/* Company Links */}
-          <div className="flex flex-col items-start md:items-center ">
+          <div className="flex flex-col items-start sm:items-center ">
             <h3 className="font-semibold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm text-start md:text-center">
+            <ul className="space-y-2 text-sm text-start sm:text-center">
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">About</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacy</Link></li>
