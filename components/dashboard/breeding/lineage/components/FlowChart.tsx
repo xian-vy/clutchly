@@ -100,7 +100,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
             ...node,
             position: {
               x: centerX - CONNECTOR_SIZE / 2,
-              y: nodeWithPosition.y - CONNECTOR_SIZE / 2,
+              y: nodeWithPosition.y - CONNECTOR_SIZE + 70,
             },
           };
         }
