@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Reptile } from '@/lib/types/reptile';
-import { generateMockReptiles } from './mockLineageData';
+import { generateMockReptiles, mockMorphs } from './mockLineageData';
 import FlowChart from '../dashboard/breeding/lineage/components/FlowChart';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -23,6 +23,7 @@ const PedigreeFeatureCard = () => {
               reptileId="dam-reptile" 
               reptiles={mockReptiles} 
               isFeature={true}
+              morphs={mockMorphs}
             />
           )}
         </div>

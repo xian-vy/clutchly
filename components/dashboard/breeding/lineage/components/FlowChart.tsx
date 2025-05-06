@@ -1,7 +1,6 @@
 'use client';
 
 import { getReptileLineage } from '@/app/api/reptiles/lineage';
-import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
 import { Reptile } from '@/lib/types/reptile';
 import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
@@ -28,6 +27,7 @@ interface FlowChartProps {
   reptileId: string;
   reptiles: Reptile[];
   isFeature?: boolean
+  morphs : Morph[]
 }
 
 // Constants for layout
@@ -100,7 +100,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
             ...node,
             position: {
               x: centerX - CONNECTOR_SIZE / 2,
-              y: nodeWithPosition.y - CONNECTOR_SIZE / 2,
+              y: nodeWithPosition.y - CONNECTOR_SIZE + 70,
             },
           };
         }
@@ -132,7 +132,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
   return { nodes: layoutedNodes, edges };
 };
 
-function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
+function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
   const [nodes, setNodes] = useState<Node<CustomNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedReptile, setSelectedReptile] = useState<string>(reptileId);
@@ -149,7 +149,6 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
   // Use a ref instead of state for positions to avoid re-renders
   const nodePositionsRef = useRef<Map<string, { x: number, y: number }>>(new Map());
   
-  const { morphs } = useMorphsStore();
   
   // Define node types with memo to pass reptiles prop
   const customNodeTypes = useMemo(() => ({
@@ -794,7 +793,7 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
 }
 
 // Main component that wraps everything with the ReactFlowProvider
-const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {
+const FlowChart = ({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) => {
   return (
     <div className={`w-full h-[600px] lg:h-[1000px]`}>
       <style jsx global>{`
@@ -821,7 +820,7 @@ const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {
         }
       `}</style>
       <ReactFlowProvider>
-        <Flow reptileId={reptileId} reptiles={reptiles} isFeature={isFeature} />
+        <Flow reptileId={reptileId} reptiles={reptiles} isFeature={isFeature} morphs={morphs} />
       </ReactFlowProvider>
     </div>
   );
