@@ -113,7 +113,7 @@ export function FeaturesSection() {
   ]
 
   return (
-    <section className="container relative py-24">
+    <section className="container relative py-6 sm:py-16 xl:py-20">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/5%_0%,transparent_50%)]" />
       <div className="relative">
         <div className="flex flex-col items-center gap-4 text-center">
@@ -127,7 +127,7 @@ export function FeaturesSection() {
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>
-        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
+        <div className="mt-16 grid gap-3 sm:gap-6 lg:gap-8 grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
           {features.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
@@ -165,7 +165,7 @@ export function FeaturesSection() {
             </p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-3 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {subscriptionPlans.map((plan) => (
               <div 
                 key={plan.id} 

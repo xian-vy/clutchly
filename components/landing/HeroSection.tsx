@@ -1,17 +1,14 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { useTransition, useState } from 'react'
+import { useTransition } from 'react'
 import { ArrowRight } from 'lucide-react'
-import { TopLoader } from '@/components/ui/TopLoader'
 import { motion } from 'framer-motion'
 
 export function HeroSection() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [isLoading, setIsLoading] = useState(false)
 
   const handleNavigation = (path: string) => {
-    setIsLoading(true)
     startTransition(() => {
       router.push(path)
     })
@@ -19,7 +16,6 @@ export function HeroSection() {
 
   return (
     <section className="relative overflow-hidden">
-      {isLoading && <TopLoader />}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/15%_0%,transparent_65%)]" />
       <div className="container relative z-10 py-24 md:py-32">
         <div className="mx-auto max-w-[800px] 3xl:max-w-[900px] text-center">
