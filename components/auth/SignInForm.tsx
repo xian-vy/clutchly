@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { FiMail, FiLock, FiAlertCircle } from 'react-icons/fi'
@@ -52,12 +51,10 @@ function SubmitButton({isLoading} : T) {
 }
 
 export function SignInForm() {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
   const [isFormSubmitting, setIsFormSubmitting] = useState(false)
   
-  const isLoading = isPending || isFormSubmitting
+  const isLoading =  isFormSubmitting
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -79,13 +76,13 @@ export function SignInForm() {
       if (result?.error) {
         setError(result.error)
         setIsFormSubmitting(false)
-      } else {
-        startTransition(() => {
-          router.push('/overview')
-        })
-      }
+      } 
     } catch (error: unknown) {
       setIsFormSubmitting(false)
+      if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+        // This is a redirect error, do nothing 
+        return;
+      }
       if (error instanceof Error) {
         setError(error.message)
       } else {
