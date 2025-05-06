@@ -37,7 +37,7 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
 
     if (isLoading) {
         return (
-            <div className='mb-3 2xl:mb-5 w-full'>
+            <div className='mb-3 2xl:mb-4 3xl:mb-5 w-full'>
                  <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full">
                     <div className="flex items-center w-full">
                         <div className="flex items-center gap-2 w-full flex-1">
@@ -78,7 +78,7 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
 
 
   return (
-    <div className='mb-3 2xl:mb-5 w-full'>
+    <div className='mb-3 2xl:mb-4 3xl:mb-5 w-full'>
         {isLoggingOut &&  <TopLoader />}
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
