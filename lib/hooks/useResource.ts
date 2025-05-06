@@ -50,6 +50,10 @@ export function useResource<T extends Resource, N>({
       toast.success(`${resourceName} created successfully`)
     },
     onError: (error) => {
+      if (error instanceof Error && error.name === "Custom") {
+          toast.error(`${error.message}`)
+          return
+      }
       toast.error(`Failed to create ${resourceName}`)
       console.error(error)
     }

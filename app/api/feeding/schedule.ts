@@ -201,16 +201,41 @@ async function enrichTargets(targets: FeedingTarget[]): Promise<FeedingTarget[]>
 }
 
 // Create a new feeding schedule
-export async function createFeedingSchedule(
-  data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }
-): Promise<FeedingScheduleWithTargets> {
+async function checkExistingTargets(targets: { target_type: TargetType; target_id: string }[]): Promise<string[]> {
   const supabase = await createClient();
-  console.log('Creating feeding schedule...');
+  const existingTargets: string[] = [];
 
+  for (const target of targets) {
+    const { data, error } = await supabase
+      .from('feeding_targets')
+      .select('id, schedule_id')
+      .eq('target_type', target.target_type)
+      .eq('target_id', target.target_id);
+
+    if (error) throw error;
+    if (data && data.length > 0) {
+      existingTargets.push(target.target_id);
+    }
+  }
+
+  return existingTargets;
+}
+
+export async function createFeedingSchedule(data: NewFeedingSchedule & { targets: { target_type: TargetType; target_id: string }[] }): Promise<FeedingScheduleWithTargets> {
+  const supabase = await createClient();
+  
   // Get user ID
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
-  
+
+  // Check for existing targets first
+  const existingTargets = await checkExistingTargets(data.targets);
+  if (existingTargets.length > 0) {
+    const error = new Error('Some targets are already in other feeding schedules!');
+    error.name = 'Custom';
+    throw error;
+  }
+
   // Extract targets from data
   const { targets, ...scheduleData } = data;
   
@@ -342,4 +367,4 @@ export async function deleteFeedingSchedule(id: string): Promise<void> {
     .eq('id', id);
   
   if (error) throw error;
-} 
+}

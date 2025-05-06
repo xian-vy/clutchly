@@ -24,7 +24,12 @@ export function FeedingSchedulesTab() {
   
   // Update the API functions to handle the new target types
   const createScheduleWithTargetTypes = async (data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => {
-    return await createFeedingSchedule(data);
+    try {
+      return await createFeedingSchedule(data);
+    } catch (error) {
+        console.error('Error creating feeding schedule:', error);
+        throw error;
+    }
   };
   
   const updateScheduleWithTargetTypes = async (id: string, data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => {
@@ -176,4 +181,4 @@ export function FeedingSchedulesTab() {
       </Dialog>
     </div>
   );
-} 
+}
