@@ -146,13 +146,25 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
           setReptilesByLocation([]);
         }
       } else {
-        // For location-based targets, use the API function
+        // For location-based targets, fetch reptiles for all targets of the same type
         try {
-          const reptiles = await getReptilesByLocation(
-            target.target_type as 'room' | 'rack' | 'level' | 'location', 
-            target.target_id
+          const sameTypeTargets = schedule.targets.filter(t => t.target_type === target.target_type);
+          const reptilePromises = sameTypeTargets.map(t => 
+            getReptilesByLocation(
+              t.target_type as 'room' | 'rack' | 'level' | 'location',
+              t.target_id
+            )
           );
-          setReptilesByLocation(reptiles || []);
+          
+          const reptileArrays = await Promise.all(reptilePromises);
+          // Flatten and remove duplicates based on reptile ID
+          const allReptiles = Array.from(
+            new Map(
+              reptileArrays.flat().map(reptile => [reptile.id, reptile])
+            ).values()
+          );
+          
+          setReptilesByLocation(allReptiles || []);
         } catch (error : unknown) {
           console.error(`Error fetching reptiles by ${target.target_type}:`, error);
           toast.error(`Failed to fetch reptiles by ${target.target_type}: ${error instanceof Error ?  error.message : 'Unknown error'}`);
