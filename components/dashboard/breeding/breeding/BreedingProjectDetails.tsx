@@ -155,6 +155,7 @@ export function BreedingProjectDetails({
       queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
       queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
       queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+      queryClient.invalidateQueries({ queryKey: ['clutches'] });
       setClutchDialogOpen(false);
     } catch (error) {
       console.error('Error saving clutch:', error);
