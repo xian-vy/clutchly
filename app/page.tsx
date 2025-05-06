@@ -13,7 +13,7 @@ export default function LandingPage() {
         <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-50 blur-[100px]" />
       </div>
 
-      <main className="flex-1 px-4 mx-auto">
+      <main className="flex-1 px-4 sm:px-8 mx-auto">
         <HeroSection />
         <FeaturesSection />
       </main>

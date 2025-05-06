@@ -780,6 +780,8 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
       onNodesChange={onNodesChange} 
       proOptions={{ hideAttribution: true }}
       onInit={(instance)=> instance.fitView()}
+      panOnScroll={isFeature ? false : true} 
+      zoomOnScroll={isFeature ? false : true}  
     >
       {!isFeature &&
        <>
@@ -795,7 +797,7 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
 // Main component that wraps everything with the ReactFlowProvider
 const FlowChart = ({ reptileId, reptiles, isFeature }: FlowChartProps) => {
   return (
-    <div style={{ width: '100%', height:  isFeature ? "800px" : "1000px"}}>
+    <div className={`w-full h-[600px] lg:h-[1000px]`}>
       <style jsx global>{`
         /* Override ReactFlow node styling for group nodes */
         .react-flow__node-group {
