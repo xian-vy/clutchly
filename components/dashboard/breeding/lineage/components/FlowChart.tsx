@@ -780,7 +780,6 @@ function Flow({ reptileId, reptiles, isFeature }: FlowChartProps) {
       onNodesChange={onNodesChange} 
       proOptions={{ hideAttribution: true }}
       onInit={(instance)=> instance.fitView()}
-      panOnScroll={isFeature ? false : true} 
       zoomOnScroll={isFeature ? false : true}  
     >
       {!isFeature &&
