@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import FlowChart from './components/FlowChart';
 import { Expand, Minimize } from 'lucide-react';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
 
 const Lineage = () => {
   const { data: reptiles = [] } = useQuery({
@@ -15,7 +16,7 @@ const Lineage = () => {
   const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-
+  const {morphs} = useMorphsStore();
   const toggleFullscreen = () => {
     setIsFullscreen(prev => !prev);
   };
@@ -47,7 +48,7 @@ const Lineage = () => {
                   />
           </div>
       </div>
-      {selectedReptileId !== '' &&   <FlowChart reptileId={selectedReptileId} reptiles={reptiles} />}
+      {selectedReptileId !== '' &&   <FlowChart reptileId={selectedReptileId} reptiles={reptiles} morphs={morphs}/>}
 
     </div>
   )
