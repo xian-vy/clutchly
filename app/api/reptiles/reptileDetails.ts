@@ -95,7 +95,7 @@ export async function getReptileDetails(id: string): Promise<DetailedReptile> {
     try {
       if (log.category_id) {
         const { data } = await supabase
-          .from('health_categories')
+          .from('health_log_categories')
           .select('label')
           .eq('id', log.category_id)
           .single();
@@ -108,7 +108,7 @@ export async function getReptileDetails(id: string): Promise<DetailedReptile> {
     try {
       if (log.subcategory_id) {
         const { data } = await supabase
-          .from('health_subcategories')
+          .from('health_log_subcategories')
           .select('label')
           .eq('id', log.subcategory_id)
           .single();
@@ -121,7 +121,7 @@ export async function getReptileDetails(id: string): Promise<DetailedReptile> {
     try {
       if (log.type_id) {
         const { data } = await supabase
-          .from('health_types')
+          .from('health_log_types')
           .select('label')
           .eq('id', log.type_id)
           .single();
