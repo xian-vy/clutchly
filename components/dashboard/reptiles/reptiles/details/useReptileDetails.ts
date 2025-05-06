@@ -11,6 +11,6 @@ export function useReptileDetails(reptileId: string | null) {
       return data as unknown as ExtendedDetailedReptile;
     },
     enabled: !!reptileId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 60, 
   });
 } 

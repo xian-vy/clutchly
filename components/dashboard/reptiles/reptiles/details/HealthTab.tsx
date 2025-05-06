@@ -17,6 +17,15 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
     return format(parseISO(dateString), "MMM dd, yyyy");
   };
 
+  // Find last shedding and defecation records
+  const lastShedding = reptileDetails.health_logs
+    .filter(log => log.category_id === 'shed-cat')
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+
+  const lastDefecation = reptileDetails.health_logs
+    .filter(log => log.category_id === 'def-cat')
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+
   // Group health logs by resolved status
   const activeIssues = reptileDetails.health_logs.filter(log => !log.resolved);
   const resolvedIssues = reptileDetails.health_logs.filter(log => log.resolved);
@@ -41,6 +50,67 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
 
   return (
     <div className="space-y-4 mt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Last Shedding</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {lastShedding ? (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span>Date:</span>
+                  <span>{formatDate(lastShedding.date)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Type:</span>
+                  <span>
+                    {lastShedding.subcategory?.label && <span>{lastShedding.subcategory.label}</span>}
+                    {lastShedding.type?.label && <span> - {lastShedding.type.label}</span>}
+                  </span>
+                </div>
+                {lastShedding.notes && (
+                  <div className="text-sm text-muted-foreground mt-2">
+                    <p className="line-clamp-2">{lastShedding.notes}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No shedding records available</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Last Defecation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {lastDefecation ? (
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span>Date:</span>
+                  <span>{formatDate(lastDefecation.date)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Type:</span>
+                  <span>
+                    {lastDefecation.subcategory?.label && <span>{lastDefecation.subcategory.label}</span>}
+                    {lastDefecation.type?.label && <span> - {lastDefecation.type.label}</span>}
+                  </span>
+                </div>
+                {lastDefecation.notes && (
+                  <div className="text-sm text-muted-foreground mt-2">
+                    <p className="line-clamp-2">{lastDefecation.notes}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No defecation records available</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
@@ -135,4 +205,4 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
       </Card>
     </div>
   );
-} 
+}
