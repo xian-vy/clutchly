@@ -156,7 +156,7 @@ export function FeedingSchedulesTab() {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
-        <DialogContent className="sm:max-w-[800px]">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogTitle>
             {selectedSchedule ? 'Edit Feeding Schedule' : 'Create Feeding Schedule'}
           </DialogTitle>
