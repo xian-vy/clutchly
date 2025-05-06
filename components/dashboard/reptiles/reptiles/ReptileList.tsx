@@ -298,38 +298,17 @@ export function ReptileList({
         return (
           <>
           <div className="flex items-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    disabled={isPrinting}
-                    onClick={async () => {
-                      try {
-                        setIsPrinting(true);
-                        // Get detailed reptile data for PDF
-                        const detailedReptile = await getReptileDetails(reptile.id);
-                        const sireDetails = reptiles.find(r => r.id === reptile.sire_id);
-                        const damDetails = reptiles.find(r => r.id === reptile.dam_id);
-                        // Generate and download PDF
-                        await generateReptilePDF(detailedReptile, sireDetails as EnrichedReptile, damDetails as EnrichedReptile);
-                      } catch (error) {
-                        console.error("Error generating PDF:", error);
-                      } finally {
-                        setIsPrinting(false);
-                      }
-                    }}
-                  >
-                    <Printer className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Print Details</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={()=>{
+                setSelectedReptile(reptile);
+                setDetailsDialogOpen(true);
+              }}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+ 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
