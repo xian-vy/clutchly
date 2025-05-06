@@ -173,7 +173,7 @@ export const generateMockReptiles = (): Reptile[] => {
     het_traits: [] as HetTrait[],
     weight: 500,
     length: 100,
-    hatch_date: new Date(2020, 0, 1).toISOString(),
+    hatch_date: "2020-04-15",
     acquisition_date: new Date(2020, 3, 15).toISOString(),
     status: 'active' as const,
     notes: null,

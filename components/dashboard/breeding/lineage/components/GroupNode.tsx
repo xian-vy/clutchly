@@ -47,7 +47,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
     <>
       <div
         className={cn(
-          'px-4 py-2.5 dark:shadow-md rounded-md border-2 border-dashed border-gray-400 dark:border-gray-700 bg-gray-50 dark:bg-slate-900/30 w-[250px]  transition-all duration-300 hover:border-primary cursor-pointer -mt-[10px]',
+          'px-4 py-2.5 dark:shadow-md rounded-xl border-2 border-dashed border-gray-400 dark:border-gray-700 bg-gray-50 dark:bg-slate-900/30 w-[250px]  transition-all duration-300 hover:border-primary cursor-pointer -mt-[10px]',
           data.isSelected && 'ring-2 ring-primary shadow-lg z-50',
         )}
         onClick={(e) => {

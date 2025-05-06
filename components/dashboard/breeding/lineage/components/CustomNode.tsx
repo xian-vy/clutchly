@@ -16,7 +16,7 @@ interface Props {
 const CustomNode = ({ data }: Props) => (
   <div
     className={cn(
-      'px-4 py-2 shadow-lg rounded-md border border-input bg-card dark:bg-slate-900/50 w-[250px] transition-all duration-300',
+      'px-4 py-2 shadow-md rounded-xl border border-input bg-card dark:bg-slate-900/50 w-[250px] transition-all duration-300',
       data.isSelected && 
         'ring-1 ring-primary shadow-2xl  border-primary z-50',
       data.isHighlighted && !data.isSelected && 
