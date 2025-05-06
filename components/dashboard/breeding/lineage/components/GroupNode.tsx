@@ -11,6 +11,7 @@ import { CircleHelp, Dna, Mars, Venus, ChevronRight } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { CustomNodeData, GroupedReptilesType } from './types';
+import { STATUS_COLORS } from '@/lib/constants/colors';
 
 interface Props {
   reptiles?: Reptile[];
@@ -120,7 +121,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                         <div className="text-base font-semibold">
                           {data.parentNames?.[0] || reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.name || 'Unknown Dam'}
                         </div>
-                        <div className="text-xs font-medium text-muted-foreground">
+                        <div className="text-xs font-medium text-primary">
                           {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                         </div>
                       </div>
@@ -131,7 +132,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
-                          <Badge key={i} variant="outline">{trait.percentage}% het {trait.trait}</Badge>
+                          <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
                         ))}
                       </div>
                     </div>
@@ -146,7 +147,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                         <div className="text-base font-semibold">
                           {data.parentNames?.[1] || reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.name || 'Unknown Sire'}
                         </div>
-                        <div className="text-xs font-medium text-muted-foreground">
+                        <div className="text-xs font-medium text-primary">
                           {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                         </div>
                       </div>
@@ -157,7 +158,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
-                          <Badge key={i} variant="outline">{trait.percentage}% het {trait.trait}</Badge>
+                          <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
                         ))}
                       </div>
                     </div>
@@ -196,7 +197,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                       selectedMorph === morphName && "block"
                     )}
                   >
-                    <ScrollArea className="h-[calc(100vh-320px)]">
+                    <ScrollArea className="h-[calc(100vh-450px)]">
                       <div className="space-y-3 px-2 pb-6">
                         {morphReptiles.map((reptile) => (
                           <div 
@@ -206,16 +207,20 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                             )}
                           >
                             {reptile.sex === 'male' ? (
-                              <Mars className="h-4 w-4 text-blue-400 mt-1" />
+                              <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5" />
                             ) : reptile.sex === 'female' ? (
-                              <Venus className="h-4 w-4 text-red-500 mt-1" />
+                              <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5" />
                             ) : (
-                              <CircleHelp className="h-4 w-4 text-muted-foreground mt-1" />
+                              <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />
                             )}
                             
-                            <div className="space-y-1.5 flex-1">
-                              <div className="font-semibold text-xs sm:text-sm">{reptile.name}</div>
-                              
+                            <div className="space-y-1.5 2xl:space-y-2 3xl:space-y-2.5 flex-1">
+                              <div className="flex justify-between items-start gap-1">
+                                  <div className="font-semibold text-xs sm:text-sm">{reptile.name}</div>
+                                  <Badge variant="default" className={`${STATUS_COLORS[reptile.status.toLowerCase() as keyof typeof STATUS_COLORS]} capitalize`}>
+                                    {reptile.status}
+                                  </Badge>
+                              </div>
                               <div className="flex flex-wrap gap-1.5">
                                 {reptile.visual_traits?.map((trait, i) => (
                                   <Badge key={i} variant="secondary" className="text-xs">{trait}</Badge>
@@ -224,11 +229,13 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                               
                               <div className="flex flex-wrap gap-1.5">
                                 {reptile.het_traits?.map((trait, i) => (
-                                  <Badge key={i} variant="outline" className="text-xs">
+                                  <Badge key={i} variant="secondary" className="text-xs">
                                     {trait.percentage}% het {trait.trait}
                                   </Badge>
                                 ))}
                               </div>
+                              <div className="flex justify-end text-[0.65rem] sm:text-xs">DOH {" : "}{reptile.hatch_date}</div>
+
                             </div>
                           </div>
                         ))}
