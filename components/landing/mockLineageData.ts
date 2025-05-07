@@ -115,52 +115,7 @@ export const mockMorphs: Morph[] = [
 
 // Mock data for a more natural, asymmetrical 4-generation lineage with siblings and offspring grouping
 export const generateMockReptiles = (): Reptile[] => {
-  // Generate unique IDs for all reptiles in the lineage
-  // Root reptile
-  const rootId = 'root-reptile';
-  
-  // First generation (parents of root)
-  const damId = 'dam-reptile';
-  const sireId = 'sire-reptile';
-  
-  // Second generation (grandparents)
-  // Note: We're only giving the dam complete parentage to make it asymmetrical
-  const grandDam1Id = 'grand-dam-1';
-  const grandSire1Id = 'grand-sire-1';
-  
-  // Third generation (great-grandparents)
-  // Only two pairs at the top as requested
-  const greatGrandDam1Id = 'great-grand-dam-1';
-  const greatGrandSire1Id = 'great-grand-sire-1';
-  const greatGrandDam2Id = 'great-grand-dam-2';
-  const greatGrandSire2Id = 'great-grand-sire-2';
-  
-  // Siblings of the root (same parents, with/without offspring)
-  const sibling1Id = 'sibling-1'; // This will have offspring
-  const sibling2Id = 'sibling-2'; // This will have no offspring
-  const sibling3Id = 'sibling-3'; // This will have no offspring
-  
-  // Offspring of root reptile (with no descendants)
-  const offspring1Id = 'offspring-1';
-  const offspring2Id = 'offspring-2';
-  const offspring3Id = 'offspring-3';
-  
-  // Breeding partner of root
-  const breedingPartnerId = 'breeding-partner';
-  
-  // Offspring of sibling (to demonstrate siblings with offspring)
-  const siblingOffspring1Id = 'sibling-offspring-1';
-  const siblingOffspring2Id = 'sibling-offspring-2';
-  
-  // Breeding partner of sibling
-  const siblingPartnerId = 'sibling-partner';
-  
-  // New - Offspring of greatGrandSire2 (BP000019) with no descendants
-  const greatGrandOffspring1Id = 'great-grand-offspring-1';
-  const greatGrandOffspring2Id = 'great-grand-offspring-2';
-  
-  // New - Breeding partner for greatGrandSire2
-  const greatGrandPartnerId = 'great-grand-partner';
+ 
   
   // Common reptile properties
   const baseReptile = {
@@ -189,11 +144,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Root reptile - Pastel Clown
     {
       ...baseReptile,
-      id: rootId,
+      id: 'BP000001',
       name: 'BP000001',
       sex: 'male' as const,
-      dam_id: grandDam1Id,
-      sire_id: grandSire1Id,
+      dam_id: null,
+      sire_id: null,
       generation: 1,
       breeding_line: 'Clown Project',
       is_breeder: true,
@@ -219,11 +174,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Sibling 1 of root (with same parents) - this one has offspring
     {
       ...baseReptile,
-      id: sibling1Id,
+      id: 'BP000002',
       name: 'BP000002',
       sex: 'female' as const,
-      dam_id: grandDam1Id,
-      sire_id: grandSire1Id,
+      dam_id: null,
+      sire_id: null,
       generation: 1,
       breeding_line: 'Clown Project',
       is_breeder: true,
@@ -249,11 +204,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Sibling 2 of root (with same parents) - no offspring
     {
       ...baseReptile,
-      id: sibling2Id,
+      id: 'BP000003',
       name: 'BP000003',
       sex: 'male' as const,
-      dam_id: grandDam1Id,
-      sire_id: grandSire1Id,
+      dam_id: 'BP000002',
+      sire_id: 'BP000001',
       generation: 1,
       breeding_line: 'Clown Project',
       is_breeder: false,
@@ -285,11 +240,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Sibling 3 of root (with same parents) - no offspring
     {
       ...baseReptile,
-      id: sibling3Id,
+      id:'BP000004',
       name: 'BP000004',
       sex: 'female' as const,
-      dam_id: grandDam1Id,
-      sire_id: grandSire1Id,
+      dam_id: 'BP000002',
+      sire_id: 'BP000001',
       generation: 1,
       breeding_line: 'Clown Project',
       is_breeder: false,
@@ -315,11 +270,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Breeding partner for root to produce offspring
     {
       ...baseReptile,
-      id: breedingPartnerId,
+      id: 'BP000005',
       name: 'BP000005',
       sex: 'female' as const,
-      dam_id: null,
-      sire_id: null,
+      dam_id: 'BP000002',
+      sire_id: 'BP000001',
       generation: 1,
       breeding_line: 'Pied Project',
       is_breeder: true,
@@ -345,11 +300,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Breeding partner for sibling1
     {
       ...baseReptile,
-      id: siblingPartnerId,
+      id: 'BP000006',
       name: 'BP000006',
       sex: 'male' as const,
-      dam_id: null,
-      sire_id: null,
+      dam_id: 'BP000002',
+      sire_id: 'BP000001',
       generation: 1,
       breeding_line: 'Spider Project',
       is_breeder: true,
@@ -375,11 +330,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Offspring of sibling1 (demonstrating that siblings can have offspring)
     {
       ...baseReptile,
-      id: siblingOffspring1Id,
+      id: 'BP000007',
       name: 'BP000007',
       sex: 'female' as const,
-      dam_id: sibling1Id,
-      sire_id: siblingPartnerId,
+      dam_id: 'BP000004',
+      sire_id: 'BP000003',
       generation: 2,
       breeding_line: 'Spider-Pastel Project',
       is_breeder: false,
@@ -398,34 +353,16 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 50,
           source: 'breeding_odds',
           verified: false
-        },
-        {
-          trait: 'Pinstripe',
-          percentage: 50,
-          source: 'breeding_odds',
-          verified: false
-        },
-        {
-          trait: 'Pied',
-          percentage: 25,
-          source: 'breeding_odds',
-          verified: false
-        },
-        {
-          trait: 'Mojave',
-          percentage: 25,
-          source: 'breeding_odds',
-          verified: false
         }
       ]
     },
     {
       ...baseReptile,
-      id: siblingOffspring2Id,
+      id: 'BP000008',
       name: 'BP000008',
       sex: 'male' as const,
-      dam_id: sibling1Id,
-      sire_id: siblingPartnerId,
+      dam_id: 'BP000005',
+      sire_id:'BP000006',
       generation: 2,
       breeding_line: 'Spider-Pastel Project',
       is_breeder: false,
@@ -469,11 +406,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Offspring of root (with no descendants - to be grouped)
     {
       ...baseReptile,
-      id: offspring1Id,
+      id: 'BP000009',
       name: 'BP000009',
       sex: 'male' as const,
-      dam_id: breedingPartnerId,
-      sire_id: rootId,
+      dam_id:  'BP000007',
+      sire_id:  'BP000008',
       generation: 2,
       breeding_line: 'Clown-Pied Project',
       is_breeder: false,
@@ -498,28 +435,16 @@ export const generateMockReptiles = (): Reptile[] => {
           percentage: 50,
           source: 'breeding_odds',
           verified: false
-        },
-        {
-          trait: 'Yellow Belly',
-          percentage: 25,
-          source: 'breeding_odds',
-          verified: false
-        },
-        {
-          trait: 'Mojave',
-          percentage: 25,
-          source: 'breeding_odds',
-          verified: false
         }
       ]
     },
     {
       ...baseReptile,
-      id: offspring2Id,
+      id: 'BP000010',
       name: 'BP000010',
       sex: 'female' as const,
-      dam_id: breedingPartnerId,
-      sire_id: rootId,
+      dam_id: 'BP000005',
+      sire_id:'BP000006',
       generation: 2,
       breeding_line: 'Clown-Pied Project',
       is_breeder: false,
@@ -561,11 +486,11 @@ export const generateMockReptiles = (): Reptile[] => {
     },
     {
       ...baseReptile,
-      id: offspring3Id,
+      id: 'BP000011',
       name: 'BP000011',
       sex: 'male' as const,
-      dam_id: breedingPartnerId,
-      sire_id: rootId,
+      dam_id: 'BP000005',
+      sire_id:'BP000006',
       generation: 2,
       breeding_line: 'Clown-Pied Project',
       is_breeder: false,
@@ -609,11 +534,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Dam (1st generation) - Pastel het Clown
     {
       ...baseReptile,
-      id: damId,
+      id: 'BP000012',
       name: 'BP000012',
       sex: 'female' as const,
-      dam_id: grandDam1Id,
-      sire_id: grandSire1Id,
+      dam_id:  'BP000007',
+      sire_id:  'BP000008',
       generation: 0,
       breeding_line: 'Clown Project',
       is_breeder: true,
@@ -645,11 +570,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Sire (1st generation) - Clown
     {
       ...baseReptile,
-      id: sireId,
+      id: 'BP000013',
       name: 'BP000013',
       sex: 'male' as const,
-      dam_id: grandDam1Id, // Missing parentage to make the tree asymmetrical
-      sire_id: grandSire1Id,
+      dam_id:  'BP000007',
+      sire_id:  'BP000008',
       generation: 0,
       breeding_line: 'Clown Project',
       is_breeder: true,
@@ -681,11 +606,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // Maternal Grandmother (2nd generation) - Pastel
     {
       ...baseReptile,
-      id: grandDam1Id,
+      id: 'BP000014',
       name: 'BP000014',
       sex: 'female' as const,
-      dam_id: null,
-      sire_id: null,
+      dam_id:  'BP000007',
+      sire_id:  'BP000008',
       generation: -1,
       breeding_line: 'Pastel Project',
       is_breeder: false,
@@ -708,14 +633,13 @@ export const generateMockReptiles = (): Reptile[] => {
       ]
     },
     
-    // Maternal Grandfather (2nd generation) - het Clown
     {
       ...baseReptile,
-      id: grandSire1Id,
+      id: 'BP000015',
       name: 'BP000015',
       sex: 'male' as const,
-      dam_id: greatGrandDam2Id,
-      sire_id: greatGrandSire2Id,
+      dam_id:  'BP000007',
+      sire_id:  'BP000008',
       generation: -1,
       breeding_line: 'Clown Project',
       is_breeder: false,
@@ -741,7 +665,7 @@ export const generateMockReptiles = (): Reptile[] => {
     // Great-grandparents (3rd generation - max 2 pairs at top)
     {
       ...baseReptile,
-      id: greatGrandDam1Id,
+      id: 'BP000016',
       name: 'BP000016',
       sex: 'female' as const,
       dam_id: null,
@@ -763,7 +687,7 @@ export const generateMockReptiles = (): Reptile[] => {
     },
     {
       ...baseReptile,
-      id: greatGrandSire1Id,
+      id: 'BP000017',
       name: 'BP000017',
       sex: 'male' as const,
       dam_id: null,
@@ -785,7 +709,7 @@ export const generateMockReptiles = (): Reptile[] => {
     },
     {
       ...baseReptile,
-      id: greatGrandDam2Id,
+      id: 'BP000018',
       name: 'BP000018',
       sex: 'female' as const,
       dam_id: null,
@@ -807,7 +731,7 @@ export const generateMockReptiles = (): Reptile[] => {
     },
     {
       ...baseReptile,
-      id: greatGrandSire2Id,
+      id: 'BP000019',
       name: 'BP000019',
       sex: 'male' as const,
       dam_id: null,
@@ -831,7 +755,7 @@ export const generateMockReptiles = (): Reptile[] => {
     // New - Breeding partner for greatGrandSire2 (BP000019)
     {
       ...baseReptile,
-      id: greatGrandPartnerId,
+      id: 'BP000020',
       name: 'BP000020',
       sex: 'female' as const,
       dam_id: null,
@@ -861,11 +785,11 @@ export const generateMockReptiles = (): Reptile[] => {
     // New - Offspring of greatGrandSire2 (BP000019) with no descendants
     {
       ...baseReptile,
-      id: greatGrandOffspring1Id,
+      id: 'BP000021',
       name: 'BP000021',
       sex: 'female' as const,
-      dam_id: greatGrandDam2Id,
-      sire_id: greatGrandSire2Id,
+      dam_id: null,
+      sire_id: null,
       generation: -1,
       breeding_line: 'Clown-Mojave Project',
       is_breeder: false,
@@ -889,11 +813,95 @@ export const generateMockReptiles = (): Reptile[] => {
     },
     {
       ...baseReptile,
-      id: greatGrandOffspring2Id,
+      id: 'BP000022',
       name: 'BP000022',
       sex: 'male' as const,
-      dam_id: greatGrandDam2Id,
-      sire_id: greatGrandSire2Id,
+      dam_id: null,
+      sire_id: null,
+      generation: -1,
+      breeding_line: 'Clown-Mojave Project',
+      is_breeder: false,
+      retired_breeder: false,
+      morph_id: '8', // Mojave
+      visual_traits: ['Mojave'],
+      het_traits: [
+        {
+          trait: 'Clown',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
+    },
+    {
+      ...baseReptile,
+      id: 'BP000023',
+      name: 'BP000023',
+      sex: 'female' as const,
+      dam_id: null,
+      sire_id: null,
+      generation: -1,
+      breeding_line: 'Clown-Mojave Project',
+      is_breeder: true,
+      retired_breeder: false,
+      morph_id: '8', // Mojave
+      visual_traits: ['Mojave'],
+      het_traits: [
+        {
+          trait: 'Clown',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
+    },
+    {
+      ...baseReptile,
+      id: 'BP000024',
+      name: 'BP000024',
+      sex: 'male' as const,
+      dam_id: null,
+      sire_id: null,
+      generation: -1,
+      breeding_line: 'Clown-Mojave Project',
+      is_breeder: true,
+      retired_breeder: false,
+      morph_id: '8', // Mojave
+      visual_traits: ['Mojave'],
+      het_traits: [
+        {
+          trait: 'Clown',
+          percentage: 100,
+          source: 'breeding_odds',
+          verified: false
+        },
+        {
+          trait: 'Yellow Belly',
+          percentage: 50,
+          source: 'breeding_odds',
+          verified: false
+        }
+      ]
+    },
+    {
+      ...baseReptile,
+      id:'BP000025',
+      name: 'BP000025',
+      sex: 'female' as const,
+      dam_id:  null,
+      sire_id:  null,
       generation: -1,
       breeding_line: 'Clown-Mojave Project',
       is_breeder: false,
