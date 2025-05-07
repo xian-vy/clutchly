@@ -249,6 +249,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
     } finally {
       setUpdatingEventId(null);
+      queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
     }
   };
 
@@ -314,6 +315,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       toast.error('Failed to feed all reptiles');
     } finally {
       setFeedingAll(false);
+      queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
     }
   };
   

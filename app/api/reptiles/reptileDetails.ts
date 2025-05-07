@@ -1,17 +1,17 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { GrowthEntry } from '@/lib/types/growth'
-import { HealthLogEntry } from '@/lib/types/health'
 import { Reptile } from '@/lib/types/reptile'
 import { BreedingProject, Clutch } from '@/lib/types/breeding'
 import { FeedingEvent } from '@/lib/types/feeding'
+import { HealthLogEntryWithCategory } from '@/lib/types/health'
 
 export interface DetailedReptile extends Reptile {
   species_name: string
   morph_name: string
   location_label?: string
   growth_history: GrowthEntry[]
-  health_logs: HealthLogEntry[]
+  health_logs: HealthLogEntryWithCategory[]
   breeding_projects_as_sire: BreedingProject[]
   breeding_projects_as_dam: BreedingProject[]
   clutches: Clutch[]
