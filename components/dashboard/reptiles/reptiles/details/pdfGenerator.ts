@@ -349,25 +349,27 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   // Health summary if available
   if (reptile.health_logs && reptile.health_logs.length > 0) {
     const healthLastY = doc.lastAutoTable.finalY + 12;
-    drawSectionTitle(doc, 'Health Records', 15, healthLastY, 10);
+    drawSectionTitle(doc, 'Health Information', 15, healthLastY, 10);
     
     // Last 3 health records
     const healthData = reptile.health_logs.slice(0, 3).map(log => {
       // Find category name if it exists
-      const categoryName = log.category_id ? 'Health Issue' : 'General';
-      
+      const categoryName = log.category ? log.category.label : '-';
+      const subcategoryName = log.subcategory? log.subcategory.label : '-';
+      const typeName = log.type? log.type.label : '-';
       // Format the log entry data
       return [
         format(new Date(log.date), 'MMM dd, yyyy'),
         categoryName,
-        log.custom_type_label || '-',
+        subcategoryName,
+        typeName,
         log.notes || '-'
       ];
     });
     
     autoTable(doc, {
       startY: healthLastY + 8,
-      head: [['Date', 'Category', 'Type', 'Notes']],
+      head: [['Date', 'Category','Subcategory','Type', 'Notes']],
       body: healthData,
       theme: 'grid',
       styles: { 

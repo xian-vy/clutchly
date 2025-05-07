@@ -70,3 +70,9 @@ export interface CreateHealthLogEntryInput {
   resolved: boolean;
   attachments: string[];
 }
+
+export type HealthLogEntryWithCategory = HealthLogEntry & {
+  category: HealthCategory;
+  subcategory: HealthSubcategory;
+  type: HealthType;
+}
