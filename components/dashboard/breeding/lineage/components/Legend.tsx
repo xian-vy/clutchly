@@ -27,12 +27,12 @@ const Legend = () => (
       </div>
     </div>
     <div className="flex items-center">
-      <div className="w-4 h-0.5 bg-emerald-600 dashed mr-2" style={{ borderStyle: 'dashed' }}></div>
+      <div className="mr-2" style={{ borderBottom: '1px dashed #6b7280', width: '1rem' }}></div>
       <div className="flex items-center">
         <span className="text-xs mr-1">Grouped Offspring</span>
-        <Dna className="h-3 w-3 text-emerald-600" />
+        <Dna className="h-3 w-3 text-gray-500" />
       </div>
-    </div>
+</div>
   </div>
 );
 

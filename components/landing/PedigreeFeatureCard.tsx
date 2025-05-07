@@ -20,7 +20,7 @@ const PedigreeFeatureCard = () => {
         <div className="w-full h-[600px] lg:h-[1000px] overflow-hidden">
           {mockReptiles.length > 0 && (
             <FlowChart 
-              reptileId="dam-reptile" 
+              reptileId="BP000009"
               reptiles={mockReptiles} 
               isFeature={true}
               morphs={mockMorphs}
