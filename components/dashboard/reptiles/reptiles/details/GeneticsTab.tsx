@@ -5,14 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Dna, Star, Venus, Mars, Info } from "lucide-react";
 import { Reptile } from "@/lib/types/reptile";
 import { EnrichedReptile } from "../ReptileList";
-import { ReptileTabProps } from "./types";
 import { useMorphsStore } from "@/lib/stores/morphsStore";
 import { Morph } from "@/lib/types/morph";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
 
-interface GeneticsTabProps extends ReptileTabProps {
+interface GeneticsTabProps  {
   reptile: EnrichedReptile;
   reptiles: Reptile[];
+  reptileDetails: DetailedReptile | null
 }
 
 export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {

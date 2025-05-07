@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Baby, Plus } from "lucide-react";
 import { Reptile } from "@/lib/types/reptile";
 import { format, parseISO } from "date-fns";
-import { ReptileTabProps } from "./types";
+import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
 
-interface BreedingTabProps extends ReptileTabProps {
+interface BreedingTabProps {
   reptiles: Reptile[];
+  reptileDetails: DetailedReptile | null
 }
 
 export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {

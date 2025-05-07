@@ -8,10 +8,12 @@ import { Progress } from "@/components/ui/progress";
 import { Utensils } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { FeedingEvent } from "@/lib/types/feeding";
-import { ReptileTabProps } from "./types";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
-
-export function FeedingTab({ reptileDetails }: ReptileTabProps) {
+import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
+interface FeedingTabProps {
+  reptileDetails: DetailedReptile | null;
+}
+export function FeedingTab({ reptileDetails }: FeedingTabProps) {
   if (!reptileDetails) return null;
 
   const formatDate = (dateString: string | null) => {

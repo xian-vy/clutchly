@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { EnrichedHealthLogEntry } from "./types";
-import { ReptileTabProps } from "./types";
+import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
+import { HealthLogEntryWithCategory } from "@/lib/types/health";
 
+interface ReptileTabProps {
+  reptileDetails: DetailedReptile | null;
+}
 export function HealthTab({ reptileDetails }: ReptileTabProps) {
   if (!reptileDetails) return null;
 
@@ -135,7 +138,7 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {activeIssues.slice(0, 5).map((entry: EnrichedHealthLogEntry) => (
+                  {activeIssues.slice(0, 5).map((entry: HealthLogEntryWithCategory) => (
                     <TableRow key={entry.id}>
                       <TableCell>{formatDate(entry.date)}</TableCell>
                       <TableCell>
@@ -175,7 +178,7 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {resolvedIssues.slice(0, 3).map((entry: EnrichedHealthLogEntry) => (
+                  {resolvedIssues.slice(0, 3).map((entry: HealthLogEntryWithCategory) => (
                     <TableRow key={entry.id}>
                       <TableCell>{formatDate(entry.date)}</TableCell>
                       <TableCell>

@@ -16,11 +16,12 @@ import {
     YAxis
 } from 'recharts';
 import { EnrichedReptile } from "../ReptileList";
-import { EnrichedHealthLogEntry, ExtendedDetailedReptile } from "./types";
+import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
+import { HealthLogEntryWithCategory } from "@/lib/types/health";
 
 interface OverviewTabProps {
   reptile: EnrichedReptile;
-  reptileDetails: ExtendedDetailedReptile | null;
+  reptileDetails: DetailedReptile | null;
 }
 
 export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
@@ -153,7 +154,7 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
               {reptileDetails.health_logs
                 .filter(log => !log.resolved)
                 .slice(0, 3)
-                .map((log: EnrichedHealthLogEntry) => (
+                .map((log: HealthLogEntryWithCategory) => (
                   <li key={log.id} className="flex items-center justify-between">
                     <div>
                       <span className="font-medium">

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { LineChart } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { GrowthEntry } from "@/lib/types/growth";
-import { ReptileTabProps } from "./types";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -16,8 +15,11 @@ import {
   Area,
   Tooltip as RechartsTooltip
 } from 'recharts';
-
-export function GrowthTab({ reptileDetails }: ReptileTabProps) {
+import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
+interface GrowthTabProps {
+  reptileDetails: DetailedReptile | null;
+}
+export function GrowthTab({ reptileDetails }: GrowthTabProps) {
   if (!reptileDetails) return null;
 
   const formatDate = (dateString: string | null) => {

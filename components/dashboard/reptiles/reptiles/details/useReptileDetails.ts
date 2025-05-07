@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getReptileDetails } from "@/app/api/reptiles/reptileDetails";
-import { ExtendedDetailedReptile } from "./types";
+import { DetailedReptile, getReptileDetails } from "@/app/api/reptiles/reptileDetails";
 
 export function useReptileDetails(reptileId: string | null) {
   return useQuery({
@@ -8,7 +7,7 @@ export function useReptileDetails(reptileId: string | null) {
     queryFn: async () => {
       if (!reptileId) return null;
       const data = await getReptileDetails(reptileId);
-      return data as unknown as ExtendedDetailedReptile;
+      return data as unknown as DetailedReptile;
     },
     enabled: !!reptileId,
     staleTime: 1000 * 60 * 60, 
