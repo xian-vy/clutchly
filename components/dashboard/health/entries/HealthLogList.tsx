@@ -186,7 +186,7 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
         const severity = row.getValue('severity') as keyof typeof SEVERITY_COLORS;
         return severity ? (
           <Badge variant="custom" 
-            className={SEVERITY_COLORS[severity.toLowerCase() as keyof typeof SEVERITY_COLORS]}>
+            className={`capitalize ${SEVERITY_COLORS[severity.toLowerCase() as keyof typeof SEVERITY_COLORS]}`}>
             {severity}
           </Badge>
         ) : '-';
@@ -201,7 +201,7 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
         return (
           <Badge 
             variant="custom"
-            className={HEALTH_STATUS_COLORS[label.toLowerCase() as keyof typeof HEALTH_STATUS_COLORS]}
+            className={`capitalize ${HEALTH_STATUS_COLORS[label.toLowerCase() as keyof typeof HEALTH_STATUS_COLORS]}`}
           >
             {resolved ? 'resolved' : 'ongoing'}
           </Badge>

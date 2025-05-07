@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { Edit, Filter, Trash2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { GrowthFilterDialog, GrowthFilters } from "./GrowthFilterDialog";
+import { YES_NO_COLORS } from "@/lib/constants/colors";
 
 interface GrowthEntryListProps {
   growthEntries: GrowthEntry[];
@@ -140,7 +141,14 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
       header: 'With Note',
       cell: ({ row }) => {
         const notes = row.getValue('notes') as string | null;
-        return <div className="text-left">{notes && notes.length > 0 ? "Yes" : "No"}</div>; 
+        const label = notes && notes.length > 0 ? "yes" : "no";
+        return (
+              <Badge 
+                variant="custom" 
+                className={`${YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]} capitalize`}>
+                 {label}
+              </Badge>
+        ); 
       }
     },
     {
