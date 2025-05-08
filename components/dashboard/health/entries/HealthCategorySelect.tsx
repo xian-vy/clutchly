@@ -124,12 +124,7 @@ export function HealthCategorySelect({ form, className }: HealthCategorySelectPr
                                 toggleCategory(category.id);
                               }}
                             />
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                selectedCategoryId === category.id ? "opacity-100" : "opacity-0"
-                              )}
-                            />
+                         
                             {category.label}
                           </CommandItem>
 
@@ -142,7 +137,7 @@ export function HealthCategorySelect({ form, className }: HealthCategorySelectPr
                                     onSelect={() => handleSelect('subcategory', subcategory.id)}
                                     className="flex items-center"
                                   >
-                                    <Check
+                                    <ChevronRight
                                       className={cn(
                                         "mr-2 h-4 w-4",
                                         selectedSubcategoryId === subcategory.id ? "opacity-100" : "opacity-0"
