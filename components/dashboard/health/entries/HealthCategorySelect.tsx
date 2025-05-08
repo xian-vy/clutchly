@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useHealthStore } from '@/lib/stores/healthStore';
 import { cn } from '@/lib/utils';
-import { Check, ChevronRight, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { type FormValues } from './HealthLogForm';
@@ -96,7 +96,7 @@ export function HealthCategorySelect({ form, className }: HealthCategorySelectPr
                     aria-expanded={open}
                     className="w-full justify-between"
                   >
-                    {getSelectedLabel()}
+                       <span className="text-wrap text-start text-[0.65rem] sm:text-xs md:text-[0.8rem]">{getSelectedLabel()}</span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </FormControl>
@@ -137,7 +137,7 @@ export function HealthCategorySelect({ form, className }: HealthCategorySelectPr
                                     onSelect={() => handleSelect('subcategory', subcategory.id)}
                                     className="flex items-center"
                                   >
-                                    <ChevronRight
+                                    <ChevronDown
                                       className={cn(
                                         "mr-2 h-4 w-4",
                                         selectedSubcategoryId === subcategory.id ? "opacity-100" : "opacity-0"
