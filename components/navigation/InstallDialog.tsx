@@ -17,7 +17,7 @@ export function InstallDialog() {
       <DialogTrigger className="text-[0.8rem] 3xl:text-sm text-muted-foreground hover:text-primary transition">
           Install
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] 2xl:max-w-[900px]">
+      <DialogContent className="sm:max-w-[600px] md:max-w-[700px] 2xl:max-w-[900px]  overflow-y-auto max-h-[90vh]">
         <DialogHeader className="space-y-2">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl md:text-2xl font-bold">Install {APP_NAME}</DialogTitle>
@@ -28,7 +28,7 @@ export function InstallDialog() {
           </p>
         </DialogHeader>
         
-        <div className="grid lg:grid-cols-2 gap-6 mt-8">
+        <div className="grid md:grid-cols-2 gap-6 mt-8">
           {/* iOS Card */}
           <Card className="relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors">
             <CardContent className="pt-6">

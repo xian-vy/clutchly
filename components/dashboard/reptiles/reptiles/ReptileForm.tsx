@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
-import { LocationSelect } from '@/components/dashboard/locations/LocationSelect'
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
 import { useResource } from '@/lib/hooks/useResource'
 import { useSelectList } from '@/lib/hooks/useSelectList'
@@ -417,24 +416,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,profile }: Reptile
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="location_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Housing (Optional)</FormLabel>
-                    <FormControl>
-                      <LocationSelect 
-                        value={field.value || ''} 
-                        onChange={field.onChange}
-                        currentLocationId={initialData?.location_id}
-                        filterByAvailability
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        
                <FormField
                 control={form.control}
                 name="original_breeder"

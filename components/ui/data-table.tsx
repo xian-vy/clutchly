@@ -26,6 +26,7 @@ import { useEffect, useState } from "react"
 import Paginator from "./paginator"
 import { DownloadCommonMorphs } from "../dashboard/reptiles/morphs/DownloadCommonMorphs"
 import { useScreenSize } from "@/lib/hooks/useScreenSize"
+import { Badge } from "./badge"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -124,6 +125,9 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
       <div className="rounded-md lg:min-h-[270px] max-w-[350px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
+          <Badge variant="outline" className="md:hidden float-right my-2 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+          {data.length}  {' Total Records'} 
+          </Badge>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -173,8 +177,8 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex w-full items-center justify-between gap-3 mt-3 sm:mt-5 xl:mt-7">
-             <p className="text-[0.6rem] sm:text-xs md:text-[0.8rem] 3xl:text-sm">
+      <div className="flex w-full items-center justify-center md:justify-between gap-3 mt-5 sm:mt-6 xl:mt-7">
+             <p className="text-[0.6rem] sm:text-xs md:text-[0.8rem] 3xl:text-sm hidden md:block">
                {data.length}  {' Total Records'} 
             </p>
           <div className="flex items-center justify-end space-x-2">

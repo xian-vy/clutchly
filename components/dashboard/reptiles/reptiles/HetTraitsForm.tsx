@@ -55,7 +55,7 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Het Traits</h3>
+      <h3 className="text-sm sm:text-base xl:text-lg font-medium">Het Traits</h3>
       <Card className='shadow-none'>
         <CardContent className="pt-4">
           <div className="grid grid-cols-2 2xl:grid-cols-4 gap-4">
