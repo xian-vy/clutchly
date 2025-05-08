@@ -147,7 +147,7 @@ export function BreedingProjectList({
     },
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: 'Project',
     },
     {
       accessorKey: 'species_name',
