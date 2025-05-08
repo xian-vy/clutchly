@@ -193,50 +193,8 @@ export function ReptileList({
       header: "Morph",
     },
     {
-      accessorKey: "sex",
-      header: "Sex",
-      cell: ({ row }) => {
-        const sex = row.getValue("sex") as keyof typeof SEX_COLORS;
-        return (
-          <Badge
-            variant="custom"
-            className={`${SEX_COLORS[sex.toLowerCase() as keyof typeof SEX_COLORS]} capitalize`}
-          >
-            {sex}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status") as keyof typeof STATUS_COLORS;
-        return (
-          <Badge
-            variant="custom"
-            className={`${STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]} capitalize`}
-          >
-            {status}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: "is_breeder",
-      header: "Breeder",
-      cell: ({ row }) => {
-        const is_breeder = row.getValue("is_breeder") 
-        const label = is_breeder  ? "Yes" : "No";
-        return (
-          <Badge
-            variant="custom"
-            className={`${YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]} capitalize`}
-          >
-            {label}
-          </Badge>
-        );
-      },
+      accessorKey: "acquisition_date",
+      header: "Acquired",
     },
     {
       id: "location",
@@ -271,6 +229,37 @@ export function ReptileList({
       }
     },
     {
+      accessorKey: "sex",
+      header: "Sex",
+      cell: ({ row }) => {
+        const sex = row.getValue("sex") as keyof typeof SEX_COLORS;
+        return (
+          <Badge
+            variant="custom"
+            className={`${SEX_COLORS[sex.toLowerCase() as keyof typeof SEX_COLORS]} capitalize`}
+          >
+            {sex}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "is_breeder",
+      header: "Breeder",
+      cell: ({ row }) => {
+        const is_breeder = row.getValue("is_breeder") 
+        const label = is_breeder  ? "Yes" : "No";
+        return (
+          <Badge
+            variant="custom"
+            className={`${YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]} capitalize`}
+          >
+            {label}
+          </Badge>
+        );
+      },
+    },
+    {
       id: "notes",
       accessorKey: "notes",
       header: "Notes",
@@ -288,8 +277,19 @@ export function ReptileList({
       }
     },
     {
-      accessorKey: "acquisition_date",
-      header: "Acquired",
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("status") as keyof typeof STATUS_COLORS;
+        return (
+          <Badge
+            variant="custom"
+            className={`${STATUS_COLORS[status.toLowerCase() as keyof typeof STATUS_COLORS]} capitalize`}
+          >
+            {status}
+          </Badge>
+        );
+      },
     },
     {
       id: "actions",
