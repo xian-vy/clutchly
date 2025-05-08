@@ -1,0 +1,2 @@
+export const APP_DESCRIPTION = "The digital toolkit for reptile enthusiasts and breeders. Easily manage records for breeding, health, feeding, finances and more.";
+export const APP_TITLE = "Clutchly - Reptile Husbandry Management";

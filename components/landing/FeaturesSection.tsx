@@ -237,7 +237,7 @@ export function FeaturesSection() {
           
           <div className="mt-10 text-center">
             <p className="text-sm text-muted-foreground">
-              All plans include a <span className="font-medium text-foreground">14-day free trial</span>. 
+              All plans include a <span className="font-medium text-foreground">30-day free trial</span>. 
               Need a custom solution? <a href="#" className="text-primary hover:underline">Contact us</a>.
             </p>
           </div>
