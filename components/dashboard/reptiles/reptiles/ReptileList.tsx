@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { SEX_COLORS, STATUS_COLORS, YES_NO_COLORS } from "@/lib/constants/colors";
 import { Reptile } from "@/lib/types/reptile";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, Filter, MapPin, MoreHorizontal, Printer, Star, Trash } from "lucide-react";
+import { Edit, Eye, Filter, MapPin, MoreHorizontal, Printer, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ReptileFilterDialog, ReptileFilters } from "./ReptileFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -316,10 +316,6 @@ export function ReptileList({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem >
-                  <Star className="mr-2 h-4 w-4" />
-                  Mark as Favorite
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={()=>{
                   setSelectedReptile(reptile);
                   setDetailsDialogOpen(true);
