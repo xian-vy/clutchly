@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { APP_DESCRIPTION } from '@/lib/constants/app'
 
 export function HeroSection() {
   const router = useRouter()
@@ -50,7 +51,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
           >
-            Clutchly simplifies reptile data management, allowing you to effortlessly maintain accurate breeding records, monitor health and growth, and optimize husbandry practices.
+            {APP_DESCRIPTION}
           </motion.p>
           <motion.div 
             className="mt-8 flex flex-wrap items-center justify-center gap-4"
