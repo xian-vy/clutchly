@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { APP_DESCRIPTION } from '@/lib/constants/app'
+import { APP_DESCRIPTION, APP_NAME } from '@/lib/constants/app'
 
 export function HeroSection() {
   const router = useRouter()
@@ -30,11 +30,11 @@ export function HeroSection() {
               <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
             </div> */}
             <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-              Welcome to Clutchly
+              Welcome to {APP_NAME}
             </span>
           </motion.div>
           <motion.h1 
-            className="font-bold tracking-tighter text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl 3xl:!text-[5rem]"
+            className="font-bold tracking-tighter text-4xl md:text-6xl 2xl:text-7xl 3xl:!text-[5rem]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}

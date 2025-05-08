@@ -134,7 +134,7 @@ export function FeaturesSection() {
         </div>
 
         {/* Pedigree Feature Showcase */}
-        <div className="mt-24 hidden sm:block">
+        <div className="mt-24 hidden lg:block">
           <div className="flex flex-col items-center gap-4 text-center mb-8">
             <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               Spotlight Feature

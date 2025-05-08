@@ -26,6 +26,7 @@ import { ProfileStep1 } from './ProfileStep1';
 import { ProfileStep2 } from './ProfileStep2';
 import { ProfileStep3 } from './ProfileStep3';
 import { useQuery } from '@tanstack/react-query';
+import { APP_NAME } from '@/lib/constants/app';
 
 // Validation schemas for each step
 export const profileStep1Schema = z.object({
@@ -210,7 +211,7 @@ export function ProfileSetupDialog() {
         <DialogHeader className="p-6 pb-3">
           <DialogTitle className="!text-2xl md:!text-3xl font-bold text-center flex items-center justify-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Welcome to Clutchly
+            Welcome to {APP_NAME}
             <Sparkles className="h-5 w-5 text-primary" />
           </DialogTitle>
           <DialogDescription className="text-center text-base opacity-90">

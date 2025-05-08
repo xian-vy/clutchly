@@ -3,18 +3,18 @@ import { Source_Sans_3 } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "sonner";
 import "./globals.css";
-import { APP_DESCRIPTION, APP_TITLE } from "@/lib/constants/app";
+import { APP_DESCRIPTION, SITE_TITLE, APP_URL, APP_NAME } from "@/lib/constants/app";
 
 const sourceSans = Source_Sans_3({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: APP_TITLE,
+  title: SITE_TITLE,
   description: APP_DESCRIPTION,
   keywords: ["reptile husbandry", "breeding records", "reptile management", "clutchly", "reptile health tracking", "reptile data management"],
   authors: [{ name: "Clutchly Team" }],
-  creator: "Clutchly",
-  publisher: "Clutchly",
-  metadataBase: new URL("https://clutchly.vercel.app"), 
+  creator: APP_NAME,
+  publisher: APP_NAME,
+  metadataBase: new URL(APP_URL), 
   alternates: {
     canonical: "/",
     languages: {
@@ -22,16 +22,16 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: APP_TITLE,
+    title: SITE_TITLE,
     description: APP_DESCRIPTION,
-    url: "https://clutchly.vercel.app",
-    siteName: "Clutchly",
+    url: APP_URL,
+    siteName: APP_NAME,
     images: [
       {
         url: "/og.png", 
         width: 745,
         height: 881,
-        alt: APP_TITLE,
+        alt: SITE_TITLE,
       },
     ],
     locale: "en_US",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: APP_TITLE,
+    title: SITE_TITLE,
     description: APP_DESCRIPTION,
     images: ["/og.png"], 
     creator: "@clutchly", 

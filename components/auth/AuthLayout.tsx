@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { CircleCheck,  Zap } from 'lucide-react'
+import { APP_NAME } from '@/lib/constants/app'
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -26,7 +27,7 @@ export function AuthLayout({ children, mode }: AuthLayoutProps) {
           >
             Welcome to{' '}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Clutchly
+            {APP_NAME}
             </span>
           </motion.h1>
           <motion.p 
