@@ -80,7 +80,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-2 sm:space-y-4 w-full">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="flex  items-center justify-between gap-3">
         <div className="flex items-center space-x-2 w-full md:w-auto">
           {filterButton ? (
             filterButton
@@ -124,6 +124,9 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
       <div className="rounded-md lg:min-h-[270px] max-w-[350px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
+          <p  className="md:hidden float-right text-[0.65rem] sm:text-xs  mt-2 mb-3">
+          {data.length}  {' Total Records'} 
+          </p>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -173,8 +176,8 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex w-full items-center justify-between gap-3 mt-3 sm:mt-5 xl:mt-7">
-             <p className="text-[0.6rem] sm:text-xs md:text-[0.8rem] 3xl:text-sm">
+      <div className="flex w-full items-center justify-center md:justify-between gap-3 mt-5 sm:mt-6 xl:mt-7">
+             <p className="text-[0.6rem] sm:text-xs md:text-[0.8rem] 3xl:text-sm hidden md:block">
                {data.length}  {' Total Records'} 
             </p>
           <div className="flex items-center justify-end space-x-2">

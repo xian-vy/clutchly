@@ -121,8 +121,7 @@ export function GrowthReportsTab() {
             placeholder="Select a reptile"
         />
       </div>
-
-      {selectedReptileId && reptileEntries.length > 0 ? (
+      {selectedReptileId && reptileEntries.length > 0 && (
         <Tabs defaultValue="overview" className="w-full space-y-5">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -373,14 +372,6 @@ export function GrowthReportsTab() {
             </Card>
           </TabsContent>
         </Tabs>
-      ) : (
-        <div className="text-center py-10">
-          {selectedReptileId ? (
-            <p>No growth data available for this reptile.</p>
-          ) : (
-            <p>Select a reptile to view growth reports.</p>
-          )}
-        </div>
       )}
     </div>
   );

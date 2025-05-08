@@ -21,7 +21,7 @@ export function HelpDialog() {
       <DialogTrigger className="text-[0.8rem] 3xl:text-sm text-muted-foreground hover:text-primary transition">
           Help
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl md:text-2xl font-bold">Welcome to {APP_NAME}</DialogTitle>
         </DialogHeader>
