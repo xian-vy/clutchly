@@ -126,10 +126,10 @@ export function SalesTab() {
       </Dialog>
 
       <Dialog open={isDetailsDialogOpen} onOpenChange={handleCloseSaleDetails}>
-        <DialogContent className="sm:max-w-[800px]">
+        <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-screen-md">
           <DialogTitle className='flex flex-col items-start gap-2 text-base'>
             {`Sale Record: ${selectedSaleForDetails?.invoice_number || selectedSaleForDetails?.id?.slice(0, 8)}`}
-            <div className="flex justify-between w-full items-center">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between w-full gap-2">
                 <div className="flex items-center gap-3">
                   <Badge variant="custom" className={`${SALES_STATUS_COLORS[selectedSaleForDetails?.status?.toLowerCase() as keyof typeof SALES_STATUS_COLORS]} !capitalize`}>
                       {selectedSaleForDetails?.status}

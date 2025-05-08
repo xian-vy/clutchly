@@ -62,18 +62,19 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
             {lastShedding ? (
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span>Date:</span>
-                  <span>{formatDate(lastShedding.date)}</span>
+                  <span className="text-xs sm:text-sm">Date:</span>
+                  <span className="text-xs sm:text-sm">{formatDate(lastShedding.date)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>Type:</span>
-                  <span>
+                  <span className="text-xs sm:text-sm">Type:</span>
+                  <span className="text-xs sm:text-sm">
                     {lastShedding.subcategory?.label && <span>{lastShedding.subcategory.label}</span>}
                     {lastShedding.type?.label && <span> - {lastShedding.type.label}</span>}
                   </span>
                 </div>
                 {lastShedding.notes && (
-                  <div className="text-sm text-muted-foreground mt-2">
+                    <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm">Notes:</span>
                     <p className="line-clamp-2">{lastShedding.notes}</p>
                   </div>
                 )}
@@ -92,24 +93,25 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
             {lastDefecation ? (
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span>Date:</span>
-                  <span>{formatDate(lastDefecation.date)}</span>
+                  <span className="text-xs sm:text-sm">Date:</span>
+                  <span className="text-xs sm:text-sm">{formatDate(lastDefecation.date)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>Type:</span>
-                  <span>
+                  <span className="text-xs sm:text-sm">Type:</span>
+                  <span className="text-xs sm:text-sm">
                     {lastDefecation.subcategory?.label && <span>{lastDefecation.subcategory.label}</span>}
                     {lastDefecation.type?.label && <span> - {lastDefecation.type.label}</span>}
                   </span>
                 </div>
                 {lastDefecation.notes && (
-                  <div className="text-sm text-muted-foreground mt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs sm:text-sm">Notes:</span>
                     <p className="line-clamp-2">{lastDefecation.notes}</p>
                   </div>
                 )}
               </div>
             ) : (
-              <p className="text-muted-foreground">No defecation records available</p>
+              <p className="text-muted-foreground text-xs sm:text-sm">No defecation records available</p>
             )}
           </CardContent>
         </Card>
@@ -123,7 +125,7 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
         </CardHeader>
         <CardContent className="py-4 space-y-6">
           {activeIssues.length > 0 && (
-            <div>
+            <div className="max-w-[320px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
               <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
                 <AlertTriangle className="h-4 w-4 text-yellow-500" />
                 Active Health Issues ({activeIssues.length})
@@ -166,8 +168,8 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
           )}
 
           {resolvedIssues.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium mb-2">Past Health Records</h4>
+            <div className="max-w-[320px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
+              <h4 className="text-sm font-medium mb-2 ">Past Health Records</h4>
               <Table>
                 <TableHeader>
                   <TableRow>
