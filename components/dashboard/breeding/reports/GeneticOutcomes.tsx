@@ -96,7 +96,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="max-w-[360px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
+          <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
           <Table>
             <TableHeader>
               <TableRow>

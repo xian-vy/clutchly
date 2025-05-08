@@ -137,12 +137,22 @@ export function SalesRecordList({
       }
     },
     {
-      header: "SP & Morph",
+      header: "Species",
       cell: ({ row }) => {
         const record = row.original;
         return (
           <div className="text-xs">
             <p>{record.species_name || "Unknown"}</p>
+          </div>
+        );
+      }
+    },
+    {
+      header: "Morph",
+      cell: ({ row }) => {
+        const record = row.original;
+        return (
+          <div className="text-xs">
             <p>{record.morph_name || "Unknown"}</p>
           </div>
         );

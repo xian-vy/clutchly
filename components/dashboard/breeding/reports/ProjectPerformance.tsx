@@ -73,7 +73,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="py-0 px-4">
-        <div className="max-w-[360px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
+        <div className="max-w-[330px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow>
@@ -290,7 +290,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                         
                         <TabsContent value="table" className="mt-0">
                           {project.clutches.length > 0 ? (
-                           <div className="max-w-[320px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
+                           <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
                               <Table>
                                 <TableHeader className="bg-muted/30">
                                   <TableRow>

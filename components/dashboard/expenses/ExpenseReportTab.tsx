@@ -97,14 +97,14 @@ export function ExpenseReportTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-sm lg:text-lg font-semibold tracking-tight text-start">Expenses Reports</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-start text-muted-foreground">
               Comprehensive analysis of your expense data and trends
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex  gap-2">
             <TimeRangeSelector
               value={timePeriod}
               onChange={handleTimePeriodChange}
