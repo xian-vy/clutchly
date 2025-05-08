@@ -148,9 +148,9 @@ const handleEnclosureClick = async (locationId: string | null) => {
     <>
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center justify-between">
+        <CardTitle className="text-sm sm:text-base md:text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <LayoutGrid className="h-5 w-5" />
+            <LayoutGrid className="h-4 w-4" />
             <span>{selectedRack.name}</span>
           </div>
           <Badge variant="outline" className="ml-auto !text-xs">
@@ -186,7 +186,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
             <div className="space-y-4 max-h-[450px] overflow-y-auto">
               {levels.map(level => (
                 <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center">
-                  <div className="w-24  text-right font-medium text-xs">
+                  <div className="w-14 sm:w-16 lg:w-20 xl:w-24  text-right font-medium text-[0.7rem] sm:text-xs">
                     Level {level}
                   </div>
                   
@@ -212,7 +212,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
                               `}
                             >
                               <div onClick={() => handleEnclosureClick(location ? location.id : null)} className="cursor-pointer flex flex-col items-center ">
-                                <span className="text-xs font-medium text-black dark:text-white text-center  w-18 truncate">
+                                <span className="text-[0.7rem] sm:text-xs font-medium text-black dark:text-white text-center  w-18 truncate">
                                   {reptile ? reptile.name : `L${level}-P${position}`}
                                 </span>
                                 <Badge 

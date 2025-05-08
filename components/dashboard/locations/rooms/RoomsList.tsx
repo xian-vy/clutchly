@@ -61,7 +61,7 @@ function RoomCard({ room, onEdit }: RoomCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="text-sm sm:text-base md:text-lg flex items-center gap-2">
           <Building2 className="h-4 w-4 text-primary" />
           {room.name}
         </CardTitle>

@@ -90,7 +90,7 @@ function RackCard({ rack, roomName, onEdit }: RackCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="text-sm sm:text-base md:text-lg flex items-center gap-2">
           <LayoutGrid className="h-4 w-4 text-primary" /> 
           {rack.name}
         </CardTitle>
