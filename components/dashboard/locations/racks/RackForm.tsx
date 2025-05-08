@@ -151,44 +151,44 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
                     </FormItem>
                   )}
                 />
-                
-                <FormField
-                  control={form.control}
-                  name="room_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Room</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a room" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {rooms.map((room) => (
-                            <SelectItem key={room.id} value={room.id}>{room.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Rack Type</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="e.g., CB70, Freedom Breeder, PVC Cage, etc." />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="room_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Room</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className='w-full'>
+                                <SelectValue placeholder="Select a room" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {rooms.map((room) => (
+                                <SelectItem key={room.id} value={room.id}>{room.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Rack Type</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., CB70, Freedom Breeder, PVC Cage, etc." />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -247,7 +247,7 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
                 />
                 
                 <div className="flex justify-between items-center pt-4">
-                  <div className="text-sm">
+                  <div className="text-xs sm:text-sm">
                     <span className="text-muted-foreground">Will create </span>
                     <span className="font-semibold">{totalLocations}</span>
                     <span className="text-muted-foreground"> enclosures</span>
@@ -282,7 +282,7 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
             </Form>
           </TabsContent>
           
-          <TabsContent value="preview" className="space-y-4 pt-4">
+          <TabsContent value="preview" className="space-y-4 pt-4 max-w-[360px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
             <LocationsVisualizer
               selectedRoom={selectedRoom}
               selectedRack={{

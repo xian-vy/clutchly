@@ -65,7 +65,7 @@ export function LocationsList({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1">
                   <Filter className="h-4 w-4" />
-                  Filter by Rack
+                  Filter
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -81,7 +81,7 @@ export function LocationsList({
             </DropdownMenu>
           </div>
           {rooms.map(room => (
-            <TabsContent key={room.id} value={room.id} className=' max-w-[380px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto'>
+            <TabsContent key={room.id} value={room.id} className=' max-w-[360px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto'>
               <div className="space-y-4">
                 {filteredRacks
                   .filter(rack => rack.room_id === room.id)
