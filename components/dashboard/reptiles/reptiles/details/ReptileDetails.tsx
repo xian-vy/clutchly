@@ -80,9 +80,9 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-screen-md lg:max-w-screen-lg h-[90vh] overflow-hidden p-0">
+      <DialogContent className="sm:max-w-[620px] md:max-w-[700px] lg:max-w-screen-lg h-[90vh] overflow-hidden p-0">
         <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between">
-          <DialogTitle className="text-2xl flex items-center gap-2">
+          <DialogTitle className="text-base md:text-lg flex items-center gap-2">
             {reptile.name}
             <div className="flex gap-2">
               {reptile.is_breeder && (
@@ -110,7 +110,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full h-full">
-          <TabsList className="px-6">
+          <TabsList className="px-6 max-w-[320px] sm:max-w-full overflow-x-auto w-full flex justify-start">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="growth">Growth</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
