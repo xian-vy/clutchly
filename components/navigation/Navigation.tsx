@@ -17,6 +17,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Dot, Loader2, Menu } from 'lucide-react';
 import dynamic from 'next/dynamic'
+import { APP_NAME } from '@/lib/constants/app';
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
   loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
@@ -110,7 +111,7 @@ export function Navigation() {
           />
           {!isCollapsed && (
             <div className="flex flex-col items-start">
-               <span className="font-semibold text-lg text-sidebar-foreground">Clutchly</span>
+               <span className="font-semibold text-lg text-sidebar-foreground">{APP_NAME}</span>
                <span className="text-xs font-medium text-muted-foreground">Reptile Husbandry Management</span>
             </div>
           )}

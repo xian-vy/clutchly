@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { APP_NAME } from '@/lib/constants/app'
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -136,7 +137,7 @@ export function SignUpForm() {
         <div>
           <h2 className="text-2xl md:text-3xl font-bold">Create Account</h2>
           <p className="mt-2 text-muted-foreground">
-            Join Clutchly today and start managing your collection.
+            Join {APP_NAME} today and start managing your collection.
           </p>
         </div>
 

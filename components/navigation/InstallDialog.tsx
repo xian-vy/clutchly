@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
+import { APP_NAME } from "@/lib/constants/app";
 import { Chrome, Globe, Plus, Share2, Smartphone } from "lucide-react";
 
 export function InstallDialog() {
@@ -19,11 +20,11 @@ export function InstallDialog() {
       <DialogContent className="sm:max-w-[600px] 2xl:max-w-[900px]">
         <DialogHeader className="space-y-2">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl md:text-2xl font-bold">Install Clutchly</DialogTitle>
+            <DialogTitle className="text-xl md:text-2xl font-bold">Install {APP_NAME}</DialogTitle>
 
           </div>
           <p className="text-sm text-muted-foreground">
-            Install Clutchly on your mobile device for the best experience. Choose your platform below:
+            Install {APP_NAME} on your mobile device for the best experience. Choose your platform below:
           </p>
         </DialogHeader>
         
