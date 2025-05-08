@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Clock, Download, Filter, Calendar } from 'lucide-react'
+import { Clock, Download, Filter } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { addDays } from 'date-fns'
 import { createBackup } from '@/app/api/download/download'
@@ -82,22 +82,20 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
           <label className="text-sm font-medium">Date Range</label>
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <input
                 type="date"
                 value={dateRange.from.toISOString().split('T')[0]}
                 onChange={(e) => setDateRange(prev => ({ ...prev, from: new Date(e.target.value) }))}
-                className="w-full pl-8 border rounded-md px-3 py-2"
+                className="w-full  border rounded-md px-3 py-2"
               />
             </div>
             <span className="text-muted-foreground">to</span>
             <div className="relative flex-1">
-              <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <input
                 type="date"
                 value={dateRange.to.toISOString().split('T')[0]}
                 onChange={(e) => setDateRange(prev => ({ ...prev, to: new Date(e.target.value) }))}
-                className="w-full pl-8 border rounded-md px-3 py-2"
+                className="w-full  border rounded-md px-3 py-2"
               />
             </div>
           </div>

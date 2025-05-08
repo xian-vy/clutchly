@@ -36,7 +36,7 @@ export function CollectionOverview({
       <CardContent>
         <Tabs defaultValue="species">
           <ScrollArea className="w-full -mx-1 px-1">
-            <TabsList className="mb-4 w-full flex justify-start">
+            <TabsList className="mb-4 w-full flex justify-start max-w-[310px] sm:max-w-full overflow-x-auto">
               <TabsTrigger value="species">Species</TabsTrigger>
               <TabsTrigger value="morphs">Morphs</TabsTrigger>
               <TabsTrigger value="breeding">Breeding</TabsTrigger>

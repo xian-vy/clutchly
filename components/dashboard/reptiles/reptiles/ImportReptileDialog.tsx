@@ -261,7 +261,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         return (
           <div className="space-y-6">
             <div 
-              className={`border-2 border-dashed rounded-lg p-10 text-center ${
+              className={`border-2 border-dashed rounded-lg p-5 sm:p-7 md:p-10 text-center ${
                 dragActive ? 'border-primary bg-primary/5' : 'border-gray-300 dark:border-gray-600'
               }`}
               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragActive(true); }}
@@ -313,18 +313,18 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
               <Info className="h-4 w-4" />
               <AlertTitle>Import Guidelines</AlertTitle>
               <AlertDescription>
-                <ul className="text-sm list-disc pl-5 mt-2 space-y-1 grid lg:grid-cols-2 gap-x-3 lg:gap-x-6">
+                <ul className="text-sm list-disc pl-5 mt-2 space-y-0.5 sm:space-y-1 grid lg:grid-cols-2 gap-x-3 lg:gap-x-6 max-h-[100px] md:max-h-full overflow-y-auto">
                   <>
-                    <li>Maximum file size: 2MB</li>
-                    <li>Maximum 500 rows per file</li>
-                    <li>Required fields: name, sex, species, acquisition_date</li>
-                    <li>CSV or Excel (.xlsx) formats only</li>
+                    <li className='text-[0.7rem] sm:text-xs xl:text-sm'>Maximum file size: 2MB</li>
+                    <li className='text-[0.7rem] sm:text-xs xl:text-sm'>Maximum 500 rows per file</li>
+                    <li className='text-[0.7rem] sm:text-xs xl:text-sm'>Required fields: name, sex, species, acquisition_date</li>
+                    <li className='text-[0.7rem] sm:text-xs xl:text-sm'>CSV or Excel (.xlsx) formats only</li>
                   </>
                   <>
-                    <li>For parent relationships, use mother and father fields</li>
-                    <li>Parents must appear before their offspring in the file</li>
-                    <li>Visual traits should be in format: &quot;albino, normal&quot;</li>
-                    <li>Het traits should be in format: &quot;66% albino, 33% stripe&quot;</li>
+                    <li className='text-[0.7rem] sm:text-xs xl:text-sm'>For parent relationships, use mother and father fields</li>
+                    <li className='text-[0.7rem] sm:text-xs xl:text-sm'>Parents must appear before their offspring in the file</li>
+                    <li className='text-[0.7rem] sm:text-xs xl:text-sm'>Visual traits should be in format: &quot;albino, normal&quot;</li>
+                    <li className='text-[0.7rem] sm:text-xs xl:text-sm'>Het traits should be in format: &quot;66% albino, 33% stripe&quot;</li>
                   </>
                 </ul>
                 <div className="mt-2">

@@ -123,7 +123,7 @@ export function DataTable<TData, TValue>({
           />
         </div>
       </div>
-      <div className="rounded-md lg:min-h-[270px] max-w-[370px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
+      <div className="rounded-md lg:min-h-[270px] max-w-[350px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
