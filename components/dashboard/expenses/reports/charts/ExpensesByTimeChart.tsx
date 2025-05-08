@@ -1,10 +1,11 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Area, ComposedChart,  ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, CartesianGrid, ComposedChart,  ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format, parseISO, isValid } from 'date-fns';
 import { TimePeriod } from '../TimeRangeSelector';
-import { formatCurrency } from '@/lib/utils';
+import { formatChartAmount, formatCurrency } from '@/lib/utils';
+import { useScreenSize } from '@/lib/hooks/useScreenSize';
 
 interface ExpensesByTimeChartProps {
   data: {
@@ -15,6 +16,8 @@ interface ExpensesByTimeChartProps {
 }
 
 export function ExpensesByTimeChart({ data, period }: ExpensesByTimeChartProps) {
+  const screen = useScreenSize();
+
   // Transform the data to have a 'date' property instead of 'expense_date'
   const transformedData = data.map(item => ({
     ...item,
@@ -85,24 +88,32 @@ export function ExpensesByTimeChart({ data, period }: ExpensesByTimeChartProps) 
         <CardTitle>Expenses Over Time</CardTitle>
         <CardDescription>Trends in expenses over the {period} period</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className='px-0 2xl:pl-2 2xl:pr-4'>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={transformedData}>
+            <ComposedChart data={transformedData}
+            margin={{
+              top: screen === 'mobile' ? 10: 20,
+              right: screen === 'mobile' ?  20: 30,
+              left: screen === 'mobile' ? 0 : 20,
+              bottom: 5,
+            }}
+            >
+             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-input)" />
               <XAxis
                 dataKey="date"
                 stroke="#888888"
-                fontSize={12}
+                fontSize={screen === 'mobile' ? 10 : 12}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={formatDate}
               />
               <YAxis
                 stroke="#888888"
-                fontSize={12}
+                fontSize={screen === 'mobile' ? 10 : 12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => formatCurrency(value)}
+                tickFormatter={formatChartAmount}
               />
               <Tooltip
                 content={({ active, payload }) => {

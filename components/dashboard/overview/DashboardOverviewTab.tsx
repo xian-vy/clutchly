@@ -218,7 +218,7 @@ export function DashboardOverviewTab() {
                   <TabsTrigger value="1">Sales</TabsTrigger>
                 </TabsList>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1">
                 <TimeRangeSelector
                   dateRange={dateRange}
                   onDateRangeChange={handleDateRangeChange}
@@ -234,7 +234,6 @@ export function DashboardOverviewTab() {
                     className="h-9"
                   >
                     <FilterX className="h-4 w-4 " />
-                    Clear
                   </Button>
                 )}
             </div>

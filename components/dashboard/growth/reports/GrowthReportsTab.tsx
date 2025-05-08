@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useScreenSize } from '@/lib/hooks/useScreenSize';
 import { useGrowthStore } from '@/lib/stores/growthStore';
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export function GrowthReportsTab() {
+  const screen = useScreenSize();
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
   const { 
     entries, 
@@ -138,41 +140,41 @@ export function GrowthReportsTab() {
                 {growthStats ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Time Period</h3>
+                      <h3 className="text-sm sm:text-base xl:text-lg font-medium">Time Period</h3>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-sm text-muted-foreground">First Measurement</p>
-                          <p className="font-medium">{format(new Date(growthStats.firstDate), 'MMM d, yyyy')}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">First Measurement</p>
+                          <p className="text-xs sm:text-sm font-medium">{format(new Date(growthStats.firstDate), 'MMM d, yyyy')}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Last Measurement</p>
-                          <p className="font-medium">{format(new Date(growthStats.lastDate), 'MMM d, yyyy')}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Last Measurement</p>
+                          <p className="text-xs sm:text-sm font-medium">{format(new Date(growthStats.lastDate), 'MMM d, yyyy')}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Duration</p>
-                          <p className="font-medium">{growthStats.daysBetween} days</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Duration</p>
+                          <p className="text-xs sm:text-sm font-medium">{growthStats.daysBetween} days</p>
                         </div>
                       </div>
                     </div>
                     
                     <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Growth Metrics</h3>
+                      <h3 className="text-sm sm:text-base xl:text-lg font-medium">Growth Metrics</h3>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <p className="text-sm text-muted-foreground">Weight Gain</p>
-                          <p className="font-medium">{growthStats.weightGain.toFixed(1)}g ({growthStats.weightGainPercentage.toFixed(1)}%)</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Weight Gain</p>
+                          <p className="text-xs sm:text-sm font-medium">{growthStats.weightGain.toFixed(1)}g ({growthStats.weightGainPercentage.toFixed(1)}%)</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Length Gain</p>
-                          <p className="font-medium">{growthStats.lengthGain.toFixed(1)}cm ({growthStats.lengthGainPercentage.toFixed(1)}%)</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Length Gain</p>
+                          <p className="text-xs sm:text-sm font-medium">{growthStats.lengthGain.toFixed(1)}cm ({growthStats.lengthGainPercentage.toFixed(1)}%)</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Daily Weight Gain</p>
-                          <p className="font-medium">{growthStats.weightGainPerDay.toFixed(2)}g/day</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Daily Weight Gain</p>
+                          <p className="text-xs sm:text-sm font-medium">{growthStats.weightGainPerDay.toFixed(2)}g/day</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Daily Length Gain</p>
-                          <p className="font-medium">{growthStats.lengthGainPerDay.toFixed(2)}cm/day</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Daily Length Gain</p>
+                          <p className="text-xs sm:text-sm font-medium">{growthStats.lengthGainPerDay.toFixed(2)}cm/day</p>
                         </div>
                       </div>
                     </div>
@@ -192,8 +194,8 @@ export function GrowthReportsTab() {
                 {growthStats ? (
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Growth Rate Analysis</h3>
-                      <p>
+                      <h3 className="text-sm sm:text-base xl:text-lg font-medium mb-2">Growth Rate Analysis</h3>
+                      <p className='text-xs sm:text-sm'>
                         {growthStats.weightGainPerDay > 0.5 
                           ? "Your reptile is showing excellent growth rates. Continue with current feeding and husbandry practices."
                           : growthStats.weightGainPerDay > 0.2
@@ -203,12 +205,12 @@ export function GrowthReportsTab() {
                     </div>
                     
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Recommendations</h3>
+                      <h3 className="text-sm sm:text-base xl:text-lg font-medium mb-2">Recommendations</h3>
                       <ul className="list-disc pl-5 space-y-1">
-                        <li>Continue regular weight and length measurements every 2-4 weeks</li>
-                        <li>Document any changes in feeding behavior or appetite</li>
-                        <li>Consider seasonal variations in growth rates</li>
-                        <li>Compare with species-specific growth charts if available</li>
+                        <li className='text-xs sm:text-sm'>Continue regular weight and length measurements every 2-4 weeks</li>
+                        <li className='text-xs sm:text-sm'>Document any changes in feeding behavior or appetite</li>
+                        <li className='text-xs sm:text-sm'>Consider seasonal variations in growth rates</li>
+                        <li className='text-xs sm:text-sm'>Compare with species-specific growth charts if available</li>
                       </ul>
                     </div>
                   </div>
@@ -236,12 +238,16 @@ export function GrowthReportsTab() {
                   <option value="length">Length Only</option>
                 </select>
               </CardHeader>
-              <CardContent>
+              <CardContent className='px-0 2xl:pl-2 2xl:pr-4'>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={chartData.reverse()}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      margin={{ 
+                        top: 5,
+                        right: screen === 'mobile' ?  0: 30,
+                        left: screen === 'mobile' ? 0 : 20,
+                        bottom: 5 }}
                     >
                       <CartesianGrid 
                         strokeDasharray="3 3" 
@@ -250,7 +256,7 @@ export function GrowthReportsTab() {
                       <XAxis 
                         dataKey="date" 
                         stroke="var(--color-muted-foreground)"
-                        fontSize={12}
+                        fontSize={screen === 'mobile' ? 10 : 12}
                       />
                       {(selectedMetric === 'both' || selectedMetric === 'weight') && (
                         <YAxis 
@@ -258,11 +264,12 @@ export function GrowthReportsTab() {
                           label={{ 
                             value: 'Weight (g)', 
                             angle: -90, 
+                            fontSize:screen ==='mobile'? 10 : 13,
                             position: 'insideLeft',
-                            style: { fill: 'var(--color-muted-foreground)' }
+                            style: { fill: 'var(--color-muted-foreground)',display: screen === 'mobile' ? 'none' : 'block' }
                           }}
                           stroke="var(--color-chart-1)"
-                          fontSize={12}
+                          fontSize={screen === 'mobile' ? 10 : 12}
                         />
                       )}
                       {(selectedMetric === 'both' || selectedMetric === 'length') && (
@@ -272,11 +279,12 @@ export function GrowthReportsTab() {
                           label={{ 
                             value: 'Length (cm)', 
                             angle: 90, 
+                            fontSize:screen ==='mobile'? 10 : 13,
                             position: 'insideRight',
-                            style: { fill: 'var(--color-muted-foreground)' }
+                            style: { fill: 'var(--color-muted-foreground)',display: screen === 'mobile' ? 'none' : 'block' }
                           }}
                           stroke="var(--color-chart-2)"
-                          fontSize={12}
+                          fontSize={screen === 'mobile' ? 10 : 12}
                         />
                       )}
                       <Tooltip 

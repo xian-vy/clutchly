@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import React from 'react'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { MonthlyTrendsTooltip } from './CustomTooltips'
+import { useScreenSize } from '@/lib/hooks/useScreenSize';
 
 interface MonthlyTrendsProps {
   monthlyTrends: {
@@ -12,6 +13,8 @@ interface MonthlyTrendsProps {
   }[];
 }
 const MonthlyTrends = ({monthlyTrends} : MonthlyTrendsProps) => {
+  const screen = useScreenSize();
+
   return (
 
     <Card>
@@ -23,13 +26,13 @@ const MonthlyTrends = ({monthlyTrends} : MonthlyTrendsProps) => {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={monthlyTrends}
-          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          margin={{ top: 20, right: 30, left: screen === 'mobile' ? 0 : 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3"
           stroke="var(--color-border)"
           />
-          <XAxis dataKey="month" style={{ fontSize: '12px' }} />
-          <YAxis style={{ fontSize: '12px' }}/>
+          <XAxis dataKey="month" style={{ fontSize: screen === 'mobile' ? '10px': '12px' }} />
+          <YAxis style={{ fontSize: '12px' }} width={screen === 'mobile' ? 20 : 30}/>
           <Tooltip content={<MonthlyTrendsTooltip />} />
           <Legend 
             wrapperStyle={{ 

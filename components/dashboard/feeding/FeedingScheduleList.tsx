@@ -131,7 +131,7 @@ export function FeedingScheduleList({
   return (
     <Card className='shadow-none'>
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
+        <div className=" max-w-[340px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
           <Table className="border-b">
             <TableHeader>
               <TableRow className="hover:bg-transparent">

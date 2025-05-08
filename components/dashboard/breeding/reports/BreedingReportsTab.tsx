@@ -14,12 +14,14 @@ import { BreedingReportFilters as FilterComponent } from './BreedingReportFilter
 import { BreedingStatistics } from './BreedingStatistics';
 import { GeneticOutcomes } from './GeneticOutcomes';
 import { ProjectPerformance } from './ProjectPerformance';
+import { useScreenSize } from '@/lib/hooks/useScreenSize';
 
 export function BreedingReportsTab() {
   const [activeTab, setActiveTab] = useState('statistics');
   const [filters, setFilters] = useState<BreedingReportFilters>({});
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { species } = useSpeciesStore();
+  const screen = useScreenSize()
   
   // Update filters when date range changes
   const handleDateRangeChange = (newRange: DateRange | undefined) => {
@@ -106,12 +108,12 @@ export function BreedingReportsTab() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-sm lg:text-lg font-semibold tracking-tight text-start">Breeding Reports</h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-start text-muted-foreground">
             Comprehensive analysis of your breeding projects and outcomes
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex items-center gap-2">
           <DatePickerWithRange 
             date={dateRange} 
             onDateChange={handleDateRangeChange} 
@@ -138,11 +140,11 @@ export function BreedingReportsTab() {
           </TabsTrigger>
           <TabsTrigger value="projects" className="flex items-center gap-2">
             <Database className="h-4 w-4 mr-2" />
-            Project Analysis
+            {screen === 'mobile' ? 'Analysis' : 'Project Analysis' }
           </TabsTrigger>
           <TabsTrigger value="genetics" className="flex items-center gap-2">
             <PieChart className="h-4 w-4 mr-2" />
-            Genetic Outcomes
+            {screen === 'mobile' ? 'Outcomes' : 'Genetic Outcomes' }
           </TabsTrigger>
         </TabsList>
         

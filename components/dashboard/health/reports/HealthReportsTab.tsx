@@ -3,12 +3,11 @@
 import { getHealthCategories } from '@/app/api/health/categories';
 import { getHealthLogs } from '@/app/api/health/entries';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useResource } from '@/lib/hooks/useResource';
 import { CreateHealthLogEntryInput, HealthLogCategory, HealthLogEntry } from '@/lib/types/health';
 import { NewReptile, Reptile } from '@/lib/types/reptile';
-import { FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { AnalysisTab } from './AnalysisTab';
 import { FilterControls } from './FilterControls';
@@ -159,13 +158,13 @@ export function HealthReportsTab() {
   };
   
   // Export functions
-  const exportToCSV = () => {
-    console.log('Export to CSV functionality will be implemented');
-  };
+  // const exportToCSV = () => {
+  //   console.log('Export to CSV functionality will be implemented');
+  // };
   
-  const exportToPDF = () => {
-    console.log('Export to PDF functionality will be implemented');
-  };
+  // const exportToPDF = () => {
+  //   console.log('Export to PDF functionality will be implemented');
+  // };
   
   // Check if any data is still loading
   const isLoading = isHealthLogsLoading || isReptilesLoading || isCategoriesLoading;
@@ -182,12 +181,12 @@ export function HealthReportsTab() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-start text-muted-foreground">Health Reports</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-base sm:text-lg lg:text-xl font-semibold tracking-tight text-start text-muted-foreground">Health Reports</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Comprehensive analysis of your health and events.
           </p>
           </div>
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <Button variant="outline" onClick={exportToCSV}>
             <FileSpreadsheet className="h-4 w-4 mr-1" />
             Export CSV
@@ -196,7 +195,7 @@ export function HealthReportsTab() {
             <FileText className="h-4 w-4 mr-1" />
             Export PDF
           </Button>
-        </div>
+        </div> */}
       </div>
       
       <FilterControls

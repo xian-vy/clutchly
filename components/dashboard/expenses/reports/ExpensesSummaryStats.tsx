@@ -35,7 +35,7 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
   const topCategoryAmount = summary.expensesByCategory[topCategory] || 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">

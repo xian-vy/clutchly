@@ -11,3 +11,14 @@ export function formatCurrency(amount: number): string {
     currency: 'USD'
   }).format(amount)
 }
+
+export const formatChartAmount = (value: number): string => {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`;
+  } else if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)}k`;
+  } else if (value >= 100) {
+    return `${Math.round(value / 100)}h`;
+  }
+  return value.toString();
+};

@@ -45,7 +45,7 @@ export function VirtualTable({
   return (
     <div 
       ref={tableContainerRef} 
-      className="h-[400px] overflow-auto border rounded-md relative"
+      className="h-[400px]  max-w-[340px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto  border rounded-md relative"
     >
       {/* Table Header */}
       <div className="sticky top-0 bg-background z-10 border-b">
@@ -54,7 +54,7 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('scheduled_date')}
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-xs sm:text-sm">
               Date
               <SortIcon field="scheduled_date" />
             </div>
@@ -63,7 +63,7 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('reptile_name')}
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-xs sm:text-sm">
               Reptile
               <SortIcon field="reptile_name" />
             </div>
@@ -72,7 +72,7 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('species_name')}
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-xs sm:text-sm">
               Species
               <SortIcon field="species_name" />
             </div>
@@ -81,7 +81,7 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('morph_name')}
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-xs sm:text-sm">
               Morph
               <SortIcon field="morph_name" />
             </div>
@@ -90,12 +90,12 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('fed')}
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-xs sm:text-sm">
               Status
               <SortIcon field="fed" />
             </div>
           </div>
-          <div className="flex-1 p-3 font-medium text-sm">
+          <div className="flex-1 p-3 font-medium text-xs sm:text-sm">
             Notes
           </div>
         </div>
@@ -125,21 +125,21 @@ export function VirtualTable({
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
               >
-                <div className="flex-1 p-3">
-                  <div className="flex items-center gap-1 " >
+                <div className="flex-1 p-2 md:p-3">
+                  <div className="flex items-center gap-1 text-xs sm:text-sm text-nowrap" >
                     <CalendarIcon className="h-3 w-3 text-muted-foreground" />
                     {format(new Date(event.scheduled_date), 'MMM d, yyyy')}
                   </div>
                 </div>
-                <div className="flex-1 p-3">{event.reptile_name}</div>
-                <div className="flex-1 p-3">{event.species_name}</div>
-                <div className="flex-1 p-3">{event.morph_name || '-'}</div>
-                <div className="flex-1 p-3">
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.reptile_name}</div>
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.species_name}</div>
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.morph_name || '-'}</div>
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">
                   <Badge variant={event.fed ? "outline" : "secondary"}>
                     {event.fed ? "Fed" : "Not Fed"}
                   </Badge>
                 </div>
-                <div className="flex-1 p-3 max-w-[250px] truncate">
+                <div className="flex-1 p-2 md:p-3 max-w-[250px] truncate">
                   {event.notes || '-'}
                 </div>
               </div>

@@ -49,7 +49,7 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
   // const topMorph = morphData && morphData.length > 0 ? morphData[0] : null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Total Sales */}
       <Card>
         <CardHeader className="pb-2">

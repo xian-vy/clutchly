@@ -26,7 +26,7 @@ interface OverviewTabProps {
 export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Health Issues</CardTitle>
@@ -50,7 +50,7 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
             <CardTitle className="text-sm font-medium">Resolution Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.resolutionRate}%</div>
+            <div className="text-2xl font-bold text-green-600">{stats.resolutionRate.toFixed(2)}%</div>
           </CardContent>
         </Card>
         

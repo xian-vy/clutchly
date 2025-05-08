@@ -1,8 +1,10 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useScreenSize } from "@/lib/hooks/useScreenSize";
 import { ExpensesSummary } from "@/lib/types/expenses";
 import { SalesSummary } from "@/lib/types/sales";
+import { formatChartAmount } from "@/lib/utils";
 import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
 import { useMemo } from "react";
 import {
@@ -81,6 +83,7 @@ export function SalesExpensesChart({
   startDate, 
   endDate 
 }: SalesExpensesChartProps) {
+  const screen = useScreenSize();
   // Chart title based on period
   const chartTitle = useMemo(() => {
     switch (period) {
@@ -434,14 +437,14 @@ export function SalesExpensesChart({
         <CardTitle>{chartTitle}</CardTitle>
         <CardDescription>Sales vs Expenses comparison by {period} period</CardDescription>
       </CardHeader>
-      <CardContent className="h-80">
+      <CardContent className="h-80 px-0 2xl:pl-2 2xl:pr-4">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={chartData}
             margin={{
-              top: 20,
-              right: 30,
-              left: 20,
+              top: screen === 'mobile' ? 10: 20,
+              right: screen === 'mobile' ?  20: 30,
+              left: screen === 'mobile' ? 0 : 20,
               bottom: 5,
             }}
             className="[&>svg>path]:fill-transparent"
@@ -450,14 +453,15 @@ export function SalesExpensesChart({
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
             <XAxis 
               dataKey="period" 
-              fontSize={12} 
+              fontSize={screen === 'mobile' ? 10 : 12} 
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              fontSize={12}
+              fontSize={screen === 'mobile' ? 10 : 12}
               stroke="var(--color-chart-1)"
-
+              width={40}
+              tickFormatter={formatChartAmount}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
