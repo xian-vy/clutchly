@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useScreenSize } from '@/lib/hooks/useScreenSize';
 import { format } from 'date-fns';
 import { AlertCircle, Dna } from 'lucide-react';
 
@@ -58,6 +59,7 @@ interface GeneticOutcomesProps {
 }
 
 export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
+  const screen = useScreenSize();
   if (!data || data.length === 0) {
     return (
       <Alert>
@@ -94,6 +96,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="max-w-[360px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
           <Table>
             <TableHeader>
               <TableRow>
@@ -113,14 +116,14 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                   <TableCell className='text-start'>{pairing.total_clutches}</TableCell>
                   <TableCell className='text-start'>
                     <div className="flex items-center gap-2">
-                      <Progress value={pairing.fertility_rate} className="h-2 w-20" />
-                      <span className="text-sm">{pairing.fertility_rate}%</span>
+                      <Progress value={pairing.fertility_rate} className="h-2 w-10 sm:w-20" />
+                      <span className="text-xs sm:text-sm">{pairing.fertility_rate}%</span>
                     </div>
                   </TableCell>
                   <TableCell className='text-start'>
                     <div className="flex items-center gap-2">
-                      <Progress value={pairing.hatch_rate} className="h-2 w-20" />
-                      <span className="text-sm">{pairing.hatch_rate}%</span>
+                      <Progress value={pairing.hatch_rate} className="h-2 w-10 sm:w-20" />
+                      <span className="text-xs sm:text-sm">{pairing.hatch_rate}%</span>
                     </div>
                   </TableCell>
                   <TableCell className='text-start'>{pairing.total_hatched}</TableCell>
@@ -128,6 +131,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
       
@@ -246,6 +250,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                           <CardTitle className="text-sm">Morph Distribution</CardTitle>
                         </CardHeader>
                         <CardContent>
+                        <div className="max-w-[360px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
                           <Table>
                             <TableHeader>
                               <TableRow>
@@ -280,6 +285,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                               ))}
                             </TableBody>
                           </Table>
+                          </div>
                         </CardContent>
                       </Card>
                     </div>
@@ -312,9 +318,9 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
         <CardContent>
           <Tabs defaultValue="success">
             <TabsList>
-              <TabsTrigger value="success">Most Successful</TabsTrigger>
-              <TabsTrigger value="fertile">Highest Fertility</TabsTrigger>
-              <TabsTrigger value="diverse">Most Diverse</TabsTrigger>
+              <TabsTrigger value="success">{screen === 'mobile' ? 'Successful' : 'Most Successful'}</TabsTrigger>
+              <TabsTrigger value="fertile">{screen === 'mobile' ? 'High Fertility' : 'Highest Fertility'}</TabsTrigger>
+              <TabsTrigger value="diverse">{screen === 'mobile' ? 'Diverse' : 'Most Diverse'}</TabsTrigger>
             </TabsList>
             
             <TabsContent value="success" className="mt-4">

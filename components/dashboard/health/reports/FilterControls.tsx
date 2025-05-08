@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { HealthCategory } from '@/lib/types/health';
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, Filter } from 'lucide-react';
+import {  Filter } from 'lucide-react';
 
 interface FilterControlsProps {
   categories: HealthCategory[];
@@ -50,7 +50,7 @@ export function FilterControls({
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
 
        <div className="space-y-2">
           <label className="text-sm font-medium">Status</label>
@@ -118,26 +118,20 @@ export function FilterControls({
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Start Date</label>
-          <div className="flex items-center">
-            <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
             <Input
               type="date"
               value={dateRange.start}
               onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
             />
-          </div>
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-medium">End Date</label>
-          <div className="flex items-center">
-            <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
             <Input
               type="date"
               value={dateRange.end}
               onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
             />
-          </div>
         </div>
       </div>
 

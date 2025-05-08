@@ -23,14 +23,14 @@ const Lineage = () => {
 
   return (
     <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-background px-6 py-2' : ''}`}>
-      <div className="flex w-full items-center justify-between pr-5 lg:pr-10">
+      <div className="flex flex-col gap-3 md:flex-row w-full items-start md:items-center justify-between pr-5 lg:pr-10">
           <div>
                 <h2 className="text-sm lg:text-lg font-semibold tracking-tight text-start">Pedigree Tree</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground text-start">
                    Explore lineage and ancestry through an interactive pedigree tree.
                 </p>
           </div>
-          <div className="flex items-center max-w-[250px] w-full gap-3">
+          <div className="flex justify-end items-center md:max-w-[250px] w-full gap-3">
                 <button 
                   onClick={toggleFullscreen}
                   className="p-2 hover:bg-muted rounded-md transition-colors"

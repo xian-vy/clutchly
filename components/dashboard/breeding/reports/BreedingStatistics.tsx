@@ -2,6 +2,7 @@
 
 import { BreedingStats } from '@/app/api/breeding/reports';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useScreenSize } from '@/lib/hooks/useScreenSize';
 import { Egg,  EggOff, Layers, Turtle } from 'lucide-react';
 
 // Import recharts components
@@ -178,6 +179,7 @@ interface BreedingStatisticsProps {
 }
 
 export function BreedingStatistics({ data }: BreedingStatisticsProps) {
+  const screen = useScreenSize()
   if (!data) {
     return <div>No statistics available.</div>;
   }
@@ -392,7 +394,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                 data={projectsBySpecies} 
                 layout="vertical"
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                maxBarSize={25}
+                maxBarSize={screen === 'mobile' ? 10 : 25}
                 className="[&>svg>path]:fill-transparent"
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
@@ -445,6 +447,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                       fill: 'var(--muted-foreground)' 
                     }
                   }}
+                  width={screen === 'mobile' ? 25 : 40}
                 />
                 <Tooltip content={<MonthlyTrendsTooltip />} />
                 <Area 
@@ -470,8 +473,8 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={hatchRateBySpecies}
-              margin={{ top: 10, right: 30, left: 20, bottom: 40 }}
-              maxBarSize={30}
+              margin={{ top: 10, right: 30, left: screen === 'mobile' ? 0 : 20, bottom: 40 }}
+              maxBarSize={screen === 'mobile' ? 10 : 25}
               className="[&>svg>path]:fill-transparent"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
@@ -485,6 +488,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
               />
               <YAxis 
                 style={{ fontSize: '12px' }}
+                width={screen === 'mobile' ? 20 : 40}
               />
               <Tooltip content={<HatchRateTooltip />} />
               <Legend 

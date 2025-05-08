@@ -16,6 +16,8 @@ import {
   Area,
 } from "recharts";
 import { TimePeriod } from "../TimeRangeSelector";
+import { useScreenSize } from "@/lib/hooks/useScreenSize";
+import { formatChartAmount } from "@/lib/utils";
 
 interface SalesByTimeChartProps {
   data: SalesSummary | undefined;
@@ -23,6 +25,8 @@ interface SalesByTimeChartProps {
 }
 
 export function SalesByTimeChart({ data, period }: SalesByTimeChartProps) {
+  const screen = useScreenSize();
+
   // Chart title based on period
   const chartTitle = useMemo(() => {
     switch (period) {
@@ -157,17 +161,17 @@ export function SalesByTimeChart({ data, period }: SalesByTimeChartProps) {
         <CardTitle>{chartTitle}</CardTitle>
         <CardDescription>Number of sales and revenue by {period} period</CardDescription>
       </CardHeader>
-      <CardContent className="h-80">
+      <CardContent className="h-80  px-0 2xl:pl-2 2xl:pr-4">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={chartData}
             margin={{
-              top: 20,
-              right: 30,
-              left: 20,
+              top: screen === 'mobile' ? 10: 20,
+              right: screen === 'mobile' ?  0: 30,
+              left: screen === 'mobile' ? 0 : 20,
               bottom: 5,
             }}
-            maxBarSize={25}
+            maxBarSize={screen === 'mobile' ? 10 : 25}
             className="[&>svg>path]:fill-transparent"
           >
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
@@ -183,20 +187,23 @@ export function SalesByTimeChart({ data, period }: SalesByTimeChartProps) {
                 value: 'Revenue ($)',
                 angle: -90,
                 position: 'insideLeft',
-                style: { fill: 'var(--color-muted-foreground)' }
+                fontSize:screen ==='mobile'? 10 : 13,
+                style: { fill: 'var(--color-muted-foreground)',display: screen === 'mobile' ? 'none' : 'block' }
               }}
-              fontSize={12}
+              fontSize={screen === 'mobile' ? 10 : 12}
+              tickFormatter={formatChartAmount}
             />
             <YAxis
               yAxisId="right"
               orientation="right"
               stroke="var(--color-chart-1)"
-              fontSize={12}
+              fontSize={screen === 'mobile' ? 10 : 12}
               label={{
                 value: 'Number of Sales',
+                fontSize:screen ==='mobile'? 10 : 13,
                 angle: 90,
                 position: 'insideRight',
-                style: { fill: 'var(--color-muted-foreground)' }
+                style: { fill: 'var(--color-muted-foreground)',display: screen === 'mobile' ? 'none' : 'block' }
               }}
             />
             <Tooltip
@@ -218,8 +225,8 @@ export function SalesByTimeChart({ data, period }: SalesByTimeChartProps) {
                 return value;
               }}
               wrapperStyle={{
-                fontSize: '13px',
-                color: 'var(--foreground)'
+                fontSize:screen === 'mobile' ? '10px' : '13px',
+                color: 'var(--foreground)',
               }}
             />  
               <defs>

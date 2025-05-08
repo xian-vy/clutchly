@@ -121,7 +121,7 @@ export function FeedingSchedulesTab() {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl">Feeding Schedules</CardTitle>
+            <CardTitle className="text-base sm:text-lg xl:text-xl">Feeding Schedules</CardTitle>
             <Button 
               onClick={() => onDialogChange(true)}
               className="flex items-center gap-1"

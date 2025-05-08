@@ -73,7 +73,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="py-0 px-4">
-          <div className="overflow-x-auto">
+        <div className="max-w-[360px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow>
@@ -109,26 +109,26 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                       <div className="flex items-center gap-2">
                         <Progress 
                           value={project.metrics.fertilityRate} 
-                          className={cn("h-2 w-20", 
+                          className={cn("h-2 w-10 sm:w-20", 
                             project.metrics.fertilityRate >= 70 ? 'bg-emerald-100 data-[state=progress]:bg-emerald-500' : 
                             project.metrics.fertilityRate >= 40 ? 'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500' : 
                             'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500'
                           )}
                         />
-                        <span className="text-sm font-medium">{project.metrics.fertilityRate}%</span>
+                        <span className="text-xs sm:text-sm font-medium">{project.metrics.fertilityRate}%</span>
                       </div>
                     </TableCell>
                     <TableCell className='text-start'>
                       <div className="flex items-center gap-2">
                         <Progress 
                           value={project.metrics.hatchRate} 
-                          className={cn("h-2 w-20", 
+                          className={cn("h-2 w-10 sm:w-20 ", 
                             project.metrics.hatchRate >= 70 ? 'bg-emerald-100 data-[state=progress]:bg-emerald-500' : 
                             project.metrics.hatchRate >= 40 ? 'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500' : 
                             'bg-gray-100 dark:bg-gray-900 data-[state=progress]:bg-gray-500'
                           )}
                         />
-                        <span className="text-sm font-medium">{project.metrics.hatchRate}%</span>
+                        <span className="text-xs sm:text-sm font-medium">{project.metrics.hatchRate}%</span>
                       </div>
                     </TableCell>
                     <TableCell className='text-start'>
@@ -290,7 +290,7 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                         
                         <TabsContent value="table" className="mt-0">
                           {project.clutches.length > 0 ? (
-                            <div className="overflow-x-auto -mx-4">
+                           <div className="max-w-[320px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
                               <Table>
                                 <TableHeader className="bg-muted/30">
                                   <TableRow>
@@ -327,9 +327,9 @@ export function ProjectPerformance({ data }: ProjectPerformanceProps) {
                                           <div className="flex items-center gap-2">
                                             <Progress 
                                               value={hatchRate} 
-                                              className={cn("h-2 w-16", getSuccessColor(hatchRate))}
+                                              className={cn("h-2 w-10 sm:w-16", getSuccessColor(hatchRate))}
                                             />
-                                            <span className="text-sm font-medium">{hatchRate}%</span>
+                                            <span className="text-xs font-medium">{hatchRate}%</span>
                                           </div>
                                         </TableCell>
                                         <TableCell  className='text-start'>
