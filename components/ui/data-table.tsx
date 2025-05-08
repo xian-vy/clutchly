@@ -26,7 +26,6 @@ import { useEffect, useState } from "react"
 import Paginator from "./paginator"
 import { DownloadCommonMorphs } from "../dashboard/reptiles/morphs/DownloadCommonMorphs"
 import { useScreenSize } from "@/lib/hooks/useScreenSize"
-import { Badge } from "./badge"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -81,7 +80,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-2 sm:space-y-4 w-full">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="flex  items-center justify-between gap-3">
         <div className="flex items-center space-x-2 w-full md:w-auto">
           {filterButton ? (
             filterButton
@@ -125,9 +124,9 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
       <div className="rounded-md lg:min-h-[270px] max-w-[350px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
-          <Badge variant="outline" className="md:hidden float-right my-2 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+          <p  className="md:hidden float-right text-[0.65rem] sm:text-xs  mt-2 mb-3">
           {data.length}  {' Total Records'} 
-          </Badge>
+          </p>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

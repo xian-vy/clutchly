@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { BanknoteIcon, CalendarIcon, FileTextIcon, MailIcon, PhoneIcon, UserIcon } from 'lucide-react';
+import {  CalendarIcon, FileTextIcon, MailIcon, PhoneIcon, UserIcon } from 'lucide-react';
 import { useForm, Resolver } from 'react-hook-form';
 import * as z from 'zod';
 import { NewSaleRecord, SaleRecord } from '@/lib/types/sales';
@@ -33,7 +33,6 @@ import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { TabsContent } from '@radix-ui/react-tabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SALES_STATUS_COLORS } from '@/lib/constants/colors';
@@ -114,14 +113,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
           </TabsList>
           
           <TabsContent value="sales" className="space-y-2 sm:space-y-3 2xl:space-y-5 mt-2 sm:mt-4">        
-                <Card className="">
-                  <CardContent>
-                    <div className="flex items-center gap-2 mb-4">
-                      <CalendarIcon className="h-5 w-5 text-muted-foreground" />
-                      <h3 className="text-base font-medium">Sale Information</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
                       <FormField
                         control={form.control}
                         name="reptile_id"
@@ -214,13 +206,11 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                               defaultValue={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger>
+                                <SelectTrigger className='w-full'>
                                   <SelectValue placeholder="Select a status">
                                     {field.value && (
                                       <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className={cn(SALES_STATUS_COLORS[field.value], "capitalize")}>
                                           {field.value}
-                                        </Badge>
                                       </div>
                                     )}
                                   </SelectValue>
@@ -254,17 +244,9 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                         )}
                       />
                     </div>
-                  </CardContent>
-                </Card>
+
           </TabsContent>
           <TabsContent value="buyer" className="space-y-2 sm:space-y-3 2xl:space-y-5 mt-2 sm:mt-4">
-              <Card className="">
-                <CardContent>
-                  <div className="flex items-center gap-2 mb-4">
-                    <UserIcon className="h-5 w-5 text-muted-foreground" />
-                    <h3 className="text-base font-medium">Buyer Information</h3>
-                  </div>
-                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -317,17 +299,10 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                       )}
                     />
                   </div>
-                </CardContent>
-              </Card>
+
           </TabsContent>
             <TabsContent value="payment" className="space-y-2 sm:space-y-3 2xl:space-y-5 mt-2 sm:mt-4">
-                <Card className="">
-                <CardContent >
-                  <div className="flex items-center gap-2 mb-4">
-                    <BanknoteIcon className="h-5 w-5 text-muted-foreground" />
-                    <h3 className="text-base font-medium">Payment & Shipping Details</h3>
-                  </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -340,7 +315,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className='w-full'> 
                                 <SelectValue placeholder="Select a payment method" />
                               </SelectTrigger>
                             </FormControl>
@@ -409,8 +384,6 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                       )}
                     />
                   </div>
-                </CardContent>
-              </Card>
             </TabsContent>
           </Tabs>
 
@@ -423,7 +396,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                 <FormControl>
                   <Textarea 
                     placeholder="Add any additional information about this sale" 
-                    className="min-h-[100px] resize-y"
+                    className="sm:min-h-[100px] resize-y"
                     {...field} 
                   />
                 </FormControl>

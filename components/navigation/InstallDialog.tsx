@@ -28,7 +28,7 @@ export function InstallDialog() {
           </p>
         </DialogHeader>
         
-        <div className="grid md:grid-cols-2 gap-6 mt-8">
+        <div className="grid md:grid-cols-2 gap-6 ">
           {/* iOS Card */}
           <Card className="relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors">
             <CardContent className="pt-6">
