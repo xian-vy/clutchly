@@ -1,47 +1,63 @@
 import { createClient } from '@/lib/supabase/client';
 import { FeederSize, NewFeederSize } from '@/lib/types/feeders';
 
-export async function getPreySizes(): Promise<FeederSize[]> {
+export async function getFeederSizes(): Promise<FeederSize[]> {
   const supabase = await createClient();
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
   
-  const { data: preySizes, error } = await supabase
+  const { data: feederSizes, error } = await supabase
     .from('feeder_sizes')
     .select('*')
     .or(`is_global.eq.true,user_id.eq.${userId}`)
     .order('name');
 
   if (error) throw error;
-  return preySizes as FeederSize[];
+  return feederSizes as FeederSize[];
 }
 
-export async function getPreySizeById(id: string): Promise<FeederSize> {
+export async function getFeederSizesByType(feederTypeId: string): Promise<FeederSize[]> {
+  const supabase = await createClient();
+  const currentUser = await supabase.auth.getUser();
+  const userId = currentUser.data.user?.id;
+  
+  const { data: feederSizes, error } = await supabase
+    .from('feeder_sizes')
+    .select('*')
+    .eq('feeder_type_id', feederTypeId)
+    .or(`is_global.eq.true,user_id.eq.${userId}`)
+    .order('name');
+
+  if (error) throw error;
+  return feederSizes as FeederSize[];
+}
+
+export async function getFeederSizeById(id: string): Promise<FeederSize> {
   const supabase = await createClient();
   
-  const { data: preySize, error } = await supabase
+  const { data: feederSize, error } = await supabase
     .from('feeder_sizes')
     .select('*')
     .eq('id', id)
     .single();
 
   if (error) throw error;
-  return preySize as FeederSize;
+  return feederSize as FeederSize;
 }
 
-export async function createPreySize(preySize: NewFeederSize): Promise<FeederSize> {
+export async function createFeederSize(feederSize: NewFeederSize): Promise<FeederSize> {
   const supabase = await createClient();
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
   
-  const newPreySize = {
-    ...preySize,
+  const newFeederSize = {
+    ...feederSize,
     user_id: userId,
   };
   
   const { data, error } = await supabase
     .from('feeder_sizes')
-    .insert([newPreySize])
+    .insert([newFeederSize])
     .select()
     .single();
 
@@ -49,7 +65,7 @@ export async function createPreySize(preySize: NewFeederSize): Promise<FeederSiz
   return data as FeederSize;
 }
 
-export async function updatePreySize(id: string, updates: Partial<NewFeederSize>): Promise<FeederSize> {
+export async function updateFeederSize(id: string, updates: Partial<NewFeederSize>): Promise<FeederSize> {
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -63,7 +79,7 @@ export async function updatePreySize(id: string, updates: Partial<NewFeederSize>
   return data as FeederSize;
 }
 
-export async function deletePreySize(id: string): Promise<void> {
+export async function deleteFeederSize(id: string): Promise<void> {
   const supabase = await createClient();
   
   const { error } = await supabase
