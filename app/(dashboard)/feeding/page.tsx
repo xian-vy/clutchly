@@ -1,3 +1,4 @@
+import FeedersTab from '@/components/dashboard/feeding/feeders/FeedersTab'
 import { FeedingLogsTab } from '@/components/dashboard/feeding/FeedingLogsTab'
 import { FeedingSchedulesTab } from '@/components/dashboard/feeding/FeedingSchedulesTab'
 import { FeedingTab } from '@/components/dashboard/feeding/FeedingTab'
@@ -20,6 +21,7 @@ export default function FeedingPage() {
           <TabsList>
             <TabsTrigger value="feeding">Feeding</TabsTrigger>
             <TabsTrigger value="schedules">Schedules</TabsTrigger>
+            <TabsTrigger value="feeders">Feeders</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
           </TabsList>
           <hr className='mt-[1px]'/>
@@ -27,6 +29,10 @@ export default function FeedingPage() {
     
         <TabsContent value="feeding">
           <FeedingTab />
+        </TabsContent>
+
+        <TabsContent value="feeders">
+          <FeedersTab />
         </TabsContent>
 
         <TabsContent value="schedules">
