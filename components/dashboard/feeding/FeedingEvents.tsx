@@ -218,7 +218,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
         queryClient.setQueryData(['feeding-events', scheduleId], 
           currentEvents.map(event => 
             event.id === eventId 
-              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null, feeder_size_id: feederSizeId } 
+              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null, feeder_size_id: feederSizeId || null } 
               : event
           )
         );
@@ -243,7 +243,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
         fed,
         fed_at: fed ? new Date().toISOString() : null,
         notes: notes || null,
-        feeder_size_id: feederSizeId
+        feeder_size_id: feederSizeId || null
       });
 
         // Update cache with server response
