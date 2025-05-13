@@ -63,10 +63,13 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       
       // Initialize notes for each event
       const notesMap: Record<string, string> = {};
+      const feederTypeSizeMap: Record<string, string> = {};
       eventsData.forEach(event => {
         notesMap[event.id] = event.notes || '';
+        feederTypeSizeMap[event.id] = event.feeder_size_id || '';
       });
       setEventNotes(notesMap);
+      setFeederTypeSize(feederTypeSizeMap);
       
       return eventsData;
     },
