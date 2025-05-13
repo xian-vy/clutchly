@@ -226,7 +226,7 @@ export function FeedingTab() {
                               </span>
                               <span>{status.completedEvents}/{status.totalEvents}%</span>
                             </div>
-                            <Progress value={status.completedEvents} className="h-2" />
+                            <Progress value={status.completedEvents * 100 / status.totalEvents} className="h-2" />
                           </div>
                         )}
                     </div>
