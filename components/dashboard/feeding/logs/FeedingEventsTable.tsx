@@ -22,19 +22,10 @@ import { Calendar as CalendarIcon, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { VirtualTable } from './VirtualTable';
-
-interface FeedingEvent {
-  id: string;
-  scheduled_date: string;
-  reptile_name: string;
-  species_name: string;
-  morph_name?: string | null;
-  fed: boolean;
-  notes?: string | null;
-}
+import { FeedingEventNormalized } from '../FeedingLogsTab';
 
 interface FeedingEventsTableProps {
-  events: FeedingEvent[];
+  events: FeedingEventNormalized[];
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   filterStatus: 'all' | 'fed' | 'unfed';
@@ -54,7 +45,7 @@ export function FeedingEventsTable({
   setDateRange,
   clearFilters
 }: FeedingEventsTableProps) {
-  const [sortField, setSortField] = useState<keyof FeedingEvent>('scheduled_date');
+  const [sortField, setSortField] = useState<keyof FeedingEventNormalized>('scheduled_date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   
   // Sort events
@@ -79,7 +70,7 @@ export function FeedingEventsTable({
   
 
 
-  const handleSort = (field: keyof FeedingEvent) => {
+  const handleSort = (field: keyof FeedingEventNormalized) => {
     if (field === sortField) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {

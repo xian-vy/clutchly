@@ -11,13 +11,12 @@ import { useQuery } from '@tanstack/react-query';
 import { getFeedingEvents } from '@/app/api/feeding/events';
 import { format } from 'date-fns';
 
-// Import our new modular components
 import { SummaryCards } from './logs/SummaryCards';
 import { FeedingEventsTable } from './logs/FeedingEventsTable';
 import { ReportsPanel } from './logs/ReportsPanel';
+import { useFeedersStore } from '@/lib/stores/feedersStore';
 
-// Define the FeedingEvent interface to match the data structure
-interface FeedingEvent {
+export interface FeedingEventNormalized {
   id: string;
   scheduled_date: string;
   reptile_name: string;
@@ -25,8 +24,8 @@ interface FeedingEvent {
   morph_name?: string | null;
   fed: boolean;
   notes?: string | null;
+  feeder : string;
 }
-
 export function FeedingLogsTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'fed' | 'unfed'>('all');
@@ -36,6 +35,7 @@ export function FeedingLogsTab() {
     to: new Date(), // Set to today as well
   });
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const {feederSizes, feederTypes} = useFeedersStore();
 
   // Use TanStack Query to fetch and cache feeding events
   const { 
@@ -47,8 +47,7 @@ export function FeedingLogsTab() {
     queryKey: ['feeding-events'],
     queryFn: async () => {
       try {
-        // Since we're loading all events, we'll create a workaround 
-        // by fetching events for each schedule
+
         const supabase = createClient();
         const { data: schedules } = await supabase
           .from('feeding_schedules')
@@ -58,7 +57,17 @@ export function FeedingLogsTab() {
           // Fetch events for each schedule and combine them
           const allEventsPromises = schedules.map((s: { id: string }) => getFeedingEvents(s.id));
           const eventsArrays = await Promise.all(allEventsPromises);
-          return eventsArrays.flat() as FeedingEvent[];
+          const eventsArrayWithFeeder = eventsArrays.map(events => {
+            return events.map(event => {
+              const feederSize = feederSizes.find(f => f.id === event.feeder_size_id);
+              const feederType = feederTypes.find(f => f.id === feederSize?.feeder_type_id);
+              return {
+                ...event,
+                feeder: feederSize && feederType ? `${feederType.name} > ${feederSize.name}` : '-',
+              };
+            });
+          });
+          return eventsArrayWithFeeder.flat() as FeedingEventNormalized[];
         } else {
           return [];
         }

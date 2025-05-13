@@ -4,22 +4,15 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { FeedingEventNormalized } from '../FeedingLogsTab';
 
-interface FeedingEvent {
-  id: string;
-  scheduled_date: string;
-  reptile_name: string;
-  species_name: string;
-  morph_name?: string | null;
-  fed: boolean;
-  notes?: string | null;
-}
+
 
 interface VirtualTableProps {
-  events: FeedingEvent[];
-  sortField: keyof FeedingEvent;
+  events: FeedingEventNormalized[];
+  sortField: keyof FeedingEventNormalized;
   sortDirection: 'asc' | 'desc';
-  onSort: (field: keyof FeedingEvent) => void;
+  onSort: (field: keyof FeedingEventNormalized) => void;
 }
 
 export function VirtualTable({ 
@@ -37,7 +30,7 @@ export function VirtualTable({
     overscan: 5, // Number of items to render outside of the visible area
   });
 
-  const SortIcon = ({ field }: { field: keyof FeedingEvent }) => {
+  const SortIcon = ({ field }: { field: keyof FeedingEventNormalized }) => {
     if (field !== sortField) return null;
     return sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
   };
@@ -88,6 +81,15 @@ export function VirtualTable({
           </div>
           <div 
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
+            onClick={() => onSort('feeder')}
+          >
+            <div className="flex items-center gap-1 text-xs sm:text-sm">
+              Feeder
+              <SortIcon field="feeder" />
+            </div>
+          </div>
+          <div 
+            className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('fed')}
           >
             <div className="flex items-center gap-1 text-xs sm:text-sm">
@@ -134,6 +136,7 @@ export function VirtualTable({
                 <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.reptile_name}</div>
                 <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.species_name}</div>
                 <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.morph_name || '-'}</div>
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.feeder || '-'}</div>
                 <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">
                   <Badge variant={event.fed ? "outline" : "secondary"}>
                     {event.fed ? "Fed" : "Not Fed"}

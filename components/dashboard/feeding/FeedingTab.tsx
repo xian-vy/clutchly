@@ -175,8 +175,6 @@ export function FeedingTab() {
           const feedingDateString = status?.date 
             ? format(new Date(status.date), 'MMM d, yyyy')
             : null;
-            console.log("status", status)
-            console.log("isNewSchedule", !!(status && status.totalEvents > 0 && !status.isCompleted && !isNewSchedule))
           return (
             <Collapsible
               key={schedule.id}
