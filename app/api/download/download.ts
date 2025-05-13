@@ -30,7 +30,12 @@ const requestSchema = z.object({
 
 function formatHetTraits(value: unknown): string {
   if (!Array.isArray(value)) return ''
-  return value.map(trait => `${trait.trait} (${trait.percentage}%)`).join('; ')
+  return value.map(trait => `${trait.percentage}% ${trait.trait}`).join(', ')
+}
+
+function formatVisualTraits(value: unknown): string {
+  if (!Array.isArray(value)) return ''
+  return value.join(', ')
 }
 
 function formatTargets(value: unknown): string {
@@ -60,6 +65,8 @@ function formatValue(value: unknown, type: string, key: string): string {
   switch (key) {
     case 'het_traits':
       return formatHetTraits(value)
+    case 'visual_traits':
+      return formatVisualTraits(value)
     case 'targets':
       return formatTargets(value)
     case 'events':
@@ -79,6 +86,9 @@ function formatValue(value: unknown, type: string, key: string): string {
     case 'array':
       return Array.isArray(value) ? value.join('; ') : ''
     case 'object':
+      if (Array.isArray(value)) {
+        return value.join('; ')
+      }
       return JSON.stringify(value)
     case 'number':
       return value.toString()
@@ -108,7 +118,15 @@ function convertToCSV(data: Record<string, unknown>[], type: BackupType): string
     headers.join(','),
     ...data.map(row => 
       keys.map(key => {
-        const value = getNestedValue(row, key)
+        // For nested fields like visual_traits and het_traits, get the direct value from the row
+        // instead of using getNestedValue which doesn't handle arrays properly
+        let value;
+        if (key === 'visual_traits' || key === 'het_traits') {
+          value = row[key];
+        } else {
+          value = getNestedValue(row, key);
+        }
+        
         const field = config.fields.find(f => f.key === key)
         const formattedValue = formatValue(value, field?.type || 'string', key)
         return formattedValue.includes(',') ? `"${formattedValue}"` : formattedValue
@@ -567,4 +585,4 @@ export async function getLastBackupTimes(){
     .order('created_at', { ascending: false })
 
     return lastBackups
-} 
+}
