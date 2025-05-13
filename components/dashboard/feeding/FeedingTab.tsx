@@ -143,9 +143,13 @@ export function FeedingTab() {
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="flex w-full items-center justify-center gap-3 text-primary text-xs 2xl:text-sm" >
-               <CheckCircle strokeWidth={1.5} className='w-4 h-4 3xl:h-5 3xl:w-5' /> You&apos;re all set with Feedings.
-          </div>
+          <Alert variant="info" className="flex-1">
+            <CheckCircle className="h-4 w-4" />
+            <AlertTitle>All good!</AlertTitle>
+            <AlertDescription>
+                You&apos;re all set with feedings for today.
+            </AlertDescription>
+          </Alert>
         )}
 
       </div>
