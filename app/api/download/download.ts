@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { BackupType, backupConfigs } from '@/lib/types/download'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Clutch } from '@/lib/types/breeding'
-import { FeedingEvent, FeedingTarget } from '@/lib/types/feeding'
 
 const backupTypeSchema = z.enum([
   'reptiles',
@@ -30,7 +29,12 @@ const requestSchema = z.object({
 
 function formatHetTraits(value: unknown): string {
   if (!Array.isArray(value)) return ''
-  return value.map(trait => `${trait.trait} (${trait.percentage}%)`).join('; ')
+  return value.map(trait => `${trait.percentage}% ${trait.trait}`).join(', ')
+}
+
+function formatVisualTraits(value: unknown): string {
+  if (!Array.isArray(value)) return ''
+  return value.join(', ')
 }
 
 function formatTargets(value: unknown): string {
@@ -60,6 +64,8 @@ function formatValue(value: unknown, type: string, key: string): string {
   switch (key) {
     case 'het_traits':
       return formatHetTraits(value)
+    case 'visual_traits':
+      return formatVisualTraits(value)
     case 'targets':
       return formatTargets(value)
     case 'events':
@@ -79,6 +85,9 @@ function formatValue(value: unknown, type: string, key: string): string {
     case 'array':
       return Array.isArray(value) ? value.join('; ') : ''
     case 'object':
+      if (Array.isArray(value)) {
+        return value.join('; ')
+      }
       return JSON.stringify(value)
     case 'number':
       return value.toString()
@@ -108,7 +117,15 @@ function convertToCSV(data: Record<string, unknown>[], type: BackupType): string
     headers.join(','),
     ...data.map(row => 
       keys.map(key => {
-        const value = getNestedValue(row, key)
+        // For nested fields like visual_traits and het_traits, get the direct value from the row
+        // instead of using getNestedValue which doesn't handle arrays properly
+        let value;
+        if (key === 'visual_traits' || key === 'het_traits') {
+          value = row[key];
+        } else {
+          value = getNestedValue(row, key);
+        }
+        
         const field = config.fields.find(f => f.key === key)
         const formattedValue = formatValue(value, field?.type || 'string', key)
         return formattedValue.includes(',') ? `"${formattedValue}"` : formattedValue
@@ -144,7 +161,12 @@ async function getReptileData(supabase: SupabaseClient, userId: string, filters:
   // Get species and morphs
   const speciesIds = reptiles.map(r => r.species_id).filter(Boolean)
   const morphIds = reptiles.map(r => r.morph_id).filter(Boolean)
-  const locationIds = reptiles.map(r => r.location_id).filter(Boolean)
+
+  // Get parent IDs
+  const parentIds = [
+    ...reptiles.map(r => r.dam_id).filter(Boolean),
+    ...reptiles.map(r => r.sire_id).filter(Boolean)
+  ]
 
   // Fetch species
   const { data: species } = await supabase
@@ -158,23 +180,24 @@ async function getReptileData(supabase: SupabaseClient, userId: string, filters:
     .select('id, name')
     .in('id', morphIds)
 
-  // Fetch locations
-  const { data: locations } = await supabase
-    .from('locations')
+  // Fetch parent reptiles
+  const { data: parents } = await supabase
+    .from('reptiles')
     .select('id, name')
-    .in('id', locationIds)
+    .in('id', parentIds)
 
   // Create maps for quick lookup
   const speciesMap = new Map(species?.map(s => [s.id, s]) || [])
   const morphMap = new Map(morphs?.map(m => [m.id, m]) || [])
-  const locationMap = new Map(locations?.map(l => [l.id, l]) || [])
+  const parentMap = new Map(parents?.map(p => [p.id, p]) || [])
 
   // Enhance reptiles with related data
   return reptiles.map(reptile => ({
     ...reptile,
     species: speciesMap.get(reptile.species_id) || { name: 'Unknown', scientific_name: null },
     morph: morphMap.get(reptile.morph_id) || { name: 'Unknown' },
-    location: locationMap.get(reptile.location_id) || { name: 'Unknown' }
+    mother: reptile.dam_id ? parentMap.get(reptile.dam_id) || { name: 'Unknown' } : null,
+    father: reptile.sire_id ? parentMap.get(reptile.sire_id) || { name: 'Unknown' } : null
   }))
 }
 
@@ -353,120 +376,6 @@ async function getBreedingData(supabase: SupabaseClient, userId: string, filters
   }))
 }
 
-async function getFeedingData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
-  // Get feeding schedules
-  let query = supabase
-    .from('feeding_schedules')
-    .select('*')
-    .eq('user_id', userId)
-
-  if (dateRange) {
-    query = query
-      .gte('created_at', dateRange.from)
-      .lte('created_at', dateRange.to)
-  }
-
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value) {
-      query = query.eq(key, value)
-    }
-  })
-
-  const { data: feedingSchedules, error } = await query.order('created_at', { ascending: false })
-  if (error) throw error
-
-  // Get related data
-  const scheduleIds = feedingSchedules.map(s => s.id)
-
-  // Fetch targets
-  const { data: targets } = await supabase
-    .from('feeding_targets')
-    .select('*')
-    .in('schedule_id', scheduleIds)
-
-  // Fetch events
-  const { data: events } = await supabase
-    .from('feeding_events')
-    .select('*')
-    .in('schedule_id', scheduleIds)
-
-  // Create maps for quick lookup
-  const targetMap = new Map<string | number, FeedingTarget[]>(scheduleIds.map(id => [id, []]))
-  const eventMap = new Map<string | number, FeedingEvent[]>(scheduleIds.map(id => [id, []]))
-  targets?.forEach(target => {
-    const scheduleTargets = targetMap.get(target.schedule_id) || []
-    scheduleTargets.push(target)
-    targetMap.set(target.schedule_id, scheduleTargets)
-  })
-  events?.forEach(event => {
-    const scheduleEvents = eventMap.get(event.schedule_id) || []
-    scheduleEvents.push(event)
-    eventMap.set(event.schedule_id, scheduleEvents)
-  })
-
-  // Enhance feeding schedules with related data
-  return feedingSchedules.map(schedule => ({
-    ...schedule,
-    targets: targetMap.get(schedule.id) || [],
-    events: eventMap.get(schedule.id) || []
-  }))
-}
-
-async function getLocationData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
-  // Get locations
-  let query = supabase
-    .from('locations')
-    .select('*')
-    .eq('user_id', userId)
-
-  if (dateRange) {
-    query = query
-      .gte('created_at', dateRange.from)
-      .lte('created_at', dateRange.to)
-  }
-
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value) {
-      query = query.eq(key, value)
-    }
-  })
-
-  const { data: locations, error } = await query.order('name')
-  if (error) throw error
-
-  // Get related data
-  const locationIds = locations.map(l => l.id)
-  const parentIds = locations.map(l => l.parent_id).filter(Boolean)
-
-  // Fetch parent locations
-  const { data: parentLocations } = await supabase
-    .from('locations')
-    .select('id, name')
-    .in('id', parentIds)
-
-  // Fetch reptiles
-  const { data: reptiles } = await supabase
-    .from('reptiles')
-    .select('id, name, location_id')
-    .in('location_id', locationIds)
-
-  // Create maps for quick lookup
-  const parentMap = new Map(parentLocations?.map(l => [l.id, l]) || [])
-  const reptileMap = new Map<string | number, {id : string, name :string, location_id : string}[]>(locationIds.map(id => [id, []]))
-  reptiles?.forEach(reptile => {
-    const locationReptiles = reptileMap.get(reptile.location_id) || []
-    locationReptiles.push(reptile)
-    reptileMap.set(reptile.location_id, locationReptiles)
-  })
-
-  // Enhance locations with related data
-  return locations.map(location => ({
-    ...location,
-    parent: location.parent_id ? parentMap.get(location.parent_id) || { name: 'Unknown' } : null,
-    reptiles: reptileMap.get(location.id) || []
-  }))
-}
-
 export async function createBackup(request: z.infer<typeof requestSchema>) {
   const supabase = await createClient()
   
@@ -511,12 +420,6 @@ export async function createBackup(request: z.infer<typeof requestSchema>) {
       break
     case 'breeding_projects':
       data = await getBreedingData(supabase, user.id, filters, dateRange)
-      break
-    case 'feeding':
-      data = await getFeedingData(supabase, user.id, filters, dateRange)
-      break
-    case 'locations':
-      data = await getLocationData(supabase, user.id, filters, dateRange)
       break
     default:
       throw new Error('Invalid backup type')
@@ -567,4 +470,4 @@ export async function getLastBackupTimes(){
     .order('created_at', { ascending: false })
 
     return lastBackups
-} 
+}
