@@ -163,6 +163,12 @@ async function getReptileData(supabase: SupabaseClient, userId: string, filters:
   const speciesIds = reptiles.map(r => r.species_id).filter(Boolean)
   const morphIds = reptiles.map(r => r.morph_id).filter(Boolean)
 
+  // Get parent IDs
+  const parentIds = [
+    ...reptiles.map(r => r.dam_id).filter(Boolean),
+    ...reptiles.map(r => r.sire_id).filter(Boolean)
+  ]
+
   // Fetch species
   const { data: species } = await supabase
     .from('species')
@@ -175,16 +181,24 @@ async function getReptileData(supabase: SupabaseClient, userId: string, filters:
     .select('id, name')
     .in('id', morphIds)
 
+  // Fetch parent reptiles
+  const { data: parents } = await supabase
+    .from('reptiles')
+    .select('id, name')
+    .in('id', parentIds)
 
   // Create maps for quick lookup
   const speciesMap = new Map(species?.map(s => [s.id, s]) || [])
   const morphMap = new Map(morphs?.map(m => [m.id, m]) || [])
+  const parentMap = new Map(parents?.map(p => [p.id, p]) || [])
 
   // Enhance reptiles with related data
   return reptiles.map(reptile => ({
     ...reptile,
     species: speciesMap.get(reptile.species_id) || { name: 'Unknown', scientific_name: null },
     morph: morphMap.get(reptile.morph_id) || { name: 'Unknown' },
+    mother: reptile.dam_id ? parentMap.get(reptile.dam_id) || { name: 'Unknown' } : null,
+    father: reptile.sire_id ? parentMap.get(reptile.sire_id) || { name: 'Unknown' } : null
   }))
 }
 

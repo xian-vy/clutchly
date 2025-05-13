@@ -48,7 +48,10 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
             { key: 'original_breeder', label: 'produced_by', type: 'string' },
             { key: 'status', label: 'status', type: 'string' },
             { key: 'is_breeder', label: 'is_breeder', type: 'boolean' },
-            { key: 'notes', label: 'notes', type: 'string' }
+            { key: 'notes', label: 'notes', type: 'string' },
+            { key: 'mother.name', label: 'mother', type: 'string' },
+            { key: 'father.name', label: 'father', type: 'string' },
+
         ],
         relationships: [
             { table: 'species', fields: ['name', 'scientific_name'] },
