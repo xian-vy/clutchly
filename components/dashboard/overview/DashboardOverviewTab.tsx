@@ -31,6 +31,7 @@ import { FeedingOverview } from './FeedingOverview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Profile } from '@/lib/types/profile';
 import { getProfile } from '@/app/api/profiles/profiles';
+import { useFeedersStore } from '@/lib/stores/feedersStore';
 
 export function DashboardOverviewTab() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -57,12 +58,26 @@ export function DashboardOverviewTab() {
   // Get species and morph data from their respective stores
   const { species, isLoading: speciesLoading, fetchSpecies } = useSpeciesStore();
   const { morphs, isLoading: morphsLoading,downloadCommonMorphs  } = useMorphsStore();
+  const { feederSizes,feederTypes,fetchFeederSizes,fetchFeederTypes } = useFeedersStore();
 
   
   useEffect(() => {
-    fetchSpecies();
-  }, [])
+    if (species.length === 0) {
+      fetchSpecies()
+    }
+  }, [fetchSpecies,species])
 
+  useEffect(() => {
+    if (feederSizes.length === 0) {
+      fetchFeederSizes()
+    }
+  }, [fetchFeederSizes,feederSizes])
+
+  useEffect(() => {
+    if (feederTypes.length === 0) {
+      fetchFeederTypes()
+    }
+  }, [fetchFeederTypes,feederTypes])
  
   const { data: profile } = useQuery<Profile>({
     queryKey: ['profile2'],

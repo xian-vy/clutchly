@@ -27,6 +27,7 @@ import { ProfileStep2 } from './ProfileStep2';
 import { ProfileStep3 } from './ProfileStep3';
 import { useQuery } from '@tanstack/react-query';
 import { APP_NAME } from '@/lib/constants/app';
+import { useFeedersStore } from '@/lib/stores/feedersStore';
 
 // Validation schemas for each step
 export const profileStep1Schema = z.object({
@@ -70,7 +71,8 @@ export function ProfileSetupDialog() {
   
   // Load species using the species store
   const { fetchSpecies } = useSpeciesStore();
-  
+  const { fetchFeederSizes,fetchFeederTypes } = useFeedersStore();
+
   // Access morphs store for later use
   const { downloadCommonMorphs } = useMorphsStore();
   
@@ -99,6 +101,12 @@ export function ProfileSetupDialog() {
   useEffect(() => {
     fetchSpecies();
   }, [fetchSpecies]);
+  useEffect(() => {
+    fetchFeederTypes();
+  }, [fetchFeederTypes]);
+  useEffect(() => {
+    fetchFeederSizes();
+  }, [fetchFeederSizes]);
 
   // Set dialog state once profile data is loaded
   useEffect(() => {
