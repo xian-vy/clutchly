@@ -194,7 +194,7 @@ export function Navigation() {
                       {!isCollapsed && item.name}
                       {hasPendingFeedings && item.name === 'Feeding' && !isCollapsed && (
                         <Badge className='absolute right-3 text-xs font-medium'>
-                          {todayFeedings.length}
+                          {pendingTodayFeedings.length}
                         </Badge>
                       )}
                     </p>
