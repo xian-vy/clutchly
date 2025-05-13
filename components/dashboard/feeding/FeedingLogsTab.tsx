@@ -38,7 +38,7 @@ export function FeedingLogsTab() {
     error,
     refetch 
   } = useQuery({
-    queryKey: ['feeding-events'],
+    queryKey: ['feeding-events-logs'],
     queryFn: async () => {
       try {
 
