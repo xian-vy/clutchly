@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { BackupType, backupConfigs } from '@/lib/types/download'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Clutch } from '@/lib/types/breeding'
-import { FeedingEvent, FeedingTarget } from '@/lib/types/feeding'
 
 const backupTypeSchema = z.enum([
   'reptiles',
@@ -377,120 +376,6 @@ async function getBreedingData(supabase: SupabaseClient, userId: string, filters
   }))
 }
 
-async function getFeedingData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
-  // Get feeding schedules
-  let query = supabase
-    .from('feeding_schedules')
-    .select('*')
-    .eq('user_id', userId)
-
-  if (dateRange) {
-    query = query
-      .gte('created_at', dateRange.from)
-      .lte('created_at', dateRange.to)
-  }
-
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value) {
-      query = query.eq(key, value)
-    }
-  })
-
-  const { data: feedingSchedules, error } = await query.order('created_at', { ascending: false })
-  if (error) throw error
-
-  // Get related data
-  const scheduleIds = feedingSchedules.map(s => s.id)
-
-  // Fetch targets
-  const { data: targets } = await supabase
-    .from('feeding_targets')
-    .select('*')
-    .in('schedule_id', scheduleIds)
-
-  // Fetch events
-  const { data: events } = await supabase
-    .from('feeding_events')
-    .select('*')
-    .in('schedule_id', scheduleIds)
-
-  // Create maps for quick lookup
-  const targetMap = new Map<string | number, FeedingTarget[]>(scheduleIds.map(id => [id, []]))
-  const eventMap = new Map<string | number, FeedingEvent[]>(scheduleIds.map(id => [id, []]))
-  targets?.forEach(target => {
-    const scheduleTargets = targetMap.get(target.schedule_id) || []
-    scheduleTargets.push(target)
-    targetMap.set(target.schedule_id, scheduleTargets)
-  })
-  events?.forEach(event => {
-    const scheduleEvents = eventMap.get(event.schedule_id) || []
-    scheduleEvents.push(event)
-    eventMap.set(event.schedule_id, scheduleEvents)
-  })
-
-  // Enhance feeding schedules with related data
-  return feedingSchedules.map(schedule => ({
-    ...schedule,
-    targets: targetMap.get(schedule.id) || [],
-    events: eventMap.get(schedule.id) || []
-  }))
-}
-
-async function getLocationData(supabase: SupabaseClient, userId: string, filters: Record<string, unknown> = {}, dateRange?: { from: string; to: string }) {
-  // Get locations
-  let query = supabase
-    .from('locations')
-    .select('*')
-    .eq('user_id', userId)
-
-  if (dateRange) {
-    query = query
-      .gte('created_at', dateRange.from)
-      .lte('created_at', dateRange.to)
-  }
-
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value) {
-      query = query.eq(key, value)
-    }
-  })
-
-  const { data: locations, error } = await query.order('name')
-  if (error) throw error
-
-  // Get related data
-  const locationIds = locations.map(l => l.id)
-  const parentIds = locations.map(l => l.parent_id).filter(Boolean)
-
-  // Fetch parent locations
-  const { data: parentLocations } = await supabase
-    .from('locations')
-    .select('id, name')
-    .in('id', parentIds)
-
-  // Fetch reptiles
-  const { data: reptiles } = await supabase
-    .from('reptiles')
-    .select('id, name, location_id')
-    .in('location_id', locationIds)
-
-  // Create maps for quick lookup
-  const parentMap = new Map(parentLocations?.map(l => [l.id, l]) || [])
-  const reptileMap = new Map<string | number, {id : string, name :string, location_id : string}[]>(locationIds.map(id => [id, []]))
-  reptiles?.forEach(reptile => {
-    const locationReptiles = reptileMap.get(reptile.location_id) || []
-    locationReptiles.push(reptile)
-    reptileMap.set(reptile.location_id, locationReptiles)
-  })
-
-  // Enhance locations with related data
-  return locations.map(location => ({
-    ...location,
-    parent: location.parent_id ? parentMap.get(location.parent_id) || { name: 'Unknown' } : null,
-    reptiles: reptileMap.get(location.id) || []
-  }))
-}
-
 export async function createBackup(request: z.infer<typeof requestSchema>) {
   const supabase = await createClient()
   
@@ -535,12 +420,6 @@ export async function createBackup(request: z.infer<typeof requestSchema>) {
       break
     case 'breeding_projects':
       data = await getBreedingData(supabase, user.id, filters, dateRange)
-      break
-    case 'feeding':
-      data = await getFeedingData(supabase, user.id, filters, dateRange)
-      break
-    case 'locations':
-      data = await getLocationData(supabase, user.id, filters, dateRange)
       break
     default:
       throw new Error('Invalid backup type')

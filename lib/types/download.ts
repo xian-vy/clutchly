@@ -6,7 +6,7 @@ export interface Logs {
     status: 'success' | 'error'
 }
 
-export type BackupType = 'reptiles' | 'feeding' | 'health_log_entries' | 'growth_entries' | 'breeding_projects' | 'locations'
+export type BackupType = 'reptiles'  | 'health_log_entries' | 'growth_entries' | 'breeding_projects' 
 
 export interface BackupConfig {
     id: BackupType
@@ -90,49 +90,6 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
             }
         ]
     },
-    feeding: {
-        id: 'feeding',
-        label: 'Feeding Records',
-        description: 'Feeding schedules and events',
-        fields: [
-            { key: 'name', label: 'Schedule Name', type: 'string' },
-            { key: 'recurrence', label: 'Recurrence', type: 'string' },
-            { key: 'target_type', label: 'Target Type', type: 'string' },
-            { key: 'targets', label: 'Targets', type: 'array' },
-            { key: 'events', label: 'Events', type: 'array' },
-            { key: 'created_at', label: 'Created At', type: 'date' },
-            { key: 'last_modified', label: 'Last Modified', type: 'date' }
-        ],
-        relationships: [
-            { table: 'feeding_targets', fields: ['*'] },
-            { table: 'feeding_events', fields: ['*'] }
-        ],
-        filters: [
-            {
-                field: 'recurrence',
-                label: 'Recurrence Type',
-                type: 'select',
-                options: [
-                    { value: 'daily', label: 'Daily' },
-                    { value: 'weekly', label: 'Weekly' },
-                    { value: 'custom', label: 'Custom' },
-                    { value: 'interval', label: 'Interval' }
-                ]
-            },
-            {
-                field: 'target_type',
-                label: 'Target Type',
-                type: 'select',
-                options: [
-                    { value: 'room', label: 'Room' },
-                    { value: 'rack', label: 'Rack' },
-                    { value: 'level', label: 'Level' },
-                    { value: 'location', label: 'Location' },
-                    { value: 'reptile', label: 'Reptile' }
-                ]
-            }
-        ]
-    },
     health_log_entries: {
         id: 'health_log_entries',
         label: 'Health Records',
@@ -185,8 +142,8 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
         fields: [
             { key: 'reptile.name', label: 'Reptile', type: 'string' },
             { key: 'measurement_type', label: 'Type', type: 'string' },
-            { key: 'value', label: 'Value', type: 'number' },
-            { key: 'unit', label: 'Unit', type: 'string' },
+            { key: 'weight', label: 'Weight(g)', type: 'number' },
+            { key: 'length', label: 'Length(cm)', type: 'number' },
             { key: 'date', label: 'Date', type: 'date' },
             { key: 'notes', label: 'Notes', type: 'string' },
             { key: 'created_at', label: 'Created At', type: 'date' }
@@ -243,35 +200,7 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
             }
         ]
     },
-    locations: {
-        id: 'locations',
-        label: 'Locations',
-        description: 'Your location setup',
-        fields: [
-            { key: 'name', label: 'Name', type: 'string' },
-            { key: 'type', label: 'Type', type: 'string' },
-            { key: 'parent.name', label: 'Parent Location', type: 'string' },
-            { key: 'reptiles', label: 'Reptiles', type: 'array' },
-            { key: 'created_at', label: 'Created At', type: 'date' },
-            { key: 'last_modified', label: 'Last Modified', type: 'date' }
-        ],
-        relationships: [
-            { table: 'locations!parent_id(name)', fields: ['name'] },
-            { table: 'reptiles', fields: ['name'] }
-        ],
-        filters: [
-            {
-                field: 'type',
-                label: 'Location Type',
-                type: 'select',
-                options: [
-                    { value: 'room', label: 'Room' },
-                    { value: 'rack', label: 'Rack' },
-                    { value: 'enclosure', label: 'Enclosure' }
-                ]
-            }
-        ]
-    }
+
 }
 
 export const backupTypes = Object.values(backupConfigs)
