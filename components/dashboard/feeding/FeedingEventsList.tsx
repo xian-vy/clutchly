@@ -111,7 +111,7 @@ const FeedingEventsList = ({
                       size="sm" 
                       variant="ghost" 
                       disabled={updatingEventId === event.id}
-                      onClick={() => saveEventNotes(event.id, eventNotes[event.id] || null, schedule.id, events, queryClient, onEventsUpdated)}
+                      onClick={() => saveEventNotes(event.id, eventNotes[event.id] || null,  feederTypeSize[event.id] || null, schedule.id, events, queryClient, onEventsUpdated)}
                  >
                       {updatingEventId === event.id ? (
                         <Loader2 className="h-4 w-4 animate-spin text-primary" />

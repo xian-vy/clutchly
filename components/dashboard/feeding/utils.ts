@@ -193,6 +193,7 @@ export const createRealEventFromVirtual = async (
   activeTargetId: string | null,
   fed: boolean = true, 
   notes: string = '',
+  feederSizeId: string | null = null,
   onEventsUpdated?: () => void
 ) => {
   try {
@@ -214,7 +215,8 @@ export const createRealEventFromVirtual = async (
       scheduled_date: virtualEvent.scheduled_date,
       fed,
       fed_at: fed ? new Date().toISOString() : null,
-      notes: notes || null
+      notes: notes || null,
+      feeder_size_id: feederSizeId
     });
     
     toast.success("Feeding recorded");
@@ -247,6 +249,7 @@ export const createRealEventFromVirtual = async (
 export const saveEventNotes = async (
   eventId: string,
   notes: string | null,
+  feederSizeId: string | null = null,
   scheduleId: string,
   events: FeedingEventWithDetails[],
   queryClient: QueryClient,
@@ -264,14 +267,15 @@ export const saveEventNotes = async (
       if (!oldData) return [];
       return oldData.map(event => 
         event.id === eventId 
-          ? { ...event, notes: notes || null } 
+          ? { ...event, notes: notes || null, feeder_size_id: feederSizeId || null  } 
           : event
       );
     });
     
     const updatedEvent = await updateFeedingEvent(eventId, {
       notes: notes || null,
-      fed: currentEvent.fed // Preserve the current fed status
+      fed: currentEvent.fed,
+      feeder_size_id: feederSizeId || null
     });
     
     // Update the cache with the server response
@@ -283,7 +287,7 @@ export const saveEventNotes = async (
     // Only invalidate the feeding status query
     queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
     
-    toast.success('Notes saved successfully');
+    toast.success('Details saved successfully');
     
     if (onEventsUpdated) {
       onEventsUpdated();
