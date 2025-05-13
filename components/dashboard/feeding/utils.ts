@@ -1,7 +1,7 @@
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
 import { toast } from 'sonner';
-import { createFeedingEvent, updateFeedingEvent } from '@/app/api/feeding/events';
+import {  updateFeedingEvent } from '@/app/api/feeding/events';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { QueryClient } from '@tanstack/react-query';
@@ -185,65 +185,7 @@ export const loadReptilesByTarget = async (
   }
 };
 
-// Create a real event from a virtual event
-export const createRealEventFromVirtual = async (
-  virtualEvent: VirtualFeedingEvent, 
-  scheduleId: string,
-  queryClient: QueryClient,
-  activeTargetId: string | null,
-  fed: boolean = true, 
-  notes: string = '',
-  feederSizeId: string | null = null,
-  onEventsUpdated?: () => void
-) => {
-  try {
-    // Optimistically update the UI before the API call
-    // Remove the virtual event from the list
-    queryClient.setQueryData(['virtual-feeding-events', scheduleId, activeTargetId], 
-      (oldData: VirtualFeedingEvent[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.filter(ve => 
-          !(ve.reptile_id === virtualEvent.reptile_id && ve.scheduled_date === virtualEvent.scheduled_date)
-        );
-      }
-    );
-    
-    // Create the new event
-    const newEvent = await createFeedingEvent({
-      schedule_id: scheduleId,
-      reptile_id: virtualEvent.reptile_id,
-      scheduled_date: virtualEvent.scheduled_date,
-      fed,
-      fed_at: fed ? new Date().toISOString() : null,
-      notes: notes || null,
-      feeder_size_id: feederSizeId
-    });
-    
-    toast.success("Feeding recorded");
-    
-    // Update the cache with the new event
-    queryClient.setQueryData(['feeding-events', scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
-      if (!oldData) return [newEvent];
-      return [...oldData, newEvent];
-    });
-    
-    // Only invalidate the feeding status query, not the events queries
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-    
-    if (onEventsUpdated) {
-      onEventsUpdated();
-    }
 
-    return newEvent;
-  } catch (error) {
-    console.error('Error creating real event from virtual:', error);
-    toast.error("Failed to record feeding");
-    
-    // Revert the optimistic update if the API call failed
-    queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTargetId] });
-    throw error;
-  }
-};
 
 // Save notes for an event
 export const saveEventNotes = async (
@@ -286,7 +228,8 @@ export const saveEventNotes = async (
     
     // Only invalidate the feeding status query
     queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-    
+    queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
+
     toast.success('Details saved successfully');
     
     if (onEventsUpdated) {
@@ -354,6 +297,7 @@ export const saveMultipleEvents = async (
     // Only invalidate on error
     queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
     queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
+    queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
   }
 };
 
