@@ -5,7 +5,7 @@ import { createFeedingEvent, updateFeedingEvent } from '@/app/api/feeding/events
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { QueryClient } from '@tanstack/react-query';
-import { ScheduleStatus } from './FeedingTab';
+import { ScheduleStatus } from './FeedingEvents';
 
 // Interface for virtual events that don't exist in the DB yet
 export interface VirtualFeedingEvent {
@@ -351,4 +351,124 @@ export const saveMultipleEvents = async (
     queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
     queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
   }
+};
+
+export const getScheduleStats = async (schedule: FeedingScheduleWithTargets) => {
+  // Count location-related targets (location, room, rack, level)
+  const locationRelatedTargets = schedule.targets.filter(
+    (target) => ['location', 'room', 'rack', 'level'].includes(target.target_type)
+  );
+  
+  // Count direct reptile targets
+  const reptileTargets = schedule.targets.filter(
+    (target) => target.target_type === 'reptile'
+  );
+  
+  let estimatedReptileCount = reptileTargets.length;
+  
+  // Get actual reptile counts from location-related targets
+  try {
+    const reptileCounts = await Promise.all(
+      locationRelatedTargets.map(async (target) => {
+        const reptiles = await getReptilesByLocation(
+          target.target_type as 'room' | 'rack' | 'level' | 'location',
+          target.target_id
+        );
+        return reptiles.length;
+      })
+    );
+    
+    estimatedReptileCount += reptileCounts.reduce((sum, count) => sum + count, 0);
+  } catch (error) {
+    console.error('Error counting reptiles:', error);
+    // Fallback to simple estimation if query fails
+    estimatedReptileCount += locationRelatedTargets.length;
+  }
+  
+  // Calculate next feeding date
+  const nextFeedingDate = getNextFeedingDay(schedule);
+  
+  return {
+    locationCount: locationRelatedTargets.length,
+    reptileCount: estimatedReptileCount,
+    nextFeedingDate
+  };
+};
+
+
+const getNextFeedingDay = (schedule: FeedingScheduleWithTargets): Date => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Check if the schedule was created today or in the future
+  const scheduleCreatedAt = new Date(schedule.created_at);
+  scheduleCreatedAt.setHours(0, 0, 0, 0);
+  
+  if (schedule.recurrence === 'daily') {
+    return today;
+  } else if (schedule.recurrence === 'weekly') {
+    const startDate = new Date(schedule.start_date);
+    const startDayOfWeek = startDate.getDay();
+    const currentDayOfWeek = today.getDay();
+    
+    if (startDayOfWeek === currentDayOfWeek) {
+      // Always return next week's date since we want the next feeding day
+      const nextDate = new Date(today);
+      nextDate.setDate(nextDate.getDate() + 7);
+      return nextDate;
+    } else {
+      let daysToAdd = (startDayOfWeek - currentDayOfWeek + 7) % 7;
+      if (daysToAdd === 0) daysToAdd = 7; // If we'd get today, we want next week
+      
+      const nextDate = new Date(today);
+      nextDate.setDate(nextDate.getDate() + daysToAdd);
+      return nextDate;
+    }
+  } else if (schedule.recurrence === 'interval' && schedule.interval_days) {
+    const startDate = new Date(schedule.start_date);
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Calculate days since start
+    const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // If today is a feeding day, return today
+    if (daysSinceStart % schedule.interval_days === 0) {
+      return today;
+    }
+    
+    // Calculate days until next feeding
+    const daysUntilNext = schedule.interval_days - (daysSinceStart % schedule.interval_days);
+    
+    // Calculate next feeding date
+    const nextDate = new Date(today);
+    nextDate.setDate(today.getDate() + daysUntilNext);
+    
+    return nextDate;
+  } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
+    const currentDayOfWeek = today.getDay();
+    
+    if (schedule.custom_days.includes(currentDayOfWeek)) {
+      return today;
+    } else {
+      // Find the next day that matches the custom day pattern
+      let nearestDay = 7; // Max days to look ahead
+      
+      for (let i = 1; i <= 7; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(checkDate.getDate() + i);
+        const checkDayOfWeek = checkDate.getDay();
+        
+        if (schedule.custom_days.includes(checkDayOfWeek)) {
+          nearestDay = i;
+          break;
+        }
+      }
+      
+      const nextDate = new Date(today);
+      nextDate.setDate(nextDate.getDate() + nearestDay);
+      return nextDate;
+    }
+  }
+  
+  return today;
 };

@@ -23,8 +23,14 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
 import { saveMultipleEvents, shouldHaveFeedingToday } from './utils';
-import { ScheduleStatus } from './FeedingTab';
 
+export interface ScheduleStatus {
+  totalEvents: number;
+  completedEvents: number;
+  isComplete: boolean;
+  percentage: number;
+  scheduledDate: string;
+}
 interface FeedingEventsListProps {
   scheduleId: string;
   schedule: FeedingScheduleWithTargets;
