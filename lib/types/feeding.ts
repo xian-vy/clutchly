@@ -29,6 +29,7 @@ export interface FeedingEvent {
   scheduled_date: string;
   fed: boolean;
   fed_at: string | null;
+  feeder_size_id: string | null; 
   notes: string | null;
 }
 

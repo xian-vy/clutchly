@@ -197,7 +197,7 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
                       <FormItem>
                         <FormLabel>Rows (Levels)</FormLabel>
                         <FormControl>
-                          <Input type="number" min="1" {...field} />
+                          <Input disabled={!!(selectedRack)} type="number" min="1" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -212,6 +212,7 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
                         <FormLabel>Columns (Optional)</FormLabel>
                         <FormControl>
                           <Input 
+                            disabled={!!(selectedRack)}
                             type="number" 
                             min="0" 
                             placeholder="Leave empty if not applicable"

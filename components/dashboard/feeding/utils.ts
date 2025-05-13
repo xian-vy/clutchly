@@ -1,11 +1,11 @@
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
 import { toast } from 'sonner';
-import { createFeedingEvent, updateFeedingEvent } from '@/app/api/feeding/events';
+import {  updateFeedingEvent } from '@/app/api/feeding/events';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { QueryClient } from '@tanstack/react-query';
-import { ScheduleStatus } from './FeedingTab';
+import { ScheduleStatus } from './FeedingEvents';
 
 // Interface for virtual events that don't exist in the DB yet
 export interface VirtualFeedingEvent {
@@ -185,68 +185,13 @@ export const loadReptilesByTarget = async (
   }
 };
 
-// Create a real event from a virtual event
-export const createRealEventFromVirtual = async (
-  virtualEvent: VirtualFeedingEvent, 
-  scheduleId: string,
-  queryClient: QueryClient,
-  activeTargetId: string | null,
-  fed: boolean = true, 
-  notes: string = '',
-  onEventsUpdated?: () => void
-) => {
-  try {
-    // Optimistically update the UI before the API call
-    // Remove the virtual event from the list
-    queryClient.setQueryData(['virtual-feeding-events', scheduleId, activeTargetId], 
-      (oldData: VirtualFeedingEvent[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.filter(ve => 
-          !(ve.reptile_id === virtualEvent.reptile_id && ve.scheduled_date === virtualEvent.scheduled_date)
-        );
-      }
-    );
-    
-    // Create the new event
-    const newEvent = await createFeedingEvent({
-      schedule_id: scheduleId,
-      reptile_id: virtualEvent.reptile_id,
-      scheduled_date: virtualEvent.scheduled_date,
-      fed,
-      fed_at: fed ? new Date().toISOString() : null,
-      notes: notes || null
-    });
-    
-    toast.success("Feeding recorded");
-    
-    // Update the cache with the new event
-    queryClient.setQueryData(['feeding-events', scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
-      if (!oldData) return [newEvent];
-      return [...oldData, newEvent];
-    });
-    
-    // Only invalidate the feeding status query, not the events queries
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-    
-    if (onEventsUpdated) {
-      onEventsUpdated();
-    }
 
-    return newEvent;
-  } catch (error) {
-    console.error('Error creating real event from virtual:', error);
-    toast.error("Failed to record feeding");
-    
-    // Revert the optimistic update if the API call failed
-    queryClient.invalidateQueries({ queryKey: ['virtual-feeding-events', scheduleId, activeTargetId] });
-    throw error;
-  }
-};
 
 // Save notes for an event
 export const saveEventNotes = async (
   eventId: string,
   notes: string | null,
+  feederSizeId: string | null = null,
   scheduleId: string,
   events: FeedingEventWithDetails[],
   queryClient: QueryClient,
@@ -264,14 +209,15 @@ export const saveEventNotes = async (
       if (!oldData) return [];
       return oldData.map(event => 
         event.id === eventId 
-          ? { ...event, notes: notes || null } 
+          ? { ...event, notes: notes || null, feeder_size_id: feederSizeId || null  } 
           : event
       );
     });
     
     const updatedEvent = await updateFeedingEvent(eventId, {
       notes: notes || null,
-      fed: currentEvent.fed // Preserve the current fed status
+      fed: currentEvent.fed,
+      feeder_size_id: feederSizeId || null
     });
     
     // Update the cache with the server response
@@ -282,8 +228,9 @@ export const saveEventNotes = async (
     
     // Only invalidate the feeding status query
     queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-    
-    toast.success('Notes saved successfully');
+    queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
+
+    toast.success('Details saved successfully');
     
     if (onEventsUpdated) {
       onEventsUpdated();
@@ -350,5 +297,126 @@ export const saveMultipleEvents = async (
     // Only invalidate on error
     queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
     queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
+    queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
   }
+};
+
+export const getScheduleStats = async (schedule: FeedingScheduleWithTargets) => {
+  // Count location-related targets (location, room, rack, level)
+  const locationRelatedTargets = schedule.targets.filter(
+    (target) => ['location', 'room', 'rack', 'level'].includes(target.target_type)
+  );
+  
+  // Count direct reptile targets
+  const reptileTargets = schedule.targets.filter(
+    (target) => target.target_type === 'reptile'
+  );
+  
+  let estimatedReptileCount = reptileTargets.length;
+  
+  // Get actual reptile counts from location-related targets
+  try {
+    const reptileCounts = await Promise.all(
+      locationRelatedTargets.map(async (target) => {
+        const reptiles = await getReptilesByLocation(
+          target.target_type as 'room' | 'rack' | 'level' | 'location',
+          target.target_id
+        );
+        return reptiles.length;
+      })
+    );
+    
+    estimatedReptileCount += reptileCounts.reduce((sum, count) => sum + count, 0);
+  } catch (error) {
+    console.error('Error counting reptiles:', error);
+    // Fallback to simple estimation if query fails
+    estimatedReptileCount += locationRelatedTargets.length;
+  }
+  
+  // Calculate next feeding date
+  const nextFeedingDate = getNextFeedingDay(schedule);
+  
+  return {
+    locationCount: locationRelatedTargets.length,
+    reptileCount: estimatedReptileCount,
+    nextFeedingDate
+  };
+};
+
+
+const getNextFeedingDay = (schedule: FeedingScheduleWithTargets): Date => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  // Check if the schedule was created today or in the future
+  const scheduleCreatedAt = new Date(schedule.created_at);
+  scheduleCreatedAt.setHours(0, 0, 0, 0);
+  
+  if (schedule.recurrence === 'daily') {
+    return today;
+  } else if (schedule.recurrence === 'weekly') {
+    const startDate = new Date(schedule.start_date);
+    const startDayOfWeek = startDate.getDay();
+    const currentDayOfWeek = today.getDay();
+    
+    if (startDayOfWeek === currentDayOfWeek) {
+      // Always return next week's date since we want the next feeding day
+      const nextDate = new Date(today);
+      nextDate.setDate(nextDate.getDate() + 7);
+      return nextDate;
+    } else {
+      let daysToAdd = (startDayOfWeek - currentDayOfWeek + 7) % 7;
+      if (daysToAdd === 0) daysToAdd = 7; // If we'd get today, we want next week
+      
+      const nextDate = new Date(today);
+      nextDate.setDate(nextDate.getDate() + daysToAdd);
+      return nextDate;
+    }
+  } else if (schedule.recurrence === 'interval' && schedule.interval_days) {
+    const startDate = new Date(schedule.start_date);
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Calculate days since start
+    const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // If today is a feeding day, return today
+    if (daysSinceStart % schedule.interval_days === 0) {
+      return today;
+    }
+    
+    // Calculate days until next feeding
+    const daysUntilNext = schedule.interval_days - (daysSinceStart % schedule.interval_days);
+    
+    // Calculate next feeding date
+    const nextDate = new Date(today);
+    nextDate.setDate(today.getDate() + daysUntilNext);
+    
+    return nextDate;
+  } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
+    const currentDayOfWeek = today.getDay();
+    
+    if (schedule.custom_days.includes(currentDayOfWeek)) {
+      return today;
+    } else {
+      // Find the next day that matches the custom day pattern
+      let nearestDay = 7; // Max days to look ahead
+      
+      for (let i = 1; i <= 7; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(checkDate.getDate() + i);
+        const checkDayOfWeek = checkDate.getDay();
+        
+        if (schedule.custom_days.includes(checkDayOfWeek)) {
+          nearestDay = i;
+          break;
+        }
+      }
+      
+      const nextDate = new Date(today);
+      nextDate.setDate(nextDate.getDate() + nearestDay);
+      return nextDate;
+    }
+  }
+  
+  return today;
 };

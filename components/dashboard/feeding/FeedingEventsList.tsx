@@ -16,6 +16,7 @@ import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithD
 import { Loader2, Save } from 'lucide-react';
 import { getSortedReptiles, saveEventNotes } from './utils';
 import { QueryClient } from '@tanstack/react-query';
+import { useGroupedFeederSelect } from '@/lib/hooks/useGroupedFeederSelect';
 
 interface Props {
   date: string;
@@ -30,6 +31,8 @@ interface Props {
   updatingEventId: string | null,
   handleNotesChange: (eventId: string, notes: string) => void,
   handleUpdateEvent: (eventId: string, fed: boolean) => void,
+  handleFeederTypeChange: (eventId: string, feederSizeId: string) => void
+  feederTypeSize: Record<string, string>;
 }
 
 const FeedingEventsList = ({
@@ -44,7 +47,10 @@ const FeedingEventsList = ({
     updatingEventId,
     handleNotesChange,
     handleUpdateEvent, 
+    handleFeederTypeChange,
+    feederTypeSize
 }: Props) => {
+  const { FeederSelect } = useGroupedFeederSelect();
   return (
     <div>
       <CardContent className="py-0 px-4">
@@ -56,6 +62,7 @@ const FeedingEventsList = ({
                 <TableHead className="w-[160px] py-1 sm:py-2 xl:py-3">Reptile</TableHead>
                 <TableHead className="w-[120px] py-1 sm:py-2 xl:py-3">Morph</TableHead>
                 <TableHead className="w-[120px] py-1 sm:py-2 xl:py-3">Species</TableHead>
+                <TableHead className="w-[120px] py-1 sm:py-2 xl:py-3">Feeder</TableHead>
                 <TableHead className="w-[300px] py-1 sm:py-2 xl:py-3">Notes</TableHead>
                 <TableHead className="w-[70px] py-1 sm:py-2 xl:py-3"></TableHead>
               </TableRow>
@@ -82,11 +89,21 @@ const FeedingEventsList = ({
                   <TableCell className="py-1 sm:py-2 xl:py-3">{event.morph_name}</TableCell>
                   <TableCell className="py-1 sm:py-2 xl:py-3">{event.species_name}</TableCell>
                   <TableCell className="py-1 sm:py-2 xl:py-3">
+                    <FeederSelect
+                      value={feederTypeSize[event.id] || ''}
+                      onValueChange={(value) => {
+                        handleFeederTypeChange(event.id, value);
+                      }}
+                      placeholder="Select feeder"
+                    
+                    />
+                  </TableCell>
+                  <TableCell className="py-1 sm:py-2 xl:py-3">
                     <Textarea 
                       placeholder="Add notes (optional)"
                       value={eventNotes[event.id] || ''}
                       onChange={(e) => handleNotesChange(event.id, e.target.value)}
-                      className="min-h-[30px] min-w-[150px] text-xs"
+                      className="min-h-[30px] min-w-[150px] max-w-[300px] text-xs placeholder:text-sm"
                     />
                   </TableCell>
                   <TableCell className="py-1 sm:py-2 xl:py-3 text-right">
@@ -94,7 +111,7 @@ const FeedingEventsList = ({
                       size="sm" 
                       variant="ghost" 
                       disabled={updatingEventId === event.id}
-                      onClick={() => saveEventNotes(event.id, eventNotes[event.id] || null, schedule.id, events, queryClient, onEventsUpdated)}
+                      onClick={() => saveEventNotes(event.id, eventNotes[event.id] || null,  feederTypeSize[event.id] || null, schedule.id, events, queryClient, onEventsUpdated)}
                  >
                       {updatingEventId === event.id ? (
                         <Loader2 className="h-4 w-4 animate-spin text-primary" />

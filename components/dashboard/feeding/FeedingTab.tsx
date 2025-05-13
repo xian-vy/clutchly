@@ -1,8 +1,6 @@
 'use client';
 
-import { getFeedingEvents } from '@/app/api/feeding/events';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
-import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,262 +13,33 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { useResource } from '@/lib/hooks/useResource';
-import { FeedingEventWithDetails, FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format, startOfDay, differenceInDays } from 'date-fns';
+import { useUpcomingFeedings } from '@/lib/hooks/useUpcomingFeedings';
+import { FeedingScheduleWithTargets} from '@/lib/types/feeding';
+import { useQuery, useQueryClient,  } from '@tanstack/react-query';
+import { differenceInDays, format, isToday, startOfDay } from 'date-fns';
 import { AlertCircle, Calendar, Check, CheckCircle, Loader2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEvents } from './FeedingEvents';
+import { getScheduleStats } from './utils';
 
-export interface ScheduleStatus {
-  totalEvents: number;
-  completedEvents: number;
-  isComplete: boolean;
-  percentage: number;
-  scheduledDate: string;
-}
+
 
 export function FeedingTab() {
   const [expandedScheduleIds, setExpandedScheduleIds] = useState<Set<string>>(new Set());
+
+  const { data: schedules = [], isLoading : schedulesLoading } = useQuery<FeedingScheduleWithTargets[]>({
+    queryKey: ['feeding-schedules'],
+    queryFn: getFeedingSchedules,
+    staleTime: 60 * 60 * 1000, 
+  });
   const queryClient = useQueryClient();
 
-  // Use the resource hook for schedules
-  const {
-    resources: schedules,
-    isLoading: schedulesLoading,
-  } = useResource<FeedingScheduleWithTargets, NewFeedingSchedule>({
-    resourceName: 'Feeding Schedule',
-    queryKey: ['feeding-schedules'],
-    getResources: getFeedingSchedules,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
-  });
-
-  // Create a query for feeding status
   const { 
-    data: scheduleStatus = {},
-    isLoading: statusLoading,
-    refetch: refetchStatus
-  } = useQuery({
-    queryKey: ['feeding-status'],
-    queryFn: async () => {
-      const statuses: Record<string, ScheduleStatus> = {};
-      
-      if (schedules.length === 0) return statuses;
-      
-      await Promise.all(schedules.map(async (schedule) => {
-        try {
-          const events = await getFeedingEvents(schedule.id);
-          const today = startOfDay(new Date());
-          const todayString = format(today, 'yyyy-MM-dd');
-          
-          let relevantEvents: FeedingEventWithDetails[] = [];
-          let scheduledDate = todayString;
-          
-          // Check if the schedule was created today or in the future
-          const scheduleCreatedAt = new Date(schedule.created_at);
-          scheduleCreatedAt.setHours(0, 0, 0, 0);
-          today.setHours(0, 0, 0, 0);
-          const isNewSchedule = scheduleCreatedAt > today 
-          
-          if (isNewSchedule) {
-            // For new schedules, just set the next feeding date without counting events
-            const nextFeedingDate = getNextFeedingDay(schedule);
-            scheduledDate = format(nextFeedingDate, 'yyyy-MM-dd');
-            
-            statuses[schedule.id] = {
-              totalEvents: 0,
-              completedEvents: 0,
-              isComplete: true, // Mark as complete to avoid showing as incomplete
-              percentage: 100,
-              scheduledDate
-            };
-            return;
-          }
-          
-          // Determine appropriate date based on schedule type
-          if (schedule.recurrence === 'daily') {
-            // For daily schedules, use today's events
-            relevantEvents = events.filter(event => event.scheduled_date === todayString);
-          } else if (schedule.recurrence === 'weekly') {
-            // For weekly schedules, find the current or most recent feeding day
-            const startDate = new Date(schedule.start_date);
-            const startDayOfWeek = startDate.getDay();
-            const currentDayOfWeek = today.getDay();
-            
-            // Calculate the most recent or current feeding day
-            let targetDate: Date;
-            
-            if (startDayOfWeek === currentDayOfWeek) {
-              // Today is a feeding day
-              targetDate = today;
-            } else {
-              // Find most recent feeding day
-              let daysToSubtract = (currentDayOfWeek - startDayOfWeek + 7) % 7;
-              if (daysToSubtract === 0) daysToSubtract = 7; // If we get 0, we want the previous week
-              
-              targetDate = new Date(today);
-              targetDate.setDate(targetDate.getDate() - daysToSubtract);
-            }
-            
-            scheduledDate = format(targetDate, 'yyyy-MM-dd');
-            relevantEvents = events.filter(event => event.scheduled_date === scheduledDate);
-            
-            // If no events found for the calculated date, try using any events from the last 7 days
-            if (relevantEvents.length === 0) {
-              // Look for any feeding events in the past week that match the start day of week
-              const oneWeekAgo = new Date(today);
-              oneWeekAgo.setDate(today.getDate() - 7);
-              
-              // Filter events from the past week that match the start day of week
-              const recentEvents = events
-                .filter(event => {
-                  const eventDate = new Date(event.scheduled_date);
-                  return eventDate >= oneWeekAgo && 
-                         eventDate <= today && 
-                         eventDate.getDay() === startDayOfWeek;
-                })
-                .sort((a, b) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime());
-              
-              if (recentEvents.length > 0) {
-                // Use the most recent event date
-                scheduledDate = recentEvents[0].scheduled_date;
-                relevantEvents = recentEvents.filter(event => event.scheduled_date === scheduledDate);
-              }
-            }
-          } else if (schedule.recurrence === 'interval') {
-            // For interval schedules, check if today is a feeding day
-            const startDate = new Date(schedule.start_date);
-            startDate.setHours(0, 0, 0, 0);
-            
-            // Calculate days since start
-            const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-            
-            // Check if today is a feeding day
-            // Only calculate if interval_days exists
-            if (schedule.interval_days) {
-              const isTodayFeedingDay = daysSinceStart % schedule.interval_days === 0;
-              
-              if (isTodayFeedingDay) {
-                // Today is a feeding day
-                relevantEvents = events.filter(event => event.scheduled_date === todayString);
-              } else {
-                // Find the most recent feeding day
-                const daysToSubtract = daysSinceStart % schedule.interval_days;
-                const lastFeedingDate = new Date(today);
-                lastFeedingDate.setDate(today.getDate() - daysToSubtract);
-                
-                const lastFeedingDateString = format(lastFeedingDate, 'yyyy-MM-dd');
-                relevantEvents = events.filter(event => event.scheduled_date === lastFeedingDateString);
-                
-                if (relevantEvents.length > 0) {
-                  scheduledDate = lastFeedingDateString;
-                } else {
-                  // No recent events found, set next feeding date
-                  const nextFeedingDate = getNextFeedingDay(schedule);
-                  scheduledDate = format(nextFeedingDate, 'yyyy-MM-dd');
-                }
-              }
-            } else {
-              // If interval_days is not set, default to checking today's events
-              relevantEvents = events.filter(event => event.scheduled_date === todayString);
-            }
-          } else if (schedule.recurrence === 'custom') {
-            // For custom schedules, check if today is a feeding day
-            const dayOfWeek = today.getDay();
-            
-            if (schedule.custom_days?.includes(dayOfWeek)) {
-              // Today is a feeding day, use today's events
-              relevantEvents = events.filter(event => event.scheduled_date === todayString);
-            } else {
-              // Find the most recent feeding day
-              let daysToLookBack = 1;
-              let foundEvents = false;
-              
-              while (daysToLookBack <= 7 && !foundEvents) {
-                const previousDay = new Date(today);
-                previousDay.setDate(today.getDate() - daysToLookBack);
-                
-                if (schedule.custom_days?.includes(previousDay.getDay())) {
-                  const previousDayString = format(previousDay, 'yyyy-MM-dd');
-                  const previousEvents = events.filter(event => event.scheduled_date === previousDayString);
-                  
-                  if (previousEvents.length > 0) {
-                    relevantEvents = previousEvents;
-                    scheduledDate = previousDayString;
-                    foundEvents = true;
-                  }
-                }
-                
-                daysToLookBack++;
-              }
-            }
-          }
-          
-          // Get all reptiles that should be fed for this schedule
-          let totalReptilesToFeed = 0;
-          
-          // Count reptiles from all targets
-          await Promise.all(schedule.targets.map(async (target) => {
-            if (target.target_type === 'reptile') {
-              totalReptilesToFeed += 1;
-            } else {
-              try {
-                const reptiles = await getReptilesByLocation(
-                  target.target_type as 'room' | 'rack' | 'level' | 'location',
-                  target.target_id
-                );
-                totalReptilesToFeed += reptiles.length;
-              } catch (error) {
-                console.error('Error counting reptiles:', error);
-              }
-            }
-          }));
-          
-          // If no relevant events but we found reptiles, it might be a new feeding day
-          if (relevantEvents.length === 0 && totalReptilesToFeed > 0) {
-            const nextFeedingDate = getNextFeedingDay(schedule);
-            scheduledDate = format(nextFeedingDate, 'yyyy-MM-dd');
-            
-            statuses[schedule.id] = {
-              totalEvents: totalReptilesToFeed,
-              completedEvents: 0,
-              isComplete: false,
-              percentage: 0,
-              scheduledDate
-            };
-            return;
-          }
-          
-          const completedEvents = relevantEvents.filter(event => event.fed).length;
-          const isComplete = relevantEvents.length > 0 && completedEvents === relevantEvents.length;
-          const percentage = relevantEvents.length === 0 ? 0 : Math.round((completedEvents / relevantEvents.length) * 100);
-          
-          statuses[schedule.id] = {
-            totalEvents: relevantEvents.length,
-            completedEvents,
-            isComplete,
-            percentage,
-            scheduledDate
-          };
-        } catch (error) {
-          console.error(`Error loading status for schedule ${schedule.id}:`, error);
-        }
-      }));
-      
-      return statuses;
-    },
-    enabled: schedules.length > 0,
-    staleTime: 30000, // 30 seconds
-  });
-
-  const refreshStatus = useCallback(() => {
-    refetchStatus();
-    queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
-  }, [refetchStatus, queryClient]);
+    upcomingFeedings, 
+    isLoadingStatus: upcomingLoading,
+    refreshStatus: refreshUpcoming
+  } = useUpcomingFeedings();
 
   const toggleExpanded = (scheduleId: string) => {
     setExpandedScheduleIds(current => {
@@ -304,123 +73,6 @@ export function FeedingTab() {
     }
   };
 
-  // Get next feeding day for the schedule
-  const getNextFeedingDay = (schedule: FeedingScheduleWithTargets): Date => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Check if the schedule was created today or in the future
-    const scheduleCreatedAt = new Date(schedule.created_at);
-    scheduleCreatedAt.setHours(0, 0, 0, 0);
-    
-    if (schedule.recurrence === 'daily') {
-      return today;
-    } else if (schedule.recurrence === 'weekly') {
-      const startDate = new Date(schedule.start_date);
-      const startDayOfWeek = startDate.getDay();
-      const currentDayOfWeek = today.getDay();
-      
-      if (startDayOfWeek === currentDayOfWeek) {
-        return today;
-      } else {
-        let daysToAdd = (startDayOfWeek - currentDayOfWeek + 7) % 7;
-        if (daysToAdd === 0) daysToAdd = 7; // If we'd get today, we want next week
-        
-        const nextDate = new Date(today);
-        nextDate.setDate(nextDate.getDate() + daysToAdd);
-        return nextDate;
-      }
-    } else if (schedule.recurrence === 'interval' && schedule.interval_days) {
-      const startDate = new Date(schedule.start_date);
-      startDate.setHours(0, 0, 0, 0);
-      
-      // Calculate days since start
-      const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // If today is a feeding day, return today
-      if (daysSinceStart % schedule.interval_days === 0) {
-        return today;
-      }
-      
-      // Calculate days until next feeding
-      const daysUntilNext = schedule.interval_days - (daysSinceStart % schedule.interval_days);
-      
-      // Calculate next feeding date
-      const nextDate = new Date(today);
-      nextDate.setDate(today.getDate() + daysUntilNext);
-      
-      return nextDate;
-    } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
-      const currentDayOfWeek = today.getDay();
-      
-      if (schedule.custom_days.includes(currentDayOfWeek)) {
-        return today;
-      } else {
-        // Find the next day that matches the custom day pattern
-        let nearestDay = 7; // Max days to look ahead
-        
-        for (let i = 1; i <= 7; i++) {
-          const checkDate = new Date(today);
-          checkDate.setDate(checkDate.getDate() + i);
-          const checkDayOfWeek = checkDate.getDay();
-          
-          if (schedule.custom_days.includes(checkDayOfWeek)) {
-            nearestDay = i;
-            break;
-          }
-        }
-        
-        const nextDate = new Date(today);
-        nextDate.setDate(nextDate.getDate() + nearestDay);
-        return nextDate;
-      }
-    }
-    
-    return today;
-  };
-
-  // Calculate schedule stats
-  const getScheduleStats = async (schedule: FeedingScheduleWithTargets) => {
-    // Count location-related targets (location, room, rack, level)
-    const locationRelatedTargets = schedule.targets.filter(
-      (target) => ['location', 'room', 'rack', 'level'].includes(target.target_type)
-    );
-    
-    // Count direct reptile targets
-    const reptileTargets = schedule.targets.filter(
-      (target) => target.target_type === 'reptile'
-    );
-    
-    let estimatedReptileCount = reptileTargets.length;
-    
-    // Get actual reptile counts from location-related targets
-    try {
-      const reptileCounts = await Promise.all(
-        locationRelatedTargets.map(async (target) => {
-          const reptiles = await getReptilesByLocation(
-            target.target_type as 'room' | 'rack' | 'level' | 'location',
-            target.target_id
-          );
-          return reptiles.length;
-        })
-      );
-      
-      estimatedReptileCount += reptileCounts.reduce((sum, count) => sum + count, 0);
-    } catch (error) {
-      console.error('Error counting reptiles:', error);
-      // Fallback to simple estimation if query fails
-      estimatedReptileCount += locationRelatedTargets.length;
-    }
-    
-    // Calculate next feeding date
-    const nextFeedingDate = getNextFeedingDay(schedule);
-    
-    return {
-      locationCount: locationRelatedTargets.length,
-      reptileCount: estimatedReptileCount,
-      nextFeedingDate
-    };
-  };
 
   // Add a new query for schedule stats
   const { data: scheduleStats = {} } = useQuery({
@@ -439,7 +91,12 @@ export function FeedingTab() {
     enabled: schedules.length > 0
   });
 
-  const isLoading = schedulesLoading || statusLoading;
+  const isLoading = schedulesLoading || upcomingLoading;
+
+  const refreshStatus = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
+    refreshUpcoming();
+  }, [ queryClient,refreshUpcoming]);
 
   if (isLoading) {
     return (
@@ -468,72 +125,40 @@ export function FeedingTab() {
   }
 
   // Check if there are incomplete schedules for today
-  const incompleteSchedules = Object.entries(scheduleStatus)
-    .filter(entry => {
-      const schedule = schedules.find(s => s.id === entry[0]);
-      if (!schedule) return false;
-      
-      // Check if the schedule was created today or in the future
-      const scheduleCreatedAt = new Date(schedule.created_at);
-      scheduleCreatedAt.setHours(0, 0, 0, 0);
-      const today = startOfDay(new Date());
-      today.setHours(0, 0, 0, 0);
-      const isNewSchedule = scheduleCreatedAt > today 
-      
-      // Don't count new schedules as incomplete
-      if (isNewSchedule) return false;
-      
-      return entry[1].totalEvents > 0 && !entry[1].isComplete;
-    })
-    .length;
+  const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
+  const pendingTodayFeedings = todayFeedings.filter(feeding => !feeding.isCompleted);
+  const hasPendingFeedings = pendingTodayFeedings.length > 0;
+
 
   return (
     <div className="space-y-3">
    
       <div className="flex justify-between items-center">
-        {incompleteSchedules > 0 ? (
+        {hasPendingFeedings ? (
           <Alert variant="info" className="flex-1">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Feeding reminder</AlertTitle>
             <AlertDescription>
-              You have {incompleteSchedules} feeding schedule{incompleteSchedules > 1 ? 's' : ''} that need{incompleteSchedules === 1 ? 's' : ''} to be completed today.
+              You have {pendingTodayFeedings.length} feeding schedule{pendingTodayFeedings.length > 1 ? 's' : ''} that need{pendingTodayFeedings.length === 1 ? 's' : ''} to be completed today.
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="flex w-full items-center justify-center gap-3 text-primary text-xs 2xl:text-sm" >
-               <CheckCircle strokeWidth={1.5} className='w-4 h-4 3xl:h-5 3xl:w-5' /> You&apos;re all set with Feedings.
-          </div>
+          <Alert variant="info" className="flex-1">
+            <CheckCircle className="h-4 w-4" />
+            <AlertTitle>All good!</AlertTitle>
+            <AlertDescription>
+                You&apos;re all set with feedings for today.
+            </AlertDescription>
+          </Alert>
         )}
 
       </div>
 
       <div className="grid grid-cols-1 gap-6">
         {schedules
-          .sort((a, b) => {
-            const statusA = scheduleStatus[a.id];
-            const statusB = scheduleStatus[b.id];
-            
-            // Check if either schedule is new
-            const isNewA = new Date(a.created_at) > startOfDay(new Date());
-            const isNewB = new Date(b.created_at) > startOfDay(new Date());
-            
-            // New schedules go last
-            if (isNewA && !isNewB) return 1;
-            if (!isNewA && isNewB) return -1;
-            
-            // Sort by completion status
-            const isCompleteA = statusA?.isComplete ?? true;
-            const isCompleteB = statusB?.isComplete ?? true;
-            
-            if (!isCompleteA && isCompleteB) return -1;
-            if (isCompleteA && !isCompleteB) return 1;
-            
-            // If both complete or both incomplete, sort by name
-            return a.name.localeCompare(b.name);
-          })
           .map((schedule) => {
             const stats = scheduleStats[schedule.id] || { locationCount: 0, reptileCount: 0, nextFeedingDate: new Date() };
-            const status = scheduleStatus[schedule.id];
+            const status = upcomingFeedings.find((feeding) => feeding.schedule.id === schedule.id);
             
           // Check if the schedule was created today or in the future
           const scheduleCreatedAt = new Date(schedule.created_at);
@@ -542,11 +167,10 @@ export function FeedingTab() {
           today.setHours(0, 0, 0, 0);
           const isNewSchedule = scheduleCreatedAt > today 
           
-          const isActiveToday = status?.scheduledDate === format(new Date(), 'yyyy-MM-dd');
-          const feedingDateString = status?.scheduledDate 
-            ? format(new Date(status.scheduledDate), 'MMM d, yyyy')
+          const isActiveToday = status?.date.toDateString() === format(new Date(), 'yyyy-MM-dd');
+          const feedingDateString = status?.date 
+            ? format(new Date(status.date), 'MMM d, yyyy')
             : null;
-            
           return (
             <Collapsible
               key={schedule.id}
@@ -556,7 +180,7 @@ export function FeedingTab() {
             >
               <Card className="border-0 shadow-none gap-5 3xl:gap-6">
                 <CardHeader className="pb-0 px-6">
-                  {status && (status.isComplete || isNewSchedule) && (
+                  {status && (status.isCompleted || isNewSchedule) && (
                     <div className="mb-3">
                       <Badge variant="outline" className="flex justify-between !text-xs items-center  h-8 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
                        <div className='flex items-center gap-1.5'>
@@ -584,26 +208,26 @@ export function FeedingTab() {
 
                     </div>
                     <div className='flex-1'>
-                    {statusLoading ? (
+                    {upcomingLoading ? (
                         <div className="h-8 flex items-center justify-center mb-3">
                           <Loader2 className="h-4 w-4 animate-spin text-primary" />
                         </div>
-                        ) : status && status.totalEvents > 0 && !status.isComplete && !isNewSchedule && (
+                        ) : status && status.totalEvents > 0 && !status.isCompleted && !isNewSchedule && (
                           <div className="mb-4">
                             <div className="flex justify-between text-xs text-muted-foreground mb-1">
                               <span>
                                 {isActiveToday ? 'Today\'s progress' : `Progress for ${feedingDateString}`}
                               </span>
-                              <span>{status.percentage}%</span>
+                              <span>{status.completedEvents}/{status.totalEvents}%</span>
                             </div>
-                            <Progress value={status.percentage} className="h-2" />
+                            <Progress value={status.completedEvents * 100 / status.totalEvents} className="h-2" />
                           </div>
                         )}
                     </div>
                     <div>
                       {status && status.totalEvents > 0 && !isNewSchedule && (
-                          <Badge variant={status.isComplete ? "secondary" : "default"} className={`${status.isComplete ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}`}>
-                            {status.isComplete ? (
+                          <Badge variant={status.isCompleted ? "secondary" : "default"} className={`${status.isCompleted ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}`}>
+                            {status.isCompleted ? (
                               <span className="flex items-center gap-1">
                                 <Check className="h-3 w-3" /> Completed
                               </span>

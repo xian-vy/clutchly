@@ -23,8 +23,14 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
 import { saveMultipleEvents, shouldHaveFeedingToday } from './utils';
-import { ScheduleStatus } from './FeedingTab';
 
+export interface ScheduleStatus {
+  totalEvents: number;
+  completedEvents: number;
+  isComplete: boolean;
+  percentage: number;
+  scheduledDate: string;
+}
 interface FeedingEventsListProps {
   scheduleId: string;
   schedule: FeedingScheduleWithTargets;
@@ -35,6 +41,7 @@ interface FeedingEventsListProps {
 export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSchedule }: FeedingEventsListProps) {
   const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
   const [eventNotes, setEventNotes] = useState<Record<string, string>>({});
+  const [feederTypeSize, setFeederTypeSize] = useState<Record<string, string>>({});
   const [reptilesByLocation, setReptilesByLocation] = useState<Reptile[]>([]);
   const [isLoadingReptiles, setIsLoadingReptiles] = useState<boolean>(false);
   const [activeTarget, setActiveTarget] = useState<FeedingTargetWithDetails | null>(null);
@@ -44,27 +51,30 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   const [creatingEvents, setCreatingEvents] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
-  // Fetch feeding events for this schedule using tanstack query
   const { 
     data: events = [], 
     isLoading,
     refetch 
   } = useQuery({
     queryKey: ['feeding-events', scheduleId],
-    queryFn: async () => {
-      const eventsData = await getFeedingEvents(scheduleId);
-      
-      // Initialize notes for each event
+    queryFn: () => getFeedingEvents(scheduleId),
+    staleTime: 30000 * 60, 
+    refetchOnMount: false,
+    refetchOnWindowFocus: false 
+  });
+
+  useEffect(() => {
+    if (events.length > 0) {
       const notesMap: Record<string, string> = {};
-      eventsData.forEach(event => {
+      const feederTypeSizeMap: Record<string, string> = {};
+      events.forEach(event => {
         notesMap[event.id] = event.notes || '';
+        feederTypeSizeMap[event.id] = event.feeder_size_id || '';
       });
       setEventNotes(notesMap);
-      
-      return eventsData;
-    },
-    staleTime: 30000, // 30 seconds
-  });
+      setFeederTypeSize(feederTypeSizeMap);
+    }
+  }, [events]);
 
   // Load reptiles for the first target when component mounts
   useEffect(() => {
@@ -186,12 +196,20 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       [eventId]: notes
     }));
   };
+
+  const handleFeederTypeChange = (eventId: string, feederTypeId: string) => {
+    setFeederTypeSize(currentFeederTypeSize => ({
+      ...currentFeederTypeSize,
+      [eventId]: feederTypeId
+    }));
+  };
   
   // Update a feeding event (mark as fed/unfed)
   const handleUpdateEvent = async (eventId: string, fed: boolean) => {
     setUpdatingEventId(eventId);
     try {
       const notes = eventNotes[eventId];
+      const feederSizeId = feederTypeSize[eventId];
       const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [];
       const eventToUpdate = currentEvents.find(e => e.id === eventId);
       
@@ -200,7 +218,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
         queryClient.setQueryData(['feeding-events', scheduleId], 
           currentEvents.map(event => 
             event.id === eventId 
-              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null } 
+              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null, feeder_size_id: feederSizeId || null } 
               : event
           )
         );
@@ -224,7 +242,8 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       const updatedEvent = await updateFeedingEvent(eventId, {
         fed,
         fed_at: fed ? new Date().toISOString() : null,
-        notes: notes || null
+        notes: notes || null,
+        feeder_size_id: feederSizeId || null
       });
 
         // Update cache with server response
@@ -318,7 +337,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
     }
   };
-  
+
   // Show loading state while any operation is in progress
   if (isLoading || isLoadingReptiles || feedingAll || creatingEvents) {
     return (
@@ -466,6 +485,8 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
               updatingEventId={updatingEventId}
               handleNotesChange={handleNotesChange}
               handleUpdateEvent={handleUpdateEvent}
+              handleFeederTypeChange={handleFeederTypeChange}
+              feederTypeSize={feederTypeSize}
           />
           )}
         </Card>

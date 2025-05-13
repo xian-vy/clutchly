@@ -173,7 +173,8 @@ export function FeedingScheduleForm({
               <FormItem className="flex flex-col">
                 <FormLabel>Start Date</FormLabel>
                 <Popover>
-                  <PopoverTrigger asChild>
+                  <PopoverTrigger asChild disabled={!!(initialData)}
+                  >
                     <FormControl>
                       <Button
                         variant={"outline"}
@@ -237,6 +238,7 @@ export function FeedingScheduleForm({
               <FormLabel>Recurrence</FormLabel>
               <FormControl>
                 <RadioGroup
+                  disabled={!!(initialData)}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   className="flex items-center space-x-1"
@@ -332,6 +334,7 @@ export function FeedingScheduleForm({
           <div>
             <FormLabel className="block mb-2">Feeding Target Type</FormLabel>
             <Select
+              disabled={!!(initialData)}
               value={targetType}
               onValueChange={(value: TargetType) => {
                 setTargetType(value);
@@ -375,6 +378,7 @@ export function FeedingScheduleForm({
                       {rooms.map((room) => (
                         <div key={room.id} className="flex items-center space-x-2">
                           <RadioGroup
+                            disabled={!!(initialData)}
                             value={field.value.length > 0 ? field.value[0].target_id : ''}
                             onValueChange={(value) => {
                               field.onChange([

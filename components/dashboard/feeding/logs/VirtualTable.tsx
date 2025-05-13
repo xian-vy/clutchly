@@ -4,22 +4,15 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar as CalendarIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { FeedingEventNormalized } from '../FeedingLogsTab';
 
-interface FeedingEvent {
-  id: string;
-  scheduled_date: string;
-  reptile_name: string;
-  species_name: string;
-  morph_name?: string | null;
-  fed: boolean;
-  notes?: string | null;
-}
+
 
 interface VirtualTableProps {
-  events: FeedingEvent[];
-  sortField: keyof FeedingEvent;
+  events: FeedingEventNormalized[];
+  sortField: keyof FeedingEventNormalized;
   sortDirection: 'asc' | 'desc';
-  onSort: (field: keyof FeedingEvent) => void;
+  onSort: (field: keyof FeedingEventNormalized) => void;
 }
 
 export function VirtualTable({ 
@@ -37,7 +30,7 @@ export function VirtualTable({
     overscan: 5, // Number of items to render outside of the visible area
   });
 
-  const SortIcon = ({ field }: { field: keyof FeedingEvent }) => {
+  const SortIcon = ({ field }: { field: keyof FeedingEventNormalized }) => {
     if (field !== sortField) return null;
     return sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
   };
@@ -54,7 +47,7 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('scheduled_date')}
           >
-            <div className="flex items-center gap-1 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 text-xs sm:text-[0.8rem]">
               Date
               <SortIcon field="scheduled_date" />
             </div>
@@ -63,7 +56,7 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('reptile_name')}
           >
-            <div className="flex items-center gap-1 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 text-xs sm:text-[0.8rem]">
               Reptile
               <SortIcon field="reptile_name" />
             </div>
@@ -72,7 +65,7 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('species_name')}
           >
-            <div className="flex items-center gap-1 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 text-xs sm:text-[0.8rem]">
               Species
               <SortIcon field="species_name" />
             </div>
@@ -81,21 +74,30 @@ export function VirtualTable({
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('morph_name')}
           >
-            <div className="flex items-center gap-1 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 text-xs sm:text-[0.8rem]">
               Morph
               <SortIcon field="morph_name" />
             </div>
           </div>
           <div 
             className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
+            onClick={() => onSort('feeder')}
+          >
+            <div className="flex items-center gap-1 text-xs sm:text-[0.8rem]">
+              Feeder
+              <SortIcon field="feeder" />
+            </div>
+          </div>
+          <div 
+            className="flex-1 p-3 font-medium text-sm cursor-pointer hover:bg-muted/50"
             onClick={() => onSort('fed')}
           >
-            <div className="flex items-center gap-1 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 text-xs sm:text-[0.8rem]">
               Status
               <SortIcon field="fed" />
             </div>
           </div>
-          <div className="flex-1 p-3 font-medium text-xs sm:text-sm">
+          <div className="flex-1 p-3 font-medium text-xs sm:text-[0.8rem]">
             Notes
           </div>
         </div>
@@ -126,15 +128,16 @@ export function VirtualTable({
                 }}
               >
                 <div className="flex-1 p-2 md:p-3">
-                  <div className="flex items-center gap-1 text-xs sm:text-sm text-nowrap" >
+                  <div className="flex items-center gap-1 text-xs sm:text-[0.8rem] text-nowrap" >
                     <CalendarIcon className="h-3 w-3 text-muted-foreground" />
                     {format(new Date(event.scheduled_date), 'MMM d, yyyy')}
                   </div>
                 </div>
-                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.reptile_name}</div>
-                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.species_name}</div>
-                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">{event.morph_name || '-'}</div>
-                <div className="flex-1 p-2 md:p-3 text-xs sm:text-sm text-nowrap">
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-[0.8rem] text-nowrap">{event.reptile_name}</div>
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-[0.8rem] text-nowrap">{event.species_name}</div>
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-[0.8rem] text-nowrap">{event.morph_name || '-'}</div>
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-[0.8rem] text-nowrap">{event.feeder || '-'}</div>
+                <div className="flex-1 p-2 md:p-3 text-xs sm:text-[0.8rem] text-nowrap">
                   <Badge variant={event.fed ? "outline" : "secondary"}>
                     {event.fed ? "Fed" : "Not Fed"}
                   </Badge>

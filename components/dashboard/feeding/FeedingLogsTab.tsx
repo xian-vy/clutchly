@@ -1,23 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import { DateRange } from 'react-day-picker';
 import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { getFeedingEvents } from '@/app/api/feeding/events';
 import { format } from 'date-fns';
 
-// Import our new modular components
 import { SummaryCards } from './logs/SummaryCards';
 import { FeedingEventsTable } from './logs/FeedingEventsTable';
-import { ReportsPanel } from './logs/ReportsPanel';
+import { useFeedersStore } from '@/lib/stores/feedersStore';
 
-// Define the FeedingEvent interface to match the data structure
-interface FeedingEvent {
+export interface FeedingEventNormalized {
   id: string;
   scheduled_date: string;
   reptile_name: string;
@@ -25,30 +21,27 @@ interface FeedingEvent {
   morph_name?: string | null;
   fed: boolean;
   notes?: string | null;
+  feeder : string;
 }
-
 export function FeedingLogsTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'fed' | 'unfed'>('all');
-  // Update initial dateRange to include both from and to as today
   const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(),
-    to: new Date(), // Set to today as well
+    to: new Date(), 
   });
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const {feederSizes, feederTypes} = useFeedersStore();
 
-  // Use TanStack Query to fetch and cache feeding events
   const { 
     data: events = [], 
     isLoading, 
     error,
     refetch 
   } = useQuery({
-    queryKey: ['feeding-events'],
+    queryKey: ['feeding-events-logs'],
     queryFn: async () => {
       try {
-        // Since we're loading all events, we'll create a workaround 
-        // by fetching events for each schedule
+
         const supabase = createClient();
         const { data: schedules } = await supabase
           .from('feeding_schedules')
@@ -58,7 +51,17 @@ export function FeedingLogsTab() {
           // Fetch events for each schedule and combine them
           const allEventsPromises = schedules.map((s: { id: string }) => getFeedingEvents(s.id));
           const eventsArrays = await Promise.all(allEventsPromises);
-          return eventsArrays.flat() as FeedingEvent[];
+          const eventsArrayWithFeeder = eventsArrays.map(events => {
+            return events.map(event => {
+              const feederSize = feederSizes.find(f => f.id === event.feeder_size_id);
+              const feederType = feederTypes.find(f => f.id === feederSize?.feeder_type_id);
+              return {
+                ...event,
+                feeder: feederSize && feederType ? `${feederType.name} > ${feederSize.name}` : '-',
+              };
+            });
+          });
+          return eventsArrayWithFeeder.flat() as FeedingEventNormalized[];
         } else {
           return [];
         }
@@ -105,44 +108,6 @@ export function FeedingLogsTab() {
 
     return true;
   });
-
-  // Update clearFilters to set both from and to to today
-  const clearFilters = () => {
-    setSearchTerm('');
-    setFilterStatus('all');
-    setDateRange({ from: new Date(), to: new Date() }); // Reset both to today
-  };
-
-  // Handle report generation
-  const handleGenerateReport = async () => {
-    setIsGeneratingReport(true);
-    
-    try {
-      // Mock report generation
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const reportData = {
-        reportDate: format(new Date(), 'yyyy-MM-dd'),
-        totalEvents: filteredEvents.length,
-        fedCount: filteredEvents.filter(e => e.fed).length,
-        unfedCount: filteredEvents.filter(e => !e.fed).length,
-        dateRange: {
-          from: dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : 'All time',
-          to: dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : 'Present',
-        }
-      };
-      
-      console.log('Report data:', reportData);
-      
-      toast.success('Report generated successfully!');
-      // In a real implementation, this would trigger a download or open a report view
-    } catch (error) {
-      console.error('Error generating report:', error);
-      toast.error('Failed to generate report');
-    } finally {
-      setIsGeneratingReport(false);
-    }
-  };
 
 
   // Get the current date
@@ -201,36 +166,16 @@ export function FeedingLogsTab() {
         todayEvents={todayEvents}
       />
 
-      <Tabs defaultValue="logs" className="space-y-4">
-        <TabsList >
-          <TabsTrigger value="logs">Event Logs</TabsTrigger>
-          {/* <TabsTrigger value="reports">Reports</TabsTrigger> */}
-        </TabsList>
-        
-        <TabsContent value="logs" className="space-y-4">
-          {/* Combined FilterBar and FeedingEventsTable */}
-          <FeedingEventsTable 
-            events={filteredEvents}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-            dateRange={dateRange}
-            setDateRange={setDateRange}
-            clearFilters={clearFilters}
-          />
-        </TabsContent>
+      <FeedingEventsTable 
+        events={filteredEvents}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+      />
 
-        <TabsContent value="reports" className="space-y-4">
-          <ReportsPanel 
-            filterStatus={filterStatus}
-            dateRange={dateRange}
-            filteredEventsCount={filteredEvents.length}
-            isGeneratingReport={isGeneratingReport}
-            onGenerateReport={handleGenerateReport}
-          />
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }
