@@ -89,7 +89,8 @@ export async function updateFeedingEvent(id: string, data: Partial<NewFeedingEve
     .update({
       fed: data.fed ?? false,
       fed_at: data.fed ? new Date().toISOString() : null,
-      notes: data.notes
+      notes: data.notes,
+      feeder_size_id: data.feeder_size_id
     })
     .eq('id', id)
     .select()
@@ -591,7 +592,8 @@ async function processTargets(
           scheduled_date: todayDate,
           fed: allOtherEventsFed || false,
           fed_at: allOtherEventsFed ? new Date().toISOString() : null,
-          notes: null
+          notes: null,
+          feeder_size_id: null
         };
 
         await createFeedingEvent(newEvent);

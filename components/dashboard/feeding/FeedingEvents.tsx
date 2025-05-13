@@ -41,6 +41,7 @@ interface FeedingEventsListProps {
 export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSchedule }: FeedingEventsListProps) {
   const [updatingEventId, setUpdatingEventId] = useState<string | null>(null);
   const [eventNotes, setEventNotes] = useState<Record<string, string>>({});
+  const [feederTypeSize, setFeederTypeSize] = useState<Record<string, string>>({});
   const [reptilesByLocation, setReptilesByLocation] = useState<Reptile[]>([]);
   const [isLoadingReptiles, setIsLoadingReptiles] = useState<boolean>(false);
   const [activeTarget, setActiveTarget] = useState<FeedingTargetWithDetails | null>(null);
@@ -192,12 +193,20 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       [eventId]: notes
     }));
   };
+
+  const handleFeederTypeChange = (eventId: string, feederTypeId: string) => {
+    setFeederTypeSize(currentFeederTypeSize => ({
+      ...currentFeederTypeSize,
+      [eventId]: feederTypeId
+    }));
+  };
   
   // Update a feeding event (mark as fed/unfed)
   const handleUpdateEvent = async (eventId: string, fed: boolean) => {
     setUpdatingEventId(eventId);
     try {
       const notes = eventNotes[eventId];
+      const feederSizeId = feederTypeSize[eventId];
       const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [];
       const eventToUpdate = currentEvents.find(e => e.id === eventId);
       
@@ -206,7 +215,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
         queryClient.setQueryData(['feeding-events', scheduleId], 
           currentEvents.map(event => 
             event.id === eventId 
-              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null } 
+              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null, feeder_size_id: feederSizeId } 
               : event
           )
         );
@@ -230,7 +239,8 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       const updatedEvent = await updateFeedingEvent(eventId, {
         fed,
         fed_at: fed ? new Date().toISOString() : null,
-        notes: notes || null
+        notes: notes || null,
+        feeder_size_id: feederSizeId
       });
 
         // Update cache with server response
@@ -472,6 +482,8 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
               updatingEventId={updatingEventId}
               handleNotesChange={handleNotesChange}
               handleUpdateEvent={handleUpdateEvent}
+              handleFeederTypeChange={handleFeederTypeChange}
+              feederTypeSize={feederTypeSize}
           />
           )}
         </Card>
