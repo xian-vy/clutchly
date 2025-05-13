@@ -13,9 +13,8 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { useResource } from '@/lib/hooks/useResource';
 import { useUpcomingFeedings } from '@/lib/hooks/useUpcomingFeedings';
-import { FeedingScheduleWithTargets, NewFeedingSchedule } from '@/lib/types/feeding';
+import { FeedingScheduleWithTargets} from '@/lib/types/feeding';
 import { useQuery, useQueryClient,  } from '@tanstack/react-query';
 import { differenceInDays, format, isToday, startOfDay } from 'date-fns';
 import { AlertCircle, Calendar, Check, CheckCircle, Loader2 } from 'lucide-react';
@@ -29,17 +28,10 @@ import { getScheduleStats } from './utils';
 export function FeedingTab() {
   const [expandedScheduleIds, setExpandedScheduleIds] = useState<Set<string>>(new Set());
 
-  // Use the resource hook for schedules
-  const {
-    resources: schedules,
-    isLoading: schedulesLoading,
-  } = useResource<FeedingScheduleWithTargets, NewFeedingSchedule>({
-    resourceName: 'Feeding Schedule',
+  const { data: schedules = [], isLoading : schedulesLoading } = useQuery<FeedingScheduleWithTargets[]>({
     queryKey: ['feeding-schedules'],
-    getResources: getFeedingSchedules,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
+    queryFn: getFeedingSchedules,
+    staleTime: 60 * 60 * 1000, 
   });
   const queryClient = useQueryClient();
 
