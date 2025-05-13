@@ -51,30 +51,30 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   const [creatingEvents, setCreatingEvents] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
-  // Fetch feeding events for this schedule using tanstack query
   const { 
     data: events = [], 
     isLoading,
     refetch 
   } = useQuery({
     queryKey: ['feeding-events', scheduleId],
-    queryFn: async () => {
-      const eventsData = await getFeedingEvents(scheduleId);
-      
-      // Initialize notes for each event
+    queryFn: () => getFeedingEvents(scheduleId),
+    staleTime: 30000 * 60, 
+    refetchOnMount: false,
+    refetchOnWindowFocus: false 
+  });
+
+  useEffect(() => {
+    if (events.length > 0) {
       const notesMap: Record<string, string> = {};
       const feederTypeSizeMap: Record<string, string> = {};
-      eventsData.forEach(event => {
+      events.forEach(event => {
         notesMap[event.id] = event.notes || '';
         feederTypeSizeMap[event.id] = event.feeder_size_id || '';
       });
       setEventNotes(notesMap);
       setFeederTypeSize(feederTypeSizeMap);
-      
-      return eventsData;
-    },
-    staleTime: 30000, // 30 seconds
-  });
+    }
+  }, [events]);
 
   // Load reptiles for the first target when component mounts
   useEffect(() => {
@@ -337,7 +337,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
     }
   };
-  
+
   // Show loading state while any operation is in progress
   if (isLoading || isLoadingReptiles || feedingAll || creatingEvents) {
     return (
