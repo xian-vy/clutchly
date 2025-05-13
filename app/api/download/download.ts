@@ -162,7 +162,6 @@ async function getReptileData(supabase: SupabaseClient, userId: string, filters:
   // Get species and morphs
   const speciesIds = reptiles.map(r => r.species_id).filter(Boolean)
   const morphIds = reptiles.map(r => r.morph_id).filter(Boolean)
-  const locationIds = reptiles.map(r => r.location_id).filter(Boolean)
 
   // Fetch species
   const { data: species } = await supabase
@@ -176,23 +175,16 @@ async function getReptileData(supabase: SupabaseClient, userId: string, filters:
     .select('id, name')
     .in('id', morphIds)
 
-  // Fetch locations
-  const { data: locations } = await supabase
-    .from('locations')
-    .select('id, name')
-    .in('id', locationIds)
 
   // Create maps for quick lookup
   const speciesMap = new Map(species?.map(s => [s.id, s]) || [])
   const morphMap = new Map(morphs?.map(m => [m.id, m]) || [])
-  const locationMap = new Map(locations?.map(l => [l.id, l]) || [])
 
   // Enhance reptiles with related data
   return reptiles.map(reptile => ({
     ...reptile,
     species: speciesMap.get(reptile.species_id) || { name: 'Unknown', scientific_name: null },
     morph: morphMap.get(reptile.morph_id) || { name: 'Unknown' },
-    location: locationMap.get(reptile.location_id) || { name: 'Unknown' }
   }))
 }
 
