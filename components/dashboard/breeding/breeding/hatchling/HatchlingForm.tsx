@@ -37,6 +37,8 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/app/api/profiles/profiles";
 import { Profile } from "@/lib/types/profile";
+import {toast} from 'sonner';
+
 
 const formSchema = z.object({
   quantity: z.coerce.number().min(1, 'Must create at least 1 hatchling').max(20, 'Maximum 20 hatchlings at once'),
@@ -158,6 +160,13 @@ export function HatchlingForm({
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const today = new Date().toISOString().split('T')[0];
+
+      //check for duplicate name
+      const duplicate = reptiles?.find(r => r.name.toLowerCase().trim() === values.name.toLowerCase().trim());
+      if (duplicate) {
+        toast.error('A reptile with that name already exists!');
+        return;
+      }
       
       // Get morph and species info for code generation
       const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
