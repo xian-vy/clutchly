@@ -183,18 +183,15 @@ export function BreedingFilterDialog({
             <Separator />
 
             <div className="space-y-4">
-              {/* Date Ranges */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Start Date Range */}
                 <FormField
                   control={form.control}
                   name="startDateRange"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Project Start Date</FormLabel>
-                      <div className="flex flex-col space-y-2">
-                        <div>
-                          <FormLabel className="text-xs">From</FormLabel>
+                      <div className="grid grid-cols-2 gap-4 space-y-2">
+                        <div className="space-y-2">
+                          <FormLabel className="text-xs">Date Start</FormLabel>
                           <Input
                             type="date"
                             value={field.value?.[0] || ""}
@@ -205,8 +202,8 @@ export function BreedingFilterDialog({
                             }}
                           />
                         </div>
-                        <div>
-                          <FormLabel className="text-xs">To</FormLabel>
+                        <div className="space-y-2">
+                          <FormLabel className="text-xs">Date End</FormLabel>
                           <Input
                             type="date"
                             value={field.value?.[1] || ""}
@@ -221,7 +218,6 @@ export function BreedingFilterDialog({
                     </FormItem>
                   )}
                 />
-              </div>
             </div>
 
             <Separator />
@@ -232,7 +228,7 @@ export function BreedingFilterDialog({
                 control={form.control}
                 name="hasNotes"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 ">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}

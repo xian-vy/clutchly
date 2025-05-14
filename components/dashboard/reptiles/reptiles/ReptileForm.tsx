@@ -215,7 +215,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,profile }: Reptile
           </TabsList>
           
           <TabsContent value="basic" className="space-y-2 sm:space-y-3 2xl:space-y-5 mt-2 sm:mt-4">
-            <div className="grid grid-cols-1 gap-3 2xl:gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 2xl:gap-5">
               <FormField
                 control={form.control}
                 name="name"
@@ -245,7 +245,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,profile }: Reptile
               />
             </div>
 
-            <div className="grid grid-cols-3 2xl:grid-cols-4 gap-3  2xl:gap-5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3  2xl:gap-5 h-[200px] md:h-full overflow-auto ">
               <FormField
                     control={form.control}
                     name="species_id"

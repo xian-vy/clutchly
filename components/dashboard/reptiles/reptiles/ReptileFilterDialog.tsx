@@ -124,7 +124,7 @@ export function ReptileFilterDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-5 2xl:space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-5 xl:space-y-8">
             <div className="grid grid-cols-2  gap-4">
               {/* Species Filter */}
               <FormField
@@ -317,7 +317,7 @@ export function ReptileFilterDialog({
             </div>
 
             <Separator />
-            <div className="grid grid-cols-2 md:grid-cols-1 gap-4 xl:gap-5 2xl:gap-7 3xl:gap-9">
+            <div className="grid grid-cols-2  gap-4 xl:gap-5 2xl:gap-7 3xl:gap-8">
 
             {/* Weight Range Filter */}
             <FormField

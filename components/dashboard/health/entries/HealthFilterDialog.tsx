@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { SEVERITY_COLORS } from "@/lib/constants/colors";
 import { HealthLogSeverity } from "@/lib/types/health";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -106,7 +107,7 @@ export function HealthFilterDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 2xl:space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Category Filter */}
               <FormField
                 control={form.control}
@@ -211,13 +212,7 @@ export function HealthFilterDialog({
                   </FormItem>
                 )}
               />
-            </div>
-
-            <Separator />
-
-            <div className="grid grid-cols-2 gap-4">
-              {/* Type Filter */}
-              <FormField
+               <FormField
                 control={form.control}
                 name="type"
                 render={({ field }) => (
@@ -268,6 +263,9 @@ export function HealthFilterDialog({
                   </FormItem>
                 )}
               />
+            </div>
+
+            <Separator />
 
               {/* Severity Filter */}
               <FormField
@@ -280,9 +278,9 @@ export function HealthFilterDialog({
                       {severities.map((severity) => (
                         <Badge
                           key={severity}
-                          variant="outline"
-                          className={`cursor-pointer ${
-                            field.value?.includes(severity) ? "bg-primary/20 ring-2 ring-primary" : ""
+                          variant="custom"
+                          className={`${SEVERITY_COLORS[severity]} cursor-pointer ${
+                            field.value?.includes(severity) ? "ring-2 ring-primary" : ""
                           }`}
                           onClick={() => {
                             const newValue = field.value?.includes(severity)
@@ -298,17 +296,16 @@ export function HealthFilterDialog({
                   </FormItem>
                 )}
               />
-            </div>
 
             <Separator />
 
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-3">
               {/* Resolved Filter */}
               <FormField
                 control={form.control}
                 name="resolved"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-center space-x-1 space-y-0 ">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}
@@ -332,7 +329,7 @@ export function HealthFilterDialog({
                 control={form.control}
                 name="hasNotes"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-center space-x-1 space-y-0 ">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}
@@ -350,15 +347,12 @@ export function HealthFilterDialog({
                   </FormItem>
                 )}
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Has Attachments Filter */}
               <FormField
                 control={form.control}
                 name="hasAttachments"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-center space-x-1 space-y-0 ">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}
