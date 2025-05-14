@@ -31,10 +31,14 @@ export function HelpDialog() {
             <AccordionTrigger>Getting Started</AccordionTrigger>
             <AccordionContent>
               <ol className="list-decimal pl-5 space-y-2">
-                <li>Create your first reptile profile with basic information</li>
-                <li>Set up housing arrangements (rooms, racks, containers)</li>
+                <li>Create your first reptile profile to start</li>
+                <li>You can  import existing data in <strong>Reptiles</strong> page</li>
+                <li> When importing, <strong>morphs</strong>, <strong>species</strong> and <strong>relationships</strong> will be created as well</li>
+                <li>Set up housing arrangements (rooms, racks)</li>
                 <li>Assign reptiles to their respective housings</li>
                 <li>Create feeding schedules for efficient management</li>
+                <li>Monitor reptile health and growth</li>
+                <li>Manage breeding pairs and lineages</li>
               </ol>
             </AccordionContent>
           </AccordionItem>
@@ -47,7 +51,8 @@ export function HelpDialog() {
                 <li>Rooms: Create and name different rooms</li>
                 <li>Racks: Add racks within rooms</li>
                 <li>Rack Levels: Organize levels within racks</li>
-                <li>Containers: Individual housing units</li>
+                <li>Enclosures: Individual housing units</li>
+                <li>Assign reptiles to their respective housings</li>
               </ul>
             </AccordionContent>
           </AccordionItem>
@@ -59,8 +64,7 @@ export function HelpDialog() {
               <ul className="list-disc pl-5 space-y-2">
                 <li>Room: Schedule entire rooms at once</li>
                 <li>Rack: Manage feeding for specific racks</li>
-                <li>Rack Level: Schedule by rack levels</li>
-                <li>Container: Individual feeding schedules</li>
+                <li>Specific Reptiles: Schedule by selected reptiles</li>
                 <li>Track feeding response and refusals</li>
               </ul>
             </AccordionContent>
@@ -71,7 +75,6 @@ export function HelpDialog() {
             <AccordionContent>
               <ul className="list-disc pl-5 space-y-2">
                 <li>Log weight and length measurements</li>
-                <li>Record vet visits and treatments</li>
                 <li>Track shedding cycles</li>
                 <li>Monitor feeding responses</li>
                 <li>View growth charts and progress</li>
@@ -85,7 +88,7 @@ export function HelpDialog() {
               <ul className="list-disc pl-5 space-y-2">
                 <li>Record breeding pairs and dates</li>
                 <li>Track clutch information</li>
-                <li>Monitor incubation details</li>
+                <li>Add hatchlings</li>
                 <li>Manage lineage records</li>
               </ul>
             </AccordionContent>
