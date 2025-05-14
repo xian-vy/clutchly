@@ -102,3 +102,37 @@ export const reorderRowsForParentDependencies = (data: ImportPreviewResponse) =>
       }
     };
   }
+  export enum ImportStep {
+    SELECT_FILE = 0,
+    PREVIEW = 1,
+    IMPORTING = 2,
+    COMPLETE = 3,
+  }
+  export const getButtonText = (step : number, selectedRows : number[], file : File | null) => {
+    switch (step) {
+      case ImportStep.SELECT_FILE:
+        return file ? 'Preview' : 'Select a File'
+      case ImportStep.PREVIEW:
+        return `Import ${selectedRows.length} Reptiles`
+      case ImportStep.IMPORTING:
+        return 'Importing...'
+      case ImportStep.COMPLETE:
+        return 'Close'
+    }
+  }
+
+  // Determine if primary button should be disabled
+  export const isPrimaryButtonDisabled = (step : number, selectedRows : number[], file : File | null, isLoading : boolean  ) => {
+    if (isLoading) return true
+    switch (step) {
+      case ImportStep.SELECT_FILE:
+        return !file
+      case ImportStep.PREVIEW:
+        return selectedRows.length === 0
+      case ImportStep.IMPORTING:
+        return true
+      case ImportStep.COMPLETE:
+        return false
+    }
+  }
+  
