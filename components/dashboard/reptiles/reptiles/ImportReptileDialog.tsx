@@ -1,6 +1,6 @@
 'use client'
 
-import { ImportPreviewResponse, ImportResponse } from '@/app/api/reptiles/import/process'
+import { ImportPreviewResponse, ImportResponse } from '@/app/api/reptiles/import/utils'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useMorphsStore } from '@/lib/stores/morphsStore'
@@ -13,6 +13,7 @@ import PreviewFileContent from './import/PreviewFileContent'
 import SelectFileContent from './import/SelectFileContent'
 import { reorderRowsForParentDependencies } from './import/utils'
 import StepsIndicator from './import/StepsIndicator'
+import { API_UPLOAD_PREVIEW, API_UPLOAD_PROCESS } from '@/lib/constants/api'
 
 interface ImportReptileDialogProps {
   open: boolean
@@ -124,7 +125,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
       toast.loading('Processing file preview...')
       
       // Send to API for preview
-      const response = await fetch('/api/reptiles/import', {
+      const response = await fetch(API_UPLOAD_PREVIEW, {
         method: 'POST',
         body: formData,
       })
@@ -194,7 +195,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
     
     try {
       // Send to API for processing
-      const response = await fetch('/api/reptiles/import', {
+      const response = await fetch(API_UPLOAD_PROCESS, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
