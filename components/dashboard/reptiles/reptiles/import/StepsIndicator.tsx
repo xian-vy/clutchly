@@ -13,7 +13,7 @@ const StepsIndicator = ({step} : Props) => {
       >
         <div className={`w-6 sm:w-8 h-6 sm:h-8 rounded-full text-xs sm:text-sm flex items-center justify-center ${
           idx < step 
-            ? 'bg-primary text-white' 
+            ? 'bg-primary text-white dark:text-black' 
             : idx === step 
               ? 'border-2 border-primary text-primary' 
               : 'border border-gray-300 text-gray-400'
