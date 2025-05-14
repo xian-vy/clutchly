@@ -90,7 +90,7 @@ export function FeedingEventsTable({
           <CardTitle className="text-base sm:text-lg xl:text-xl">Feeding Logs</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
          
           <div className="flex items-center gap-3 justify-start">
             <div>
@@ -143,30 +143,30 @@ export function FeedingEventsTable({
                   </PopoverContent>
                 </Popover>
               </div>
-          </div>
-          <div className='flex justify-end w-full'>
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="search"
-                placeholder="Search reptiles, species, or notes..."
-                className="pl-8 w-[300px] max-w-[400px]"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1 h-7 w-7 text-muted-foreground hover:text-foreground"
-                  onClick={() => setSearchTerm('')}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
             </div>
-          </div>
-        
+            <div className="hidden lg:block"></div>
+            <div className="flex justify-end w-full">
+                <div className="relative w-full">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="search"
+                    placeholder="Search reptiles, species, or notes..."
+                    className="pl-8 w-full"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  {searchTerm && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1 h-7 w-7 text-muted-foreground hover:text-foreground"
+                      onClick={() => setSearchTerm('')}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+            </div>
         </div>
 
         {/* Active filters display */}

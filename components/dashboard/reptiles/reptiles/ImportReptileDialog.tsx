@@ -404,13 +404,13 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                   </>
                }
               {file && (
-                <div className="p-3 bg-muted/50 rounded-md">
-                  <p className="font-medium text-xs sm:text-[0.8rem]">Selected file:</p>
-                  <p className="text-xs sm:text-[0.8rem] text-gray-600 dark:text-gray-400">
+                <div className="p-3 xl:p-5 bg-muted/50 rounded-md">
+                  <p className="font-medium text-xs sm:text-[0.8rem] xl:text-sm">Selected file:</p>
+                  <p className="text-xs sm:text-[0.8rem]  xl:text-sm text-gray-600 dark:text-gray-400">
                     {file.name}
                     <RefreshCcw   onClick={onButtonClick} className="h-3 w-3 sm:w-4 sm:h-4 inline-block ml-2 cursor-pointer" />
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
+                  <p className="text-xs xl:text-sm text-gray-500 dark:text-gray-500">
                     {(file.size / 1024).toFixed(1)} KB • {file.type}
                   </p>
                 </div>
@@ -505,7 +505,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
               </div>
             </div>
             
-            <div className="border rounded-md  overflow-x-auto sm:max-w-[850px] h-[200px] xl:h-[280px] 3xl:h-[350px]">
+            <div className="border rounded-md  overflow-x-auto sm:max-w-[850px] h-[200px] xl:h-[260px] 3xl:h-[350px]">
             <div className="w-[300px] sm:w-[520px] md:w-[620px] lg:w-[700px] xl:w-[780px] 3xl:w-[1000px]">
               <Table>
                 <TableHeader>

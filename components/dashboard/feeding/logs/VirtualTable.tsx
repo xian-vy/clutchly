@@ -38,7 +38,7 @@ export function VirtualTable({
   return (
     <div 
       ref={tableContainerRef} 
-      className="h-[400px]  max-w-[340px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto  border rounded-md relative"
+      className="h-[400px]  max-w-[310px] sm:max-w-[640px] md:max-w-[720px] lg:max-w-full lg:w-full overflow-x-auto  border rounded-md relative"
     >
       {/* Table Header */}
       <div className="sticky top-0 bg-background z-10 border-b">
