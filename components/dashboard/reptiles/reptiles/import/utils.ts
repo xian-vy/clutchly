@@ -1,4 +1,4 @@
-import { ImportPreviewResponse } from "@/app/api/reptiles/import/process";
+import { ImportPreviewResponse } from "@/app/api/reptiles/import/utils";
 
 export const reorderRowsForParentDependencies = (data: ImportPreviewResponse) => {
     if (!data || !data.rows || data.rows.length === 0) return data;

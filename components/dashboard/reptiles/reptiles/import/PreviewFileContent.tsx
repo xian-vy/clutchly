@@ -1,4 +1,4 @@
-import { ImportPreviewResponse } from '@/app/api/reptiles/import/process'
+import { ImportPreviewResponse } from '@/app/api/reptiles/import/utils'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
