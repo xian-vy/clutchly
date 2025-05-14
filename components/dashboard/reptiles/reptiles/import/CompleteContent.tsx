@@ -1,6 +1,6 @@
 'use client'
 
-import { ImportResponse } from '@/app/api/reptiles/import/process'
+import { ImportResponse } from '@/app/api/reptiles/import/utils'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertCircle, CheckCircle, Network } from 'lucide-react'
