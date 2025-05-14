@@ -80,7 +80,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-2 sm:space-y-4 w-full">
-      <div className="flex  items-center justify-between gap-3">
+      <div className="flex  items-center justify-between gap-2 sm:gap-3">
         <div className="flex items-center space-x-2 w-full md:w-auto">
           {filterButton ? (
             filterButton
@@ -119,7 +119,7 @@ export function DataTable<TData, TValue>({
             placeholder="Search..."
             value={globalFilter ?? ""}
             onChange={(event) => setGlobalFilter(event.target.value)}
-            className="max-w-sm pl-7 text-xs md:text-sm"
+            className="max-w-sm pl-7 text-xs md:text-sm h-8 sm:h-9"
           />
         </div>
       </div>

@@ -405,10 +405,10 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                }
               {file && (
                 <div className="p-3 bg-muted/50 rounded-md">
-                  <p className="font-medium text-sm">Selected file:</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="font-medium text-xs sm:text-[0.8rem]">Selected file:</p>
+                  <p className="text-xs sm:text-[0.8rem] text-gray-600 dark:text-gray-400">
                     {file.name}
-                    <RefreshCcw   onClick={onButtonClick} className="h-4 w-4 inline-block ml-2 cursor-pointer" />
+                    <RefreshCcw   onClick={onButtonClick} className="h-3 w-3 sm:w-4 sm:h-4 inline-block ml-2 cursor-pointer" />
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500">
                     {(file.size / 1024).toFixed(1)} KB • {file.type}
@@ -436,7 +436,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                 <div className="mt-2">
                   <Link 
                     href="/templates/reptile_import_template.csv" 
-                    className="inline-flex items-center text-sm text-primary hover:underline"
+                    className="inline-flex items-center text-xs sm:text-sm text-primary hover:underline"
                     download
                   >
                     <Download className="h-3 w-3 mr-1" />
@@ -464,33 +464,33 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
             <div className="grid grid-cols-3 gap-4">
               <Card  className='gap-0'>
                 <CardHeader>
-                  <CardTitle className="text-lg">Total Rows</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm xl:text-base text-nowrap font-medium">Total Rows</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl 3xl:text-3xl font-bold">{previewData.totalRows}</p>
+                  <p className="text-sm sm:text-base xl:text-lg font-bold">{previewData.totalRows}</p>
                 </CardContent>
               </Card>
               
               <Card  className='gap-0'>
                 <CardHeader>
-                  <CardTitle className="text-lg">Valid Rows</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm xl:text-base text-nowrap font-medium">Valid Rows</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl 3xl:text-3xl font-bold text-green-600">{previewData.validRows.length}</p>
+                  <p className="text-sm sm:text-base xl:text-lg font-bold">{previewData.validRows.length}</p>
                 </CardContent>
               </Card>
               
               <Card  className='gap-0'>
                 <CardHeader>
-                  <CardTitle className="text-lg">Selected</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm xl:text-base font-medium">Selected</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl 3xl:text-3xl font-bold text-blue-600">{selectedRows.length}</p>
+                  <p className="text-sm sm:text-base xl:text-lg font-bold">{selectedRows.length}</p>
                 </CardContent>
               </Card>
             </div>
             
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col  items-start gap-2 md:flex-row md:items-center justify-between">
               <div>
                 <Button variant="outline" size="sm" onClick={selectAllValidRows}>
                   Select All Valid
@@ -500,12 +500,13 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                 </Button>
               </div>
               
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 {previewData.speciesCount} unique species, {previewData.morphCount} morphs will be processed
               </div>
             </div>
             
-            <div className="border rounded-md  overflow-scroll sm:max-w-[850px] h-[200px]">
+            <div className="border rounded-md  overflow-x-auto sm:max-w-[850px] h-[200px] xl:h-[280px] 3xl:h-[350px]">
+            <div className="w-[300px] sm:w-[520px] md:w-[620px] lg:w-[700px] xl:w-[780px] 3xl:w-[1000px]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -594,6 +595,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
                   })}
                 </TableBody>
               </Table>
+              </div>
             </div>
             
             {error && (
@@ -609,7 +611,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
       case ImportStep.IMPORTING:
         return (
           <div className="space-y-3 xl:space-y-4 3xl:space-y-6 text-center">
-            <Upload className="h-8 w-8 md:h-10 md:w-10 mx-auto text-primary animate-pulse" />
+            <Upload className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 mx-auto text-primary animate-pulse" />
             <h3 className="text-sm lg:text-base font-medium">Importing Your Data</h3>
             <p className="text-xs sm:text-sm text-muted-foreground">
               Please wait while we process your data...
@@ -628,9 +630,9 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
           <div className="space-y-3 xl:space-y-4 3xl:space-y-6">
             <div className="text-center py-4">
               {importResult.success ? (
-                <CheckCircle className="h-8 w-8 md:h-10 md:w-10 mx-auto text-primary mb-4" />
+                <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-primary mb-4" />
               ) : (
-                <AlertCircle className="h-8 w-8 md:h-10 md:w-10 mx-auto text-red-500 mb-4" />
+                <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 mx-auto text-red-500 mb-4" />
               )}
               
               <h3 className="text-sm lg:text-base font-medium">
@@ -644,42 +646,39 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
               </p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Reptiles</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{importResult.reptiles.length}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Species Added</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{importResult.speciesAdded.length}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Morphs Added</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{importResult.morphsAdded.length}</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Errors</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold text-red-500">{importResult.errors.length}</p>
-                </CardContent>
-              </Card>
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-5">
+                  <Card  className='gap-0'>
+                      <CardHeader>
+                        <CardTitle className="text-xs sm:text-sm xl:text-base text-nowrap text-center font-medium">Reptiles Added</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                          <p className="text-sm sm:text-lg xl:text-xl font-bold text-center">{importResult.reptiles.length}</p>
+                      </CardContent>
+                  </Card>
+                  <Card  className='gap-0'>
+                      <CardHeader>
+                        <CardTitle className="text-xs sm:text-sm xl:text-base text-nowrap text-center font-medium">Species Added</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                          <p className="text-sm sm:text-lg xl:text-xl font-bold text-center">{importResult.speciesAdded.length}</p>
+                      </CardContent>
+                  </Card>
+                  <Card  className='gap-0'>
+                      <CardHeader>
+                        <CardTitle className="text-xs sm:text-sm xl:text-base text-nowrap text-center font-medium">Morphs Added</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                          <p className="text-sm sm:text-lg xl:text-xl font-bold text-center">{importResult.morphsAdded.length}</p>
+                      </CardContent>
+                  </Card>       
+                  <Card  className='gap-0'>
+                      <CardHeader>
+                        <CardTitle className="text-xs sm:text-sm xl:text-base text-nowrap text-center font-medium">Errors</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                          <p className="text-sm sm:text-lg xl:text-xl font-bold text-center">{importResult.errors.length}</p>
+                      </CardContent>
+                  </Card>  
             </div>
             
             {/* Parent relationships summary */}
@@ -773,22 +772,22 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[900px]">
+      <DialogContent className="sm:max-w-[720px] lg:max-w-[800px] xl:max-w-[850px] 3xl:max-w-[900px] gap-3 sm:gap-4 xl:gap-5">
         <DialogHeader>
           <DialogTitle>Import Reptiles</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className='text-xs sm:text-sm'>
             Upload a CSV or Excel file to bulk import your reptile collection.
           </DialogDescription>
         </DialogHeader>
         
         {/* Step indicator */}
-        <div className="flex justify-between w-full mb-6">
+        <div className="flex justify-between w-full mb-3">
           {['Select File', 'Preview', 'Processing', 'Complete'].map((stepName, idx) => (
             <div 
               key={idx} 
               className={`flex flex-col items-center w-1/4 ${idx < step ? 'text-primary' : idx === step ? 'text-primary font-medium' : 'text-gray-400'}`}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              <div className={`w-6 sm:w-8 h-6 sm:h-8 rounded-full text-xs sm:text-sm flex items-center justify-center ${
                 idx < step 
                   ? 'bg-primary text-white' 
                   : idx === step 
@@ -808,11 +807,12 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         {/* Dialog footer */}
         <DialogFooter className="flex justify-end gap-3">
           {step === ImportStep.PREVIEW && (
-            <Button variant="outline" onClick={handleBack} disabled={isLoading}>
+            <Button   size="sm" variant="outline" onClick={handleBack} disabled={isLoading}>
               Back
             </Button>
           )}
           <Button 
+            size="sm"
             onClick={handlePrimaryButtonClick}
             disabled={isPrimaryButtonDisabled()}
             className={`${step === ImportStep.IMPORTING ? 'opacity-50 pointer-events-none' : ''}`}
