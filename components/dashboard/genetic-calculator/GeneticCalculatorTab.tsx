@@ -218,7 +218,7 @@ const GeneticCalculatorTab = () => {
 
       {calculation?.result && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Genetic Analysis Results</h3>
+          <h3 className="text-sm sm:text-base xl:text-lg font-semibold ">Genetic Analysis Results</h3>
           
           <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -250,7 +250,7 @@ const GeneticCalculatorTab = () => {
                 </CardContent>
               </Card>
             </div>
-            <div>
+            <div  className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
               <h4 className="text-sm font-medium mb-2">Possible Morphs</h4>
               <Table>
                 <TableHeader>
@@ -272,7 +272,7 @@ const GeneticCalculatorTab = () => {
               </Table>
             </div>
 
-            <div>
+            <div  className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
               <h4 className="text-sm font-medium mb-2">Possible Het Traits</h4>
               <Table>
                 <TableHeader>
@@ -302,12 +302,12 @@ const GeneticCalculatorTab = () => {
               <CollapsibleContent className="space-y-4 pt-4">
                 <div>
                   <h4 className="text-sm font-medium mb-2">Summary</h4>
-                  <p className="text-sm">{calculation.result.probability_summary}</p>
+                  <p className="text-xs sm:text-sm">{calculation.result.probability_summary}</p>
                 </div>
 
                 <div>
                   <h4 className="text-sm font-medium mb-2">Detailed Analysis</h4>
-                  <p className="text-sm whitespace-pre-wrap">{calculation.result.detailed_analysis}</p>
+                  <p className="text-xs sm:text-sm whitespace-pre-wrap">{calculation.result.detailed_analysis}</p>
                 </div>
               </CollapsibleContent>
             </Collapsible>

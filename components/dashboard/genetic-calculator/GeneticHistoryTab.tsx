@@ -82,26 +82,26 @@ const GeneticHistoryTab = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4 pt-4">
                   <div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <p className="text-sm font-medium">Dam</p>
-                        <p className="text-sm text-muted-foreground">{damInfo?.name} ({damInfo?.reptile_code})</p>
-                        <p className="text-sm text-muted-foreground">{damMorph?.name}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm font-medium">Dam</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{damInfo?.name} ({damInfo?.reptile_code})</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{damMorph?.name}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Visual Traits: {damInfo?.visual_traits?.join(', ') || 'None'}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Het Traits: {damInfo?.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', ') || 'None'}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium">Sire</p>
-                        <p className="text-sm text-muted-foreground">{sireInfo?.name} ({sireInfo?.reptile_code})</p>
-                        <p className="text-sm text-muted-foreground">{sireMorph?.name}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm font-medium">Sire</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{sireInfo?.name} ({sireInfo?.reptile_code})</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{sireMorph?.name}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Visual Traits: {sireInfo?.visual_traits?.join(', ') || 'None'}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Het Traits: {sireInfo?.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', ') || 'None'}
                         </p>
                       </div>
@@ -110,7 +110,7 @@ const GeneticHistoryTab = () => {
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <Card className="shadow-none border">
-                          <CardHeader className="pb-2">
+                          <CardHeader>
                             <CardTitle className="text-sm">Possible Morphs</CardTitle>
                           </CardHeader>
                           <CardContent>
@@ -141,7 +141,7 @@ const GeneticHistoryTab = () => {
                   <div>
                     <h4 className="text-sm font-medium mb-2">Detailed Results</h4>
                     <div className="space-y-4">
-                      <div>
+                      <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
                         <h5 className="text-sm font-medium mb-2">Possible Morphs</h5>
                         <Table>
                           <TableHeader>
@@ -163,7 +163,7 @@ const GeneticHistoryTab = () => {
                         </Table>
                       </div>
 
-                      <div>
+                      <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
                         <h5 className="text-sm font-medium mb-2">Possible Het Traits</h5>
                         <Table>
                           <TableHeader>
@@ -187,12 +187,12 @@ const GeneticHistoryTab = () => {
 
                       <div>
                         <h5 className="text-sm font-medium mb-2">Summary</h5>
-                        <p className="text-sm">{calculation.result.probability_summary}</p>
+                        <p className="text-xs sm:text-sm">{calculation.result.probability_summary}</p>
                       </div>
 
                       <div>
                         <h5 className="text-sm font-medium mb-2">Detailed Analysis</h5>
-                        <p className="text-sm whitespace-pre-wrap">{calculation.result.detailed_analysis}</p>
+                        <p className="text-xs sm:text-sm whitespace-pre-wrap">{calculation.result.detailed_analysis}</p>
                       </div>
                     </div>
                   </div>
