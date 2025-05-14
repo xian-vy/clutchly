@@ -124,7 +124,7 @@ export function ReptileFilterDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-5 2xl:space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-5 xl:space-y-6 3xl:space-y-8">
             <div className="grid grid-cols-2  gap-4">
               {/* Species Filter */}
               <FormField
@@ -190,7 +190,7 @@ export function ReptileFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Sex Filter */}
               <FormField
                 control={form.control}
@@ -254,13 +254,13 @@ export function ReptileFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
               {/* Breeder Filter */}
               <FormField
                 control={form.control}
                 name="isBreeder"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}
@@ -290,7 +290,7 @@ export function ReptileFilterDialog({
                 control={form.control}
                 name="hasNotes"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                  <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}
@@ -317,7 +317,7 @@ export function ReptileFilterDialog({
             </div>
 
             <Separator />
-            <div className="grid grid-cols-2 md:grid-cols-1 gap-4 xl:gap-5 2xl:gap-7 3xl:gap-9">
+            <div className="grid grid-cols-2  gap-4 xl:gap-5 2xl:gap-7 3xl:gap-8">
 
             {/* Weight Range Filter */}
             <FormField
@@ -368,7 +368,6 @@ export function ReptileFilterDialog({
                     />
 
              </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Acquisition Date Range */}
               <FormField
                 control={form.control}
@@ -426,7 +425,6 @@ export function ReptileFilterDialog({
                   </FormItem>
                 )}
               />
-            </div>
 
             <DialogFooter className="flex flex-row w-full justify-end">
               <Button type="button" variant="outline" onClick={resetFilters}>

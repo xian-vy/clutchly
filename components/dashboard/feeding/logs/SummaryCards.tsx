@@ -24,7 +24,7 @@ export function SummaryCards({
   const today = new Date();
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card className="bg-gradient-to-br from-background to-muted/30">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">

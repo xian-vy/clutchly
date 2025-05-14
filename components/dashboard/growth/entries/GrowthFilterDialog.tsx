@@ -100,7 +100,7 @@ export function GrowthFilterDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 2xl:space-y-6">
-            <div className="grid grid-cols-1 items-center space-y-4 g">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-3 lg:gap-5">
               {/* Weight Range Filter */}
               <FormField
                 control={form.control}
@@ -121,8 +121,8 @@ export function GrowthFilterDialog({
                         className="py-4"
                       />
                       <div className="flex items-center justify-between">
-                        <div className="text-sm">Min: {weightRange[0]}g</div>
-                        <div className="text-sm">Max: {weightRange[1]}g</div>
+                        <div className="text-xs">Min: {weightRange[0]}g</div>
+                        <div className="text-xs">Max: {weightRange[1]}g</div>
                       </div>
                     </div>
                   </FormItem>
@@ -149,8 +149,8 @@ export function GrowthFilterDialog({
                         className="py-4"
                       />
                       <div className="flex items-center justify-between">
-                        <div className="text-sm">Min: {lengthRange[0]}cm</div>
-                        <div className="text-sm">Max: {lengthRange[1]}cm</div>
+                        <div className="text-xs">Min: {lengthRange[0]}cm</div>
+                        <div className="text-xs">Max: {lengthRange[1]}cm</div>
                       </div>
                     </div>
                   </FormItem>
@@ -167,10 +167,9 @@ export function GrowthFilterDialog({
                 name="dateRange"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Date Range</FormLabel>
-                    <div className="flex space-x-2">
-                      <div className="w-1/2">
-                        <FormLabel className="text-xs">From</FormLabel>
+                    <div className="flex gap-4">
+                      <div className="w-1/2 space-y-2">
+                        <FormLabel className="text-xs">Date From</FormLabel>
                         <Input
                           type="date"
                           value={field.value?.[0] || ""}
@@ -181,8 +180,8 @@ export function GrowthFilterDialog({
                           }}
                         />
                       </div>
-                      <div className="w-1/2">
-                        <FormLabel className="text-xs">To</FormLabel>
+                      <div className="w-1/2 space-y-2">
+                        <FormLabel className="text-xs">Date To</FormLabel>
                         <Input
                           type="date"
                           value={field.value?.[1] || ""}
@@ -201,13 +200,13 @@ export function GrowthFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               {/* Has Notes Filter */}
               <FormField
                 control={form.control}
                 name="hasNotes"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-start space-x-1 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}
@@ -231,7 +230,7 @@ export function GrowthFilterDialog({
                 control={form.control}
                 name="hasAttachments"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem className="flex flex-row items-start space-x-1 space-y-0">
                     <FormControl>
                       <Checkbox
                         checked={field.value === true}

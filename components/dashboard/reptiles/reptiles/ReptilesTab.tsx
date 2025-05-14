@@ -14,7 +14,7 @@ import { EnrichedReptile, ReptileList } from './ReptileList';
 import { Loader2 } from 'lucide-react';
 import { getProfile } from '@/app/api/profiles/profiles';
 import { Profile } from '@/lib/types/profile';
-
+import { toast } from 'sonner';
 
 type EnrichedReptileWithLabel = EnrichedReptile & {
   label: string;
@@ -147,6 +147,12 @@ export function ReptilesTab() {
           <ReptileForm
             initialData={selectedReptile}
             onSubmit={async (data) => {
+              //check for duplicate name
+              const duplicate = reptiles.find(r => r.name.toLowerCase().trim() === data.name.toLowerCase().trim() && r.id !== selectedReptile?.id);
+              if (duplicate) {
+                toast.error('A reptile with that name already exists!');
+                return;
+              }
               const success = selectedReptile
                 ? await handleUpdate(data)
                 : await handleCreate(data);
