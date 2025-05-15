@@ -375,7 +375,7 @@ export function ReptileFilterDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Acquisition Date Range</FormLabel>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 xl:space-x-3">
                       <Input
                         type="date"
                         value={field.value?.[0] || ""}
@@ -404,7 +404,7 @@ export function ReptileFilterDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Hatch Date Range</FormLabel>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 xl:space-x-3">
                       <Input
                         type="date"
                         value={field.value?.[0] || ""}
