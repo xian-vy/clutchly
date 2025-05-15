@@ -16,7 +16,7 @@ export function AuthLayout({ children, mode }: AuthLayoutProps) {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
-        className="hidden lg:flex flex-col justify-center w-1/2 p-12 bg-gradient-to-br from-primary/5 to-accent/5"
+        className="hidden lg:flex flex-col justify-center w-1/2 p-12 2xl:p-24 bg-gradient-to-br from-primary/5 to-accent/5"
       >
         <div className="max-w-xl">
           <motion.h1 
