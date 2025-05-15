@@ -12,6 +12,9 @@ import { useState, useMemo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { CustomNodeData, GroupedReptilesType } from './types';
 import { STATUS_COLORS } from '@/lib/constants/colors';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from '@/components/ui/separator';
+
 
 interface Props {
   reptiles?: Reptile[];
@@ -45,6 +48,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
 
   return (
     <>
+    <TooltipProvider>
       <div
         className={cn(
           'px-4 py-2.5 dark:shadow-md rounded-xl border-2 border-dashed border-gray-400 dark:border-gray-700 bg-gray-50 dark:bg-slate-900/30 w-[250px]  transition-all duration-300 hover:border-primary cursor-pointer -mt-[10px]',
@@ -114,7 +118,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
               <div className="font-semibold text-sm sm:text-base mb-2">Parents</div>
               <div className="grid grid-cols-2 gap-4">
                 {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].dam_id && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-background border">
+                  <div className="flex items-start gap-1.5 2xl:gap-2 p-3 rounded-lg bg-background border relative">
                     <Venus className="h-4 w-4 text-red-500 mt-1" />
                     <div className='space-y-2 flex-1'>
                       <div>
@@ -125,11 +129,21 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                           {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                         </div>
                       </div>
-                      {/* <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
-                          <Badge key={i} variant="secondary">{trait}</Badge>
-                        ))}
-                      </div> */}
+                        <Tooltip>
+                          <TooltipTrigger className='flex items-center gap-1 absolute top-3 right-4'>
+                            <Dna className="h-3 w-3 text-muted-foreground"/>
+                            <p className='text-xs sm:text-sm'>{reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.length}</p>
+                          </TooltipTrigger>
+                          <TooltipContent className='flex flex-col gap-2  py-5 px-3'>
+                              <p>Visual Traits</p>
+                              <Separator />
+                              <div className="flex flex-wrap gap-1.5">
+                                {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
+                                  <Badge key={i} variant="secondary">{trait}</Badge>
+                                ))}
+                              </div>
+                          </TooltipContent>
+                        </Tooltip>
                       <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
@@ -140,7 +154,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                 )}
                 
                 {data.groupedReptiles && data.groupedReptiles.length > 0 && data.groupedReptiles[0].sire_id && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-background border">
+                  <div className="flex items-start gap-1.5 2xl:gap-2 p-3 rounded-lg bg-background border relative">
                     <Mars className="h-4 w-4 text-blue-400 mt-1" />
                     <div className='space-y-2 flex-1'>
                       <div>
@@ -151,11 +165,21 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                           {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                         </div>
                       </div>
-                      {/* <div className="flex flex-wrap gap-1.5">
-                        {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
-                          <Badge key={i} variant="secondary">{trait}</Badge>
-                        ))}
-                      </div> */}
+                        <Tooltip>
+                          <TooltipTrigger className='flex items-center gap-1 absolute top-3 right-4'>
+                            <Dna className="h-3 w-3 text-muted-foreground"/>
+                            <p className='text-xs sm:text-sm'>{reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.length}</p>
+                          </TooltipTrigger>
+                          <TooltipContent className='flex flex-col gap-2  py-5 px-3'>
+                              <p>Visual Traits</p>
+                              <Separator />
+                              <div className="flex flex-wrap gap-1.5">
+                                {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
+                                  <Badge key={i} variant="secondary">{trait}</Badge>
+                                ))}
+                              </div>
+                          </TooltipContent>
+                        </Tooltip>
                       <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
@@ -198,12 +222,12 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                     )}
                   >
                     <ScrollArea className="h-[calc(100vh-450px)]">
-                      <div className="space-y-3 px-2 pb-6">
+                      <div className="space-y-3 px-2 pb-6 relative">
                         {morphReptiles.map((reptile) => (
                           <div 
                             key={reptile.id} 
                             className={cn(
-                              "flex items-start gap-3 p-3 rounded-lg border bg-card/30 hover:bg-card/70 transition-colors",
+                              "flex items-start gap-1.5 2xl:gap-2 p-3 rounded-lg border bg-card/30 hover:bg-card/70 transition-colors",
                             )}
                           >
                             {reptile.sex === 'male' ? (
@@ -214,19 +238,28 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                               <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />
                             )}
                             
-                            <div className="space-y-1.5 2xl:space-y-2 3xl:space-y-2.5 flex-1">
+                            <div className="space-y-1.5 2xl:space-y-2 3xl:space-y-2.5 flex-1 ">
                               <div className="flex justify-between items-start gap-1">
                                   <div className="font-semibold text-xs sm:text-sm">{reptile.name}</div>
                                   <Badge variant="default" className={`${STATUS_COLORS[reptile.status.toLowerCase() as keyof typeof STATUS_COLORS]} capitalize`}>
                                     {reptile.status}
                                   </Badge>
                               </div>
-                              <div className="flex flex-wrap gap-1.5">
-                                {reptile.visual_traits?.map((trait, i) => (
-                                  <Badge key={i} variant="secondary" className="text-xs">{trait}</Badge>
-                                ))}
-                              </div>
-                              
+                                <Tooltip>
+                                  <TooltipTrigger className='flex items-center gap-1 absolute bottom-6 left-6'>
+                                    <Dna className="h-3 w-3 text-muted-foreground"/>
+                                    <p className='text-xs sm:text-sm'>{reptile.visual_traits?.length}</p>
+                                  </TooltipTrigger>
+                                  <TooltipContent className='flex flex-col gap-2  py-5 px-3'>
+                                      <p>Visual Traits</p>
+                                      <Separator />
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {reptile.visual_traits?.map((trait, i) => (
+                                          <Badge key={i} variant="secondary" className="text-xs">{trait}</Badge>
+                                        ))}
+                                      </div>
+                                  </TooltipContent>
+                                </Tooltip>
                               <div className="flex flex-wrap gap-1.5">
                                 {reptile.het_traits?.map((trait, i) => (
                                   <Badge key={i} variant="secondary" className="text-xs">
@@ -248,6 +281,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
           </div>
         </DrawerContent>
       </Drawer>
+    </TooltipProvider>
     </>
   );
 };
