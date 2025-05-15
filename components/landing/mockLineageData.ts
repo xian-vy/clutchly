@@ -209,8 +209,8 @@ export const generateMockReptiles = (): Reptile[] => {
       id: 'BP000003',
       name: 'BP000003',
       sex: 'male' as const,
-      dam_id: 'BP000002',
-      sire_id: 'BP000001',
+      dam_id: null,
+      sire_id: null,
       generation: 1,
       breeding_line: 'Clown Project',
       is_breeder: false,
@@ -246,8 +246,8 @@ export const generateMockReptiles = (): Reptile[] => {
       id:'BP000004',
       name: 'BP000004',
       sex: 'female' as const,
-      dam_id: 'BP000002',
-      sire_id: 'BP000001',
+      dam_id: null,
+      sire_id: null,
       generation: 1,
       breeding_line: 'Clown Project',
       is_breeder: false,
@@ -346,14 +346,9 @@ export const generateMockReptiles = (): Reptile[] => {
       is_breeder: false,
       retired_breeder: false,
       morph_id: '2', // Pastel
-      visual_traits: ['Pastel'],
+      visual_traits: ['Pastel','Clown'],
       het_traits: [
-        {
-          trait: 'Clown',
-          percentage: 50,
-          source: 'breeding_odds',
-          verified: false
-        },
+
         {
           trait: 'Spider',
           percentage: 50,
@@ -447,14 +442,8 @@ export const generateMockReptiles = (): Reptile[] => {
       is_breeder: false,
       retired_breeder: false,
       morph_id: '3', // Clown
-      visual_traits: ['Clown'],
+      visual_traits: ['Clown', 'Pied'],
       het_traits: [
-        {
-          trait: 'Pied',
-          percentage: 50,
-          source: 'breeding_odds',
-          verified: false
-        },
         {
           trait: 'Pastel',
           percentage: 50,
@@ -525,8 +514,8 @@ export const generateMockReptiles = (): Reptile[] => {
       id: 'BP000012',
       name: 'BP000012',
       sex: 'female' as const,
-      dam_id:  'BP000007',
-      sire_id:  'BP000008',
+      dam_id: 'BP000004',
+      sire_id: 'BP000003',
       generation: 0,
       breeding_line: 'Clown Project',
       is_breeder: true,
@@ -562,8 +551,8 @@ export const generateMockReptiles = (): Reptile[] => {
       id: 'BP000013',
       name: 'BP000013',
       sex: 'male' as const,
-      dam_id:  'BP000007',
-      sire_id:  'BP000008',
+      dam_id: 'BP000004',
+      sire_id: 'BP000003',
       generation: 0,
       breeding_line: 'Clown Project',
       is_breeder: true,
@@ -599,8 +588,8 @@ export const generateMockReptiles = (): Reptile[] => {
       id: 'BP000014',
       name: 'BP000014',
       sex: 'female' as const,
-      dam_id:  'BP000007',
-      sire_id:  'BP000008',
+      dam_id: 'BP000004',
+      sire_id: 'BP000003',
       generation: -1,
       breeding_line: 'Pastel Project',
       is_breeder: false,
@@ -629,8 +618,8 @@ export const generateMockReptiles = (): Reptile[] => {
       id: 'BP000015',
       name: 'BP000015',
       sex: 'male' as const,
-      dam_id:  'BP000007',
-      sire_id:  'BP000008',
+      dam_id: 'BP000004',
+      sire_id: 'BP000003',
       generation: -1,
       breeding_line: 'Clown Project',
       is_breeder: false,

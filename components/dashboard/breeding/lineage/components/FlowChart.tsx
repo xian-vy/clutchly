@@ -787,9 +787,9 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
       {!isFeature &&
        <>
           <Background />
+          <Legend />
        </> 
       }     
-      <Legend />
       <Controls />
     </ReactFlow>
   );
@@ -798,7 +798,7 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
 // Main component that wraps everything with the ReactFlowProvider
 const FlowChart = ({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) => {
   return (
-    <div className={`w-full h-[600px] lg:h-[1000px]`}>
+    <div className={`w-full h-[600px] lg:h-[1000px] 3xl:!h-[1200px]`}>
       <style jsx global>{`
         /* Override ReactFlow node styling for group nodes */
         .react-flow__node-group {
