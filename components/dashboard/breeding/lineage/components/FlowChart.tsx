@@ -22,12 +22,15 @@ import ConnectorNode from './ConnectorNode';
 import Legend from './Legend';
 import { CustomNodeData, ReptileNode } from './types';
 import dagre from 'dagre';
+import { Expand, Minimize } from 'lucide-react';
 
 interface FlowChartProps {
   reptileId: string;
   reptiles: Reptile[];
   isFeature?: boolean
   morphs : Morph[]
+  onExpand?: () => void
+  isFullscreen?: boolean
 }
 
 // Constants for layout
@@ -787,18 +790,21 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
       {!isFeature &&
        <>
           <Background />
+          <Legend />
        </> 
       }     
-      <Legend />
       <Controls />
     </ReactFlow>
   );
 }
 
 // Main component that wraps everything with the ReactFlowProvider
-const FlowChart = ({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) => {
+const FlowChart = ({ reptileId, reptiles, isFeature, morphs,onExpand,isFullscreen }: FlowChartProps) => {
+  const handleExpand = () => {
+    if (onExpand) onExpand();
+  };
   return (
-    <div className={`w-full h-[600px] lg:h-[1000px]`}>
+    <div className={`relative w-full h-[600px] lg:h-[1000px] 3xl:!h-[1200px]`}>
       <style jsx global>{`
         /* Override ReactFlow node styling for group nodes */
         .react-flow__node-group {
@@ -822,8 +828,12 @@ const FlowChart = ({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) =
           opacity: 0 !important;
         }
       `}</style>
+      {isFullscreen ? 
+          <Minimize onClick={handleExpand} className="h-4 w-4 hover:scale-125 text-muted-foreground absolute top-2 right-2 cursor-pointer z-20" /> : 
+          <Expand onClick={handleExpand} className="h-4 w-4 hover:scale-125 text-muted-foreground absolute top-2 right-2 cursor-pointer z-20" />
+      }
       <ReactFlowProvider>
-        <Flow reptileId={reptileId} reptiles={reptiles} isFeature={isFeature} morphs={morphs} />
+        <Flow isFullscreen={isFullscreen} onExpand={onExpand} reptileId={reptileId} reptiles={reptiles} isFeature={isFeature} morphs={morphs} />
       </ReactFlowProvider>
     </div>
   );

@@ -187,6 +187,28 @@ export function ReptileList({
     {
       accessorKey: "species_name",
       header: "Species",
+      cell: ({ row }) => {
+        const speciesName = row.getValue("species_name") as string;
+        // Convert species name to abbreviation
+        const getSpeciesAbbreviation = (name: string) => {
+          return name.split(' ')
+            .map(word => word[0]?.toUpperCase())
+            .join('');
+        };
+        
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                {getSpeciesAbbreviation(speciesName)}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{speciesName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
     {
       accessorKey: "morph_name",

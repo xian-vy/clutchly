@@ -170,7 +170,7 @@ export function FeaturesSection() {
               Visualize your reptile&apos;s complete lineage with our interactive pedigree tree
             </p>
           </div>
-          <div className="w-full max-w-screen-lg mx-auto">
+          <div className="w-full max-w-screen-lg 3xl:!max-w-screen-2xl mx-auto">
             <PedigreeFeatureCard />
           </div>
         </div>

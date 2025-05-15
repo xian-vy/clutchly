@@ -15,6 +15,7 @@ import { useState, useMemo } from 'react';
 import { BreedingFilterDialog, BreedingFilters } from './BreedingFilterDialog';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface EnrichedBreedingProject extends BreedingProject {
   male_name: string;
@@ -150,8 +151,30 @@ export function BreedingProjectList({
       header: 'Project',
     },
     {
-      accessorKey: 'species_name',
-      header: 'Species',
+      accessorKey: "species_name",
+      header: "Species",
+      cell: ({ row }) => {
+        const speciesName = row.getValue("species_name") as string;
+        // Convert species name to abbreviation
+        const getSpeciesAbbreviation = (name: string) => {
+          return name.split(' ')
+            .map(word => word[0]?.toUpperCase())
+            .join('');
+        };
+        
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                {getSpeciesAbbreviation(speciesName)}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{speciesName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
     {
       header: "Pairing",

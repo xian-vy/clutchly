@@ -183,7 +183,7 @@ export async function updateReptile(id: string, updates: Partial<NewReptile>) {
         .single();
       
       if (currentReptileWithDetails?.data?.reptile_code) {
-        const parts = currentReptileWithDetails.data.reptile_code.split('_');
+        const parts = currentReptileWithDetails.data.reptile_code.split('-');
         if (parts.length >= 1) {
           // Use the existing sequence number
           sequenceNumber = parts[0];

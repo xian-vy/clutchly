@@ -3,9 +3,11 @@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {  Reptile } from '@/lib/types/reptile';
-import { CircleHelp, Mars, Venus } from 'lucide-react';
+import { CircleHelp, Dna, Mars, Venus } from 'lucide-react';
 import { Handle, Position } from 'reactflow';
 import { CustomNodeData } from './types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from '@/components/ui/separator';
 
 interface Props {
   reptiles?: Reptile[];
@@ -16,7 +18,7 @@ interface Props {
 const CustomNode = ({ data }: Props) => (
   <div
     className={cn(
-      'px-4 py-2 shadow-md rounded-xl border border-input bg-card dark:bg-slate-900/50 w-[250px] transition-all duration-300',
+      'relative px-4 py-2 shadow-md rounded-xl border border-input bg-card dark:bg-slate-900/50 w-[250px] transition-all duration-300',
       data.isSelected && 
         'ring-1 ring-primary shadow-2xl  border-primary z-50',
       data.isHighlighted && !data.isSelected && 
@@ -42,16 +44,11 @@ const CustomNode = ({ data }: Props) => (
                   </>
                   <div className="font-bold text-base lg:text-lg text-black dark:text-white">{data.name || 'Unknown'}</div>  
               </div>
-              <span className="text-xs lg:text-sm text-muted-foreground">
+              <span className="text-[0.7rem] sm:text-[0.8rem] text-muted-foreground">
                     {data.code || '--'}
                </span>
         </div>
-        <div className="text-sm lg:text-base text-primary  font-medium">{data.morph_name || 'N/A'}</div>
-        {/* <div className="flex gap-2 flex-wrap w-full justify-center">
-          {data.visualTraits?.map((trait, index) => (
-            <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs lg:text-sm' >{trait}</Badge>
-          ))}
-        </div> */}
+        <div className="text-sm lg:text-base text-primary  font-medium -mt-1 mb-2">{data.morph_name || 'N/A'}</div>
         <div className="flex gap-2 flex-wrap w-full justify-center">
           {data.hetTraits?.map((trait, index) => (
             <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs lg:text-sm'>{trait.percentage + "% het " +  trait.trait}</Badge>
@@ -65,6 +62,24 @@ const CustomNode = ({ data }: Props) => (
             <Badge variant="secondary">{data.breeding_line}</Badge>
           )}
         </div> */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className='flex items-center gap-1 absolute top-2 right-4'>
+                 <Dna className="h-4 w-4 text-muted-foreground"/>
+                 <p>{data.visualTraits.length}</p>
+              </TooltipTrigger>
+              <TooltipContent className='flex flex-col gap-2  py-5 px-3'>
+                  <p>Visual Traits</p>
+                  <Separator />
+                  <div className="flex gap-2 flex-wrap w-full justify-center">
+                  {data.visualTraits?.map((trait, index) => (
+                    <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs lg:text-sm' >{trait}</Badge>
+                   ))}
+                 </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+         
     </div>
     <Handle 
       type="source" 

@@ -266,7 +266,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
   }
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[720px] lg:max-w-[800px] xl:max-w-[850px] 3xl:max-w-[900px] gap-3 sm:gap-4 xl:gap-5">
+      <DialogContent className="sm:max-w-[720px] lg:max-w-[800px] xl:max-w-[850px] 3xl:max-w-[900px] gap-3 sm:gap-4 xl:gap-5 p-5 md:p-6 ">
         <DialogHeader>
           <DialogTitle>Import Reptiles</DialogTitle>
           <DialogDescription className='text-xs sm:text-sm'>

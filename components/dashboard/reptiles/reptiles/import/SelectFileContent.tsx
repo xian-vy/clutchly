@@ -18,7 +18,7 @@ interface Props {
 const SelectFileContent = ({ file,  handleDrop, dragActive,setDragActive ,error,fileInputRef,handleFileChange,onButtonClick  } : Props) => {
   return (
     <div>
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             <div 
               className={`border-2 border-dashed rounded-lg p-5 sm:p-7 md:p-10 text-center ${
                 dragActive ? 'border-primary bg-primary/5' : 'border-gray-300 dark:border-gray-600'
@@ -38,13 +38,14 @@ const SelectFileContent = ({ file,  handleDrop, dragActive,setDragActive ,error,
               
               {!file && 
                   <>
-                      <FileSpreadsheet className="mx-auto h-8 w-8 md:h-10 md:w-10 text-gray-400" /> 
+                      <FileSpreadsheet className="mx-auto h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-gray-400" /> 
                       <div className="mt-4">
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                               Drag and drop a CSV or Excel file, or
                             </p>
                   
                         <Button 
+                          size="sm"
                           variant="outline" 
                           className="mt-2"
                           onClick={onButtonClick}
@@ -55,13 +56,13 @@ const SelectFileContent = ({ file,  handleDrop, dragActive,setDragActive ,error,
                   </>
                }
               {file && (
-                <div className="p-3 xl:p-5 bg-muted/50 rounded-md">
-                  <p className="font-medium text-xs sm:text-[0.8rem] xl:text-sm">Selected file:</p>
-                  <p className="text-xs sm:text-[0.8rem]  xl:text-sm text-gray-600 dark:text-gray-400">
+                <div className="p-3 xl:p-5 bg-muted/40 border rounded-lg">
+                  <p className="font-medium text-xs sm:text-[0.8rem] xl:text-sm mb-1">Selected file:</p>
+                  <p className="text-xs xl:text-sm text-muted-foreground">
                     {file.name}
-                    <RefreshCcw   onClick={onButtonClick} className="h-3 w-3 sm:w-4 sm:h-4 inline-block ml-2 cursor-pointer" />
+                    <RefreshCcw   onClick={onButtonClick} className="h-3 w-3 sm:w-4 sm:h-4 inline-block ml-2 cursor-pointer text-primary" />
                   </p>
-                  <p className="text-xs xl:text-sm text-gray-500 dark:text-gray-500">
+                  <p className="text-xs xl:text-sm text-muted-foreground/80">
                     {(file.size / 1024).toFixed(1)} KB • {file.type}
                   </p>
                 </div>

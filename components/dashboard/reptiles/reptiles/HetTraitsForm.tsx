@@ -1,12 +1,11 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { X } from 'lucide-react'
+import { PlusIcon, X } from 'lucide-react'
 import { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
@@ -55,12 +54,11 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm sm:text-base xl:text-lg font-medium">Het Traits</h3>
-      <Card className='shadow-none'>
-        <CardContent className="pt-4">
-          <div className="grid grid-cols-2 2xl:grid-cols-4 gap-4">
+      <h3 className="text-sm sm:text-base xl:text-lg font-medium">Add Het Traits</h3>
+      <div className="flex flex-col lg:flex-row items-start lg:items-center">
+          <div className="grid grid-cols-[1fr_auto_1fr] lg:grid-cols-4 gap-2 sm:gap-3 md:gap-5 ">
             <div className='space-y-2'>
-              <FormLabel>Het Trait Name</FormLabel>
+              <FormLabel>Possible Trait</FormLabel>
               <Input 
                 placeholder="Ex: Eclipse" 
                 value={newHetTrait.trait} 
@@ -68,13 +66,14 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
               />
             </div>
             <div className='space-y-2'>
-              <FormLabel>Percentage (%)</FormLabel>
+              <FormLabel>Probability (%)</FormLabel>
               <Input 
                 type="number" 
                 min="0" 
                 max="100" 
                 value={newHetTrait.percentage} 
                 onChange={(e) => setNewHetTrait({...newHetTrait, percentage: parseInt(e.target.value) || 0})}
+                className='w-[55px] md:w-full'
               />
             </div>
             <div className='space-y-2'>
@@ -95,26 +94,25 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
                 </SelectContent>
             </Select>
             </div>
-            <div className="flex items-center space-x-2">
-                    <Checkbox 
-                    id="verified" 
-                    checked={newHetTrait.verified} 
-                    onCheckedChange={(checked) => 
-                        setNewHetTrait({...newHetTrait, verified: checked as boolean})
-                    }
-                    />
-                    <label htmlFor="verified" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Verified
-                    </label>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+                  <Checkbox 
+                  id="verified" 
+                  checked={newHetTrait.verified} 
+                  onCheckedChange={(checked) => 
+                      setNewHetTrait({...newHetTrait, verified: checked as boolean})
+                  }
+                  />
+                  <label htmlFor="verified" className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                   Verified
+                  </label>
             </div>
           </div>
-          <div className="mt-2 flex justify-end">
-            <Button type="button" onClick={addHetTrait}>
-              Add Het 
+          <div className="flex justify-end w-full lg:w-auto">
+            <Button size="sm" type="button" onClick={addHetTrait}>
+              <PlusIcon/>
             </Button>
           </div>
-        </CardContent>
-      </Card>
+          </div>
       
         <div className="mt-4">
           <Table>

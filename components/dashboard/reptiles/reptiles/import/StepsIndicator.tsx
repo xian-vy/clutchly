@@ -5,7 +5,7 @@ interface Props {
 }
 const StepsIndicator = ({step} : Props) => {
   return (
-    <div className="flex justify-between w-full mb-3">
+    <div className="flex justify-between w-full mb-1 sm:mb-2 xl:mb-3">
     {['Select File', 'Preview', 'Processing', 'Complete'].map((stepName, idx) => (
       <div 
         key={idx} 
