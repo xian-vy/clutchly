@@ -55,13 +55,13 @@ const SelectFileContent = ({ file,  handleDrop, dragActive,setDragActive ,error,
                   </>
                }
               {file && (
-                <div className="p-3 xl:p-5 bg-muted/50 rounded-md">
-                  <p className="font-medium text-xs sm:text-[0.8rem] xl:text-sm">Selected file:</p>
-                  <p className="text-xs sm:text-[0.8rem]  xl:text-sm text-gray-600 dark:text-gray-400">
+                <div className="p-3 xl:p-5 bg-muted/40 border rounded-lg">
+                  <p className="font-medium text-xs sm:text-[0.8rem] xl:text-sm mb-1">Selected file:</p>
+                  <p className="text-xs xl:text-sm text-muted-foreground">
                     {file.name}
-                    <RefreshCcw   onClick={onButtonClick} className="h-3 w-3 sm:w-4 sm:h-4 inline-block ml-2 cursor-pointer" />
+                    <RefreshCcw   onClick={onButtonClick} className="h-3 w-3 sm:w-4 sm:h-4 inline-block ml-2 cursor-pointer text-primary" />
                   </p>
-                  <p className="text-xs xl:text-sm text-gray-500 dark:text-gray-500">
+                  <p className="text-xs xl:text-sm text-muted-foreground/80">
                     {(file.size / 1024).toFixed(1)} KB • {file.type}
                   </p>
                 </div>
