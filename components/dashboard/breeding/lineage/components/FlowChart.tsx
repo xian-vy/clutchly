@@ -29,8 +29,8 @@ interface FlowChartProps {
   reptiles: Reptile[];
   isFeature?: boolean
   morphs : Morph[]
-  onExpand: () => void
-  isFullscreen: boolean
+  onExpand?: () => void
+  isFullscreen?: boolean
 }
 
 // Constants for layout
@@ -801,7 +801,7 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
 // Main component that wraps everything with the ReactFlowProvider
 const FlowChart = ({ reptileId, reptiles, isFeature, morphs,onExpand,isFullscreen }: FlowChartProps) => {
   const handleExpand = () => {
-    onExpand();
+    if (onExpand) onExpand();
   };
   return (
     <div className={`relative w-full h-[600px] lg:h-[1000px] 3xl:!h-[1200px]`}>
