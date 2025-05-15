@@ -70,7 +70,8 @@ export function BreedingProjectDetails({
       name: reptile.name,
       morphName: morphName,
       hets : reptile.het_traits,
-      visuals : reptile.visual_traits
+      visuals : reptile.visual_traits,
+      reptile_code: reptile.reptile_code,
     });
   });
   // Fetch clutches for this project
@@ -188,7 +189,7 @@ export function BreedingProjectDetails({
               <Tabs defaultValue={clutches[0]?.id} className="w-full">
                 <TabsList className="w-full justify-center">
                   {clutches.map((clutch) => (
-                    <TabsTrigger key={clutch.id} value={clutch.id} className="min-w-[120px]">
+                    <TabsTrigger key={clutch.id} value={clutch.id}>
                       {format(new Date(clutch.lay_date), 'MMM d, yyyy')}
                     </TabsTrigger>
                   ))}

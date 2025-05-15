@@ -2,12 +2,12 @@ import { Reptile, Sex } from "@/lib/types/reptile";
 
 /**
  * Generates a standardized reptile code based on the format:
- * SEQ_SPECIESINITIAL_MORPHNAME_HATCHYEAR_SEX
+ * SEQ_SPECIESINITIAL_MORPHCODE_HATCHYEAR_SEX
  * 
  * Examples: 
- * - 00001_BP_ALBINO_24_M (male)
- * - 00002_BP_PASTEL_24_F (female)
- * - 00003_BP_SPIDER_24_U (unknown)
+ * - 00001-BP-ALBINO-24-M (male)
+ * - 00002-BP-PASTEL-24-F (female)
+ * - 00003-BP-SPIDER-24-U (unknown)
  * 
  * @param reptiles - Array of existing reptiles (for sequence number generation)
  * @param speciesCode - Species code or initials (e.g., "BP" for Ball Python)
@@ -24,7 +24,7 @@ export const generateReptileCode = (
   sex: Sex
 ): string => {
   // 1 billion
-  const sequenceNumber = (reptiles.length + 1).toString().padStart(9, '0');
+  const sequenceNumber = (reptiles.length + 1).toString().padStart(5, '0');
   
   // Extract year from hatch date or use current year if not available
   const year = hatchDate 
@@ -34,11 +34,12 @@ export const generateReptileCode = (
   // Map sex to single character
   const sexCode = sex === 'male' ? 'M' : sex === 'female' ? 'F' : 'U';
   
-  // Format the morphName (uppercase, replace spaces with underscores)
-  const firstMorphWord = morphName.split(/\s+/)[0].toUpperCase();
+  // Get first 5 letters of morph name (uppercase), removing spaces
+  const cleanedMorphName = morphName.replace(/\s+/g, '');
+  const morphCode = cleanedMorphName.substring(0, 5).toUpperCase();
   
   // Format: SEQ_SPECIESINITIAL_MORPHNAME_HATCHYEAR_SEX
-  return `${sequenceNumber}_${speciesCode}_${firstMorphWord}_${year}_${sexCode}`;
+  return `${sequenceNumber}-${speciesCode}-${morphCode}-${year}-${sexCode}`;
 };
 
 /**

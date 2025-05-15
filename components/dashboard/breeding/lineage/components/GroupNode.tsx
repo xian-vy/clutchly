@@ -103,7 +103,7 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DrawerContent className="flex flex-col h-full">
           <DrawerHeader>
-            <DrawerTitle className="text-xl font-bold mb-1">Offspring without Descendants</DrawerTitle>
+            <DrawerTitle className="text-xl font-bold">Offspring without Descendants</DrawerTitle>
             <p className="text-muted-foreground text-xs sm:text-sm">
               Showing {data.count} offspring grouped by morphs
             </p>
@@ -118,18 +118,18 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                     <Venus className="h-4 w-4 text-red-500 mt-1" />
                     <div className='space-y-2 flex-1'>
                       <div>
-                        <div className="text-base font-semibold">
+                        <div className="text-sm font-semibold">
                           {data.parentNames?.[0] || reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.name || 'Unknown Dam'}
                         </div>
                         <div className="text-xs font-medium text-primary">
                           {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
+                      {/* <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait}</Badge>
                         ))}
-                      </div>
+                      </div> */}
                       <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
@@ -144,18 +144,18 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                     <Mars className="h-4 w-4 text-blue-400 mt-1" />
                     <div className='space-y-2 flex-1'>
                       <div>
-                        <div className="text-base font-semibold">
+                        <div className="text-sm font-semibold">
                           {data.parentNames?.[1] || reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.name || 'Unknown Sire'}
                         </div>
                         <div className="text-xs font-medium text-primary">
                           {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
+                      {/* <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait}</Badge>
                         ))}
-                      </div>
+                      </div> */}
                       <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>

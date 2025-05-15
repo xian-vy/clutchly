@@ -1,4 +1,4 @@
-import { Database, Dna, Heart, LineChart, Check, Zap, Package } from 'lucide-react'
+import { Database, Dna, Heart, LineChart, Check, Zap, Package, Store, Bug, Network } from 'lucide-react'
 import { FeatureCard } from './FeatureCard'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -13,8 +13,7 @@ export function FeaturesSection() {
       features: [
         'Biological and genetic data management',
         'Complete lineage and acquisition history',
-        'Comprehensive health status monitoring',
-        'Inventory management and tracking'
+        'Data import and export'
       ]
     },
     {
@@ -22,7 +21,7 @@ export function FeaturesSection() {
       title: 'Health Management',
       features: [
         'Record and monitor health events',
-        'Customizable feeding schedule management',
+        'Display records in reptile pdf profile',
         'Reports and analytics'
       ]
     },
@@ -41,7 +40,6 @@ export function FeaturesSection() {
       features: [
         'AI-assisted breeding compatibility analysis',
         'Brood management and tracking',
-        'Pedigree analysis',
         'Comprehensive breeding reports'
       ]
     },
@@ -51,14 +49,40 @@ export function FeaturesSection() {
       features: [
         'Enclosure setup and reptile assignment tracking',
         'Rack system management',
+        'Room and shelf organization'
+      ]
+    },
+    {
+      icon: Network,
+      title: 'Pedigree Analysis',
+      features: [
+        'Interactive pedigree tree visualization',
+        'Detailed lineage and ancestry tracking',
       ]
     },
     {
       icon: PiChartLineUp,
       title: 'Sales and Expense Tracking',
       features: [
-        'Sales and expense tracking for existing reptile collections',
+        'Sales and expense tracking record tracking',
         'Interactive sales and expenses analytics dashboard',
+      ]
+    },
+    {
+      icon: Store,
+      title: 'Online Store',
+      features: [
+        'Free URL link to your store',
+        'Minimal setup, share featured reptiles directly from your collection',
+      ]
+    },
+    {
+      icon: Bug,
+      title: 'Feeding Management',
+      features: [
+        'Customizable feeding schedule',
+        'Feeding by selected reptiles, room or rack',
+        'Reports and feeding history',
       ]
     }
   ]
@@ -127,7 +151,7 @@ export function FeaturesSection() {
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>
-        <div className="mt-16 grid gap-3 sm:gap-6 lg:gap-8 grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
+        <div className="mt-16 grid gap-3 sm:gap-6 lg:gap-8 xl:gap-10 grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
           {features.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}

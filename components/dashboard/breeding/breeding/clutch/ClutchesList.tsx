@@ -87,7 +87,7 @@ export function ClutchesList({
 
         <div key={clutch.id} className="rounded-lg  bg-card">
           <Card className="border-0 shadow-none pt-2 pb-3 gap-4">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 px-2">
               <CardTitle className="text-sm font-medium">
                 Clutch Info
               </CardTitle>
@@ -96,20 +96,20 @@ export function ClutchesList({
               <Button size="sm" onClick={() => {
                   setEditingClutch(null);
                   setClutchDialogOpen(true);
-                }} className='w-[100px]'>
-                  <Plus /> Add Clutch
+                }} className='w-[90px]'>
+                  <Plus />  Clutch
                 </Button>
             </div>
             </CardHeader>
             
-            <CardContent>
-              <div className="relative w-full overflow-auto border rounded-md  px-2 lg:px-4">
+            <CardContent className='px-2'>
+              <div className="relative w-full max-w-[310px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-auto border rounded-md  px-2 lg:px-4">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-b">
-                      <TableHead >Egg Count</TableHead>
-                      <TableHead>Fertile Count</TableHead>
-                      <TableHead>Hatch Date</TableHead>
+                      <TableHead>Egg</TableHead>
+                      <TableHead>Fertile</TableHead>
+                      <TableHead>Hatch</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -173,7 +173,7 @@ export function ClutchesList({
             </CardContent>
           </Card>
 
-          <div className="px-6 xl:py-2 space-y-2 ">
+          <div className="px-2 xl:py-2 space-y-2 ">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-medium">Hatchlings</h3>
               <Button 
@@ -182,13 +182,13 @@ export function ClutchesList({
                   e.stopPropagation();
                   onAddHatchling(clutch.id);
                 }}
-                className='w-[100px]'
+                className='w-[90px]'
               >
                 <Plus className="w-4 h-4" />  Hatchling
               </Button>
             </div>
             {hatchlings[clutch.id].length  > 0 &&
-                <small className='flex items-center gap-1'>
+                <small className='flex items-center gap-1.5 text-xs mb-3'>
                     <Info strokeWidth={1.5} className="h-4 w-4" />
                       Edit Hatchling info in 
                       <span 

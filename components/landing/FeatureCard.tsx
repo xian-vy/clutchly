@@ -19,7 +19,7 @@ export function FeatureCard({ icon: Icon, title, features }: FeatureCardProps) {
         <ul className="space-y-2 sm:space-y-4 text-muted-foreground">
           {features.map((feature, index) => (
             <li key={index} className="flex items-center gap-3">
-              <span className="h-0.5 sm:h-1.5 w-0.5 sm:w-1.5 rounded-full bg-primary/70" />
+              <span className="h-0.5 sm:h-1.5 w-0.5 sm:w-1.5 rounded-full bg-primary/70 shrink-0" />
               <p className="text-xs sm:text-sm xl:text-base">{feature} </p>
             </li>
           ))}

@@ -231,7 +231,7 @@ export function HatchlingForm({
         </Alert>
         <Tabs defaultValue="basic">
           <TabsList>
-            <TabsTrigger value="basic">Basic Information</TabsTrigger>
+            <TabsTrigger value="basic">Info</TabsTrigger>
             <TabsTrigger value="visual-traits">Visual Traits</TabsTrigger>
             <TabsTrigger value="het-traits">Het Traits</TabsTrigger>
           </TabsList>

@@ -22,7 +22,7 @@ export function HatchlingsList({
   const { morphs } = useMorphsStore();
 
   return (
-    <div className="max-h-[160px] rounded-md border px-2 lg:px-4 overflow-y-auto">
+    <div className="max-h-[160px] rounded-md border px-2 lg:px-4 max-w-[310px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>

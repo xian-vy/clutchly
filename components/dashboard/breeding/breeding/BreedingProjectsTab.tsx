@@ -148,10 +148,10 @@ export function BreedingProjectsTab() {
       </Dialog>
 
       <Dialog open={isDetailsDialogOpen} onOpenChange={handleCloseProjectDetails}>
-        <DialogContent className="sm:max-w-[800px]">
+        <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]">
           <DialogTitle className='flex flex-col items-start gap-2 text-base'>
             {selectedProjectForDetails?.name}
-            <div className="flex justify-between w-full items-center">
+            <div className="flex flex-col sm:flex-row items-start justify-between w-full sm:items-center gap-2">
                 <Badge variant="custom"  className={`${STATUS_COLORS[selectedProjectForDetails?.status.toLowerCase() as keyof typeof STATUS_COLORS]} !capitalize`}>
                     {selectedProjectForDetails?.status}
                 </Badge>
