@@ -18,7 +18,7 @@ interface Props {
 const SelectFileContent = ({ file,  handleDrop, dragActive,setDragActive ,error,fileInputRef,handleFileChange,onButtonClick  } : Props) => {
   return (
     <div>
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             <div 
               className={`border-2 border-dashed rounded-lg p-5 sm:p-7 md:p-10 text-center ${
                 dragActive ? 'border-primary bg-primary/5' : 'border-gray-300 dark:border-gray-600'
@@ -38,13 +38,14 @@ const SelectFileContent = ({ file,  handleDrop, dragActive,setDragActive ,error,
               
               {!file && 
                   <>
-                      <FileSpreadsheet className="mx-auto h-8 w-8 md:h-10 md:w-10 text-gray-400" /> 
+                      <FileSpreadsheet className="mx-auto h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 text-gray-400" /> 
                       <div className="mt-4">
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                               Drag and drop a CSV or Excel file, or
                             </p>
                   
                         <Button 
+                          size="sm"
                           variant="outline" 
                           className="mt-2"
                           onClick={onButtonClick}
