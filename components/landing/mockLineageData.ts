@@ -383,18 +383,6 @@ export const generateMockReptiles = (): Reptile[] => {
           verified: false
         },
         {
-          trait: 'Pinstripe',
-          percentage: 50,
-          source: 'breeding_odds',
-          verified: false
-        },
-        {
-          trait: 'Pied',
-          percentage: 25,
-          source: 'breeding_odds',
-          verified: false
-        },
-        {
           trait: 'Mojave',
           percentage: 25,
           source: 'breeding_odds',
@@ -476,12 +464,6 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         },
-        {
-          trait: 'Mojave',
-          percentage: 25,
-          source: 'breeding_odds',
-          verified: false
-        }
       ]
     },
     {
@@ -518,12 +500,6 @@ export const generateMockReptiles = (): Reptile[] => {
         },
         {
           trait: 'Yellow Belly',
-          percentage: 25,
-          source: 'breeding_odds',
-          verified: false
-        },
-        {
-          trait: 'Mojave',
           percentage: 25,
           source: 'breeding_odds',
           verified: false
