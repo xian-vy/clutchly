@@ -310,6 +310,7 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
             selectedReptileName: reptiles.find((r: Reptile) => r.id.toString() === selectedReptile)?.name || 'Unknown',
             visualTraits: reptileNode.visual_traits || [],
             hetTraits: reptileNode.het_traits || [],
+            code : reptileNode.reptile_code,
           },
         };
         
@@ -369,6 +370,7 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
               selectedReptileName: '',
               visualTraits: [],
               hetTraits: [],
+              code : '',
             }
           };
           
@@ -482,6 +484,7 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
             selectedReptileName: '',
             visualTraits: [],
             hetTraits: [],
+            code : '',
           },
           style: {
             background: 'transparent',

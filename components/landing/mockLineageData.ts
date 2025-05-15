@@ -168,7 +168,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00001-BP-PASTEL-25-M'
     },
 
     // Sibling 1 of root (with same parents) - this one has offspring
@@ -198,7 +199,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00002-BP-PASTEL-25-F'
     },
     
     // Sibling 2 of root (with same parents) - no offspring
@@ -234,7 +236,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00003-BP-NORMAL-25-M'
     },
     
     // Sibling 3 of root (with same parents) - no offspring
@@ -264,7 +267,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00004-BP-CLOWN-25-F'
     },
 
     // Breeding partner for root to produce offspring
@@ -294,7 +298,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00005-BP-PIED-22-F'
     },
 
     // Breeding partner for sibling1
@@ -324,7 +329,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00006-BP-SPIDER-23-M'
     },
     
     // Offspring of sibling1 (demonstrating that siblings can have offspring)
@@ -354,7 +360,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00007-BP-PASTEL-24-F'
     },
     {
       ...baseReptile,
@@ -388,7 +395,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00008-BP-SPIDER-25-M'
     },
 
     // Offspring of root (with no descendants - to be grouped)
@@ -424,7 +432,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00009-BP-PASTEL-25-M'
     },
     {
       ...baseReptile,
@@ -464,7 +473,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         },
-      ]
+      ],
+      reptile_code: '00010-BP-CLOWN-25-F'
     },
     {
       ...baseReptile,
@@ -505,6 +515,8 @@ export const generateMockReptiles = (): Reptile[] => {
           verified: false
         }
       ]
+      ,
+      reptile_code: '00011-BP-PIED-25-M'
     },
     
     // Dam (1st generation) - Pastel het Clown
@@ -540,7 +552,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00012-BP-PASTEL-25-F'
     },
     
     // Sire (1st generation) - Clown
@@ -576,7 +589,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00013-BP-CLOWN-25-M'
     },
     
     // Maternal Grandmother (2nd generation) - Pastel
@@ -606,7 +620,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00014-BP-PASTEL-25-F'
     },
     
     {
@@ -635,7 +650,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: true
         }
-      ]
+      ],
+      reptile_code: '00015-BP-CLOWN-25-M'
     },
     
     // Great-grandparents (3rd generation - max 2 pairs at top)
@@ -659,7 +675,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: true
         }
-      ]
+      ],
+      reptile_code: '00016-BP-PASTEL-25-F'
     },
     {
       ...baseReptile,
@@ -681,7 +698,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: true
         }
-      ]
+      ],
+      reptile_code: '00017-BP-NORMAL-25-M'
     },
     {
       ...baseReptile,
@@ -703,7 +721,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: true
         }
-      ]
+      ],
+      reptile_code: '00018-BP-NORMAL-25-F'
     },
     {
       ...baseReptile,
@@ -725,7 +744,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: true
         }
-      ]
+      ],
+      reptile_code: '00019-BP-CLOWN-25-M'
     },
     
     // New - Breeding partner for greatGrandSire2 (BP000019)
@@ -755,7 +775,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00020-BP-MOJAVE-25-F'
     },
     
     // New - Offspring of greatGrandSire2 (BP000019) with no descendants
@@ -785,7 +806,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00021-BP-CLOWN-25-F'
     },
     {
       ...baseReptile,
@@ -813,7 +835,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00022-BP-MOJAVE-25-M'
     },
     {
       ...baseReptile,
@@ -841,7 +864,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00023-BP-MOJAVE-25-F'
     },
     {
       ...baseReptile,
@@ -869,7 +893,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00024-BP-MOJAVE-25-M'
     },
     {
       ...baseReptile,
@@ -897,7 +922,8 @@ export const generateMockReptiles = (): Reptile[] => {
           source: 'breeding_odds',
           verified: false
         }
-      ]
+      ],
+      reptile_code: '00025-BP-MOJAVE-25-F'
     }
   ];
 };

@@ -125,11 +125,11 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                           {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
+                      {/* <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.visual_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait}</Badge>
                         ))}
-                      </div>
+                      </div> */}
                       <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].dam_id)?.het_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>
@@ -151,11 +151,11 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                           {morphs.find(m => m.id.toString() === reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.morph_id.toString())?.name || 'Unknown Morph'}
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
+                      {/* <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.visual_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait}</Badge>
                         ))}
-                      </div>
+                      </div> */}
                       <div className="flex flex-wrap gap-1.5">
                         {reptiles?.find(r => r.id === data.groupedReptiles?.[0].sire_id)?.het_traits?.map((trait, i) => (
                           <Badge key={i} variant="secondary">{trait.percentage}% het {trait.trait}</Badge>

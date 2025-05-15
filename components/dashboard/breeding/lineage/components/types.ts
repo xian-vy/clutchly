@@ -42,4 +42,5 @@ export interface CustomNodeData {
   connectedDamId?: string;
   connectedSireId?: string;
   connectedChildrenIds?: string[];
+  code: string | null;
 }
