@@ -197,9 +197,11 @@ export async function updateReptile(id: string, updates: Partial<NewReptile>) {
         
       const sex = updates.sex || currentReptile.sex;
       const sexCode = sex === 'male' ? 'M' : sex === 'female' ? 'F' : 'U';
-      const formattedMorphName = morphInfo.name.toUpperCase().replace(/\s+/g, '_');
+        // Get first 5 letters of morph name (uppercase), removing spaces
+      const cleanedMorphName = morphInfo.name.replace(/\s+/g, '');
+      const morphCode = cleanedMorphName.substring(0, 5).toUpperCase();
       
-      updates.reptile_code = `${sequenceNumber}_${speciesCode}_${formattedMorphName}_${hatchYear}_${sexCode}`;
+      updates.reptile_code = `${sequenceNumber}-${speciesCode}-${morphCode}-${hatchYear}-${sexCode}`;
     }
   }
   
