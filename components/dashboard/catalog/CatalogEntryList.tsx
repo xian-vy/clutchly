@@ -19,7 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CatalogEntry, CatalogImage, EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { Reptile } from '@/lib/types/reptile';
-import { cn } from '@/lib/utils';
+import { cn, extractLastTwoDigitsOfYear } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,19 +31,7 @@ import { useState } from 'react';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import CatalogEntryShare from './CatalogEntryShare';
 
-function extractLastTwoDigitsOfYear(dateString : string | null): string {
-  if (!dateString) {
-    return "--";
-  }
-  try {
-    const date = new Date(dateString);
-    const year = date.getFullYear().toString().slice(-2);
-    return year;
-  } catch (error : unknown) {
-    console.error("Invalid date format:", error);
-    return "--";
-  }
-}
+
 
 interface CatalogEntryListProps {
   catalogEntries: EnrichedCatalogEntry[] | (CatalogEntry & { images?: CatalogImage[] })[];

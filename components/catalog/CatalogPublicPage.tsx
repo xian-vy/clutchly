@@ -3,30 +3,17 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CatalogEntry } from '@/lib/types/catalog';
-import { Link as LinkIcon, Clipboard, ChevronDown, ChevronUp, EyeIcon, Search, FilterIcon, Loader2 } from 'lucide-react';
+import { Link as LinkIcon, Clipboard, ChevronDown, ChevronUp, EyeIcon, Search, FilterIcon, Loader2, Mars, Venus, CircleHelp } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { APP_URL } from '@/lib/constants/app';
 import { useQuery } from '@tanstack/react-query';
 import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
+import { EnrichedCatalogEntry } from '@/lib/types/catalog';
+import { extractLastTwoDigitsOfYear } from '@/lib/utils';
 
-type EnrichedCatalogEntry = CatalogEntry & {
-  reptiles: {
-    id: string;
-    name: string;
-    species_id: string | number;
-    morph_id: string | number;
-    sex: string;
-  };
-  catalog_images: {
-    id: string;
-    image_url: string;
-  }[];
-};
+
 
 interface ReptileCardProps {
   entry: EnrichedCatalogEntry;
@@ -37,7 +24,7 @@ function ReptileCard({ entry }: ReptileCardProps) {
   const imageUrl = entry.catalog_images?.[0]?.image_url;
 
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
+    <Card className="overflow-hidden transition-all hover:shadow-md py-0 gap-0">
       <div className="relative aspect-square bg-muted">
         {imageUrl ? (
           <Image
@@ -52,30 +39,30 @@ function ReptileCard({ entry }: ReptileCardProps) {
             <EyeIcon className="h-8 w-8 text-muted-foreground/50" />
           </div>
         )}
-        {entry.featured && (
-          <div className="absolute top-2 right-2">
-            <Badge variant="secondary" className="bg-primary text-primary-foreground">
-              Featured
-            </Badge>
-          </div>
-        )}
       </div>
       <CardContent className="p-4">
-        <h3 className="font-semibold text-lg">{reptile.name}</h3>
-        <div className="flex items-center gap-2 mt-1">
-          <Badge variant="outline" className={cn(
-            "capitalize",
-            reptile.sex === 'male' ? "text-blue-500" : 
-            reptile.sex === 'female' ? "text-rose-500" : ""
-          )}>
-            {reptile.sex}
-          </Badge>
-        </div>
+          <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">{reptile.name}</h3>       
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">
+            {reptile.morph.name}
+          </p>
+          <div className="flex items-center gap-1.5">
+                 <div>
+                  {reptile.sex === 'male' ? (
+                        <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5 shrink-0" />
+                      ) : reptile.sex === 'female' ? (
+                        <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
+                      ) : (
+                        <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                      )}
+                </div>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">
+                  {extractLastTwoDigitsOfYear(reptile.hatch_date)}
+                </p>
+          </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 text-sm text-muted-foreground">
         <div className="w-full truncate">
-          {/* This would ideally show the actual morph name */}
-          Morph ID: {reptile.morph_id.toString()}
+       
         </div>
       </CardFooter>
     </Card>

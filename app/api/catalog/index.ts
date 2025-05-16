@@ -1,5 +1,5 @@
 'use server'
-import { CatalogEntry, CatalogImage, CatalogSettings, NewCatalogEntry, NewCatalogImage, NewCatalogSettings } from '@/lib/types/catalog';
+import { CatalogEntry, CatalogImage, CatalogSettings, EnrichedCatalogEntry, NewCatalogEntry, NewCatalogImage, NewCatalogSettings } from '@/lib/types/catalog';
 import { createClient } from '@/lib/supabase/server'
 
 // Get all catalog entries for the current user
@@ -20,30 +20,50 @@ export async function getCatalogEntries(): Promise<CatalogEntry[]> {
 }
 
 // Get catalog entries by profile name (public)
-export async function getCatalogEntriesByProfileName(profileName: string): Promise<CatalogEntry[]> {
+export async function getCatalogEntriesByProfileName(profileName: string): Promise<EnrichedCatalogEntry[]> {
   const supabase = await createClient()
 
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .select('id')
-    .eq('profile_name', profileName)
+    .eq('full_name', profileName)
     .single();
 
   if (profileError) throw profileError;
   if (!profileData) throw new Error('Profile not found');
 
   const { data, error } = await supabase
-    .from('catalog_entries')
-    .select(`
-      *,
-      reptiles:reptile_id(*),
-      catalog_images(*)
-    `)
-    .eq('user_id', profileData.id)
-    .order('display_order', { ascending: true });
+  .from('catalog_entries')
+  .select(`
+    *,
+    reptiles:reptile_id(*),
+    catalog_images(*)
+  `)
+  .eq('user_id', profileData.id)
+  .order('display_order', { ascending: true });
+
+  // Get morph data in a separate query
+  const enrichedData = await Promise.all((data || []).map(async (entry) => {
+    if (entry.reptiles?.morph_id) {
+      const { data: morphData } = await supabase
+        .from('morphs')
+        .select('*')
+        .eq('id', entry.reptiles.morph_id)
+        .single();
+  
+      return {
+        ...entry,
+        reptiles: {
+          ...entry.reptiles,
+          morph: morphData
+        }
+      };
+    }
+    return entry;
+  }));
 
   if (error) throw error;
-  return data || [];
+  return enrichedData || [];
 }
 
 // Create a new catalog entry
@@ -363,4 +383,4 @@ export async function updateCatalogSettings(settings: Partial<NewCatalogSettings
     
     return data;
   }
-} 
+}

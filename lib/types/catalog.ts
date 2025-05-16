@@ -1,3 +1,4 @@
+import { Morph } from "./morph";
 import { Reptile } from "./reptile";
 
 export interface CatalogEntry {
@@ -30,10 +31,11 @@ export interface CatalogSettings {
 }
 
 export interface EnrichedCatalogEntry extends CatalogEntry {
-  reptile: Reptile;
-  images: CatalogImage[];
+  reptiles: Reptile & {
+    morph: Morph;
+  };
+  catalog_images: CatalogImage[];
 }
-
 export type NewCatalogEntry = Omit<CatalogEntry, 'id' | 'created_at' | 'updated_at'>;
 export type NewCatalogImage = Omit<CatalogImage, 'id' | 'created_at'>;
 export type NewCatalogSettings = Omit<CatalogSettings, 'id' | 'created_at' | 'updated_at'>;
