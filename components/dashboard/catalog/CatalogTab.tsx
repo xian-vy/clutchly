@@ -1,11 +1,11 @@
 'use client';
 
-import { createCatalogEntry, deleteCatalogEntry, getCatalogEntries, updateCatalogEntry } from '@/app/api/catalog';
+import { createCatalogEntry, deleteCatalogEntry, getCatalogEntries, getCatalogImages, updateCatalogEntry } from '@/app/api/catalog';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
-import { CatalogEntry, NewCatalogEntry } from '@/lib/types/catalog';
+import { CatalogEntry, CatalogImage, NewCatalogEntry } from '@/lib/types/catalog';
 import { Reptile } from '@/lib/types/reptile';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +14,8 @@ import { Loader2 } from 'lucide-react';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [entriesWithImages, setEntriesWithImages] = useState<(CatalogEntry & { images?: CatalogImage[] })[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
   
   const {
     resources: catalogEntries,
@@ -38,7 +40,37 @@ export function CatalogTab() {
     queryFn: getReptiles,
   });
 
-  const isLoading = catalogEntriesLoading || reptilesLoading;
+  // Load images for each catalog entry
+  useEffect(() => {
+    const loadImages = async () => {
+      if (catalogEntries.length === 0) return;
+      
+      setImagesLoading(true);
+      try {
+        const entriesWithImagesData = await Promise.all(
+          catalogEntries.map(async (entry) => {
+            try {
+              const images = await getCatalogImages(entry.id);
+              return { ...entry, images };
+            } catch (error) {
+              console.error(`Error loading images for entry ${entry.id}:`, error);
+              return { ...entry, images: [] };
+            }
+          })
+        );
+        
+        setEntriesWithImages(entriesWithImagesData);
+      } catch (error) {
+        console.error('Error loading images:', error);
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+
+    loadImages();
+  }, [catalogEntries]);
+
+  const isLoading = catalogEntriesLoading || reptilesLoading || imagesLoading;
 
   if (isLoading) {
     return (
@@ -61,17 +93,29 @@ export function CatalogTab() {
     !catalogEntries.some(entry => entry.reptile_id === reptile.id)
   );
 
+  const handleEntryDelete = async (id: string) => {
+    try {
+      await handleDelete(id);
+      // Update the local state to remove the deleted entry
+      setEntriesWithImages(prev => prev.filter(entry => entry.id !== id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting catalog entry:', error);
+      return false;
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="grid ">
+      <div className="grid">
           <CatalogEntryList
-            catalogEntries={catalogEntries}
+            catalogEntries={entriesWithImages}
             reptiles={reptiles}
             onEdit={(entry) => {
               setSelectedCatalogEntry(entry);
               setIsDialogOpen(true);
             }}
-            onDelete={handleDelete}
+            onDelete={handleEntryDelete}
             onAddNew={() => setIsDialogOpen(true)}
             onFeatureToggle={async (entry) => {
               // If trying to feature and already at limit of 6
@@ -79,13 +123,22 @@ export function CatalogTab() {
                 alert('You can only feature up to 6 reptiles.');
                 return;
               }
-              await handleUpdate({
-                ...entry,
-                featured: !entry.featured,
-              });
+              try {
+                await handleUpdate({
+                  ...entry,
+                  featured: !entry.featured,
+                });
+                
+                // Update the local state
+                setEntriesWithImages(prev => 
+                  prev.map(e => e.id === entry.id ? {...e, featured: !entry.featured} : e)
+                );
+              } catch (error) {
+                console.error('Error updating catalog entry:', error);
+              }
             }}
+            isAdmin={true}
           />
-
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
