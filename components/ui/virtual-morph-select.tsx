@@ -10,10 +10,14 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
-import { ReptileFilters } from "../dashboard/reptiles/reptiles/ReptileFilterDialog";
+
+// Generic interface for form with morphs field
+interface FormWithMorphs {
+  morphs?: string[];
+}
 
 interface Props {
-  field: ControllerRenderProps<ReptileFilters, "morphs">;
+  field: ControllerRenderProps<FormWithMorphs, "morphs">;
 }
 
 export function VirtualizedMorphSelect({ field }: Props) {

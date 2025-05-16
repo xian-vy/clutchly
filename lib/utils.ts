@@ -22,3 +22,11 @@ export const formatChartAmount = (value: number): string => {
   }
   return value.toString();
 };
+
+export function calculateAgeInMonths(date: Date): number {
+  const now = new Date();
+  const years = now.getFullYear() - date.getFullYear();
+  const months = now.getMonth() - date.getMonth();
+  
+  return years * 12 + months;
+} 
