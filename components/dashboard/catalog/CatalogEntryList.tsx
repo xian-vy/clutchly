@@ -2,13 +2,16 @@
 
 import {
   ArrowUpDown,
+  CircleHelp,
   EyeIcon,
   HeartIcon,
+  Mars,
   MoreHorizontal,
   PencilIcon,
   PlusIcon,
   StarIcon,
   Trash2Icon,
+  Venus,
 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -27,7 +30,6 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useState } from 'react';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { useSpeciesStore } from '@/lib/stores/speciesStore';
 
 interface CatalogEntryListProps {
   catalogEntries: EnrichedCatalogEntry[] | (CatalogEntry & { images?: CatalogImage[] })[];
@@ -54,7 +56,6 @@ export function CatalogEntryList({
 }: CatalogEntryListProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const {morphs} = useMorphsStore()
-  const {species} = useSpeciesStore()
   
   // Function to find reptile by ID
   const findReptile = (id: string) => reptiles.find((r) => r.id === id);
@@ -67,13 +68,7 @@ export function CatalogEntryList({
     return null;
   };
 
-  // Get display name for species
-  const getSpeciesName = (speciesId: string | number) => {
-    const id = String(speciesId);
-    const speciesEntry = species.find((s) => s.id.toString() === id.toString());
-    return speciesEntry;
-  };
-
+ 
   // Get display name for morph
   const getMorphName = (morphId: string | number) => {
     const id = String(morphId);
@@ -85,7 +80,7 @@ export function CatalogEntryList({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Catalog</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Featured</h2>
           <p className="text-sm text-muted-foreground">
             {catalogEntries.length} reptile{catalogEntries.length !== 1 ? 's' : ''} in your catalog
           </p>
@@ -133,14 +128,14 @@ export function CatalogEntryList({
             if (!reptile) return null;
 
             const imageUrl = getEntryImage(entry);
-            const species = getSpeciesName(reptile.species_id);
+            // const species = getSpeciesName(reptile.species_id);
             const morph = getMorphName(reptile.morph_id);
 
             return viewMode === 'grid' ? (
               <Card 
                 key={entry.id} 
                 className={cn(
-                  "overflow-hidden group transition-all pt-0",
+                  "overflow-hidden group transition-all pt-0 gap-3 2xl:gap-4 cursor-pointer",
                   entry.featured ? "" : "",
                   isAdmin ? "hover:shadow-md" : ""
                 )}
@@ -153,7 +148,7 @@ export function CatalogEntryList({
                           src={imageUrl}
                           alt={reptile.name}
                           fill
-                          className="object-cover transition-transform group-hover:scale-105"
+                          className="object-cover transition-transform group-hover:scale-115 duration-300"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                       </div>
@@ -171,9 +166,9 @@ export function CatalogEntryList({
                         Featured
                       </Badge>
                     )} */}
-                    <Badge variant="secondary" className="capitalize">
+                    {/* <Badge variant="secondary" className="capitalize">
                       {reptile.sex}
-                    </Badge>
+                    </Badge> */}
                   </div>
 
                   {/* Action buttons overlay for admin */}
@@ -210,30 +205,27 @@ export function CatalogEntryList({
 
                 <CardContent className="p-4">
                   <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium truncate">{reptile.name}</h3>
+                    <div className="flex items-center gap-1.5">
+                    {reptile.sex === 'male' ? (
+                              <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5" />
+                            ) : reptile.sex === 'female' ? (
+                              <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5" />
+                            ) : (
+                              <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />
+                            )}
+                      <h3 className="text-sm md:text-[0.9rem] 3xl:text-base font-medium truncate">{reptile.name}</h3>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">
                       {morph?.name}
                     </p>
-                    <div className="flex justify-between items-center pt-2">
-                      <p className="text-sm">{species?.name}</p>
-                    </div>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">
+                       {reptile.hatch_date || "--"}
+                    </p>
+
                   </div>
                 </CardContent>
                 
-                <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                  {isAdmin ? (
-                    <div className="flex w-full justify-between">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="px-0 hover:bg-transparent hover:text-primary"
-                        onClick={() => onEdit(entry)}
-                      >
-                        <PencilIcon className="h-3.5 w-3.5 mr-1" />
-                        Edit details
-                      </Button>
+                <CardFooter className="p-4 py-0 flex justify-end items-center">
                       <Button 
                         variant="secondary" 
                         size="sm"
@@ -242,18 +234,6 @@ export function CatalogEntryList({
                         <EyeIcon className="h-3.5 w-3.5 mr-1" />
                         View
                       </Button>
-                    </div>
-                  ) : (
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => onViewDetails(entry)}
-                    >
-                      <EyeIcon className="h-3.5 w-3.5 mr-1" />
-                      View details
-                    </Button>
-                  )}
                 </CardFooter>
               </Card>
             ) : (
@@ -284,7 +264,6 @@ export function CatalogEntryList({
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground truncate">{morph?.name}</p>
-                    <p className="text-sm">Species: {species?.name}</p>
                   </div>
                   
                   <div className="flex items-center gap-2">
