@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { APP_URL } from '@/lib/constants/app';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -168,7 +169,7 @@ export function CatalogSettings() {
                   <div className="flex gap-2 items-center">
                     <Input
                       readOnly
-                      value={`https://clutcly.vercel.app/catalog/${settings?.user_id || 'your-profile'}`}
+                      value={`${APP_URL}/${settings?.user_id || 'your-profile'}`}
                       className="bg-muted"
                     />
                     <Button
@@ -176,7 +177,7 @@ export function CatalogSettings() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        navigator.clipboard.writeText(`https://clutcly.vercel.app/catalog/${settings?.user_id || 'your-profile'}`);
+                        navigator.clipboard.writeText(`${APP_URL}/${settings?.user_id || 'your-profile'}`);
                         toast.success('URL copied to clipboard');
                       }}
                     >

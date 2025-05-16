@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
+import CatalogEntryShare from './CatalogEntryShare';
 
 function extractLastTwoDigitsOfYear(dateString : string | null): string {
   if (!dateString) {
@@ -93,16 +94,11 @@ export function CatalogEntryList({
     return morphEntry;
   };
 
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-base sm:text-lg xl:text-lg font-bold tracking-tight">Featured</h2>
-          <p className="text-sm text-muted-foreground">
-            {catalogEntries.length} reptile{catalogEntries.length !== 1 ? 's' : ''} in your catalog
-          </p>
-        </div>
-        
+        <CatalogEntryShare />
         <div className="flex items-center gap-2">
           {isAdmin && onFilter && (
             <Button 
