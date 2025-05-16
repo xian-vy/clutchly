@@ -1,14 +1,15 @@
 import { addCatalogImage } from '@/app/api/catalog';
-import { getUser } from '@/lib/supabase/auth';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getUser();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser()
+  
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized - User ID is required' }, { status: 401 });
     }
 
     // Parse the form data
@@ -19,6 +20,15 @@ export async function POST(request: NextRequest) {
     if (!file || !catalogEntryId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Validate catalogEntryId is a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(catalogEntryId)) {
+      return NextResponse.json(
+        { error: 'Invalid catalog entry ID format' },
         { status: 400 }
       );
     }
@@ -82,7 +92,7 @@ export async function POST(request: NextRequest) {
     if (uploadError) {
       console.error('Upload error:', uploadError);
       return NextResponse.json(
-        { error: 'Failed to upload image' },
+        { error: 'Failed to upload image', details: uploadError },
         { status: 500 }
       );
     }
@@ -108,7 +118,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error uploading image:', error);
     return NextResponse.json(
-      { error: 'Failed to process image' },
+      { error: 'Failed to process image', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

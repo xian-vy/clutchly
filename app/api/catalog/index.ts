@@ -1,7 +1,6 @@
-
-import { supabase } from '@/lib/supabase';
+'use server'
 import { CatalogEntry, CatalogImage, CatalogSettings, NewCatalogEntry, NewCatalogImage, NewCatalogSettings } from '@/lib/types/catalog';
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 
 // Get all catalog entries for the current user
 export async function getCatalogEntries(): Promise<CatalogEntry[]> {
@@ -22,6 +21,8 @@ export async function getCatalogEntries(): Promise<CatalogEntry[]> {
 
 // Get catalog entries by profile name (public)
 export async function getCatalogEntriesByProfileName(profileName: string): Promise<CatalogEntry[]> {
+  const supabase = await createClient()
+
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .select('id')
@@ -99,7 +100,7 @@ export async function createCatalogEntry(entry: NewCatalogEntry): Promise<Catalo
 
 // Update a catalog entry
 export async function updateCatalogEntry(id: string, entry: Partial<NewCatalogEntry>): Promise<CatalogEntry> {
-  const supabase =  createClient()
+  const supabase =  await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
   if (!currentUser) throw new Error('Unauthorized');
@@ -143,7 +144,7 @@ export async function updateCatalogEntry(id: string, entry: Partial<NewCatalogEn
 
 // Delete a catalog entry
 export async function deleteCatalogEntry(id: string): Promise<void> {
-  const supabase =  createClient()
+  const supabase = await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
   if (!currentUser) throw new Error('Unauthorized');
@@ -170,7 +171,7 @@ export async function deleteCatalogEntry(id: string): Promise<void> {
 
 // Get catalog images for an entry
 export async function getCatalogImages(entryId: string): Promise<CatalogImage[]> {
-  const supabase =  createClient()
+  const supabase =  await createClient()
   const currentUser = await supabase.auth.getUser();
   if (!currentUser) throw new Error('Unauthorized');
 
@@ -186,7 +187,7 @@ export async function getCatalogImages(entryId: string): Promise<CatalogImage[]>
 
 // Add a catalog image
 export async function addCatalogImage(image: NewCatalogImage): Promise<CatalogImage> {
-  const supabase =  createClient()
+  const supabase =  await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
   if (!currentUser) throw new Error('Unauthorized');
@@ -198,8 +199,12 @@ export async function addCatalogImage(image: NewCatalogImage): Promise<CatalogIm
     .eq('id', image.catalog_entry_id)
     .single();
 
-  if (!entry || entry.user_id !== userId) {
-    throw new Error('Unauthorized');
+  if (!entry ) {
+    throw new Error('No entry found for this image');
+  }
+  if (entry.user_id.toString() !== userId?.toString()) {
+    console.log('currentUser:', currentUser);
+    throw new Error('Failed to add image: Unauthorized');
   }
 
   // Check image limit (3 per reptile)
@@ -226,7 +231,7 @@ export async function addCatalogImage(image: NewCatalogImage): Promise<CatalogIm
 
 // Delete a catalog image
 export async function deleteCatalogImage(id: string): Promise<void> {
-  const supabase =  createClient()
+  const supabase =  await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
   if (!currentUser) throw new Error('Unauthorized');
@@ -278,7 +283,7 @@ export async function deleteCatalogImage(id: string): Promise<void> {
 
 // Get catalog settings
 export async function getCatalogSettings(): Promise<CatalogSettings> {
-  const supabase =  createClient()
+  const supabase = await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
   if (!currentUser || !userId) throw new Error('Unauthorized');
@@ -315,7 +320,7 @@ export async function getCatalogSettings(): Promise<CatalogSettings> {
 
 // Update catalog settings
 export async function updateCatalogSettings(settings: Partial<NewCatalogSettings>): Promise<CatalogSettings> {
-  const supabase =  createClient()
+  const supabase =  await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
   if (!currentUser ||!userId) throw new Error('Unauthorized');

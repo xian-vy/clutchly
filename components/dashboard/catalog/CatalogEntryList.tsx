@@ -36,6 +36,7 @@ interface CatalogEntryListProps {
   onDelete: (id: string) => void;
   onAddNew: () => void;
   onFeatureToggle: (entry: CatalogEntry) => void;
+  onViewDetails: (entry: CatalogEntry) => void;
   isAdmin?: boolean;
 }
 
@@ -48,6 +49,7 @@ export function CatalogEntryList({
   onDelete,
   onAddNew,
   onFeatureToggle,
+  onViewDetails,
   isAdmin = true,
 }: CatalogEntryListProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -123,7 +125,7 @@ export function CatalogEntryList({
       ) : (
         <div className={cn(
           viewMode === 'grid' 
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' 
+            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-4' 
             : 'space-y-2'
         )}>
           {catalogEntries.map((entry) => {
@@ -222,20 +224,31 @@ export function CatalogEntryList({
                 
                 <CardFooter className="p-4 pt-0 flex justify-between items-center">
                   {isAdmin ? (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="px-0 hover:bg-transparent hover:text-primary"
-                      onClick={() => onEdit(entry)}
-                    >
-                      <PencilIcon className="h-3.5 w-3.5 mr-1" />
-                      Edit details
-                    </Button>
+                    <div className="flex w-full justify-between">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="px-0 hover:bg-transparent hover:text-primary"
+                        onClick={() => onEdit(entry)}
+                      >
+                        <PencilIcon className="h-3.5 w-3.5 mr-1" />
+                        Edit details
+                      </Button>
+                      <Button 
+                        variant="secondary" 
+                        size="sm"
+                        onClick={() => onViewDetails(entry)}
+                      >
+                        <EyeIcon className="h-3.5 w-3.5 mr-1" />
+                        View
+                      </Button>
+                    </div>
                   ) : (
                     <Button 
                       variant="default" 
                       size="sm" 
                       className="w-full"
+                      onClick={() => onViewDetails(entry)}
                     >
                       <EyeIcon className="h-3.5 w-3.5 mr-1" />
                       View details
@@ -286,6 +299,13 @@ export function CatalogEntryList({
                       onClick={() => onEdit(entry)}
                     >
                       <PencilIcon className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onViewDetails(entry)}
+                    >
+                      <EyeIcon className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"

@@ -10,12 +10,15 @@ import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
+import { CatalogEntryDetails } from './CatalogEntryDetails';
+import { Button } from '@/components/ui/button';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [entriesWithImages, setEntriesWithImages] = useState<(CatalogEntry & { images?: CatalogImage[] })[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
+  const [detailView, setDetailView] = useState<CatalogEntry | null>(null);
   
   const {
     resources: catalogEntries,
@@ -105,9 +108,35 @@ export function CatalogTab() {
     }
   };
 
+  // Function to find reptile by ID
+  const findReptile = (reptileId: string) => reptiles.find((r) => r.id === reptileId);
+  
+  // Find the reptile for detail view
+  const reptileForDetail = detailView ? findReptile(detailView.reptile_id) : null;
+
   return (
     <div className="space-y-6">
-      <div className="grid">
+      {detailView && reptileForDetail ? (
+        <div className="space-y-6">
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="mr-2"
+              onClick={() => setDetailView(null)}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Catalog
+            </Button>
+          </div>
+          
+          <CatalogEntryDetails 
+            catalogEntry={detailView} 
+            reptileName={reptileForDetail.name} 
+          />
+        </div>
+      ) : (
+        <div className="grid">
           <CatalogEntryList
             catalogEntries={entriesWithImages}
             reptiles={reptiles}
@@ -137,9 +166,11 @@ export function CatalogTab() {
                 console.error('Error updating catalog entry:', error);
               }
             }}
+            onViewDetails={(entry) => setDetailView(entry)}
             isAdmin={true}
           />
-      </div>
+        </div>
+      )}
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
         <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]">
