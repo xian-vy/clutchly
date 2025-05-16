@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface CatalogImageUploadProps {
   catalogEntryId: string;
@@ -26,6 +27,7 @@ export function CatalogImageUpload({
   const [error, setError] = useState<string | null>(null);
   const MAX_IMAGES = 3;
   const remainingSlots = MAX_IMAGES - existingImages.length;
+  const queryClient = useQueryClient();
 
   const handleUpload = useCallback(async (file: File) => {
     // Check file type
@@ -64,6 +66,8 @@ export function CatalogImageUpload({
       }
 
       toast.success('Image uploaded successfully');
+      queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+
       onImageUploaded();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred during upload';
