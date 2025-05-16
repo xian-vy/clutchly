@@ -12,6 +12,7 @@ import {
   StarIcon,
   Trash2Icon,
   Venus,
+  FilterIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -53,6 +54,8 @@ interface CatalogEntryListProps {
   onAddNew: () => void;
   onFeatureToggle: (entry: CatalogEntry) => void;
   onViewDetails: (entry: CatalogEntry) => void;
+  onFilter?: () => void;
+  activeFilterCount?: number;
   isAdmin?: boolean;
 }
 
@@ -66,6 +69,8 @@ export function CatalogEntryList({
   onAddNew,
   onFeatureToggle,
   onViewDetails,
+  onFilter,
+  activeFilterCount = 0,
   isAdmin = true,
 }: CatalogEntryListProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -101,6 +106,23 @@ export function CatalogEntryList({
         </div>
         
         <div className="flex items-center gap-2">
+          {isAdmin && onFilter && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8 gap-1" 
+              onClick={onFilter}
+            >
+              <FilterIcon className="h-3.5 w-3.5" />
+              <span>Filter</span>
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full">
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          )}
+          
           {isAdmin && (
             <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
               <ArrowUpDown className="h-3.5 w-3.5" />
@@ -124,12 +146,21 @@ export function CatalogEntryList({
           </div>
           <h3 className="text-lg font-semibold">No reptiles in catalog</h3>
           <p className="text-sm text-muted-foreground max-w-xs mt-1 mb-4">
-            Add your first reptile to your public catalog to showcase your collection.
+            {activeFilterCount > 0 
+              ? "No reptiles match your current filters. Try adjusting your filter criteria."
+              : "Add your first reptile to your public catalog to showcase your collection."}
           </p>
-          <Button onClick={onAddNew} variant="outline">
-            <PlusIcon className="mr-2 h-4 w-4" />
-            Add Your First Reptile
-          </Button>
+          {activeFilterCount > 0 ? (
+            <Button onClick={onFilter} variant="outline">
+              <FilterIcon className="mr-2 h-4 w-4" />
+              Adjust Filters
+            </Button>
+          ) : (
+            <Button onClick={onAddNew} variant="outline">
+              <PlusIcon className="mr-2 h-4 w-4" />
+              Add Your First Reptile
+            </Button>
+          )}
         </div>
       ) : (
         <div className={cn(
