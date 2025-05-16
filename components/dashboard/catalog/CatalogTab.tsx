@@ -125,7 +125,7 @@ export function CatalogTab() {
               className="mr-2"
               onClick={() => setDetailView(null)}
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="h-4 w-4 " />
               Back to Catalog
             </Button>
           </div>
@@ -173,7 +173,7 @@ export function CatalogTab() {
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
-        <DialogContent className="sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]">
+        <DialogContent className="sm:max-w-[500px] ">
           <DialogTitle>
             {selectedCatalogEntry ? 'Edit Catalog Entry' : 'Add New Catalog Entry'}
           </DialogTitle>

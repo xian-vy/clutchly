@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CatalogEntry, CatalogImage, EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { Reptile } from '@/lib/types/reptile';
@@ -30,6 +30,20 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useState } from 'react';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
+
+function extractLastTwoDigitsOfYear(dateString : string | null): string {
+  if (!dateString) {
+    return "--";
+  }
+  try {
+    const date = new Date(dateString);
+    const year = date.getFullYear().toString().slice(-2);
+    return year;
+  } catch (error : unknown) {
+    console.error("Invalid date format:", error);
+    return "--";
+  }
+}
 
 interface CatalogEntryListProps {
   catalogEntries: EnrichedCatalogEntry[] | (CatalogEntry & { images?: CatalogImage[] })[];
@@ -80,7 +94,7 @@ export function CatalogEntryList({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Featured</h2>
+          <h2 className="text-base sm:text-lg xl:text-lg font-bold tracking-tight">Featured</h2>
           <p className="text-sm text-muted-foreground">
             {catalogEntries.length} reptile{catalogEntries.length !== 1 ? 's' : ''} in your catalog
           </p>
@@ -96,7 +110,7 @@ export function CatalogEntryList({
           
           {isAdmin && (
             <Button onClick={onAddNew} size="sm" className="h-8">
-              <PlusIcon className="mr-2 h-3.5 w-3.5" />
+              <PlusIcon className="h-3.5 w-3.5" />
               Add Reptile
             </Button>
           )}
@@ -120,7 +134,7 @@ export function CatalogEntryList({
       ) : (
         <div className={cn(
           viewMode === 'grid' 
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-4' 
+            ? 'grid grid-cols-2 sm:grid-cols-3  lg:grid-cols-4 2xl:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4' 
             : 'space-y-2'
         )}>
           {catalogEntries.map((entry) => {
@@ -133,9 +147,10 @@ export function CatalogEntryList({
 
             return viewMode === 'grid' ? (
               <Card 
+                onClick={() => onViewDetails(entry)}
                 key={entry.id} 
                 className={cn(
-                  "overflow-hidden group transition-all pt-0 gap-3 2xl:gap-4 cursor-pointer",
+                  "overflow-hidden group transition-all pt-0 pb-2  gap-0 cursor-pointer",
                   entry.featured ? "" : "",
                   isAdmin ? "hover:shadow-md" : ""
                 )}
@@ -154,7 +169,7 @@ export function CatalogEntryList({
                       </div>
                     ) : (
                       <div className="flex items-center justify-center h-full w-full bg-muted">
-                        <span className="text-muted-foreground text-sm">No image</span>
+                        <span className="text-muted-foreground text-sm">Click View to Add Image</span>
                       </div>
                     )}
                   </div>
@@ -205,36 +220,27 @@ export function CatalogEntryList({
 
                 <CardContent className="p-4">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-1.5">
-                    {reptile.sex === 'male' ? (
-                              <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5" />
-                            ) : reptile.sex === 'female' ? (
-                              <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5" />
-                            ) : (
-                              <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />
-                            )}
-                      <h3 className="text-sm md:text-[0.9rem] 3xl:text-base font-medium truncate">{reptile.name}</h3>
-                    </div>
-                    <p className="text-xs md:text-sm text-muted-foreground truncate">
+                     <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">{reptile.name}</h3>       
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">
                       {morph?.name}
                     </p>
-                    <p className="text-xs md:text-sm text-muted-foreground truncate">
-                       {reptile.hatch_date || "--"}
-                    </p>
-
+                    <div className="flex items-center gap-1.5">
+                      <div>
+                          {reptile.sex === 'male' ? (
+                                <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5 shrink-0" />
+                              ) : reptile.sex === 'female' ? (
+                                <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
+                              ) : (
+                                <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                              )}
+                        </div>
+                        <p className="text-xs md:text-sm text-muted-foreground truncate">
+                          {extractLastTwoDigitsOfYear(reptile.hatch_date)}
+                       </p>
+                    </div>
                   </div>
                 </CardContent>
                 
-                <CardFooter className="p-4 py-0 flex justify-end items-center">
-                      <Button 
-                        variant="secondary" 
-                        size="sm"
-                        onClick={() => onViewDetails(entry)}
-                      >
-                        <EyeIcon className="h-3.5 w-3.5 mr-1" />
-                        View
-                      </Button>
-                </CardFooter>
               </Card>
             ) : (
               <Card key={entry.id} className="overflow-hidden">
@@ -249,7 +255,7 @@ export function CatalogEntryList({
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full w-full bg-muted">
-                        <span className="text-muted-foreground text-xs">No image</span>
+                        <span className="text-muted-foreground text-[0.5rem] sm:text-[0.6rem] text-center">Click View to Add Image</span>
                       </div>
                     )}
                   </div>

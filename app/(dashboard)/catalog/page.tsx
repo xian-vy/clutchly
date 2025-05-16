@@ -7,7 +7,7 @@ export default function CatalogPage() {
     <div className="container mx-auto">
     <div className="mb-3 lg:mb-4 xl:mb-6">
         <h1 className="text-lg sm:text-xl 2xl:text-2xl 3xl:!text-3xl font-bold">Reptile Catalog</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-sm md:text-base text-muted-foreground mt-1">
           Create online catalogs for your featured reptiles and share in socials
         </p>
     </div>
