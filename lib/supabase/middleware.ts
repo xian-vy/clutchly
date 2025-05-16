@@ -50,7 +50,8 @@ export async function updateSession(request: NextRequest) {
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/auth') &&
-    (request.nextUrl.pathname !== '/' || !request.nextUrl.pathname.startsWith('/catalog/')) // Allow access to landing page and catalog
+    request.nextUrl.pathname !== '/' && 
+    !request.nextUrl.pathname.startsWith('/catalog/') // Allow access to landing page and catalog
   ) {
     // no user, redirect to landing page for protected routes
     const url = request.nextUrl.clone()
