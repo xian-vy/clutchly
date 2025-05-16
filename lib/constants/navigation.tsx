@@ -4,13 +4,13 @@ import {
     DollarSign,
     Download,
     Heart,
-    Images,
     LayoutDashboard,
     LineChart,
     Network,
     Package,
     Plus,
     Settings,
+    Star,
 } from 'lucide-react';
 import { VscSnake } from "react-icons/vsc";
 import { PiChartLineUp,PiChartLineDown } from "react-icons/pi";
@@ -34,8 +34,8 @@ export interface NavItem {
     },
     {
         section: 'Main',
-        name: 'Catalog',
-        icon: Images,
+        name: 'Showcase',
+        icon: Star,
         href: '/catalog',
       },
       {

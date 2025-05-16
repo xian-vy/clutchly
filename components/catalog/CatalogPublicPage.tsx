@@ -1,86 +1,17 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CatalogEntry } from '@/lib/types/catalog';
-import { Link as LinkIcon, Clipboard, ChevronDown, ChevronUp, EyeIcon, Search, FilterIcon, Loader2 } from 'lucide-react';
-import Image from 'next/image';
+import { Link as LinkIcon, Clipboard, ChevronDown, ChevronUp, Search, FilterIcon, Loader2} from 'lucide-react';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { APP_URL } from '@/lib/constants/app';
 import { useQuery } from '@tanstack/react-query';
 import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
+import { EnrichedCatalogEntry } from '@/lib/types/catalog';
+import ReptileCard from './ReptileCard';
 
-type EnrichedCatalogEntry = CatalogEntry & {
-  reptiles: {
-    id: string;
-    name: string;
-    species_id: string | number;
-    morph_id: string | number;
-    sex: string;
-  };
-  catalog_images: {
-    id: string;
-    image_url: string;
-  }[];
-};
 
-interface ReptileCardProps {
-  entry: EnrichedCatalogEntry;
-}
-
-function ReptileCard({ entry }: ReptileCardProps) {
-  const reptile = entry.reptiles;
-  const imageUrl = entry.catalog_images?.[0]?.image_url;
-
-  return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
-      <div className="relative aspect-square bg-muted">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={reptile.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full w-full">
-            <EyeIcon className="h-8 w-8 text-muted-foreground/50" />
-          </div>
-        )}
-        {entry.featured && (
-          <div className="absolute top-2 right-2">
-            <Badge variant="secondary" className="bg-primary text-primary-foreground">
-              Featured
-            </Badge>
-          </div>
-        )}
-      </div>
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg">{reptile.name}</h3>
-        <div className="flex items-center gap-2 mt-1">
-          <Badge variant="outline" className={cn(
-            "capitalize",
-            reptile.sex === 'male' ? "text-blue-500" : 
-            reptile.sex === 'female' ? "text-rose-500" : ""
-          )}>
-            {reptile.sex}
-          </Badge>
-        </div>
-      </CardContent>
-      <CardFooter className="p-4 pt-0 text-sm text-muted-foreground">
-        <div className="w-full truncate">
-          {/* This would ideally show the actual morph name */}
-          Morph ID: {reptile.morph_id.toString()}
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
 
 interface CatalogClientPageProps {
   profileName: string;

@@ -30,3 +30,17 @@ export function calculateAgeInMonths(date: Date): number {
   
   return years * 12 + months;
 } 
+
+export function extractLastTwoDigitsOfYear(dateString : string | null): string {
+  if (!dateString) {
+    return "--";
+  }
+  try {
+    const date = new Date(dateString);
+    const year = date.getFullYear().toString().slice(-2);
+    return year;
+  } catch (error : unknown) {
+    console.error("Invalid date format:", error);
+    return "--";
+  }
+}

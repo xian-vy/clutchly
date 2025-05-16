@@ -1,6 +1,8 @@
 
 
 import { CatalogPublicPage } from '@/components/catalog/CatalogPublicPage';
+import { QueryProvider } from '@/components/providers/QueryProvider';
+import { APP_URL } from '@/lib/constants/app';
 import { Metadata } from 'next';
 
 type Params = Promise<{ profileName: string}>;
@@ -11,7 +13,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { profileName } = await params;
 
-  const ogUrl = new URL(`/api/og/catalog/${profileName}`, 'https://clutcly.vercel.app');
+  const ogUrl = new URL(`/api/og/catalog/${profileName}`, APP_URL);
 
   return {
     title: `${profileName}'s Reptile Collection | HerpTrack`,
@@ -26,7 +28,7 @@ export async function generateMetadata(
         alt: `${profileName}'s reptile catalog`,
       }],
       type: 'website',
-      url: `https://clutcly.vercel.app/catalog/${profileName}`,
+      url: `${APP_URL}/catalog/${profileName}`,
       siteName: 'HerpTrack',
       locale: 'en_US',
     },
@@ -46,6 +48,8 @@ export default async function Page({
   const { profileName } = resolvedParams;
   
   return (
-    <CatalogPublicPage profileName={profileName} />
+    <QueryProvider>
+        <CatalogPublicPage profileName={profileName} />
+    </QueryProvider>
   );
 }
