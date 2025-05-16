@@ -101,11 +101,11 @@ export function CatalogFilterDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] md:max-w-[550px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-start">Filter Catalog</DialogTitle>
+          <DialogTitle className="text-start">Filters</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 sm:space-y-4">
             {/* Sort options */}
             <FormField
               control={form.control}
@@ -136,7 +136,7 @@ export function CatalogFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 sm:gap-4">
               {/* Species Filter */}
               <FormField
                 control={form.control}

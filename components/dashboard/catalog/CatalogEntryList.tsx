@@ -3,7 +3,6 @@
 import {
   ArrowUpDown,
   CircleHelp,
-  EyeIcon,
   HeartIcon,
   Mars,
   MoreHorizontal,
@@ -28,7 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Switch } from '@/components/ui/switch';
 import { useState } from 'react';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 
@@ -274,8 +272,8 @@ export function CatalogEntryList({
                 
               </Card>
             ) : (
-              <Card key={entry.id} className="overflow-hidden">
-                <div className="p-4 flex items-center gap-4">
+              <Card key={entry.id} className="overflow-hidden p-2">
+                <div className="px-4 flex items-center gap-4">
                   <div className="w-16 h-16 rounded-md overflow-hidden bg-muted relative flex-shrink-0">
                     {imageUrl ? (
                       <Image
@@ -293,45 +291,41 @@ export function CatalogEntryList({
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-medium truncate">{reptile.name}</h3>
-                      {entry.featured && (
-                        <Badge variant="secondary" className="bg-primary/20 text-primary">
-                          Featured
-                        </Badge>
-                      )}
+                      <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium ">{reptile.name}</h3>
+
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">{morph?.name}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{morph?.name}</p>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={entry.featured}
-                      onCheckedChange={() => onFeatureToggle(entry)}
-                      aria-label="Toggle feature"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(entry)}
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onViewDetails(entry)}
-                    >
-                      <EyeIcon className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onDelete(entry.id)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2Icon className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  {isAdmin && (
+                    <div className="">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="secondary" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => onFeatureToggle(entry)}>
+                            <StarIcon className={cn("h-4 w-4 mr-2", entry.featured && "text-amber-500")} />
+                            {entry.featured ? 'Unfeature' : 'Feature'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onEdit(entry)}>
+                            <PencilIcon className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => onDelete(entry.id)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2Icon className="h-4 w-4 mr-2" />
+                            Remove
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
                 </div>
               </Card>
             );
