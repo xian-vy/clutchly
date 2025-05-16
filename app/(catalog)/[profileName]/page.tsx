@@ -1,16 +1,15 @@
-import type { Metadata } from 'next';
 
-interface CatalogLayoutProps {
-  children: React.ReactNode;
-  params: {
-    profileName: string;
-  };
-}
+
+import { CatalogPublicPage } from '@/components/catalog/CatalogPublicPage';
+import { Metadata } from 'next';
+
+type Params = Promise<{ profileName: string}>;
+
 
 export async function generateMetadata(
-  { params }: CatalogLayoutProps
+  { params }: {params : Params}
 ): Promise<Metadata> {
-  const { profileName } = params;
+  const { profileName } = await params;
 
   const ogUrl = new URL(`/api/og/catalog/${profileName}`, 'https://clutcly.vercel.app');
 
@@ -40,10 +39,13 @@ export async function generateMetadata(
   };
 }
 
-export default function Layout({ children }: CatalogLayoutProps) {
+export default async function Page({
+  params,
+}: {params : Params}) {
+  const resolvedParams = await params;
+  const { profileName } = resolvedParams;
+  
   return (
-    <>
-      {children}
-    </>
+    <CatalogPublicPage profileName={profileName} />
   );
-} 
+}

@@ -1,23 +1,18 @@
 'use client';
 
-import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { CatalogEntry } from '@/lib/types/catalog';
-import { useQuery } from '@tanstack/react-query';
-import { Loader2, Link as LinkIcon, Clipboard, ChevronDown, ChevronUp, EyeIcon, Search, FilterIcon } from 'lucide-react';
+import { Link as LinkIcon, Clipboard, ChevronDown, ChevronUp, EyeIcon, Search, FilterIcon, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-
-interface PublicCatalogPageProps {
-  params: {
-    profileName: string;
-  };
-}
+import { APP_URL } from '@/lib/constants/app';
+import { useQuery } from '@tanstack/react-query';
+import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
 
 type EnrichedCatalogEntry = CatalogEntry & {
   reptiles: {
@@ -33,8 +28,65 @@ type EnrichedCatalogEntry = CatalogEntry & {
   }[];
 };
 
-export default function PublicCatalogPage({ params }: PublicCatalogPageProps) {
-  const { profileName } = params;
+interface ReptileCardProps {
+  entry: EnrichedCatalogEntry;
+}
+
+function ReptileCard({ entry }: ReptileCardProps) {
+  const reptile = entry.reptiles;
+  const imageUrl = entry.catalog_images?.[0]?.image_url;
+
+  return (
+    <Card className="overflow-hidden transition-all hover:shadow-md">
+      <div className="relative aspect-square bg-muted">
+        {imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={reptile.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full w-full">
+            <EyeIcon className="h-8 w-8 text-muted-foreground/50" />
+          </div>
+        )}
+        {entry.featured && (
+          <div className="absolute top-2 right-2">
+            <Badge variant="secondary" className="bg-primary text-primary-foreground">
+              Featured
+            </Badge>
+          </div>
+        )}
+      </div>
+      <CardContent className="p-4">
+        <h3 className="font-semibold text-lg">{reptile.name}</h3>
+        <div className="flex items-center gap-2 mt-1">
+          <Badge variant="outline" className={cn(
+            "capitalize",
+            reptile.sex === 'male' ? "text-blue-500" : 
+            reptile.sex === 'female' ? "text-rose-500" : ""
+          )}>
+            {reptile.sex}
+          </Badge>
+        </div>
+      </CardContent>
+      <CardFooter className="p-4 pt-0 text-sm text-muted-foreground">
+        <div className="w-full truncate">
+          {/* This would ideally show the actual morph name */}
+          Morph ID: {reptile.morph_id.toString()}
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
+
+interface CatalogClientPageProps {
+  profileName: string;
+}
+
+export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   const [showAllFeatured, setShowAllFeatured] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
@@ -78,13 +130,13 @@ export default function PublicCatalogPage({ params }: PublicCatalogPageProps) {
           </p>
           <div className="flex items-center mt-6 text-sm">
             <LinkIcon className="h-4 w-4 mr-1 text-muted-foreground" />
-            <span className="text-muted-foreground">clutcly.vercel.app/catalog/{profileName}</span>
+            <span className="text-muted-foreground">{APP_URL}/{profileName}</span>
             <Button
               variant="ghost"
               size="icon"
               className="h-7 w-7"
               onClick={() => {
-                navigator.clipboard.writeText(`https://clutcly.vercel.app/catalog/${profileName}`);
+                navigator.clipboard.writeText(`${APP_URL}/${profileName}`);
                 toast.success('URL copied to clipboard');
               }}
             >
@@ -163,77 +215,3 @@ export default function PublicCatalogPage({ params }: PublicCatalogPageProps) {
     </main>
   );
 }
-
-interface ReptileCardProps {
-  entry: EnrichedCatalogEntry;
-}
-
-function ReptileCard({ entry }: ReptileCardProps) {
-  const reptile = entry.reptiles;
-
-  return (
-    <Card 
-      className={cn(
-        "overflow-hidden group transition-all hover:shadow-md",
-        entry.featured && "ring-1 ring-primary"
-      )}
-    >
-      <div className="relative">
-        <div className="aspect-square overflow-hidden bg-muted">
-          {entry.catalog_images && entry.catalog_images[0] ? (
-            <div className="relative w-full h-full">
-              <Image
-                src={entry.catalog_images[0].image_url}
-                alt={reptile.name}
-                fill
-                className="object-cover transition-transform group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full w-full bg-muted">
-              <span className="text-muted-foreground text-sm">No image</span>
-            </div>
-          )}
-        </div>
-
-        {/* Badges overlays */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-          {entry.featured && (
-            <Badge variant="secondary" className="bg-primary text-primary-foreground">
-              Featured
-            </Badge>
-          )}
-          <Badge variant="secondary" className="capitalize">
-            {reptile.sex}
-          </Badge>
-        </div>
-      </div>
-
-      <CardContent className="p-4">
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium truncate">{reptile.name}</h3>
-          </div>
-          <p className="text-sm text-muted-foreground truncate">
-            {reptile.morph_id}
-          </p>
-          <div className="flex justify-between items-center pt-2">
-            <p className="text-sm">{reptile.species_id}</p>
-          </div>
-        </div>
-      </CardContent>
-      
-      <CardFooter className="p-4 pt-0">
-        <Button 
-          variant="default" 
-          size="sm" 
-          className="w-full"
-        >
-          <EyeIcon className="h-3.5 w-3.5 mr-1" />
-          View details
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-} 

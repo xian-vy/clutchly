@@ -24,13 +24,14 @@ type EnrichedCatalogEntry = {
     image_url: string;
   }>;
 };
+type Params = Promise<{ profileName: string}>;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { profileName: string } }
+  { params }: { params: Params }
 ) {
   try {
-    const { profileName } = params;
+    const { profileName } = await params;
     
     // Get catalog entries for the user
     const catalogEntries = await getCatalogEntriesByProfileName(profileName) as EnrichedCatalogEntry[];
