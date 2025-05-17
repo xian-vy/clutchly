@@ -19,7 +19,7 @@ const CatalogEntryShare = () => {
         <div className="flex items-center gap-2">
                 <Input
                   readOnly
-                  value={`${APP_URL}/${userProfile?.full_name || 'your-profile'}`}
+                  value={`${APP_URL}/catalog/${userProfile?.full_name || 'your-profile'}`}
                   className="bg-muted w-full sm:w-[300px]"
                 />
                 <Button
@@ -27,7 +27,7 @@ const CatalogEntryShare = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => {
-                    navigator.clipboard.writeText(`${APP_URL}/${userProfile?.full_name || 'your-profile'}`);
+                    navigator.clipboard.writeText(`${APP_URL}/catalog/${userProfile?.full_name || 'your-profile'}`);
                     toast.success('URL copied to clipboard');
                   }}
                 >

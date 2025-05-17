@@ -1,4 +1,3 @@
-import { Morph } from "./morph";
 import { Reptile } from "./reptile";
 
 export interface CatalogEntry {
@@ -32,7 +31,7 @@ export interface CatalogSettings {
 
 export interface EnrichedCatalogEntry extends CatalogEntry {
   reptiles: Reptile & {
-    morph: Morph;
+    morph_name: string;
   };
   catalog_images: CatalogImage[];
 }

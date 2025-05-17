@@ -61,13 +61,13 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
           </p>
           <div className="flex items-center mt-6 text-sm">
             <LinkIcon className="h-4 w-4 mr-1 text-muted-foreground" />
-            <span className="text-muted-foreground">{APP_URL}/{profileName}</span>
+            <span className="text-muted-foreground">{APP_URL}/catalog/{profileName}</span>
             <Button
               variant="ghost"
               size="icon"
               className="h-7 w-7"
               onClick={() => {
-                navigator.clipboard.writeText(`${APP_URL}/${profileName}`);
+                navigator.clipboard.writeText(`${APP_URL}/catalog/${profileName}`);
                 toast.success('URL copied to clipboard');
               }}
             >
@@ -106,7 +106,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
               )}
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {displayedFeaturedEntries.map((entry) => (
                 <ReptileCard key={entry.id} entry={entry} />
               ))}
@@ -136,7 +136,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {catalogEntries.map((entry) => (
               <ReptileCard key={entry.id} entry={entry} />
             ))}
