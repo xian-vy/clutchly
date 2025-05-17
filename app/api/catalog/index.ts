@@ -24,7 +24,7 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
   const supabase = await createClient()
 
   const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
+    .from('view_public_profiles')
     .select('id')
     .eq('full_name', profileName)
     .single();
@@ -33,37 +33,16 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
   if (!profileData) throw new Error('Profile not found');
 
   const { data, error } = await supabase
-  .from('catalog_entries')
-  .select(`
-    *,
-    reptiles:reptile_id(*),
-    catalog_images(*)
-  `)
-  .eq('user_id', profileData.id)
-  .order('display_order', { ascending: true });
-
-  // Get morph data in a separate query
-  const enrichedData = await Promise.all((data || []).map(async (entry) => {
-    if (entry.reptiles?.morph_id) {
-      const { data: morphData } = await supabase
-        .from('morphs')
-        .select('*')
-        .eq('id', entry.reptiles.morph_id)
-        .single();
-  
-      return {
-        ...entry,
-        reptiles: {
-          ...entry.reptiles,
-          morph: morphData
-        }
-      };
-    }
-    return entry;
-  }));
-
+    .from('catalog_entries')
+    .select(`
+      *,
+      reptiles:view_public_catalog!inner(*), 
+      catalog_images(*)
+    `)
+    .eq('user_id', profileData.id)
+    .order('display_order', { ascending: true });
   if (error) throw error;
-  return enrichedData || [];
+  return data || [];
 }
 
 // Create a new catalog entry

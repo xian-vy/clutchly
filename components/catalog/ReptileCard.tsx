@@ -33,7 +33,7 @@ const ReptileCard = ({ entry }: ReptileCardProps) => {
         <CardContent className="p-4">
             <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">{reptile.name}</h3>       
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
-              {reptile.morph.name}
+              {reptile.morph_name || "Unknown Morph"}
             </p>
             <div className="flex items-center gap-1.5">
                    <div>
