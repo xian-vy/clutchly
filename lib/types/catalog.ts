@@ -1,4 +1,3 @@
-import { Morph } from "./morph";
 import { Reptile } from "./reptile";
 
 export interface CatalogEntry {
