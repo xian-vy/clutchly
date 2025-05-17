@@ -191,7 +191,7 @@ export function CatalogImageUpload({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
         {/* Existing Images */}
         {existingImages.map((image) => (
-          <Card key={image.id} className="overflow-hidden group relative h-[220px]">
+          <Card key={image.id} className="overflow-hidden group relative h-[220px] py-0">
             <CardContent className="p-0 h-full">
               <div className="relative h-full w-full">
                 <Image

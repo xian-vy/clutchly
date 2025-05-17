@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { CatalogImageUpload } from './CatalogImageUpload';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
@@ -18,9 +17,10 @@ import { Reptile } from '@/lib/types/reptile';
 interface CatalogEntryDetailsProps {
   catalogEntry: CatalogEntry;
   reptileName: string;
+  isAdmin : boolean
 }
 
-export function CatalogEntryDetails({ catalogEntry, reptileName }: CatalogEntryDetailsProps) {
+export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: CatalogEntryDetailsProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { species } = useSpeciesStore();
   const { morphs } = useMorphsStore();
@@ -81,16 +81,12 @@ export function CatalogEntryDetails({ catalogEntry, reptileName }: CatalogEntryD
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Left column - Images */}
-      <Card className="overflow-hidden">
-        <CardHeader>
-          <CardTitle className="text-xl">Images</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%]  gap-6 ">
+            {/* Left column - Images */}
+      <Card className="overflow-hidden py-0">
+        <CardHeader className='px-0 pb-0'>
             {/* Main image display */}
-            <div className="relative aspect-square bg-muted rounded-md overflow-hidden">
+            <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
               {images.length > 0 ? (
                 <Image
                   src={images[selectedImageIndex].image_url}
@@ -106,6 +102,11 @@ export function CatalogEntryDetails({ catalogEntry, reptileName }: CatalogEntryD
               )}
             </div>
             
+        </CardHeader>
+   
+        <CardContent>
+        <div className="space-y-4">
+
             {/* Thumbnail gallery */}
             {images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
@@ -129,46 +130,37 @@ export function CatalogEntryDetails({ catalogEntry, reptileName }: CatalogEntryD
                 ))}
               </div>
             )}
-            
-            {/* Image upload component */}
+            {isAdmin &&
             <CatalogImageUpload
               catalogEntryId={catalogEntry.id}
               existingImages={images}
               onImageUploaded={handleImageUploaded}
               onImageRemoved={handleImageRemoved}
             />
+              }
           </div>
         </CardContent>
       </Card>
 
       {/* Right column - Details */}
-      <Card>
+      <Card className='p-3 sm:p-4 md:p-5 xl:p-6 xl:py-10'>
         <CardHeader>
-          <CardTitle className="text-xl">{reptileName} Details</CardTitle>
+          <CardTitle className='flex flex-col items-start gap-1 sm:gap-2'>
+            <h2 className="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold">
+               {reptileName}
+            </h2>
+            <span className='text-muted-foreground'>{reptileSpecies?.name || 'Unknown'}</span>
+            </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {/* Featured badge */}
-            {catalogEntry.featured && (
-              <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                Featured in Catalog
-              </Badge>
-            )}
+  
             
             {/* Reptile info */}
             {reptile && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-3">
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="font-medium">Name</span>
-                    <span>{reptile.name}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="font-medium">Species</span>
-                    <span>{reptileSpecies?.name || 'Unknown'}</span>
-                  </div>
-                  
+ 
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="font-medium">Morph</span>
                     <span>{reptileMorph?.name || 'Unknown'}</span>
@@ -176,7 +168,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName }: CatalogEntryD
                   
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="font-medium">Sex</span>
-                    <Badge variant="outline" className="capitalize">{reptile.sex}</Badge>
+                    <span className='capitalize'>{reptile.sex || 'Unknown'}</span>
                   </div>
                   
                   {reptile.hatch_date && (
@@ -199,6 +191,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName }: CatalogEntryD
                       <span>{reptile.length} cm</span>
                     </div>
                   )}
+
                 </div>
                 
                 {/* Reptile Notes */}
@@ -218,4 +211,4 @@ export function CatalogEntryDetails({ catalogEntry, reptileName }: CatalogEntryD
       </Card>
     </div>
   );
-} 
+}

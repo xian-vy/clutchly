@@ -226,6 +226,7 @@ export function CatalogTab() {
           <CatalogEntryDetails 
             catalogEntry={detailView} 
             reptileName={reptileForDetail.name} 
+            isAdmin={true}
           />
         </div>
       ) : (
