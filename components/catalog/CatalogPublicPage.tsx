@@ -3,7 +3,7 @@
 import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clipboard, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
 import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
@@ -11,7 +11,8 @@ import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { CatalogFilterDialog, CatalogFilters } from '../dashboard/catalog/CatalogFilterDialog';
 import { calculateAgeInMonths } from '@/lib/utils';
-
+import { APP_URL } from '@/lib/constants/app';
+import { toast } from 'sonner';
 interface CatalogClientPageProps {
   profileName: string;
 }
@@ -33,26 +34,9 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
     queryFn: () => getCatalogEntriesByProfileName(profileName),
   });
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
-  if (isError) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-2">Catalog Not Found</h1>
-        <p className="text-muted-foreground text-center">
-          The catalog you&apos;re looking for doesn&apos;t exist or is no longer available.
-        </p>
-      </div>
-    );
-  }
 
-  const enrichedCatalog = data as EnrichedCatalogEntry[];
+  const enrichedCatalog = isLoading ? []  : data as EnrichedCatalogEntry[];
   const reptiles = enrichedCatalog.map((entry) => entry.reptiles);
   const findReptile = (reptileId: string) => reptiles.find((r) => r.id === reptileId);
   
@@ -137,59 +121,90 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   const handleApplyFilters = (newFilters: CatalogFilters) => {
     setFilters(newFilters);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h1 className="text-2xl font-bold mb-2">Catalog Not Found</h1>
+        <p className="text-muted-foreground text-center">
+          The catalog you&apos;re looking for doesn&apos;t exist or is no longer available.
+        </p>
+      </div>
+    );
+  }
   return (
-    <main className="min-h-screen bg-background container mx-auto p-5 xl:p-10 space-y-3 lg:space-y-5">
+    <main className="min-h-screen bg-background  space-y-3 lg:space-y-5">
 
-    <div className="flex justify-between mb-3 lg:mb-4 xl:mb-6">
-            <div className="">
-                <h1 className="text-lg sm:text-xl 2xl:text-2xl 3xl:!text-3xl font-bold capitalize">{profileName || 'Clutchly'}</h1>
+      <div className="relative overflow-hidden bg-muted/30 border-b">
+              <div className="container mx-auto px-4 py-12 flex flex-col items-center text-center">
+                <h1 className="text-4xl font-bold tracking-tight capitalize">{profileName}&apos;s Collection</h1>
+                <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
+                  A curated showcase of exceptional reptiles and morphs
+                </p>
+                <div className="flex items-center mt-6 text-sm">
+                  <span className="text-muted-foreground">{APP_URL}/catalog/{profileName}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${APP_URL}/catalog/${profileName}`);
+                      toast.success('URL copied to clipboard');
+                    }}
+                  >
+                    <Clipboard className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-3 lg:gap-5">
-                <span className='text-xs sm:text-[0.8rem] xl:text-sm'>About</span>
-                <span className='text-xs sm:text-[0.8rem] xl:text-sm'>Contact</span>
+
+     <div className="container mx-auto">
+          {detailView && reptileForDetail ? (
+            <div className="space-y-6">
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+              
+                  onClick={() => setDetailView(null)}
+                >
+                  <ArrowLeft className="h-4 w-4 " />
+                  Back to List
+                </Button>
+              </div>
+              
+              <CatalogEntryDetails 
+                catalogEntry={detailView} 
+                reptileName={reptileForDetail.name} 
+                isAdmin={false}
+              />
             </div>
-    </div>  
-
-    <Separator />
-
-
-      {detailView && reptileForDetail ? (
-        <div className="space-y-6">
-          <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-          
-              onClick={() => setDetailView(null)}
-            >
-              <ArrowLeft className="h-4 w-4 " />
-              Back to List
-            </Button>
-          </div>
-          
-          <CatalogEntryDetails 
-            catalogEntry={detailView} 
-            reptileName={reptileForDetail.name} 
-            isAdmin={false}
-          />
+          ) : (
+            <div className="grid">
+              <CatalogEntryList
+                catalogEntries={filteredEntries}
+                reptiles={reptiles}
+                onViewDetails={(entry) => setDetailView(entry)}
+                isAdmin={false}
+                onFilter={() => setIsFilterDialogOpen(true)}
+                activeFilterCount={activeFilterCount}          />
+            </div>
+          )}
+            <CatalogFilterDialog
+            open={isFilterDialogOpen}
+            onOpenChange={setIsFilterDialogOpen}
+            onApplyFilters={handleApplyFilters}
+            currentFilters={filters}
+        />
         </div>
-      ) : (
-        <div className="grid">
-          <CatalogEntryList
-            catalogEntries={filteredEntries}
-            reptiles={reptiles}
-            onViewDetails={(entry) => setDetailView(entry)}
-            isAdmin={true}
-            onFilter={() => setIsFilterDialogOpen(true)}
-            activeFilterCount={activeFilterCount}          />
-        </div>
-      )}
-         <CatalogFilterDialog
-        open={isFilterDialogOpen}
-        onOpenChange={setIsFilterDialogOpen}
-        onApplyFilters={handleApplyFilters}
-        currentFilters={filters}
-      />
     </main>
   );
 }
