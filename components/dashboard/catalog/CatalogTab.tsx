@@ -15,6 +15,10 @@ import { CatalogEntryDetails } from './CatalogEntryDetails';
 import { Button } from '@/components/ui/button';
 import { CatalogFilterDialog, CatalogFilters } from './CatalogFilterDialog';
 import { calculateAgeInMonths } from '@/lib/utils';
+import CatalogHeader from './CatalogHeader';
+import { CatalogIntro } from './CatalogIntro';
+import { Separator } from '@/components/ui/separator';
+import CatalogNavigation from './CatalogNavigation';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -209,6 +213,22 @@ export function CatalogTab() {
 
   return (
     <div className="space-y-6">
+
+      <CatalogHeader 
+        isAdmin={true}
+        onAddNew={() => setIsDialogOpen(true)}
+        viewMode={detailView? 'list' : 'grid'}
+        onViewModeChange={() => {}}
+      />
+
+      <Separator />
+
+      <CatalogNavigation />
+
+      <CatalogIntro />
+
+
+
       {detailView && reptileForDetail ? (
         <div className="space-y-6">
           <div className="flex items-center">

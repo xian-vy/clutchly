@@ -1,25 +1,8 @@
 'use client';
 
-import {
-  ArrowUpDown,
-  CircleHelp,
-  HeartIcon,
-  Mars,
-  MoreHorizontal,
-  PencilIcon,
-  PlusIcon,
-  StarIcon,
-  Trash2Icon,
-  Venus,
-  FilterIcon,
-} from 'lucide-react';
-import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { CatalogEntry, CatalogImage, EnrichedCatalogEntry } from '@/lib/types/catalog';
-import { Reptile } from '@/lib/types/reptile';
-import { cn, extractLastTwoDigitsOfYear } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,11 +10,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useState } from 'react';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
-import CatalogEntryShare from './CatalogEntryShare';
+import { CatalogEntry, CatalogImage, EnrichedCatalogEntry } from '@/lib/types/catalog';
+import { Reptile } from '@/lib/types/reptile';
+import { cn, extractLastTwoDigitsOfYear } from '@/lib/utils';
+import {
+  CircleHelp,
+  FilterIcon,
+  HeartIcon,
+  Mars,
+  MoreHorizontal,
+  PencilIcon,
+  PlusIcon,
+  StarIcon,
+  Trash2Icon,
+  Venus
+} from 'lucide-react';
+import Image from 'next/image';
 
 
+type ViewMode = 'grid' | 'list';
 
 interface CatalogEntryListProps {
   catalogEntries: EnrichedCatalogEntry[] | (CatalogEntry & { images?: CatalogImage[] })[];
@@ -44,9 +42,9 @@ interface CatalogEntryListProps {
   onFilter?: () => void;
   activeFilterCount?: number;
   isAdmin?: boolean;
+  viewMode? : ViewMode;
 }
 
-type ViewMode = 'grid' | 'list';
 
 export function CatalogEntryList({
   catalogEntries,
@@ -59,8 +57,8 @@ export function CatalogEntryList({
   onFilter,
   activeFilterCount = 0,
   isAdmin = true,
+  viewMode = 'grid'
 }: CatalogEntryListProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const {morphs} = useMorphsStore()
   
   // Function to find reptile by ID
@@ -85,10 +83,9 @@ export function CatalogEntryList({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <CatalogEntryShare />
-        <div className="flex items-center gap-2">
-          {isAdmin && onFilter && (
+    
+      <div className="flex items-center justify-start">
+        {isAdmin && onFilter && (
             <Button 
               variant="outline" 
               size="sm" 
@@ -101,25 +98,10 @@ export function CatalogEntryList({
                 <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full">
                   {activeFilterCount}
                 </Badge>
-              )}
-            </Button>
-          )}
-          
-          {isAdmin && (
-            <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
-              <ArrowUpDown className="h-3.5 w-3.5" />
-              <span>{viewMode === 'grid' ? 'List' : 'Grid'}</span>
-            </Button>
-          )}
-          
-          {isAdmin && (
-            <Button onClick={onAddNew} size="sm" className="h-8">
-              <PlusIcon className="h-3.5 w-3.5" />
-              Add Reptile
+              )}  
             </Button>
           )}
         </div>
-      </div>
 
       {catalogEntries.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
@@ -145,11 +127,7 @@ export function CatalogEntryList({
           )}
         </div>
       ) : (
-        <div className={cn(
-          viewMode === 'grid' 
-            ? 'grid grid-cols-2 sm:grid-cols-3  lg:grid-cols-4 2xl:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4' 
-            : 'space-y-2'
-        )}>
+        <div className={cn( 'grid grid-cols-2 sm:grid-cols-3  lg:grid-cols-4 2xl:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4'  )}>
           {catalogEntries.map((entry) => {
             const reptile = findReptile(entry.reptile_id);
             if (!reptile) return null;
