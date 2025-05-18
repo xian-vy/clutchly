@@ -8,7 +8,7 @@ import { Reptile } from '@/lib/types/reptile';
 import { useState,  useMemo } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { CatalogEntryDetails } from './CatalogEntryDetails';
@@ -49,9 +49,10 @@ export function CatalogTab() {
     updateResource: updateCatalogEntry,
     deleteResource: deleteCatalogEntry,
   });
+  const queryClient = useQueryClient();
 
   // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
-  const enrichedCatalog = catalogEntries as EnrichedCatalogEntry[]
+  const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
 
   // Get reptiles for selection
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
@@ -182,6 +183,20 @@ export function CatalogTab() {
       (filters.ageInMonths[0] > 0 || filters.ageInMonths[1] < 80) ? 1 : 0
   ].reduce((a, b) => a + b, 0);
 
+  const handleImageChange = async (entryId: string) => {
+    // Wait for the query to be invalidated and refetched
+    await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+    
+    // Get the latest data from the cache
+    const latestData = queryClient.getQueryData(['catalog-entries']) as EnrichedCatalogEntry[];
+    const updatedEntry = latestData?.find(entry => entry.id === entryId);
+    
+    if (updatedEntry) {
+      // Update the detailView with the complete latest data
+      setDetailView(updatedEntry);
+    }
+  };
+
   return (
     <div className="space-y-6">
 
@@ -206,11 +221,11 @@ export function CatalogTab() {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="mr-2"
+          
               onClick={() => setDetailView(null)}
             >
               <ArrowLeft className="h-4 w-4 " />
-              Back to Catalog
+              Back to List
             </Button>
           </div>
           
@@ -218,6 +233,7 @@ export function CatalogTab() {
             catalogEntry={detailView} 
             reptileName={reptileForDetail.name} 
             isAdmin={true}
+            onImageChange={handleImageChange}
           />
         </div>
       ) : (
@@ -288,4 +304,4 @@ export function CatalogTab() {
       />
     </div>
   );
-} 
+}

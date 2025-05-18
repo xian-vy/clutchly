@@ -3,7 +3,6 @@
 import { deleteCatalogImage } from '@/app/api/catalog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
-import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -13,15 +12,12 @@ interface CatalogEntryDetailsProps {
   catalogEntry: EnrichedCatalogEntry;
   reptileName: string;
   isAdmin : boolean
+  onImageChange?: (catalogEntryId: string) => void;
 }
 
-export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: CatalogEntryDetailsProps) {
+export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImageChange }: CatalogEntryDetailsProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const reptile = catalogEntry.reptiles;
-  const queryClient = useQueryClient();
-
-
- 
 
   const handleImageRemoved = async (imageId: string) => {
     if (!confirm('Are you sure you want to delete this image?')) return;
@@ -29,9 +25,10 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
     try {
       await deleteCatalogImage(imageId);
       toast.success('Image deleted successfully');
-      if (selectedImageIndex >= catalogEntry.catalog_images.length -  1) {
+      if (selectedImageIndex >= catalogEntry.catalog_images.length - 1) {
         setSelectedImageIndex(Math.max(0, catalogEntry.catalog_images.length - 2));
       }
+      onImageChange?.(catalogEntry.id);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete image';
       toast.error(errorMessage);
@@ -39,27 +36,26 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
   };
 
   const handleImageUploaded = () => {
-    queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+    onImageChange?.(catalogEntry.id);
   };
 
 
 
+  // Update the JSX to use currentEntry instead of catalogEntry
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%]  gap-6 ">
-            {/* Left column - Images */}
+    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6">
       <Card className="overflow-hidden py-0">
         <CardHeader className='px-0 pb-0'>
-            {/* Main image display */}
-            <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
-              {catalogEntry.catalog_images || length > 0 ? (
-                <Image
-                  src={catalogEntry.catalog_images[selectedImageIndex].image_url}
-                  alt={reptileName}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              ) : (
+          <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
+            {catalogEntry.catalog_images || length > 0 ? (
+              <Image
+                src={catalogEntry.catalog_images[selectedImageIndex].image_url}
+                alt={reptileName}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            ) : (
                 <div className="flex items-center justify-center h-full w-full bg-muted">
                   <span className="text-muted-foreground">No image available</span>
                 </div>
