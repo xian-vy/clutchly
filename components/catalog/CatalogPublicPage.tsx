@@ -4,12 +4,16 @@ import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { calculateAgeInMonths } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, MapPin } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
 import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
 import { CatalogFilterDialog, CatalogFilters } from '../dashboard/catalog/CatalogFilterDialog';
 import { Button } from '../ui/button';
+import Image from 'next/image';
+import { useTheme } from 'next-themes';
+import { Separator } from '../ui/separator';
+import { APP_URL } from '@/lib/constants/app';
 interface CatalogClientPageProps {
   profileName: string;
 }
@@ -17,6 +21,7 @@ interface CatalogClientPageProps {
 export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   const [detailView, setDetailView] = useState<EnrichedCatalogEntry | null>(null);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const { theme } = useTheme()
   const [filters, setFilters] = useState<CatalogFilters>({
     species: [],
     morphs: [],
@@ -138,20 +143,36 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
     );
   }
   return (
-    <main className="min-h-screen bg-background  space-y-3 lg:space-y-5">
-
-       <div className="bg-muted/30 border-b px-4 py-12  flex flex-col items-center text-center sm:gap-2 md:gap-4">
-              <div className="">
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight capitalize">{profileName}&apos;s Collection</h1>
-                <p className="text-base sm:text-lg text-muted-foreground max-w-2xl">
-                  A curated showcase of exceptional reptile collections
-                </p>
-
-              </div>
-              <div className="flex justify-center">
-                {catalogSettings ? catalogSettings.bio : ""}
-              </div>
+    <main className="min-h-screen bg-background ">
+        <div className="flex flex-col justify-center items-center bg-primary w-full text-white dark:text-black min-h-[30px] px-2">
+              <p className='text-xs'>Made with <a href={APP_URL} className='font-medium' target='_blank'>Clutchly</a></p>
         </div>
+        <div className=" px-4 sm:px-6 lg:px-10 py-6 xl:py-10 space-y-3 sm:space-y-4">
+          <div className="flex justify-between items-center  w-full">
+                <div className="flex gap-1 sm:gap-2 items-center justify-start ">
+                      <Image 
+                      src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'} 
+                      width={35} 
+                      height={35} 
+                      alt="clutchly" 
+                      className="rounded-full" 
+                    />
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight capitalize">{profileName}</h1>
+                  </div>
+                  <div className="flex items-center gap-3 sm:gap-4">
+                      <span className='text-sm sm:text-sm'>About</span>
+                      <span className='text-sm sm:text-sm'>Contact</span>
+                  </div>
+            </div>
+            <div className="flex items-center justify-start bg-muted/30">
+                  <p className="text-start  text-sm md:text-base  max-w-3xl">{catalogSettings ? catalogSettings.bio : ''}</p>
+            </div>
+                <div className="flex   items-start  gap-1 sm:gap-1.5 bg-muted/30">
+                  <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
+                <p className="text-start text-[0.8rem] md:text-sm ">Blk2, L52, Ph2, Olivarez Homes South, Brgy Sto Tomas, Biñan, Laguna, Philippines</p>
+            </div>
+        </div>
+        <Separator /> 
 
      <div className="container mx-auto">
           {detailView && reptileForDetail ? (

@@ -75,7 +75,7 @@ export function CatalogEntryList({
         </div>
       ) : (
         <div className="">
-          <div className="container mx-auto py-6 xl:py-12 px-4 space-y-6 xl:space-y-12">
+          <div className="container mx-auto py-6 xl:py-8 px-4 space-y-6 xl:space-y-12">
             {featuredEntries.length > 0 && (
               <section className="space-y-6">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -102,8 +102,8 @@ export function CatalogEntryList({
             )}
           </div>
           
-          <div className="container mx-auto py-6 xl:py-12  px-4 space-y-6 xl:space-y-12">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="container mx-auto py-6 xl:py-8  px-4 space-y-6 ">
+              <div className="flex items-center justify-between gap-4">
                   <div>
                         <h2 className="text-2xl md:text-3xl  font-bold tracking-tight">All Reptiles</h2>
                         <p className="text-muted-foreground">{reptiles.length} reptiles in this collection </p>

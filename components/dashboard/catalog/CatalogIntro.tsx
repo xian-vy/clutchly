@@ -11,11 +11,13 @@ import { CatalogSettings } from '@/lib/types/catalog';
 import { Profile } from '@/lib/types/profile';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Pencil, Save } from 'lucide-react';
+import { Loader2, MapPin, Pencil, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { useTheme } from 'next-themes'
+import Image from 'next/image';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -31,6 +33,7 @@ interface Props {
 export function CatalogIntro({settings,isLoading} : Props) {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
+  const { theme } = useTheme()
 
   const { data } = useQuery<Profile>({
     queryKey: ['profile2'],
@@ -92,18 +95,29 @@ export function CatalogIntro({settings,isLoading} : Props) {
   };
 
   return (
-    <div className="bg-muted/30 border-b px-4 py-12 flex flex-col items-center text-center gap-2 sm:gap-3 md:gap-4">
-      <div className="">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight capitalize">{profile ? profile.full_name : "--"}&apos;s Collection</h1>
-        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl">
-          A curated showcase of exceptional reptile collections
-        </p>
-      </div>
-      <Card className='p-0 border-0 w-full'>
-        <CardContent className='px-0'>
+    <div className="bg-muted/30 border-b px-4 py-6  flex flex-col items-start md:items-center text-center  gap-3 md:gap-4 ">
+
+      <div className="flex justify-between items-center w-full">
+            <div className="flex gap-1 sm:gap-2 items-center justify-center ">
+              <Image 
+                  src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'} 
+                  width={35} 
+                  height={35}   
+                  alt="clutchly" 
+                  className="rounded-full" 
+                />
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight capitalize">{profile ? profile.full_name : "--"}</h1>
+            </div>
+            <div className="flex items-center gap-3 sm:gap-4">
+                    <span className='text-sm'>About</span>
+                    <span className='text-sm'>Contact</span>
+            </div>
+        </div>
+      <Card className='p-0 border-0 w-full  '>
+        <CardContent className='flex flex-col items-start text-start gap-3 md:gap-4 px-0 bg-muted/30'>
           {!isEditing ? (
-            <div className="flex items-center justify-center">
-              <p className="text-center  ">{settings?.bio || 'Add your Bio/Intro here !'}</p>
+            <div className="flex items-start justify-center">
+              <p className="text-start  text-sm md:text-base max-w-3xl">{settings?.bio || 'Add your Bio/Intro here !'}</p>
               <Button
                 variant="ghost"
                 size="icon"
@@ -126,7 +140,7 @@ export function CatalogIntro({settings,isLoading} : Props) {
                           placeholder="Tell visitors about your collection..."
                           {...field}
                           value={field.value || ''}
-                          className='w-full min-h-[60px]'
+                          className='w-full min-h-[60px] mt-3'
                           maxLength={1000}
                         />
                       </FormControl>
@@ -159,6 +173,11 @@ export function CatalogIntro({settings,isLoading} : Props) {
               </form>
             </Form>
           )}
+          <div className="flex  max-w-lg items-start  gap-1 sm:gap-1.5 bg-muted/30">
+            <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
+            <p className="text-start text-[0.8rem] md:text-sm ">Blk2, L52, Ph2, Olivarez Homes South, Brgy Sto Tomas, Biñan, Laguna, Philippines</p>
+           </div>
+
         </CardContent>
       </Card>
     </div>

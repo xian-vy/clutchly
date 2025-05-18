@@ -19,7 +19,7 @@ const CatalogEntryShare = () => {
         <div className="flex items-center gap-2">
                 <Input
                   readOnly
-                  value={`${APP_URL}/catalog/${userProfile?.full_name || 'your-profile'}`}
+                  value={`clutchly.vercel.app/catalog/${userProfile?.full_name || 'your-profile'}`}
                   className="bg-muted w-full sm:w-[300px]"
                 />
                 <Button
