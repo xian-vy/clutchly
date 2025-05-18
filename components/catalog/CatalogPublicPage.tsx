@@ -14,6 +14,8 @@ import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { Separator } from '../ui/separator';
 import { APP_URL } from '@/lib/constants/app';
+import { CatalogAboutDialog } from './CatalogAboutDialog';
+import { CatalogContactDialog } from './CatalogContactDialog';
 interface CatalogClientPageProps {
   profileName: string;
 }
@@ -21,6 +23,8 @@ interface CatalogClientPageProps {
 export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   const [detailView, setDetailView] = useState<EnrichedCatalogEntry | null>(null);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
+  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
   const { theme } = useTheme()
   const [filters, setFilters] = useState<CatalogFilters>({
     species: [],
@@ -41,7 +45,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   const enrichedCatalog = isLoading ? []  : data as EnrichedCatalogEntry[];
   const reptiles = enrichedCatalog.map((entry) => entry.reptiles);
   const findReptile = (reptileId: string) => reptiles.find((r) => r.id === reptileId);
-  const catalogSettings = isLoading ? "" : enrichedCatalog[0].catalog_settings
+  const catalogSettings = isLoading ? null : enrichedCatalog[0].catalog_settings
   const reptileForDetail = detailView ? findReptile(detailView.reptile_id) : null;
 
   // Apply filters and sorting to catalog entries
@@ -159,9 +163,23 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
                     />
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight capitalize">{profileName}</h1>
                   </div>
-                  <div className="flex items-center gap-3 sm:gap-4">
-                      <span className='text-sm sm:text-sm'>About</span>
-                      <span className='text-sm sm:text-sm'>Contact</span>
+                  <div className="flex items-center ">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsAboutDialogOpen(true)}
+                        className="!text-sm"
+                      >
+                        About
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsContactDialogOpen(true)}
+                        className="!text-sm"
+                      >
+                        Contact
+                      </Button>
                   </div>
             </div>
             <div className="flex items-center justify-start bg-muted/30">
@@ -213,6 +231,18 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
             currentFilters={filters}
         />
         </div>
+        <CatalogAboutDialog
+          open={isAboutDialogOpen}
+          onOpenChange={setIsAboutDialogOpen}
+          catalogSettings={catalogSettings}
+        />
+        <CatalogContactDialog
+          open={isContactDialogOpen}
+          onOpenChange={setIsContactDialogOpen}
+          catalogSettings={catalogSettings}
+        />
     </main>
   );
 }
+
+

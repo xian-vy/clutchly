@@ -24,6 +24,9 @@ export interface CatalogSettings {
   user_id: string;
   bio: string | null;
   show_bio: boolean;
+  contacts: { [key: string]: string }[] | null;
+  address: string | null;
+  about : string | null;
   layout_type: 'grid' | 'list';
   created_at: string;
   updated_at: string;
