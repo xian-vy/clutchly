@@ -33,10 +33,10 @@ type ViewMode = 'grid' | 'list';
 interface CatalogEntryListProps {
   catalogEntries: EnrichedCatalogEntry[] ;
   reptiles: Reptile[];
-  onEdit: (entry: CatalogEntry) => void;
-  onDelete: (id: string) => void;
-  onAddNew: () => void;
-  onFeatureToggle: (entry: EnrichedCatalogEntry) => void;
+  onEdit?: (entry: CatalogEntry) => void;
+  onDelete?: (id: string) => void;
+  onAddNew?: () => void;
+  onFeatureToggle?: (entry: EnrichedCatalogEntry) => void;
   onViewDetails: (entry: EnrichedCatalogEntry) => void;
   onFilter?: () => void;
   activeFilterCount?: number;
@@ -167,17 +167,17 @@ export function CatalogEntryList({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onFeatureToggle(entry)}>
+                          <DropdownMenuItem onClick={onFeatureToggle ? () => onFeatureToggle(entry) : ()=> {}}>
                             <StarIcon className={cn("h-4 w-4 mr-2", entry.featured && "text-amber-500")} />
                             {entry.featured ? 'Unfeature' : 'Feature'}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onEdit(entry)}>
+                          <DropdownMenuItem onClick={onEdit ? () => onEdit(entry) :  ()=> {}}>
                             <PencilIcon className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
-                            onClick={() => onDelete(entry.id)}
+                            onClick={onDelete ? () => onDelete(entry.id) :  ()=> {}}
                             className="text-destructive focus:text-destructive"
                           >
                             <Trash2Icon className="h-4 w-4 mr-2" />
@@ -248,17 +248,17 @@ export function CatalogEntryList({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onFeatureToggle(entry)}>
+                          <DropdownMenuItem onClick={onFeatureToggle ? () => onFeatureToggle(entry) : ()=> {}}>
                             <StarIcon className={cn("h-4 w-4 mr-2", entry.featured && "text-amber-500")} />
                             {entry.featured ? 'Unfeature' : 'Feature'}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onEdit(entry)}>
+                          <DropdownMenuItem onClick={onEdit ? () => onEdit(entry) : ()=> {}}>
                             <PencilIcon className="h-4 w-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
-                            onClick={() => onDelete(entry.id)}
+                            onClick={onDelete ? () => onDelete(entry.id) :  ()=> {}}
                             className="text-destructive focus:text-destructive"
                           >
                             <Trash2Icon className="h-4 w-4 mr-2" />

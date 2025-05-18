@@ -89,7 +89,8 @@ export function CatalogIntro() {
                             placeholder="Tell visitors about your collection..."
                             {...field}
                             value={field.value || ''}
-                            className='w-full'
+                            className='w-full min-h-[60px]'
+                            maxLength={1000}
                           />
                         </FormControl>
                   

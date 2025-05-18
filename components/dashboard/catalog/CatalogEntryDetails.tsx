@@ -44,7 +44,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
   // Update the JSX to use currentEntry instead of catalogEntry
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6">
-      <Card className="overflow-hidden py-0">
+      <Card className="overflow-hidden pt-0">
         <CardHeader className='px-0 pb-0'>
           <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
             {catalogEntry.catalog_images || length > 0 ? (
