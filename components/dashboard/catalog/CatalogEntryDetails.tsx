@@ -1,14 +1,9 @@
 'use client';
 
 import { deleteCatalogImage } from '@/app/api/catalog';
-import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
-import { Reptile } from '@/lib/types/reptile';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -22,24 +17,9 @@ interface CatalogEntryDetailsProps {
 
 export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: CatalogEntryDetailsProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const { species } = useSpeciesStore();
-  const { morphs } = useMorphsStore();
-  const [reptile, setReptile] = useState<Reptile | null>(null);
+  const reptile = catalogEntry.reptiles;
   const queryClient = useQueryClient();
 
-
-  // Fetch the reptile details
-  const { isLoading: reptileLoading } = useQuery({
-    queryKey: ['reptile', catalogEntry.reptile_id],
-    queryFn: async () => {
-      const reptileData = await getReptileById(catalogEntry.reptile_id);
-      setReptile(reptileData);
-      return reptileData;
-    },
-  });
-
-  const reptileSpecies = reptile ? species.find((s) => String(s.id) === String(reptile.species_id)) : null;
-  const reptileMorph = reptile ? morphs.find((m) => String(m.id) === String(reptile.morph_id)) : null;
 
  
 
@@ -62,17 +42,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
     queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
   };
 
-  const isLoading =  reptileLoading;
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex justify-center items-center py-6">
-          <Loader2 className="h-4 w-4 animate-spin" />
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[65%_35%]  gap-6 ">
@@ -143,7 +113,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
             <h2 className="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold">
                {reptileName}
             </h2>
-            <span className='text-muted-foreground'>{reptileSpecies?.name || 'Unknown'}</span>
+             <span className='text-muted-foreground'>{reptile.species_name || 'Unknown'}</span> 
             </CardTitle>
         </CardHeader>
         <CardContent>
@@ -157,7 +127,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
  
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="font-medium">Morph</span>
-                    <span>{reptileMorph?.name || 'Unknown'}</span>
+                    <span>{reptile.morph_name || 'Unknown'}</span>
                   </div>
                   
                   <div className="flex justify-between items-center py-2 border-b">

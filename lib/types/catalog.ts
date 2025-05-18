@@ -32,6 +32,7 @@ export interface CatalogSettings {
 export interface EnrichedCatalogEntry extends CatalogEntry {
   reptiles: Reptile & {
     morph_name: string;
+    species_name: string;
   };
   catalog_images: CatalogImage[];
 }

@@ -13,7 +13,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     .from('catalog_entries')
     .select(`
       *,
-      reptiles!inner(*, morph_id),
+      reptiles!inner(*, morph_id, species_id),
       catalog_images(*)
     `)
     .eq('user_id', userId)
@@ -23,27 +23,35 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   
   // Get all unique morph_ids
   const morphIds = [...new Set(data?.map(entry => entry.reptiles.morph_id) || [])];
-  
+  const speciesIds = [...new Set(data?.map(entry => entry.reptiles.species_id) || [])];
+
   // Fetch morph names in a single query
   const { data: morphData } = await supabase
     .from('morphs')
     .select('id, name')
     .in('id', morphIds);
 
+  // Fetch species names in a single query
+  const { data: speciesData } = await supabase
+  .from('species')
+  .select('id, name')
+  .in('id', speciesIds);
+
   // Create a map of morph_id to morph_name
   const morphMap = new Map(morphData?.map(morph => [morph.id, morph.name]) || []);
+  const speciesMap = new Map(speciesData?.map(sp => [sp.id, sp.name]) || []);
 
   // Transform the data to match EnrichedCatalogEntry type
   const enrichedData = data?.map(entry => ({
     ...entry,
     reptiles: {
       ...entry.reptiles,
-      morph_name: morphMap.get(entry.reptiles.morph_id) || ''
+      morph_name: morphMap.get(entry.reptiles.morph_id) || '',
+      species_name: speciesMap.get(entry.reptiles.species_id) || ''
     },
     catalog_images: entry.catalog_images || []
   }));
 
-  console.log("enrichedData: ", enrichedData)
 
   return enrichedData || [];
 }
