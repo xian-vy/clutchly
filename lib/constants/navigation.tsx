@@ -3,6 +3,7 @@ import {
     Dna,
     DollarSign,
     Download,
+    Globe,
     Heart,
     LayoutDashboard,
     LineChart,
@@ -10,7 +11,6 @@ import {
     Package,
     Plus,
     Settings,
-    Star,
 } from 'lucide-react';
 import { VscSnake } from "react-icons/vsc";
 import { PiChartLineUp,PiChartLineDown } from "react-icons/pi";
@@ -34,8 +34,8 @@ export interface NavItem {
     },
     {
         section: 'Main',
-        name: 'Showcase',
-        icon: Star,
+        name: 'Website',
+        icon: Globe,
         href: '/catalog',
       },
       {
