@@ -18,7 +18,6 @@ import { calculateAgeInMonths } from '@/lib/utils';
 import CatalogHeader from './CatalogHeader';
 import { CatalogIntro } from './CatalogIntro';
 import { Separator } from '@/components/ui/separator';
-import CatalogNavigation from './CatalogNavigation';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -209,9 +208,8 @@ export function CatalogTab() {
 
       <Separator />
 
-      <CatalogNavigation />
 
-      <CatalogIntro />
+      <CatalogIntro settings={enrichedCatalog[0].catalog_settings} isLoading={isLoading} />
 
 
 

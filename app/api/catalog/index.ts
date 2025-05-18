@@ -20,6 +20,13 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     .order('display_order', { ascending: true });
 
   if (error) throw error;
+
+  // Fetch catalog settings separately
+  const { data: settingsData, error: settingsError } = await supabase
+  .from('catalog_settings')
+  .select('*')
+  .eq('user_id', userId)
+  .single();
   
   // Get all unique morph_ids
   const morphIds = [...new Set(data?.map(entry => entry.reptiles.morph_id) || [])];
@@ -49,7 +56,8 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
       morph_name: morphMap.get(entry.reptiles.morph_id) || '',
       species_name: speciesMap.get(entry.reptiles.species_id) || ''
     },
-    catalog_images: entry.catalog_images || []
+    catalog_images: entry.catalog_images || [],
+    catalog_settings: settingsData
   }));
 
 
@@ -73,13 +81,30 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
     .from('catalog_entries')
     .select(`
       *,
-      reptiles:view_public_catalog!inner(*), 
+      reptiles:view_public_catalog!inner(*),
       catalog_images(*)
     `)
     .eq('user_id', profileData.id)
     .order('display_order', { ascending: true });
   if (error) throw error;
-  return data || [];
+
+  // Fetch catalog settings separately
+  const { data: settingsData, error: settingsError } = await supabase
+    .from('catalog_settings')
+    .select('*')
+    .eq('user_id', profileData.id)
+    .single();
+
+  if (settingsError) throw settingsError;
+
+  // Combine the data with settings
+  const enrichedData = data?.map(entry => ({
+    ...entry,
+    catalog_images: entry.catalog_images || [],
+    catalog_settings: settingsData
+  }));
+
+  return enrichedData || [];
 }
 
 // Create a new catalog entry

@@ -8,7 +8,6 @@ import { useMemo, useState } from 'react';
 import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
 import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
 import { Button } from '../ui/button';
-import { Separator } from '../ui/separator';
 import { CatalogFilterDialog, CatalogFilters } from '../dashboard/catalog/CatalogFilterDialog';
 import { calculateAgeInMonths } from '@/lib/utils';
 import { APP_URL } from '@/lib/constants/app';
@@ -39,7 +38,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   const enrichedCatalog = isLoading ? []  : data as EnrichedCatalogEntry[];
   const reptiles = enrichedCatalog.map((entry) => entry.reptiles);
   const findReptile = (reptileId: string) => reptiles.find((r) => r.id === reptileId);
-  
+  const catalogSettings = isLoading ? "" : enrichedCatalog[0].catalog_settings
   const reptileForDetail = detailView ? findReptile(detailView.reptile_id) : null;
 
   // Apply filters and sorting to catalog entries
@@ -143,28 +142,18 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   return (
     <main className="min-h-screen bg-background  space-y-3 lg:space-y-5">
 
-      <div className="relative overflow-hidden bg-muted/30 border-b">
-              <div className="container mx-auto px-4 py-12 flex flex-col items-center text-center">
-                <h1 className="text-4xl font-bold tracking-tight capitalize">{profileName}&apos;s Collection</h1>
-                <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
-                  A curated showcase of exceptional reptiles and morphs
+       <div className="bg-muted/30 border-b px-4 py-12  flex flex-col items-center text-center sm:gap-2 md:gap-4">
+              <div className="">
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight capitalize">{profileName}&apos;s Collection</h1>
+                <p className="text-base sm:text-lg text-muted-foreground max-w-2xl">
+                  A curated showcase of exceptional reptile collections
                 </p>
-                <div className="flex items-center mt-6 text-sm">
-                  <span className="text-muted-foreground">{APP_URL}/catalog/{profileName}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${APP_URL}/catalog/${profileName}`);
-                      toast.success('URL copied to clipboard');
-                    }}
-                  >
-                    <Clipboard className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+
               </div>
-            </div>
+              <div className="flex justify-center">
+                {catalogSettings ? catalogSettings.bio : ""}
+              </div>
+        </div>
 
      <div className="container mx-auto">
           {detailView && reptileForDetail ? (

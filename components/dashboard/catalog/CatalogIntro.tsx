@@ -2,19 +2,22 @@
 
 import React from 'react';
 
-import { getCatalogSettings, updateCatalogSettings } from '@/app/api/catalog';
+import {  updateCatalogSettings } from '@/app/api/catalog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent,  } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { CatalogSettings as CatalogSettingsType } from '@/lib/types/catalog';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import { Loader2, Save } from 'lucide-react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { CatalogSettings } from '@/lib/types/catalog';
+import { Profile } from '@/lib/types/profile';
+import { useQuery } from '@tanstack/react-query';
+import { getProfile } from '@/app/api/profiles/profiles';
+import { profile } from 'console';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -23,12 +26,17 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+interface Props {
+  settings : CatalogSettings;
+  isLoading : boolean;
+}
+export function CatalogIntro({settings,isLoading} : Props) {
 
-export function CatalogIntro() {
-  const { data: settings, isLoading } = useQuery<CatalogSettingsType>({
-    queryKey: ['catalog-settings'],
-    queryFn: getCatalogSettings,
-  });
+  const { data, isLoading : profileLoading } = useQuery<Profile>({
+    queryKey: ['profile2'],
+    queryFn: getProfile,
+}); 
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -71,9 +79,18 @@ export function CatalogIntro() {
       </Card>
     );
   }
+  const profile = Array.isArray(data) ? data[0] : data;
 
   return (
-    <Card className='p-0 border-0'>
+    <div className="bg-muted/30 border-b px-4 py-12  flex flex-col items-center text-center sm:gap-2 md:gap-4">
+      <div className="">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight capitalize">{profile ? profile.full_name : "--"}&apos;s Collection</h1>
+        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl">
+          A curated showcase of exceptional reptile collections
+        </p>
+
+      </div>
+      <Card className='p-0 border-0 w-full'>
      
       <CardContent className='px-0'>
         <Form {...form}>
@@ -116,5 +133,6 @@ export function CatalogIntro() {
         </Form>
       </CardContent>
     </Card>
+    </div>
   );
 } 

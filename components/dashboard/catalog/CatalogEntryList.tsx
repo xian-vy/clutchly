@@ -75,17 +75,17 @@ export function CatalogEntryList({
         </div>
       ) : (
         <div className="">
-          <div className="container mx-auto py-12 px-4 space-y-12">
+          <div className="container mx-auto py-6 xl:py-12 px-4 space-y-6 xl:space-y-12">
             {featuredEntries.length > 0 && (
               <section className="space-y-6">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                   <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Featured Reptiles</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Featured Reptiles</h2>
                     <p className="text-muted-foreground">Exceptional specimens from this collection</p>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                   {displayedFeaturedEntries.map((entry) => (
                     <ReptileCard
                       key={entry.id}
@@ -102,10 +102,10 @@ export function CatalogEntryList({
             )}
           </div>
           
-          <div className="container mx-auto py-12 px-4 space-y-12">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="container mx-auto py-6 xl:py-12  px-4 space-y-6 xl:space-y-12">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
-                        <h2 className="text-3xl font-bold tracking-tight">All Reptiles</h2>
+                        <h2 className="text-2xl md:text-3xl  font-bold tracking-tight">All Reptiles</h2>
                         <p className="text-muted-foreground">{reptiles.length} reptiles in this collection </p>
                   </div>
                   <div className="flex items-center justify-start">
@@ -117,7 +117,7 @@ export function CatalogEntryList({
                             onClick={onFilter}
                           >
                             <FilterIcon className="h-3.5 w-3.5" />
-                            <span>Filter</span>
+                            <span>Filters</span>
                             {activeFilterCount > 0 && (
                               <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full">
                                 {activeFilterCount}

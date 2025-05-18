@@ -34,6 +34,7 @@ export interface EnrichedCatalogEntry extends CatalogEntry {
     morph_name: string;
     species_name: string;
   };
+  catalog_settings: CatalogSettings;
   catalog_images: CatalogImage[];
 }
 export type NewCatalogEntry = Omit<CatalogEntry, 'id' | 'created_at' | 'updated_at'>;
