@@ -5,10 +5,14 @@ import React from 'react'
 
 const CatalogNavigation = () => {
     
-    const { data } = useQuery<Profile>({
+    const { data, isLoading } = useQuery<Profile>({
         queryKey: ['profile2'],
         queryFn: getProfile,
     }); 
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     const profile = Array.isArray(data) ? data[0] : data;
   

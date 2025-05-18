@@ -10,8 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { CatalogEntry, CatalogImage, EnrichedCatalogEntry } from '@/lib/types/catalog';
+import { CatalogEntry,  EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { Reptile } from '@/lib/types/reptile';
 import { cn, extractLastTwoDigitsOfYear } from '@/lib/utils';
 import {
@@ -32,13 +31,13 @@ import Image from 'next/image';
 type ViewMode = 'grid' | 'list';
 
 interface CatalogEntryListProps {
-  catalogEntries: EnrichedCatalogEntry[] | (CatalogEntry & { images?: CatalogImage[] })[];
+  catalogEntries: EnrichedCatalogEntry[] ;
   reptiles: Reptile[];
   onEdit: (entry: CatalogEntry) => void;
   onDelete: (id: string) => void;
   onAddNew: () => void;
-  onFeatureToggle: (entry: CatalogEntry) => void;
-  onViewDetails: (entry: CatalogEntry) => void;
+  onFeatureToggle: (entry: EnrichedCatalogEntry) => void;
+  onViewDetails: (entry: EnrichedCatalogEntry) => void;
   onFilter?: () => void;
   activeFilterCount?: number;
   isAdmin?: boolean;
@@ -59,27 +58,8 @@ export function CatalogEntryList({
   isAdmin = true,
   viewMode = 'grid'
 }: CatalogEntryListProps) {
-  const {morphs} = useMorphsStore()
   
-  // Function to find reptile by ID
   const findReptile = (id: string) => reptiles.find((r) => r.id === id);
-
-  // Get the first image for a catalog entry
-  const getEntryImage = (entry: CatalogEntry & { images?: CatalogImage[] }) => {
-    if ('images' in entry && entry.images && entry.images.length > 0) {
-      return entry.images[0].image_url;
-    }
-    return null;
-  };
-
- 
-  // Get display name for morph
-  const getMorphName = (morphId: string | number) => {
-    const id = String(morphId);
-    const morphEntry = morphs.find((m) => m.id.toString() === id.toString());
-    return morphEntry;
-  };
-
 
   return (
     <div className="space-y-6">
@@ -132,9 +112,9 @@ export function CatalogEntryList({
             const reptile = findReptile(entry.reptile_id);
             if (!reptile) return null;
 
-            const imageUrl = getEntryImage(entry);
+            const imageUrl =entry.catalog_images[0].image_url
             // const species = getSpeciesName(reptile.species_id);
-            const morph = getMorphName(reptile.morph_id);
+            const morph = entry.reptiles.morph_name
 
             return viewMode === 'grid' ? (
               <Card 
@@ -213,7 +193,7 @@ export function CatalogEntryList({
                   <div className="space-y-1">
                      <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">{reptile.name}</h3>       
                     <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                      {morph?.name}
+                      {morph}
                     </p>
                     <div className="flex items-center gap-1.5">
                       <div>
@@ -256,7 +236,7 @@ export function CatalogEntryList({
                       <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium ">{reptile.name}</h3>
 
                     </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{morph?.name}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{morph}</p>
                   </div>
                   
                   {isAdmin && (

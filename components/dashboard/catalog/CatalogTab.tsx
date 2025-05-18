@@ -1,11 +1,11 @@
 'use client';
 
-import { createCatalogEntry, deleteCatalogEntry, getCatalogEntries, getCatalogImages, updateCatalogEntry } from '@/app/api/catalog';
+import { createCatalogEntry, deleteCatalogEntry, getCatalogEntries, updateCatalogEntry } from '@/app/api/catalog';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
-import { CatalogEntry, CatalogImage, NewCatalogEntry } from '@/lib/types/catalog';
+import { CatalogEntry, EnrichedCatalogEntry, NewCatalogEntry } from '@/lib/types/catalog';
 import { Reptile } from '@/lib/types/reptile';
-import { useState, useEffect, useMemo } from 'react';
+import { useState,  useMemo } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
 import { useQuery } from '@tanstack/react-query';
@@ -22,9 +22,7 @@ import CatalogNavigation from './CatalogNavigation';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [entriesWithImages, setEntriesWithImages] = useState<(CatalogEntry & { images?: CatalogImage[] })[]>([]);
-  const [imagesLoading, setImagesLoading] = useState(false);
-  const [detailView, setDetailView] = useState<CatalogEntry | null>(null);
+  const [detailView, setDetailView] = useState<EnrichedCatalogEntry | null>(null);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<CatalogFilters>({
     species: [],
@@ -52,47 +50,21 @@ export function CatalogTab() {
     deleteResource: deleteCatalogEntry,
   });
 
+  // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
+  const enrichedCatalog = catalogEntries as EnrichedCatalogEntry[]
+
   // Get reptiles for selection
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
 
-  // Load images for each catalog entry
-  useEffect(() => {
-    const loadImages = async () => {
-      if (catalogEntries.length === 0) return;
-      
-      setImagesLoading(true);
-      try {
-        const entriesWithImagesData = await Promise.all(
-          catalogEntries.map(async (entry) => {
-            try {
-              const images = await getCatalogImages(entry.id);
-              return { ...entry, images };
-            } catch (error) {
-              console.error(`Error loading images for entry ${entry.id}:`, error);
-              return { ...entry, images: [] };
-            }
-          })
-        );
-        
-        setEntriesWithImages(entriesWithImagesData);
-      } catch (error) {
-        console.error('Error loading images:', error);
-      } finally {
-        setImagesLoading(false);
-      }
-    };
-
-    loadImages();
-  }, [catalogEntries]);
 
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
-    if (entriesWithImages.length === 0) return [];
+    if (enrichedCatalog.length === 0) return [];
 
-    return entriesWithImages.filter(entry => {
+    return enrichedCatalog.filter(entry => {
       const reptile = reptiles.find(r => r.id === entry.reptile_id);
       if (!reptile) return false;
 
@@ -153,9 +125,9 @@ export function CatalogTab() {
           return 0;
       }
     });
-  }, [entriesWithImages, filters, reptiles]);
+  }, [enrichedCatalog, filters, reptiles]);
 
-  const isLoading = catalogEntriesLoading || reptilesLoading || imagesLoading;
+  const isLoading = catalogEntriesLoading || reptilesLoading 
 
   if (isLoading) {
     return (
@@ -181,8 +153,7 @@ export function CatalogTab() {
   const handleEntryDelete = async (id: string) => {
     try {
       await handleDelete(id);
-      // Update the local state to remove the deleted entry
-      setEntriesWithImages(prev => prev.filter(entry => entry.id !== id));
+    
       return true;
     } catch (error) {
       console.error('Error deleting catalog entry:', error);
@@ -272,10 +243,7 @@ export function CatalogTab() {
                   featured: !entry.featured,
                 });
                 
-                // Update the local state
-                setEntriesWithImages(prev => 
-                  prev.map(e => e.id === entry.id ? {...e, featured: !entry.featured} : e)
-                );
+          
               } catch (error) {
                 console.error('Error updating catalog entry:', error);
               }

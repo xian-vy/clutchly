@@ -1,21 +1,21 @@
 'use client';
 
-import { deleteCatalogImage, getCatalogImages } from '@/app/api/catalog';
+import { deleteCatalogImage } from '@/app/api/catalog';
+import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CatalogEntry, CatalogImage } from '@/lib/types/catalog';
-import { Loader2, InfoIcon } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { CatalogImageUpload } from './CatalogImageUpload';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useSpeciesStore } from '@/lib/stores/speciesStore';
+import { EnrichedCatalogEntry } from '@/lib/types/catalog';
+import { Reptile } from '@/lib/types/reptile';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useSpeciesStore } from '@/lib/stores/speciesStore';
-import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { getReptileById } from '@/app/api/reptiles/reptiles';
-import { Reptile } from '@/lib/types/reptile';
+import { toast } from 'sonner';
+import { CatalogImageUpload } from './CatalogImageUpload';
 
 interface CatalogEntryDetailsProps {
-  catalogEntry: CatalogEntry;
+  catalogEntry: EnrichedCatalogEntry;
   reptileName: string;
   isAdmin : boolean
 }
@@ -25,15 +25,8 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
   const { species } = useSpeciesStore();
   const { morphs } = useMorphsStore();
   const [reptile, setReptile] = useState<Reptile | null>(null);
+  const queryClient = useQueryClient();
 
-  const {
-    data: images = [],
-    isLoading: imagesLoading,
-    refetch: refetchImages,
-  } = useQuery<CatalogImage[]>({
-    queryKey: ['catalog-images', catalogEntry.id],
-    queryFn: () => getCatalogImages(catalogEntry.id),
-  });
 
   // Fetch the reptile details
   const { isLoading: reptileLoading } = useQuery({
@@ -48,9 +41,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
   const reptileSpecies = reptile ? species.find((s) => String(s.id) === String(reptile.species_id)) : null;
   const reptileMorph = reptile ? morphs.find((m) => String(m.id) === String(reptile.morph_id)) : null;
 
-  const handleImageUploaded = () => {
-    refetchImages();
-  };
+ 
 
   const handleImageRemoved = async (imageId: string) => {
     if (!confirm('Are you sure you want to delete this image?')) return;
@@ -58,9 +49,8 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
     try {
       await deleteCatalogImage(imageId);
       toast.success('Image deleted successfully');
-      refetchImages();
-      if (selectedImageIndex >= images.length - 1) {
-        setSelectedImageIndex(Math.max(0, images.length - 2));
+      if (selectedImageIndex >= catalogEntry.catalog_images.length -  1) {
+        setSelectedImageIndex(Math.max(0, catalogEntry.catalog_images.length - 2));
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete image';
@@ -68,7 +58,11 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
     }
   };
 
-  const isLoading = imagesLoading || reptileLoading;
+  const handleImageUploaded = () => {
+    queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+  };
+
+  const isLoading =  reptileLoading;
 
   if (isLoading) {
     return (
@@ -87,9 +81,9 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
         <CardHeader className='px-0 pb-0'>
             {/* Main image display */}
             <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
-              {images.length > 0 ? (
+              {catalogEntry.catalog_images || length > 0 ? (
                 <Image
-                  src={images[selectedImageIndex].image_url}
+                  src={catalogEntry.catalog_images[selectedImageIndex].image_url}
                   alt={reptileName}
                   fill
                   className="object-cover"
@@ -108,9 +102,9 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
         <div className="space-y-4">
 
             {/* Thumbnail gallery */}
-            {images.length > 1 && (
+            {catalogEntry.catalog_images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
-                {images.map((image, index) => (
+                {catalogEntry.catalog_images.map((image, index) => (
                   <div 
                     key={image.id}
                     className={`
@@ -133,7 +127,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
             {isAdmin &&
             <CatalogImageUpload
               catalogEntryId={catalogEntry.id}
-              existingImages={images}
+              existingImages={catalogEntry.catalog_images}
               onImageUploaded={handleImageUploaded}
               onImageRemoved={handleImageRemoved}
             />
@@ -192,10 +186,18 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
                     </div>
                   )}
 
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="font-medium">Traits</span>
+                    <div className="flex flex-wrap gap-2 lg:gap-3 items-center">
+                      {reptile.het_traits?.map((trait,i) => 
+                        <span key={i} className="text-xs sm:text-sm"> {trait.percentage}% het {trait.trait}</span>
+                      )} 
+                    </div>
+                  </div>
+
                 </div>
                 
-                {/* Reptile Notes */}
-                {reptile.notes && (
+                {/* {reptile.notes && (
                   <div className="mt-4 p-4 bg-muted rounded-md">
                     <div className="flex items-center gap-2 mb-2">
                       <InfoIcon className="h-4 w-4 text-muted-foreground" />
@@ -203,7 +205,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
                     </div>
                     <p className="text-sm whitespace-pre-wrap">{reptile.notes}</p>
                   </div>
-                )}
+                )} */}
               </div>
             )}
           </div>
