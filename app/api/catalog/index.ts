@@ -349,7 +349,10 @@ export async function getCatalogSettings(): Promise<CatalogSettings> {
       user_id: userId ,
       bio: null,
       show_bio: false,
-      layout_type: 'grid'
+      layout_type: 'grid',
+      contacts: null,
+      address: null,
+      about: null
     };
     
     const { data: newSettings, error: createError } = await supabase
@@ -385,7 +388,10 @@ export async function updateCatalogSettings(settings: Partial<NewCatalogSettings
       user_id: userId,
       bio: settings.bio || null,
       show_bio: settings.show_bio || false,
-      layout_type: settings.layout_type || 'grid'
+      layout_type: settings.layout_type || 'grid',
+      contacts: settings.contacts || null,
+      address: settings.address || null,
+      about: settings.about || null
     };
     
     const { data, error } = await supabase

@@ -1,16 +1,16 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { updateCatalogSettings } from "@/app/api/catalog";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useForm, useFieldArray } from "react-hook-form";
+import { CatalogSettings } from "@/lib/types/catalog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Loader2, Plus, Save, Trash } from "lucide-react";
 import { useState } from "react";
-import { updateCatalogSettings } from "@/app/api/catalog";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { CatalogSettings } from "@/lib/types/catalog";
+import * as z from "zod";
 
 const contactTypes = [
   { value: "facebook", label: "Facebook" },
@@ -63,6 +63,7 @@ export function CatalogIntroContact({ open, onOpenChange, settings }: ContactSet
       toast.success("Contact settings updated");
       onOpenChange(false);
     } catch (error) {
+      console.error(error); 
       toast.error("Failed to update contact settings");
     } finally {
       setIsSubmitting(false);

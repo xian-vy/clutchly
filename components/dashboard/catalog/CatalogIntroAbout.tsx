@@ -42,6 +42,7 @@ export function AboutSettingsDialog({ open, onOpenChange, settings }: AboutSetti
       toast.success("About section updated");
       onOpenChange(false);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to update about section");
     } finally {
       setIsSubmitting(false);
