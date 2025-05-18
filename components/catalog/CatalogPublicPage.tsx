@@ -2,16 +2,14 @@
 
 import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Clipboard, Loader2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
-import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
-import { Button } from '../ui/button';
-import { CatalogFilterDialog, CatalogFilters } from '../dashboard/catalog/CatalogFilterDialog';
 import { calculateAgeInMonths } from '@/lib/utils';
-import { APP_URL } from '@/lib/constants/app';
-import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
+import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
+import { CatalogFilterDialog, CatalogFilters } from '../dashboard/catalog/CatalogFilterDialog';
+import { Button } from '../ui/button';
 interface CatalogClientPageProps {
   profileName: string;
 }

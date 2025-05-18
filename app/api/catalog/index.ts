@@ -28,6 +28,8 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   .eq('user_id', userId)
   .single();
   
+  if (settingsError) throw error;
+
   // Get all unique morph_ids
   const morphIds = [...new Set(data?.map(entry => entry.reptiles.morph_id) || [])];
   const speciesIds = [...new Set(data?.map(entry => entry.reptiles.species_id) || [])];

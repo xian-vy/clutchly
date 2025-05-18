@@ -17,7 +17,6 @@ import { CatalogSettings } from '@/lib/types/catalog';
 import { Profile } from '@/lib/types/profile';
 import { useQuery } from '@tanstack/react-query';
 import { getProfile } from '@/app/api/profiles/profiles';
-import { profile } from 'console';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -32,7 +31,7 @@ interface Props {
 }
 export function CatalogIntro({settings,isLoading} : Props) {
 
-  const { data, isLoading : profileLoading } = useQuery<Profile>({
+  const { data } = useQuery<Profile>({
     queryKey: ['profile2'],
     queryFn: getProfile,
 }); 

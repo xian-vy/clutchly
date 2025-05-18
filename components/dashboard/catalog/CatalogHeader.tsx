@@ -1,17 +1,12 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { CatalogEntry, CatalogImage, EnrichedCatalogEntry } from '@/lib/types/catalog';
-import { Reptile } from '@/lib/types/reptile';
 import {
-    ArrowUpDown,
-    Eye,
-    PlusIcon
+  ArrowUpDown,
+  Eye,
+  PlusIcon
 } from 'lucide-react';
 import CatalogEntryShare from './CatalogEntryShare';
-import { useQuery } from '@tanstack/react-query';
-import { Profile } from '@/lib/types/profile';
-import { getProfile } from '@/app/api/profiles/profiles';
 
 type ViewMode = 'grid' | 'list';
 
