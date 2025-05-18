@@ -3,7 +3,7 @@ import { CatalogEntry, CatalogImage, CatalogSettings, EnrichedCatalogEntry, NewC
 import { createClient } from '@/lib/supabase/server'
 
 // Get all catalog entries for the current user
-export async function getCatalogEntries(): Promise<CatalogEntry[]> {
+export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const supabase = await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
@@ -11,12 +11,41 @@ export async function getCatalogEntries(): Promise<CatalogEntry[]> {
 
   const { data, error } = await supabase
     .from('catalog_entries')
-    .select('*')
+    .select(`
+      *,
+      reptiles!inner(*, morph_id),
+      catalog_images(*)
+    `)
     .eq('user_id', userId)
     .order('display_order', { ascending: true });
 
   if (error) throw error;
-  return data || [];
+  
+  // Get all unique morph_ids
+  const morphIds = [...new Set(data?.map(entry => entry.reptiles.morph_id) || [])];
+  
+  // Fetch morph names in a single query
+  const { data: morphData } = await supabase
+    .from('morphs')
+    .select('id, name')
+    .in('id', morphIds);
+
+  // Create a map of morph_id to morph_name
+  const morphMap = new Map(morphData?.map(morph => [morph.id, morph.name]) || []);
+
+  // Transform the data to match EnrichedCatalogEntry type
+  const enrichedData = data?.map(entry => ({
+    ...entry,
+    reptiles: {
+      ...entry.reptiles,
+      morph_name: morphMap.get(entry.reptiles.morph_id) || ''
+    },
+    catalog_images: entry.catalog_images || []
+  }));
+
+  console.log("enrichedData: ", enrichedData)
+
+  return enrichedData || [];
 }
 
 // Get catalog entries by profile name (public)
@@ -166,22 +195,6 @@ export async function deleteCatalogEntry(id: string): Promise<void> {
   if (error) throw error;
   
   
-}
-
-// Get catalog images for an entry
-export async function getCatalogImages(entryId: string): Promise<CatalogImage[]> {
-  const supabase =  await createClient()
-  const currentUser = await supabase.auth.getUser();
-  if (!currentUser) throw new Error('Unauthorized');
-
-  const { data, error } = await supabase
-    .from('catalog_images')
-    .select('*')
-    .eq('catalog_entry_id', entryId)
-    .order('display_order', { ascending: true });
-
-  if (error) throw error;
-  return data || [];
 }
 
 // Add a catalog image
