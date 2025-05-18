@@ -24,6 +24,9 @@ export interface CatalogSettings {
   user_id: string;
   bio: string | null;
   show_bio: boolean;
+  contacts: { [key: string]: string }[] | null;
+  address: string | null;
+  about : string | null;
   layout_type: 'grid' | 'list';
   created_at: string;
   updated_at: string;
@@ -32,7 +35,9 @@ export interface CatalogSettings {
 export interface EnrichedCatalogEntry extends CatalogEntry {
   reptiles: Reptile & {
     morph_name: string;
+    species_name: string;
   };
+  catalog_settings: CatalogSettings;
   catalog_images: CatalogImage[];
 }
 export type NewCatalogEntry = Omit<CatalogEntry, 'id' | 'created_at' | 'updated_at'>;

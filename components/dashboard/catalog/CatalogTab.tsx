@@ -1,26 +1,27 @@
 'use client';
 
-import { createCatalogEntry, deleteCatalogEntry, getCatalogEntries, getCatalogImages, updateCatalogEntry } from '@/app/api/catalog';
+import { createCatalogEntry, deleteCatalogEntry, getCatalogEntries, updateCatalogEntry } from '@/app/api/catalog';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
-import { CatalogEntry, CatalogImage, NewCatalogEntry } from '@/lib/types/catalog';
+import { CatalogEntry, EnrichedCatalogEntry, NewCatalogEntry } from '@/lib/types/catalog';
 import { Reptile } from '@/lib/types/reptile';
-import { useState, useEffect, useMemo } from 'react';
+import { useState,  useMemo } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { CatalogEntryDetails } from './CatalogEntryDetails';
 import { Button } from '@/components/ui/button';
 import { CatalogFilterDialog, CatalogFilters } from './CatalogFilterDialog';
 import { calculateAgeInMonths } from '@/lib/utils';
+import CatalogHeader from './CatalogHeader';
+import { CatalogIntro } from './CatalogIntro';
+import { Separator } from '@/components/ui/separator';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [entriesWithImages, setEntriesWithImages] = useState<(CatalogEntry & { images?: CatalogImage[] })[]>([]);
-  const [imagesLoading, setImagesLoading] = useState(false);
-  const [detailView, setDetailView] = useState<CatalogEntry | null>(null);
+  const [detailView, setDetailView] = useState<EnrichedCatalogEntry | null>(null);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<CatalogFilters>({
     species: [],
@@ -47,6 +48,10 @@ export function CatalogTab() {
     updateResource: updateCatalogEntry,
     deleteResource: deleteCatalogEntry,
   });
+  const queryClient = useQueryClient();
+
+  // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
+  const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
 
   // Get reptiles for selection
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
@@ -54,41 +59,12 @@ export function CatalogTab() {
     queryFn: getReptiles,
   });
 
-  // Load images for each catalog entry
-  useEffect(() => {
-    const loadImages = async () => {
-      if (catalogEntries.length === 0) return;
-      
-      setImagesLoading(true);
-      try {
-        const entriesWithImagesData = await Promise.all(
-          catalogEntries.map(async (entry) => {
-            try {
-              const images = await getCatalogImages(entry.id);
-              return { ...entry, images };
-            } catch (error) {
-              console.error(`Error loading images for entry ${entry.id}:`, error);
-              return { ...entry, images: [] };
-            }
-          })
-        );
-        
-        setEntriesWithImages(entriesWithImagesData);
-      } catch (error) {
-        console.error('Error loading images:', error);
-      } finally {
-        setImagesLoading(false);
-      }
-    };
-
-    loadImages();
-  }, [catalogEntries]);
 
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
-    if (entriesWithImages.length === 0) return [];
+    if (enrichedCatalog.length === 0) return [];
 
-    return entriesWithImages.filter(entry => {
+    return enrichedCatalog.filter(entry => {
       const reptile = reptiles.find(r => r.id === entry.reptile_id);
       if (!reptile) return false;
 
@@ -149,9 +125,9 @@ export function CatalogTab() {
           return 0;
       }
     });
-  }, [entriesWithImages, filters, reptiles]);
+  }, [enrichedCatalog, filters, reptiles]);
 
-  const isLoading = catalogEntriesLoading || reptilesLoading || imagesLoading;
+  const isLoading = catalogEntriesLoading || reptilesLoading 
 
   if (isLoading) {
     return (
@@ -177,8 +153,7 @@ export function CatalogTab() {
   const handleEntryDelete = async (id: string) => {
     try {
       await handleDelete(id);
-      // Update the local state to remove the deleted entry
-      setEntriesWithImages(prev => prev.filter(entry => entry.id !== id));
+    
       return true;
     } catch (error) {
       console.error('Error deleting catalog entry:', error);
@@ -207,19 +182,48 @@ export function CatalogTab() {
       (filters.ageInMonths[0] > 0 || filters.ageInMonths[1] < 80) ? 1 : 0
   ].reduce((a, b) => a + b, 0);
 
+  const handleImageChange = async (entryId: string) => {
+    // Wait for the query to be invalidated and refetched
+    await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+    
+    // Get the latest data from the cache
+    const latestData = queryClient.getQueryData(['catalog-entries']) as EnrichedCatalogEntry[];
+    const updatedEntry = latestData?.find(entry => entry.id === entryId);
+    
+    if (updatedEntry) {
+      // Update the detailView with the complete latest data
+      setDetailView(updatedEntry);
+    }
+  };
+
   return (
     <div className="space-y-6">
+
+      <CatalogHeader 
+        isAdmin={true}
+        onAddNew={() => setIsDialogOpen(true)}
+        viewMode={detailView? 'list' : 'grid'}
+        onViewModeChange={() => {}}
+      />
+
+      <Separator />
+
+
+      <CatalogIntro settings={enrichedCatalog[0].catalog_settings} isLoading={isLoading} />
+
+
+
       {detailView && reptileForDetail ? (
         <div className="space-y-6">
           <div className="flex items-center">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="mr-2"
+          
               onClick={() => setDetailView(null)}
             >
               <ArrowLeft className="h-4 w-4 " />
-              Back to Catalog
+              Back to List
             </Button>
           </div>
           
@@ -227,6 +231,7 @@ export function CatalogTab() {
             catalogEntry={detailView} 
             reptileName={reptileForDetail.name} 
             isAdmin={true}
+            onImageChange={handleImageChange}
           />
         </div>
       ) : (
@@ -252,10 +257,7 @@ export function CatalogTab() {
                   featured: !entry.featured,
                 });
                 
-                // Update the local state
-                setEntriesWithImages(prev => 
-                  prev.map(e => e.id === entry.id ? {...e, featured: !entry.featured} : e)
-                );
+          
               } catch (error) {
                 console.error('Error updating catalog entry:', error);
               }
@@ -300,4 +302,4 @@ export function CatalogTab() {
       />
     </div>
   );
-} 
+}

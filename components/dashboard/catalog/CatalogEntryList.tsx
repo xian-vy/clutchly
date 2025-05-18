@@ -1,52 +1,34 @@
 'use client';
 
-import {
-  ArrowUpDown,
-  CircleHelp,
-  HeartIcon,
-  Mars,
-  MoreHorizontal,
-  PencilIcon,
-  PlusIcon,
-  StarIcon,
-  Trash2Icon,
-  Venus,
-  FilterIcon,
-} from 'lucide-react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CatalogEntry, CatalogImage, EnrichedCatalogEntry } from '@/lib/types/catalog';
+import { Button } from '@/components/ui/button';
+import { CatalogEntry, EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { Reptile } from '@/lib/types/reptile';
-import { cn, extractLastTwoDigitsOfYear } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useState } from 'react';
-import { useMorphsStore } from '@/lib/stores/morphsStore';
-import CatalogEntryShare from './CatalogEntryShare';
+  FilterIcon,
+  HeartIcon,
+  PlusIcon
+} from 'lucide-react';
+import { ReptileCard } from './ReptileCard';
 
 
+type ViewMode = 'grid' | 'list';
 
 interface CatalogEntryListProps {
-  catalogEntries: EnrichedCatalogEntry[] | (CatalogEntry & { images?: CatalogImage[] })[];
+  catalogEntries: EnrichedCatalogEntry[] ;
   reptiles: Reptile[];
-  onEdit: (entry: CatalogEntry) => void;
-  onDelete: (id: string) => void;
-  onAddNew: () => void;
-  onFeatureToggle: (entry: CatalogEntry) => void;
-  onViewDetails: (entry: CatalogEntry) => void;
+  onEdit?: (entry: CatalogEntry) => void;
+  onDelete?: (id: string) => void;
+  onAddNew?: () => void;
+  onFeatureToggle?: (entry: EnrichedCatalogEntry) => void;
+  onViewDetails: (entry: EnrichedCatalogEntry) => void;
   onFilter?: () => void;
   activeFilterCount?: number;
   isAdmin?: boolean;
+  viewMode? : ViewMode;
 }
 
-type ViewMode = 'grid' | 'list';
 
 export function CatalogEntryList({
   catalogEntries,
@@ -59,68 +41,15 @@ export function CatalogEntryList({
   onFilter,
   activeFilterCount = 0,
   isAdmin = true,
+  viewMode = 'grid'
 }: CatalogEntryListProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const {morphs} = useMorphsStore()
   
-  // Function to find reptile by ID
-  const findReptile = (id: string) => reptiles.find((r) => r.id === id);
-
-  // Get the first image for a catalog entry
-  const getEntryImage = (entry: CatalogEntry & { images?: CatalogImage[] }) => {
-    if ('images' in entry && entry.images && entry.images.length > 0) {
-      return entry.images[0].image_url;
-    }
-    return null;
-  };
-
- 
-  // Get display name for morph
-  const getMorphName = (morphId: string | number) => {
-    const id = String(morphId);
-    const morphEntry = morphs.find((m) => m.id.toString() === id.toString());
-    return morphEntry;
-  };
-
+  const featuredEntries = catalogEntries.filter(entry => entry.featured);
+  const displayedFeaturedEntries = featuredEntries.slice(0, 3);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <CatalogEntryShare />
-        <div className="flex items-center gap-2">
-          {isAdmin && onFilter && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-8 gap-1" 
-              onClick={onFilter}
-            >
-              <FilterIcon className="h-3.5 w-3.5" />
-              <span>Filter</span>
-              {activeFilterCount > 0 && (
-                <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full">
-                  {activeFilterCount}
-                </Badge>
-              )}
-            </Button>
-          )}
-          
-          {isAdmin && (
-            <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}>
-              <ArrowUpDown className="h-3.5 w-3.5" />
-              <span>{viewMode === 'grid' ? 'List' : 'Grid'}</span>
-            </Button>
-          )}
-          
-          {isAdmin && (
-            <Button onClick={onAddNew} size="sm" className="h-8">
-              <PlusIcon className="h-3.5 w-3.5" />
-              Add Reptile
-            </Button>
-          )}
-        </div>
-      </div>
-
+  
       {catalogEntries.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
           <div className="rounded-full bg-primary/10 p-4 mb-4">
@@ -145,177 +74,76 @@ export function CatalogEntryList({
           )}
         </div>
       ) : (
-        <div className={cn(
-          viewMode === 'grid' 
-            ? 'grid grid-cols-2 sm:grid-cols-3  lg:grid-cols-4 2xl:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4' 
-            : 'space-y-2'
-        )}>
-          {catalogEntries.map((entry) => {
-            const reptile = findReptile(entry.reptile_id);
-            if (!reptile) return null;
-
-            const imageUrl = getEntryImage(entry);
-            // const species = getSpeciesName(reptile.species_id);
-            const morph = getMorphName(reptile.morph_id);
-
-            return viewMode === 'grid' ? (
-              <Card 
-                onClick={() => onViewDetails(entry)}
-                key={entry.id} 
-                className={cn(
-                  "overflow-hidden group transition-all pt-0 pb-2  gap-0 cursor-pointer",
-                  entry.featured ? "" : "",
-                  isAdmin ? "hover:shadow-md" : ""
-                )}
-              >
-                <div className="relative">
-                  <div className="aspect-square overflow-hidden bg-muted">
-                    {imageUrl ? (
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={imageUrl}
-                          alt={reptile.name}
-                          fill
-                          className="object-cover transition-transform group-hover:scale-115 duration-300"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-full w-full bg-muted">
-                        <span className="text-muted-foreground text-sm">Click View to Add Image</span>
-                      </div>
-                    )}
+        <div className="">
+          <div className="container mx-auto py-6 xl:py-8 px-4 space-y-6 xl:space-y-12">
+            {featuredEntries.length > 0 && (
+              <section className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Featured Reptiles</h2>
+                    <p className="text-muted-foreground">Exceptional specimens from this collection</p>
                   </div>
-
-                  {/* Badges overlays */}
-                  <div className="absolute top-2 left-2 flex flex-col gap-1">
-                    {/* {entry.featured && (
-                      <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                        Featured
-                      </Badge>
-                    )} */}
-                    {/* <Badge variant="secondary" className="capitalize">
-                      {reptile.sex}
-                    </Badge> */}
-                  </div>
-
-                  {/* Action buttons overlay for admin */}
-                  {isAdmin && (
-                    <div className="absolute top-2 right-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="secondary" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onFeatureToggle(entry)}>
-                            <StarIcon className={cn("h-4 w-4 mr-2", entry.featured && "text-amber-500")} />
-                            {entry.featured ? 'Unfeature' : 'Feature'}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onEdit(entry)}>
-                            <PencilIcon className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={() => onDelete(entry.id)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2Icon className="h-4 w-4 mr-2" />
-                            Remove
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
                 </div>
-
-                <CardContent className="p-4">
-                  <div className="space-y-1">
-                     <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">{reptile.name}</h3>       
-                    <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                      {morph?.name}
-                    </p>
-                    <div className="flex items-center gap-1.5">
-                      <div>
-                          {reptile.sex === 'male' ? (
-                                <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5 shrink-0" />
-                              ) : reptile.sex === 'female' ? (
-                                <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
-                              ) : (
-                                <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-                              )}
-                        </div>
-                        <p className="text-xs md:text-sm text-muted-foreground truncate">
-                          {extractLastTwoDigitsOfYear(reptile.hatch_date)}
-                       </p>
-                    </div>
-                  </div>
-                </CardContent>
                 
-              </Card>
-            ) : (
-              <Card key={entry.id} className="overflow-hidden p-2">
-                <div className="px-4 flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-md overflow-hidden bg-muted relative flex-shrink-0">
-                    {imageUrl ? (
-                      <Image
-                        src={imageUrl}
-                        alt={reptile.name}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full w-full bg-muted">
-                        <span className="text-muted-foreground text-[0.5rem] sm:text-[0.6rem] text-center">Click View to Add Image</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium ">{reptile.name}</h3>
-
-                    </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{morph?.name}</p>
-                  </div>
-                  
-                  {isAdmin && (
-                    <div className="">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="secondary" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onFeatureToggle(entry)}>
-                            <StarIcon className={cn("h-4 w-4 mr-2", entry.featured && "text-amber-500")} />
-                            {entry.featured ? 'Unfeature' : 'Feature'}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onEdit(entry)}>
-                            <PencilIcon className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={() => onDelete(entry.id)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2Icon className="h-4 w-4 mr-2" />
-                            Remove
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                  {displayedFeaturedEntries.map((entry) => (
+                    <ReptileCard
+                      key={entry.id}
+                      entry={entry}
+                      isAdmin={isAdmin}
+                      onFeatureToggle={onFeatureToggle}
+                      onEdit={onEdit}
+                      onDelete={onDelete}
+                      onClick={onViewDetails}
+                    />
+                  ))}
                 </div>
-              </Card>
-            );
-          })}
+              </section>
+            )}
+          </div>
+          
+          <div className="container mx-auto py-6 xl:py-8  px-4 space-y-6 ">
+              <div className="flex items-center justify-between gap-4">
+                  <div>
+                        <h2 className="text-2xl md:text-3xl  font-bold tracking-tight">All Reptiles</h2>
+                        <p className="text-muted-foreground">{reptiles.length} reptiles in this collection </p>
+                  </div>
+                  <div className="flex items-center justify-start">
+                      { onFilter && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 gap-1" 
+                            onClick={onFilter}
+                          >
+                            <FilterIcon className="h-3.5 w-3.5" />
+                            <span>Filters</span>
+                            {activeFilterCount > 0 && (
+                              <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full">
+                                {activeFilterCount}
+                              </Badge>
+                            )}  
+                          </Button>
+                        )}
+                  </div>
+                </div>
+              <div className={cn('grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4')}>
+                {catalogEntries.map((entry) => (
+                  <ReptileCard
+                    key={entry.id}
+                    entry={entry}
+                    viewMode={viewMode}
+                    isAdmin={isAdmin}
+                    onFeatureToggle={onFeatureToggle}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onClick={onViewDetails}
+                  />
+                ))}
+              </div>
+          </div>
         </div>
       )}
     </div>
   );
-} 
+}

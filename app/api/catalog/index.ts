@@ -3,7 +3,7 @@ import { CatalogEntry, CatalogImage, CatalogSettings, EnrichedCatalogEntry, NewC
 import { createClient } from '@/lib/supabase/server'
 
 // Get all catalog entries for the current user
-export async function getCatalogEntries(): Promise<CatalogEntry[]> {
+export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const supabase = await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
@@ -11,12 +11,59 @@ export async function getCatalogEntries(): Promise<CatalogEntry[]> {
 
   const { data, error } = await supabase
     .from('catalog_entries')
-    .select('*')
+    .select(`
+      *,
+      reptiles!inner(*, morph_id, species_id),
+      catalog_images(*)
+    `)
     .eq('user_id', userId)
     .order('display_order', { ascending: true });
 
   if (error) throw error;
-  return data || [];
+
+  // Fetch catalog settings separately
+  const { data: settingsData, error: settingsError } = await supabase
+  .from('catalog_settings')
+  .select('*')
+  .eq('user_id', userId)
+  .single();
+  
+  if (settingsError) throw error;
+
+  // Get all unique morph_ids
+  const morphIds = [...new Set(data?.map(entry => entry.reptiles.morph_id) || [])];
+  const speciesIds = [...new Set(data?.map(entry => entry.reptiles.species_id) || [])];
+
+  // Fetch morph names in a single query
+  const { data: morphData } = await supabase
+    .from('morphs')
+    .select('id, name')
+    .in('id', morphIds);
+
+  // Fetch species names in a single query
+  const { data: speciesData } = await supabase
+  .from('species')
+  .select('id, name')
+  .in('id', speciesIds);
+
+  // Create a map of morph_id to morph_name
+  const morphMap = new Map(morphData?.map(morph => [morph.id, morph.name]) || []);
+  const speciesMap = new Map(speciesData?.map(sp => [sp.id, sp.name]) || []);
+
+  // Transform the data to match EnrichedCatalogEntry type
+  const enrichedData = data?.map(entry => ({
+    ...entry,
+    reptiles: {
+      ...entry.reptiles,
+      morph_name: morphMap.get(entry.reptiles.morph_id) || '',
+      species_name: speciesMap.get(entry.reptiles.species_id) || ''
+    },
+    catalog_images: entry.catalog_images || [],
+    catalog_settings: settingsData
+  }));
+
+
+  return enrichedData || [];
 }
 
 // Get catalog entries by profile name (public)
@@ -36,13 +83,30 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
     .from('catalog_entries')
     .select(`
       *,
-      reptiles:view_public_catalog!inner(*), 
+      reptiles:view_public_catalog!inner(*),
       catalog_images(*)
     `)
     .eq('user_id', profileData.id)
     .order('display_order', { ascending: true });
   if (error) throw error;
-  return data || [];
+
+  // Fetch catalog settings separately
+  const { data: settingsData, error: settingsError } = await supabase
+    .from('catalog_settings')
+    .select('*')
+    .eq('user_id', profileData.id)
+    .single();
+
+  if (settingsError) throw settingsError;
+
+  // Combine the data with settings
+  const enrichedData = data?.map(entry => ({
+    ...entry,
+    catalog_images: entry.catalog_images || [],
+    catalog_settings: settingsData
+  }));
+
+  return enrichedData || [];
 }
 
 // Create a new catalog entry
@@ -168,22 +232,6 @@ export async function deleteCatalogEntry(id: string): Promise<void> {
   
 }
 
-// Get catalog images for an entry
-export async function getCatalogImages(entryId: string): Promise<CatalogImage[]> {
-  const supabase =  await createClient()
-  const currentUser = await supabase.auth.getUser();
-  if (!currentUser) throw new Error('Unauthorized');
-
-  const { data, error } = await supabase
-    .from('catalog_images')
-    .select('*')
-    .eq('catalog_entry_id', entryId)
-    .order('display_order', { ascending: true });
-
-  if (error) throw error;
-  return data || [];
-}
-
 // Add a catalog image
 export async function addCatalogImage(image: NewCatalogImage): Promise<CatalogImage> {
   const supabase =  await createClient()
@@ -301,7 +349,10 @@ export async function getCatalogSettings(): Promise<CatalogSettings> {
       user_id: userId ,
       bio: null,
       show_bio: false,
-      layout_type: 'grid'
+      layout_type: 'grid',
+      contacts: null,
+      address: null,
+      about: null
     };
     
     const { data: newSettings, error: createError } = await supabase
@@ -337,7 +388,10 @@ export async function updateCatalogSettings(settings: Partial<NewCatalogSettings
       user_id: userId,
       bio: settings.bio || null,
       show_bio: settings.show_bio || false,
-      layout_type: settings.layout_type || 'grid'
+      layout_type: settings.layout_type || 'grid',
+      contacts: settings.contacts || null,
+      address: settings.address || null,
+      about: settings.about || null
     };
     
     const { data, error } = await supabase

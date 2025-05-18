@@ -1,56 +1,23 @@
 'use client';
 
-import { deleteCatalogImage, getCatalogImages } from '@/app/api/catalog';
+import { deleteCatalogImage } from '@/app/api/catalog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CatalogEntry, CatalogImage } from '@/lib/types/catalog';
-import { Loader2, InfoIcon } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { CatalogImageUpload } from './CatalogImageUpload';
+import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useSpeciesStore } from '@/lib/stores/speciesStore';
-import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { getReptileById } from '@/app/api/reptiles/reptiles';
-import { Reptile } from '@/lib/types/reptile';
+import { toast } from 'sonner';
+import { CatalogImageUpload } from './CatalogImageUpload';
 
 interface CatalogEntryDetailsProps {
-  catalogEntry: CatalogEntry;
+  catalogEntry: EnrichedCatalogEntry;
   reptileName: string;
   isAdmin : boolean
+  onImageChange?: (catalogEntryId: string) => void;
 }
 
-export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: CatalogEntryDetailsProps) {
+export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImageChange }: CatalogEntryDetailsProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const { species } = useSpeciesStore();
-  const { morphs } = useMorphsStore();
-  const [reptile, setReptile] = useState<Reptile | null>(null);
-
-  const {
-    data: images = [],
-    isLoading: imagesLoading,
-    refetch: refetchImages,
-  } = useQuery<CatalogImage[]>({
-    queryKey: ['catalog-images', catalogEntry.id],
-    queryFn: () => getCatalogImages(catalogEntry.id),
-  });
-
-  // Fetch the reptile details
-  const { isLoading: reptileLoading } = useQuery({
-    queryKey: ['reptile', catalogEntry.reptile_id],
-    queryFn: async () => {
-      const reptileData = await getReptileById(catalogEntry.reptile_id);
-      setReptile(reptileData);
-      return reptileData;
-    },
-  });
-
-  const reptileSpecies = reptile ? species.find((s) => String(s.id) === String(reptile.species_id)) : null;
-  const reptileMorph = reptile ? morphs.find((m) => String(m.id) === String(reptile.morph_id)) : null;
-
-  const handleImageUploaded = () => {
-    refetchImages();
-  };
+  const reptile = catalogEntry.reptiles;
 
   const handleImageRemoved = async (imageId: string) => {
     if (!confirm('Are you sure you want to delete this image?')) return;
@@ -58,44 +25,37 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
     try {
       await deleteCatalogImage(imageId);
       toast.success('Image deleted successfully');
-      refetchImages();
-      if (selectedImageIndex >= images.length - 1) {
-        setSelectedImageIndex(Math.max(0, images.length - 2));
+      if (selectedImageIndex >= catalogEntry.catalog_images.length - 1) {
+        setSelectedImageIndex(Math.max(0, catalogEntry.catalog_images.length - 2));
       }
+      onImageChange?.(catalogEntry.id);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete image';
       toast.error(errorMessage);
     }
   };
 
-  const isLoading = imagesLoading || reptileLoading;
+  const handleImageUploaded = () => {
+    onImageChange?.(catalogEntry.id);
+  };
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex justify-center items-center py-6">
-          <Loader2 className="h-4 w-4 animate-spin" />
-        </CardContent>
-      </Card>
-    );
-  }
 
+
+  // Update the JSX to use currentEntry instead of catalogEntry
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%]  gap-6 ">
-            {/* Left column - Images */}
-      <Card className="overflow-hidden py-0">
+    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6">
+      <Card className="overflow-hidden pt-0">
         <CardHeader className='px-0 pb-0'>
-            {/* Main image display */}
-            <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
-              {images.length > 0 ? (
-                <Image
-                  src={images[selectedImageIndex].image_url}
-                  alt={reptileName}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              ) : (
+          <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
+            {catalogEntry.catalog_images || length > 0 ? (
+              <Image
+                src={catalogEntry.catalog_images[selectedImageIndex].image_url}
+                alt={reptileName}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            ) : (
                 <div className="flex items-center justify-center h-full w-full bg-muted">
                   <span className="text-muted-foreground">No image available</span>
                 </div>
@@ -108,9 +68,9 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
         <div className="space-y-4">
 
             {/* Thumbnail gallery */}
-            {images.length > 1 && (
+            {catalogEntry.catalog_images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
-                {images.map((image, index) => (
+                {catalogEntry.catalog_images.map((image, index) => (
                   <div 
                     key={image.id}
                     className={`
@@ -133,7 +93,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
             {isAdmin &&
             <CatalogImageUpload
               catalogEntryId={catalogEntry.id}
-              existingImages={images}
+              existingImages={catalogEntry.catalog_images}
               onImageUploaded={handleImageUploaded}
               onImageRemoved={handleImageRemoved}
             />
@@ -149,7 +109,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
             <h2 className="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold">
                {reptileName}
             </h2>
-            <span className='text-muted-foreground'>{reptileSpecies?.name || 'Unknown'}</span>
+             <span className='text-muted-foreground'>{reptile.species_name || 'Unknown'}</span> 
             </CardTitle>
         </CardHeader>
         <CardContent>
@@ -163,7 +123,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
  
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="font-medium">Morph</span>
-                    <span>{reptileMorph?.name || 'Unknown'}</span>
+                    <span>{reptile.morph_name || 'Unknown'}</span>
                   </div>
                   
                   <div className="flex justify-between items-center py-2 border-b">
@@ -192,10 +152,18 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
                     </div>
                   )}
 
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="font-medium">Traits</span>
+                    <div className="flex flex-wrap gap-2 lg:gap-3 items-center">
+                      {reptile.het_traits?.map((trait,i) => 
+                        <span key={i} className="text-xs sm:text-sm"> {trait.percentage}% het {trait.trait}</span>
+                      )} 
+                    </div>
+                  </div>
+
                 </div>
                 
-                {/* Reptile Notes */}
-                {reptile.notes && (
+                {/* {reptile.notes && (
                   <div className="mt-4 p-4 bg-muted rounded-md">
                     <div className="flex items-center gap-2 mb-2">
                       <InfoIcon className="h-4 w-4 text-muted-foreground" />
@@ -203,7 +171,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName ,isAdmin}: Catal
                     </div>
                     <p className="text-sm whitespace-pre-wrap">{reptile.notes}</p>
                   </div>
-                )}
+                )} */}
               </div>
             )}
           </div>
