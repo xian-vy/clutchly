@@ -176,7 +176,18 @@ export async function getOpenGraphImages (profileName: string): Promise<OGTYPE[]
 
   return data as OGTYPE[];
 }
+export async function getOpenGraphByEntryId(entryId: string): Promise<OGTYPE> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('view_open_graph')
+   .select(`image_url,reptile,price,morph_name `)
+   .eq('entry_id', entryId)
+   .single();
 
+  if (error) throw error;
+  if (!data) return {} as OGTYPE;
+  return data as OGTYPE;
+}
 // Create a new catalog entry
 export async function createCatalogEntry(entry: NewCatalogEntry): Promise<CatalogEntry> {
   const supabase = await createClient()
