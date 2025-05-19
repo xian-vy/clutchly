@@ -21,7 +21,7 @@ interface CatalogHeaderProps {
     onViewModeChange: (mode: ViewMode) => void;
   }
   
-const CatalogHeader = ({isAdmin,onAddNew ,viewMode,onViewModeChange } : CatalogHeaderProps) => {
+const CatalogActions = ({isAdmin,onAddNew ,viewMode,onViewModeChange } : CatalogHeaderProps) => {
 
   const { data } = useQuery<Profile>({
     queryKey: ['profile2'],
@@ -61,4 +61,4 @@ const CatalogHeader = ({isAdmin,onAddNew ,viewMode,onViewModeChange } : CatalogH
   )
 }
 
-export default CatalogHeader
+export default CatalogActions

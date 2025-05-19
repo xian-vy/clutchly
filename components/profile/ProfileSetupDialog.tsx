@@ -156,7 +156,8 @@ export function ProfileSetupDialog() {
         full_name: data.full_name,
         account_type: data.account_type,
         collection_size: data.collection_size || null,
-        selected_species: data.selected_species
+        selected_species: data.selected_species,
+        logo : null
       };
       
       if (data.selected_species && data.selected_species.length > 0) {

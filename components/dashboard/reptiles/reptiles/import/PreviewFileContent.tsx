@@ -82,6 +82,7 @@ const PreviewFileContent = ({ previewData, error, toggleRowSelection,selectedRow
                     <TableHead>Length</TableHead>
                     <TableHead>Dam</TableHead>
                     <TableHead>Sire</TableHead>
+                    <TableHead>Price</TableHead>
                 </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -147,6 +148,7 @@ const PreviewFileContent = ({ previewData, error, toggleRowSelection,selectedRow
                             </span>
                         ) : '-'}
                         </TableCell>
+                        <TableCell>{row.price || '0'}</TableCell>
                     </TableRow>
                     )
                 })}

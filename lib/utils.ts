@@ -44,3 +44,13 @@ export function extractLastTwoDigitsOfYear(dateString : string | null): string {
     return "--";
   }
 }
+
+export function formatPrice(amount: number | null | undefined): string {
+  if (amount === null || amount === undefined) {
+    return '0.00';
+  }
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount);
+}

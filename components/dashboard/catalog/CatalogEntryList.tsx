@@ -3,21 +3,19 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CatalogEntry, EnrichedCatalogEntry } from '@/lib/types/catalog';
-import { Reptile } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
 import {
   FilterIcon,
-  HeartIcon,
+  Globe,
   PlusIcon
 } from 'lucide-react';
-import { ReptileCard } from './ReptileCard';
+import { ReptileCard } from './components/ReptileCard';
 
 
 type ViewMode = 'grid' | 'list';
 
 interface CatalogEntryListProps {
   catalogEntries: EnrichedCatalogEntry[] ;
-  reptiles: Reptile[];
   onEdit?: (entry: CatalogEntry) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
@@ -32,7 +30,6 @@ interface CatalogEntryListProps {
 
 export function CatalogEntryList({
   catalogEntries,
-  reptiles,
   onEdit,
   onDelete,
   onAddNew,
@@ -45,7 +42,7 @@ export function CatalogEntryList({
 }: CatalogEntryListProps) {
   
   const featuredEntries = catalogEntries.filter(entry => entry.featured);
-  const displayedFeaturedEntries = featuredEntries.slice(0, 3);
+  const displayedFeaturedEntries = featuredEntries.slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -53,9 +50,17 @@ export function CatalogEntryList({
       {catalogEntries.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
           <div className="rounded-full bg-primary/10 p-4 mb-4">
-            <HeartIcon className="h-8 w-8 text-primary" />
+             {activeFilterCount > 0 ? (
+               <FilterIcon className="h-6 w-6 text-primary" />
+             ) : (
+              <Globe className="h-8 w-8 text-primary" />
+             )}
           </div>
-          <h3 className="text-lg font-semibold">No reptiles in catalog</h3>
+          <h3 className="text-lg font-semibold">
+            {activeFilterCount > 0 
+              ? "No Reptiles Match Your Filters"
+              : "Setup your Free Website!"}
+            </h3>
           <p className="text-sm text-muted-foreground max-w-xs mt-1 mb-4">
             {activeFilterCount > 0 
               ? "No reptiles match your current filters. Try adjusting your filter criteria."
@@ -63,7 +68,7 @@ export function CatalogEntryList({
           </p>
           {activeFilterCount > 0 ? (
             <Button onClick={onFilter} variant="outline">
-              <FilterIcon className="mr-2 h-4 w-4" />
+              <FilterIcon className="h-4 w-4" />
               Adjust Filters
             </Button>
           ) : (
@@ -106,7 +111,7 @@ export function CatalogEntryList({
               <div className="flex items-center justify-between gap-4">
                   <div>
                         <h2 className="text-2xl md:text-3xl  font-bold tracking-tight">All Reptiles</h2>
-                        <p className="text-muted-foreground">{reptiles.length} reptiles in this collection </p>
+                        <p className="text-muted-foreground">{catalogEntries?.length} reptiles in this collection </p>
                   </div>
                   <div className="flex items-center justify-start">
                       { onFilter && (
@@ -127,7 +132,7 @@ export function CatalogEntryList({
                         )}
                   </div>
                 </div>
-              <div className={cn('grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4')}>
+              <div className={cn('grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4')}>
                 {catalogEntries.map((entry) => (
                   <ReptileCard
                     key={entry.id}

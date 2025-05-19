@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CatalogImageUpload } from './CatalogImageUpload';
+import { formatPrice } from '@/lib/utils';
 
 interface CatalogEntryDetailsProps {
   catalogEntry: EnrichedCatalogEntry;
@@ -43,11 +44,11 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
 
   // Update the JSX to use currentEntry instead of catalogEntry
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6 mb-5 xl:mb-10">
       <Card className="overflow-hidden pt-0">
         <CardHeader className='px-0 pb-0'>
           <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
-            {catalogEntry.catalog_images || length > 0 ? (
+            {catalogEntry.catalog_images.length > 0 && catalogEntry.catalog_images[selectedImageIndex]?.image_url ? (
               <Image
                 src={catalogEntry.catalog_images[selectedImageIndex].image_url}
                 alt={reptileName}
@@ -109,13 +110,13 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
             <h2 className="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold">
                {reptileName}
             </h2>
-             <span className='text-muted-foreground'>{reptile.species_name || 'Unknown'}</span> 
+             <span className='text-muted-foreground'>{reptile?.species_name || 'Unknown'}</span> 
             </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
   
-            
+            <h3 className='text-2xl md:text-3xl xl:text-4xl font-bold'>{formatPrice(reptile?.price) || '0.00'}</h3>
             {/* Reptile info */}
             {reptile && (
               <div className="space-y-4">
@@ -124,6 +125,10 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="font-medium">Morph</span>
                     <span>{reptile.morph_name || 'Unknown'}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="font-medium">Code</span>
+                    <span>{reptile.reptile_code || 'Unknown'}</span>
                   </div>
                   
                   <div className="flex justify-between items-center py-2 border-b">

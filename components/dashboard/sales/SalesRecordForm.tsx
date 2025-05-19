@@ -80,7 +80,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
       reptile_id: initialData?.reptile_id || '',
       sale_date: initialData ? new Date(initialData.sale_date) : new Date(),
       price: initialData?.price || 0,
-      buyer_name: initialData?.buyer_name || '',
+      buyer_name: initialData?.buyer_name || 'N/A',
       buyer_email: initialData?.buyer_email || '',
       buyer_phone: initialData?.buyer_phone || '',
       payment_method: initialData?.payment_method || 'cash',
@@ -100,6 +100,14 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
     
     await onSubmit(formattedData);
   });
+
+  const handleReptileChange = (reptileId: string) => {
+    form.setValue('reptile_id', reptileId);
+    const selectedReptile = reptiles.find(r => r.id === reptileId);
+    if (selectedReptile?.price) {
+      form.setValue('price', selectedReptile.price);
+    }
+  };
 
   return (
     <Form {...form}>
@@ -123,7 +131,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
                             <FormControl>
                               <ReptileSelect
                                 value={field.value}
-                                onValueChange={field.onChange}
+                                onValueChange={handleReptileChange}
                                 placeholder="Select a reptile"
                               />
                             </FormControl>
@@ -417,4 +425,4 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
       </form>
     </Form>
   );
-} 
+}

@@ -1,6 +1,6 @@
-name,species,sex,morph,weight,length,acquisition_date,hatch_date,visual_traits,het_traits,produced_by,status,is_breeder,notes,mother,father
-BP0000001,Ball Python,male,Normal,1500,120,2022-06-15,2021-08-22,Normal,100% albino,Breeder Name,active,TRUE,,BP0000002,BP0000003
-BP0000002,Ball Python,female,Albino,500,130,2023-05-10,2022-01-15,Amelanistic,"33% normal, 66% piebald",Breeder Name,active,TRUE,,,
-BP0000003,Ball Python,male,Albino,350,50,2023-07-01,2023-03-20,"Super Snow, Eclipse",,Breeder Name,active,FALSE,,,
-LG0000001,Leopard Gecko,unknown,Super Snow,65,65,2023-07-01,2023-03-20,"Super Snow, Eclipse",,Breeder Name,sold,FALSE,nipped tail,,
-LG0000002,Leopard Gecko,male,Raptor,66,70,2023-07-01,2023-03-20,,,,deceased,,,,
+name,species,sex,morph,weight,length,acquisition_date,hatch_date,visual_traits,het_traits,produced_by,status,is_breeder,notes,mother,father,price
+BP0000001,Ball Python,male,Normal,1500,120,2022-06-15,2021-08-22,Normal,100% albino,Breeder Name,active,TRUE,,BP0000002,BP0000003,1200
+BP0000002,Ball Python,female,Albino,500,130,2023-05-10,2022-01-15,Amelanistic,"33% normal, 66% piebald",Breeder Name,active,TRUE,,,,3200
+BP0000003,Ball Python,male,Albino,350,50,2023-07-01,2023-03-20,"Super Snow, Eclipse",,Breeder Name,active,FALSE,,,, 
+LG0000001,Leopard Gecko,unknown,Super Snow,65,65,2023-07-01,2023-03-20,"Super Snow, Eclipse",,Breeder Name,sold,FALSE,nipped tail,,, 
+LG0000002,Leopard Gecko,male,Raptor,66,70,2023-07-01,2023-03-20,,,,deceased,,,,,4000

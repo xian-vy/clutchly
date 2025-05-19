@@ -44,8 +44,8 @@ const formSchema = z.object({
     verified: z.boolean().optional()
   })).nullable(),
   location_id: z.string().nullable(),
-  original_breeder : z.string().nullable()
-})
+  original_breeder : z.string().nullable(),
+  price: z.coerce.number().min(0, 'Price must be a positive number').nullable(),})
 
 // Extended Reptile type with species_name and morph_name
 interface EnrichedReptile extends Reptile {
@@ -108,10 +108,11 @@ export function ReptileForm({ initialData, onSubmit, onCancel,profile }: Reptile
       visual_traits: initialData?.visual_traits || [],
       het_traits: initialData?.het_traits || [],
       location_id: initialData?.location_id || null,
-      original_breeder : defaultBreeder
+      original_breeder : defaultBreeder,
+      price : initialData?.price || 0,
     }
   });
-
+  // Handle form submission
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     const formattedData = {
       ...data,
@@ -246,6 +247,25 @@ export function ReptileForm({ initialData, onSubmit, onCancel,profile }: Reptile
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3  xl:gap-5 h-[200px] md:h-full overflow-auto">
+                <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Price (Optional)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                step="0.01" 
+                                min="0" 
+                                {...field}
+                                value={field.value ?? ''} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
               <FormField
                     control={form.control}
                     name="species_id"

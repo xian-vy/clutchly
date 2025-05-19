@@ -4,20 +4,21 @@ import { createCatalogEntry, deleteCatalogEntry, getCatalogEntries, updateCatalo
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
 import { CatalogEntry, EnrichedCatalogEntry, NewCatalogEntry } from '@/lib/types/catalog';
-import { Reptile } from '@/lib/types/reptile';
 import { useState,  useMemo } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { CatalogEntryDetails } from './CatalogEntryDetails';
 import { Button } from '@/components/ui/button';
-import { CatalogFilterDialog, CatalogFilters } from './CatalogFilterDialog';
+import { CatalogFilterDialog, CatalogFilters } from './components/CatalogFilterDialog';
 import { calculateAgeInMonths } from '@/lib/utils';
-import CatalogHeader from './CatalogHeader';
-import { CatalogIntro } from './CatalogIntro';
+import CatalogActions from './CatalogActions';
+import { CatalogIntro } from './components/CatalogIntro';
 import { Separator } from '@/components/ui/separator';
+import CatalogFooter from './components/CatalogFooter';
+import { Reptile } from '@/lib/types/reptile';
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -49,23 +50,22 @@ export function CatalogTab() {
     deleteResource: deleteCatalogEntry,
   });
   const queryClient = useQueryClient();
-
-  // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
-  const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
-
-  // Get reptiles for selection
-  const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
+  const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
+  // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
+  const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
 
+  const catalog_settings = enrichedCatalog[0]?.catalog_settings  || null
+  const profile = enrichedCatalog[0]?.profile  || null
 
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
     if (enrichedCatalog.length === 0) return [];
 
     return enrichedCatalog.filter(entry => {
-      const reptile = reptiles.find(r => r.id === entry.reptile_id);
+      const reptile = reptiles.find(r => r?.id === entry.reptile_id);
       if (!reptile) return false;
 
       // Filter by species
@@ -107,8 +107,8 @@ export function CatalogTab() {
       return true;
     }).sort((a, b) => {
       // Apply sorting
-      const reptileA = reptiles.find(r => r.id === a.reptile_id);
-      const reptileB = reptiles.find(r => r.id === b.reptile_id);
+      const reptileA = reptiles.find(r => r?.id === a.reptile_id);
+      const reptileB = reptiles.find(r => r?.id === b.reptile_id);
       
       if (!reptileA || !reptileB) return 0;
 
@@ -127,7 +127,7 @@ export function CatalogTab() {
     });
   }, [enrichedCatalog, filters, reptiles]);
 
-  const isLoading = catalogEntriesLoading || reptilesLoading 
+  const isLoading = catalogEntriesLoading
 
   if (isLoading) {
     return (
@@ -147,7 +147,7 @@ export function CatalogTab() {
 
   // Filter out reptiles that are already in the catalog
   const availableReptiles = reptiles.filter(reptile => 
-    !catalogEntries.some(entry => entry.reptile_id === reptile.id)
+    !catalogEntries.some(entry => entry.reptile_id === reptile?.id)
   );
 
   const handleEntryDelete = async (id: string) => {
@@ -162,7 +162,7 @@ export function CatalogTab() {
   };
 
   // Function to find reptile by ID
-  const findReptile = (reptileId: string) => reptiles.find((r) => r.id === reptileId);
+  const findReptile = (reptileId: string) => reptiles.find((r) => r?.id === reptileId);
   
   // Find the reptile for detail view
   const reptileForDetail = detailView ? findReptile(detailView.reptile_id) : null;
@@ -199,7 +199,7 @@ export function CatalogTab() {
   return (
     <div className="space-y-6">
 
-      <CatalogHeader 
+      <CatalogActions 
         isAdmin={true}
         onAddNew={() => setIsDialogOpen(true)}
         viewMode={detailView? 'list' : 'grid'}
@@ -209,8 +209,12 @@ export function CatalogTab() {
       <Separator />
 
 
-      <CatalogIntro settings={enrichedCatalog[0].catalog_settings} isLoading={isLoading} />
-
+      <CatalogIntro
+       settings={catalog_settings} 
+       isLoading={isLoading} 
+       isAdmin={true}
+       profile = {profile}
+       />
 
 
       {detailView && reptileForDetail ? (
@@ -238,7 +242,6 @@ export function CatalogTab() {
         <div className="grid">
           <CatalogEntryList
             catalogEntries={filteredEntries}
-            reptiles={reptiles}
             onEdit={(entry) => {
               setSelectedCatalogEntry(entry);
               setIsDialogOpen(true);
@@ -277,14 +280,16 @@ export function CatalogTab() {
             {selectedCatalogEntry ? 'Edit Catalog Entry' : 'Add New Catalog Entry'}
           </DialogTitle>
           <CatalogEntryForm
+            availableReptiles={availableReptiles}
             initialData={selectedCatalogEntry}
-            availableReptiles={selectedCatalogEntry ? reptiles : availableReptiles}
             onSubmit={async (data) => {
               const success = selectedCatalogEntry
                 ? await handleUpdate(data)
                 : await handleCreate(data);
               if (success) {
                 onDialogChange();
+                await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+
               }
             }}
             onCancel={onDialogChange}
@@ -299,6 +304,11 @@ export function CatalogTab() {
         onOpenChange={setIsFilterDialogOpen}
         onApplyFilters={handleApplyFilters}
         currentFilters={filters}
+      />
+      <CatalogFooter 
+        profile = {profile}
+        settings={catalog_settings}
+        isAdmin={true}
       />
     </div>
   );

@@ -314,7 +314,8 @@ async function processImport(
           parent_clutch_id: null, // Not supported in import
           dam_id: null, // Not supported in import
           sire_id: null, // Not supported in import
-          project_ids: undefined, // Not supported in import
+          project_ids: undefined, // Not supported in import,
+          price: row.price || null,
         }
         
         // Insert reptile
