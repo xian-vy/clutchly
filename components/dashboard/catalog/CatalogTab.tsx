@@ -13,11 +13,13 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { CatalogEntryDetails } from './CatalogEntryDetails';
 import { Button } from '@/components/ui/button';
-import { CatalogFilterDialog, CatalogFilters } from './CatalogFilterDialog';
+import { CatalogFilterDialog, CatalogFilters } from './components/CatalogFilterDialog';
 import { calculateAgeInMonths } from '@/lib/utils';
-import CatalogHeader from './CatalogHeader';
-import { CatalogIntro } from './CatalogIntro';
+import CatalogActions from './CatalogActions';
+import { CatalogIntro } from './components/CatalogIntro';
 import { Separator } from '@/components/ui/separator';
+import CatalogFooter from './components/CatalogFooter';
+import { getProfile } from '@/app/api/profiles/profiles';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -59,6 +61,11 @@ export function CatalogTab() {
     queryFn: getReptiles,
   });
 
+  const { data: profileData } = useQuery({
+    queryKey: ['profile2'],
+    queryFn: getProfile,
+  });
+  const profile = Array.isArray(profileData) ? profileData[0] : profileData;
 
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
@@ -199,7 +206,7 @@ export function CatalogTab() {
   return (
     <div className="space-y-6">
 
-      <CatalogHeader 
+      <CatalogActions 
         isAdmin={true}
         onAddNew={() => setIsDialogOpen(true)}
         viewMode={detailView? 'list' : 'grid'}
@@ -209,7 +216,7 @@ export function CatalogTab() {
       <Separator />
 
 
-      <CatalogIntro settings={enrichedCatalog[0].catalog_settings} isLoading={isLoading} />
+      <CatalogIntro settings={enrichedCatalog[0].catalog_settings} isLoading={isLoading} isAdmin={true} />
 
 
 
@@ -299,6 +306,11 @@ export function CatalogTab() {
         onOpenChange={setIsFilterDialogOpen}
         onApplyFilters={handleApplyFilters}
         currentFilters={filters}
+      />
+      <CatalogFooter 
+        profileName={profile?.full_name || ''}
+        settings={enrichedCatalog[0]?.catalog_settings}
+        isAdmin={true}
       />
     </div>
   );

@@ -10,7 +10,7 @@ import {
   HeartIcon,
   PlusIcon
 } from 'lucide-react';
-import { ReptileCard } from './ReptileCard';
+import { ReptileCard } from './components/ReptileCard';
 
 
 type ViewMode = 'grid' | 'list';

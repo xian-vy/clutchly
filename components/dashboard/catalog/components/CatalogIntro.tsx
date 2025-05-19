@@ -11,7 +11,7 @@ import { CatalogSettings } from '@/lib/types/catalog';
 import { Profile } from '@/lib/types/profile';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, MapPin, Pencil, Save } from 'lucide-react';
+import { Loader2, Pencil, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ import { useTheme } from 'next-themes'
 import Image from 'next/image';
 import { CatalogIntroContact } from './CatalogIntroContact';
 import { AboutSettingsDialog } from './CatalogIntroAbout';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -32,8 +33,9 @@ type FormValues = z.infer<typeof formSchema>;
 interface Props {
   settings : CatalogSettings;
   isLoading : boolean;
+  isAdmin: boolean;
 }
-export function CatalogIntro({settings,isLoading} : Props) {
+export function CatalogIntro({settings,isLoading,isAdmin} : Props) {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   const { theme } = useTheme()
@@ -102,9 +104,11 @@ export function CatalogIntro({settings,isLoading} : Props) {
   };
 
   return (
-    <div className="bg-muted/30 border-b px-4 py-6  flex flex-col items-start md:items-center text-center  gap-3 md:gap-4 ">
+    <div className={cn("bg-muted/30 border-b  py-6  flex flex-col items-start md:items-center text-center  gap-3 md:gap-4",
+      `${isAdmin ? 'px-4' : ' px-4 sm:px-6 lg:px-10 '}`
+    )}>
 
-      <div className="flex justify-between items-center w-full">
+      <div className={`flex justify-between items-center w-full`}>
             <div className="flex gap-1 sm:gap-2 items-center justify-center ">
               <Image 
                   src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'} 
@@ -115,81 +119,17 @@ export function CatalogIntro({settings,isLoading} : Props) {
                 />
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight capitalize">{profile ? profile.full_name : "--"}</h1>
             </div>
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 sm:gap-4 xl:gap-5">
                     <span onClick={() => setIsAboutDialogOpen(true)} className='text-sm cursor-pointer font-medium'>About</span>
                     <span onClick={() => setIsContactDialogOpen(true)} className='text-sm cursor-pointer font-medium'>Contact</span>
             </div>
         </div>
       <Card className='p-0 border-0 w-full  '>
         <CardContent className='flex flex-col items-start text-start gap-3 md:gap-4 px-0 bg-muted/30'>
-          {!isEditing ? (
-            <div className="flex items-start justify-center">
-              <p className="text-start  text-sm md:text-base max-w-3xl">{settings?.bio || 'Add your Bio/Intro here !'}</p>
-              <Button
-                variant="ghost"
-                size="icon"
-                className=""
-                onClick={() => setIsEditing(true)}
-              >
-                <Pencil className="h-3 w-3 text-foreground/70" />
-              </Button>
-            </div>
-          ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
-                <FormField
-                  control={form.control}
-                  name="bio"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Tell visitors about your collection..."
-                          {...field}
-                          value={field.value || ''}
-                          className='w-full min-h-[60px] mt-3'
-                          maxLength={1000}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    type="button"
-                    onClick={handleCancel}
-                  >
-                    Cancel
-                  </Button>
-                  <Button size="sm" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4" />
-                        Save 
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          )}
-          <div className="flex items-start justify-start gap-1 sm:gap-1.5  w-full">
-        
-            {!isEditing ? (
-              <div className="flex items-start justify-start w-full">
-                <div className="flex items-center gap-2 max-w-2xl">
-                    <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
-                    <p className="text-start text-[0.8rem] md:text-sm">
-                      {settings?.address || 'Add your address here!'}
-                    </p>
-                </div>
+          {isAdmin ? (
+            !isEditing ? (
+              <div className="flex items-start justify-center">
+                <p className="text-start  text-sm md:text-base max-w-3xl">{settings?.bio || 'Add your Bio/Intro here !'}</p>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -201,25 +141,25 @@ export function CatalogIntro({settings,isLoading} : Props) {
               </div>
             ) : (
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="w-full mt-3">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
                   <FormField
                     control={form.control}
-                    name="address"
+                    name="bio"
                     render={({ field }) => (
-                      <FormItem className="w-full">
+                      <FormItem>
                         <FormControl>
                           <Textarea
-                            placeholder="Enter your address..."
+                            placeholder="Tell visitors about your collection..."
                             {...field}
                             value={field.value || ''}
-                            className='w-full min-h-[60px] '
-                            maxLength={500}
+                            className='w-full min-h-[60px] mt-3'
+                            maxLength={1000}
                           />
                         </FormControl>
                       </FormItem>
                     )}
                   />
-                  <div className="flex justify-end gap-2 mt-2">
+                  <div className="flex justify-end gap-2">
                     <Button
                       size="sm"
                       variant="outline"
@@ -237,14 +177,21 @@ export function CatalogIntro({settings,isLoading} : Props) {
                       ) : (
                         <>
                           <Save className="h-4 w-4" />
-                          Save
+                          Save 
                         </>
                       )}
                     </Button>
                   </div>
                 </form>
               </Form>
-            )}
+            )
+          ) : (
+            <div className="flex items-start justify-center">
+              <p className="text-start  text-sm md:text-base max-w-3xl">{settings?.bio || 'Add your Bio/Intro here !'}</p>
+            </div>
+          )}
+          <div className="flex items-start justify-start gap-1 sm:gap-1.5  w-full">
+        
            </div>
 
         </CardContent>
@@ -254,12 +201,15 @@ export function CatalogIntro({settings,isLoading} : Props) {
         open={isContactDialogOpen}
         onOpenChange={setIsContactDialogOpen}
         settings={settings}
+        isAdmin={isAdmin}
       />
 
     <AboutSettingsDialog
       open={isAboutDialogOpen}
       onOpenChange={setIsAboutDialogOpen}
       settings={settings}
+      isAdmin={isAdmin}
+
     />
     </div>
   );
