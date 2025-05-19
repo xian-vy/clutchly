@@ -78,8 +78,8 @@ return (
       </div>
       <div className="w-full flex flex-col md:flex-row md:justify-center md:items-center gap-2 md:gap-6 text-sm text-foreground/90 px-4">
         {/* Address */}
-        <div className="flex items-center gap-2 min-w-[120px] ">
-          <MapPin className="h-4 w-4 text-primary/80" />
+        <div className="flex items-center justify-center gap-2 min-w-[120px] ">
+          <MapPin className="h-4 w-4 text-primary/80 shrink-0" />
           {isAdmin ? (
             isEditing ? (
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2 w-full">

@@ -96,7 +96,7 @@ export function CatalogEntryForm({
               </Select>
               {!initialData && availableReptiles.length === 0 && (
                 <FormDescription className="text-destructive">
-                  All reptiles are already in your catalog.
+                  Please add a reptile first before adding a catalog entry.
                 </FormDescription>
               )}
             </FormItem>

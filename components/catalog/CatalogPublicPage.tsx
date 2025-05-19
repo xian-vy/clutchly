@@ -15,6 +15,7 @@ import { APP_URL } from '@/lib/constants/app';
 import CatalogFooter from '../dashboard/catalog/components/CatalogFooter';
 import { CatalogIntro } from '../dashboard/catalog/components/CatalogIntro';
 import NotSetup from '../dashboard/catalog/components/NotSetup';
+import { ReptileWithMorpgAndSpecies } from '@/lib/types/reptile';
 interface CatalogClientPageProps {
   profileName: string;
 }
@@ -40,7 +41,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
 
   const enrichedCatalog  = useMemo(() => data as EnrichedCatalogEntry[], [data]) 
   const reptiles = enrichedCatalog?.map((entry) => entry.reptiles);
-  const findReptile = (reptileId: string) => reptiles?.find((r) => r.id === reptileId);
+  const findReptile = (reptileId: string) => reptiles?.find((r) => r?.id === reptileId);
   const catalogSettings = isLoading ? null : enrichedCatalog?.[0]?.catalog_settings || null;
   const reptileForDetail = detailView ? findReptile(detailView.reptile_id) : null;
   const profile = enrichedCatalog?.[0]?.profile || null;
@@ -51,7 +52,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
     if (enrichedCatalog.length === 0) return [];
 
     return enrichedCatalog.filter(entry => {
-      const reptile = reptiles.find(r => r.id === entry.reptile_id);
+      const reptile = reptiles.find(r => r?.id === entry.reptile_id);
       if (!reptile) return false;
 
       // Filter by species
@@ -93,8 +94,8 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
       return true;
     }).sort((a, b) => {
       // Apply sorting
-      const reptileA = reptiles.find(r => r.id === a.reptile_id);
-      const reptileB = reptiles.find(r => r.id === b.reptile_id);
+      const reptileA = reptiles.find(r => r?.id === a.reptile_id);
+      const reptileB = reptiles.find(r => r?.id === b.reptile_id);
       
       if (!reptileA || !reptileB) return 0;
 
@@ -137,7 +138,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   if (isError) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-2">Catalog Not Found</h1>
+        <h1 className="text-2xl font-bold mb-2">Website Not Found</h1>
         <p className="text-muted-foreground text-center">
           The catalog you&apos;re looking for doesn&apos;t exist or is no longer available.
         </p>
@@ -151,7 +152,9 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   return (
     <main className="min-h-screen bg-background ">
         <div className="flex flex-col justify-center items-center bg-primary w-full text-white dark:text-black min-h-[30px] px-2">
-              <p className='text-[0.65rem] sm:[0.7rem] lg:text-xs'>Made with <a href={APP_URL} className='font-medium' target='_blank'>Clutchly</a></p>
+          <p className='text-[0.7rem] sm:text-sm lg:text-xs font-medium tracking-wide'>
+            Made with <a href={APP_URL} className='font-semibold underline underline-offset-2' target='_blank'>Clutchly</a>
+          </p>
         </div>
        
         <CatalogIntro
@@ -186,7 +189,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
             <div className="grid">
               <CatalogEntryList
                 catalogEntries={filteredEntries}
-                reptiles={reptiles}
+                reptiles={reptiles as ReptileWithMorpgAndSpecies[]}
                 onViewDetails={(entry) => setDetailView(entry)}
                 isAdmin={false}
                 onFilter={() => setIsFilterDialogOpen(true)}

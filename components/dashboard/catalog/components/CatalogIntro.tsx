@@ -24,7 +24,6 @@ const formSchema = z.object({
   show_bio: z.boolean(),
   layout_type: z.enum(['grid', 'list']),
   address: z.string().nullable(),
-  logo : z.string().nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -48,12 +47,13 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      bio: settings?.bio || null,
+      bio: settings?.bio ?? '', 
       show_bio: settings?.show_bio || false,
       layout_type: settings?.layout_type || 'grid',
-      address: settings?.address || null,
+      address: settings?.address ?? '', 
     },
   });
+
 
   const isSubmitting = form.formState.isSubmitting;
 
@@ -125,7 +125,6 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
       });
       const data = await res.json();
       if (data?.imageUrl) {
-        form.setValue('logo', data.imageUrl);
         setLogoTimestamp(Date.now()); // Update timestamp when logo changes
         await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
         toast.success('Logo uploaded!');
@@ -149,7 +148,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
   };
 
   return (
-    <div className={cn("bg-muted/30 border-b  py-6  flex flex-col items-start md:items-center text-center  gap-3 md:gap-4",
+    <div className={cn("bg-muted/30 border-b  py-6  flex flex-col items-start md:items-center text-center  gap-4 sm:gap-5 xl:gap-6",
       `${isAdmin ? 'px-4' : ' px-4 sm:px-6 lg:px-10 '}`
     )}>
       <div className={`flex justify-between items-center w-full`}>
@@ -209,7 +208,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
           {isAdmin ? (
             !isEditing ? (
               <div className="flex items-start justify-center">
-                <p className="text-start  text-sm md:text-base max-w-3xl text-muted-foreground italic">{settings?.bio || 'Add your website introduction or bio here !'}</p>
+                <p className={`text-start  text-sm md:text-base max-w-3xl ${settings?.bio ? 'text-foreground' : 'text-muted-foreground italic'}`}>{settings?.bio || 'Add your website introduction or bio here !'}</p>
                 <Button
                   variant="ghost"
                   size="icon"

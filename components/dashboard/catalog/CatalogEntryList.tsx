@@ -45,7 +45,7 @@ export function CatalogEntryList({
 }: CatalogEntryListProps) {
   
   const featuredEntries = catalogEntries.filter(entry => entry.featured);
-  const displayedFeaturedEntries = featuredEntries.slice(0, 3);
+  const displayedFeaturedEntries = featuredEntries.slice(0, 4);
 
   return (
     <div className="space-y-6">
@@ -53,9 +53,17 @@ export function CatalogEntryList({
       {catalogEntries.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
           <div className="rounded-full bg-primary/10 p-4 mb-4">
-            <Globe className="h-8 w-8 text-primary" />
+             {activeFilterCount > 0 ? (
+               <FilterIcon className="h-6 w-6 text-primary" />
+             ) : (
+              <Globe className="h-8 w-8 text-primary" />
+             )}
           </div>
-          <h3 className="text-lg font-semibold">Setup your Free Website!</h3>
+          <h3 className="text-lg font-semibold">
+            {activeFilterCount > 0 
+              ? "No Reptiles Match Your Filters"
+              : "Setup your Free Website!"}
+            </h3>
           <p className="text-sm text-muted-foreground max-w-xs mt-1 mb-4">
             {activeFilterCount > 0 
               ? "No reptiles match your current filters. Try adjusting your filter criteria."
@@ -63,7 +71,7 @@ export function CatalogEntryList({
           </p>
           {activeFilterCount > 0 ? (
             <Button onClick={onFilter} variant="outline">
-              <FilterIcon className="mr-2 h-4 w-4" />
+              <FilterIcon className="h-4 w-4" />
               Adjust Filters
             </Button>
           ) : (

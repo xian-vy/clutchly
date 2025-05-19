@@ -39,7 +39,7 @@ export function ReptileCard({
   onDelete,
   onClick
 }: ReptileCardProps) {
-  const imageUrl = entry.catalog_images[0]?.image_url;
+  const imageUrl = entry.catalog_images ? entry.catalog_images[0]?.image_url  : null;
   const reptile = entry.reptiles;
   const morph = entry.reptiles?.morph_name;
 
@@ -67,7 +67,9 @@ export function ReptileCard({
               </div>
             ) : (
               <div className="flex items-center justify-center h-full w-full bg-muted">
-                <span className="text-muted-foreground text-sm">Click View to Add Image</span>
+                <span className="text-muted-foreground text-sm">{
+                  isAdmin? "Click View to Add Image" : "No Image Available"
+                  }</span>
               </div>
             )}
           </div>
