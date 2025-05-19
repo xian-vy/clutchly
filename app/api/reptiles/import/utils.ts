@@ -25,6 +25,7 @@ export interface ReptileImportRow {
     notes?: string
     dam_name?: string
     sire_name?: string
+    price?: number
   }
   
   // Generic object type to avoid 'any'
@@ -158,6 +159,11 @@ export function validateReptileRow(row: GenericObject): { valid: boolean; error?
     // Generation validation (if provided)
     if (row.generation && (isNaN(Number(row.generation)) || Number(row.generation) < 0)) {
       return { valid: false, error: 'Generation must be a non-negative integer' }
+    }
+
+    // Price validation (if provided)
+    if (row.price && (isNaN(Number(row.price)) || Number(row.price) < 0)) {
+      return { valid: false, error: 'Price must be a non-negative number' }
     }
   
     // Boolean validations (if provided)

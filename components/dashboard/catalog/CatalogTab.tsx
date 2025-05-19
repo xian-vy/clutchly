@@ -7,7 +7,7 @@ import { CatalogEntry, EnrichedCatalogEntry, NewCatalogEntry } from '@/lib/types
 import { useState,  useMemo } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { CatalogEntryDetails } from './CatalogEntryDetails';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,8 @@ import CatalogActions from './CatalogActions';
 import { CatalogIntro } from './components/CatalogIntro';
 import { Separator } from '@/components/ui/separator';
 import CatalogFooter from './components/CatalogFooter';
-import { ReptileWithMorpgAndSpecies } from '@/lib/types/reptile';
+import { Reptile } from '@/lib/types/reptile';
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -49,14 +50,13 @@ export function CatalogTab() {
     deleteResource: deleteCatalogEntry,
   });
   const queryClient = useQueryClient();
-
+  const { data: reptiles = [] } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  });
   // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
   const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
-  const reptiles = useMemo(() => 
-    enrichedCatalog
-      .map((entry) => entry.reptiles)
-      .filter((reptile): reptile is ReptileWithMorpgAndSpecies => reptile !== null)
-  , [enrichedCatalog]);
+
   const catalog_settings = enrichedCatalog[0]?.catalog_settings  || null
   const profile = enrichedCatalog[0]?.profile  || null
 
@@ -280,8 +280,8 @@ export function CatalogTab() {
             {selectedCatalogEntry ? 'Edit Catalog Entry' : 'Add New Catalog Entry'}
           </DialogTitle>
           <CatalogEntryForm
+            availableReptiles={availableReptiles}
             initialData={selectedCatalogEntry}
-            availableReptiles={selectedCatalogEntry ? reptiles : availableReptiles}
             onSubmit={async (data) => {
               const success = selectedCatalogEntry
                 ? await handleUpdate(data)

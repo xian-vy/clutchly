@@ -155,6 +155,8 @@ export function ReptileCard({
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground truncate">{morph}</p>
         </div>
+
+        <p>{reptile?.price}</p>
         
         {isAdmin && (
           <div className="">

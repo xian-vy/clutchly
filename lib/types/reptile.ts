@@ -13,6 +13,7 @@ export interface Reptile {
   created_at: string
   user_id: string
   name: string
+  price : number | null,
   reptile_code: string | null
   species_id: string
   morph_id: string

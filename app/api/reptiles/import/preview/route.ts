@@ -148,7 +148,8 @@ export async function POST(request: NextRequest) {
     mother: 'dam_name',
     sire: 'sire_name',
     sire_name: 'sire_name',
-    father: 'sire_name'
+    father: 'sire_name',
+    price: 'price'
   }
 
   const mappedHeaders: Record<string, string> = {}
