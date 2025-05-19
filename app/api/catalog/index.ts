@@ -9,73 +9,93 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const userId = currentUser.data.user?.id;
   if (!currentUser || !userId) throw new Error('Unauthorized');
 
-    // Fetch species names in a single query
-    const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .select(' id, full_name, logo')
-    .eq('id', userId)
-    .single()
-  
-    if (profileError) throw profileError;
-    if (!profileData) throw new Error('Profile not found');
+  // Execute profile and catalog entries queries in parallel
+  const [profileResult, entriesResult, settingsResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name, logo')
+      .eq('id', userId)
+      .single(),
+    
+    supabase
+      .from('catalog_entries')
+      .select(`
+        *,
+        reptiles!inner(*, morph_id, species_id),
+        catalog_images(*)
+      `)
+      .eq('user_id', userId)
+      .order('display_order', { ascending: true }),
+    
+    supabase
+      .from('catalog_settings')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+  ]);
 
-  const { data, error } = await supabase
-    .from('catalog_entries')
-    .select(`
-      *,
-      reptiles!inner(*, morph_id, species_id),
-      catalog_images(*)
-    `)
-    .eq('user_id', userId)
-    .order('display_order', { ascending: true });
-    if (data?.length === 0) {
-      // Return an empty array but with profile and settings data
-      return [{
-        id: '',
-        user_id: userId,
-        reptile_id: '',
-        featured: false,
-        display_order: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        reptiles:null,
-        catalog_images: [],
-        catalog_settings: null,
-        profile: profileData
-      }];
-    }
-  if (error) throw error;
+  if (profileResult.error) throw profileResult.error;
+  if (!profileResult.data) throw new Error('Profile not found');
+  const profileData = profileResult.data;
 
-  // Fetch catalog settings separately
-  const { data: settingsData, error: settingsError } = await supabase
-  .from('catalog_settings')
-  .select('*')
-  .eq('user_id', userId)
-  .single();
-  
-  if (settingsError) throw error;
+  if (entriesResult.error) throw entriesResult.error;
+  const data = entriesResult.data;
 
-  // Get all unique morph_ids
+  if (data?.length === 0) {
+    return [{
+      id: '',
+      user_id: userId,
+      reptile_id: '',
+      featured: false,
+      display_order: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      reptiles: null,
+      catalog_images: [],
+      catalog_settings: null,
+      profile: profileData
+    }];
+  }
+
+  const settingsData = settingsResult.data;
+  if (!settingsData) {
+    const defaultSettings: NewCatalogSettings = {
+      user_id: userId,
+      bio: null,
+      show_bio: false,
+      layout_type: 'grid',
+      contacts: null,
+      address: null,
+      about: null
+    };
+    return [{...data[0], catalog_settings: defaultSettings, profile: profileData}];
+  }
+
+  // Get unique IDs
   const morphIds = [...new Set(data?.map(entry => entry.reptiles.morph_id) || [])];
   const speciesIds = [...new Set(data?.map(entry => entry.reptiles.species_id) || [])];
 
-  // Fetch morph names in a single query
-  const { data: morphData } = await supabase
-    .from('morphs')
-    .select('id, name')
-    .in('id', morphIds);
+  // Fetch morph and species data in parallel
+  const [morphResult, speciesResult] = await Promise.all([
+    supabase
+      .from('morphs')
+      .select('id, name')
+      .in('id', morphIds),
+    
+    supabase
+      .from('species')
+      .select('id, name')
+      .in('id', speciesIds)
+  ]);
 
-  // Fetch species names in a single query
-  const { data: speciesData } = await supabase
-  .from('species')
-  .select('id, name')
-  .in('id', speciesIds);
+  const morphData = morphResult.data || [];
+  const speciesData = speciesResult.data || [];
 
-  // Create a map of morph_id to morph_name
-  const morphMap = new Map(morphData?.map(morph => [morph.id, morph.name]) || []);
-  const speciesMap = new Map(speciesData?.map(sp => [sp.id, sp.name]) || []);
+  // Create maps
+  const morphMap = new Map(morphData?.map(morph => [morph.id, morph.name]));
+  const speciesMap = new Map(speciesData?.map(sp => [sp.id, sp.name]));
 
-  // Transform the data to match EnrichedCatalogEntry type
+  // Transform the data
   const enrichedData = data?.map(entry => ({
     ...entry,
     reptiles: {
@@ -88,7 +108,6 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     profile: profileData
   }));
 
-
   return enrichedData || [];
 }
 
@@ -96,6 +115,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
 export async function getCatalogEntriesByProfileName(profileName: string): Promise<EnrichedCatalogEntry[]> {
   const supabase = await createClient()
 
+  // First get the profile data since other queries depend on it
   const { data: profileData, error: profileError } = await supabase
     .from('view_public_profiles')
     .select('id, full_name, logo')
@@ -105,27 +125,32 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
   if (profileError) throw profileError;
   if (!profileData) throw new Error('Profile not found');
 
-  const { data, error } = await supabase
-    .from('catalog_entries')
-    .select(`
-      *,
-      reptiles:view_public_catalog!inner(*),
-      catalog_images(*)
-    `)
-    .eq('user_id', profileData.id)
-    .order('display_order', { ascending: true });
+  // Now we can run the entries and settings queries in parallel
+  const [entriesResult, settingsResult] = await Promise.all([
+    supabase
+      .from('catalog_entries')
+      .select(`
+        *,
+        reptiles:view_public_catalog!inner(*),
+        catalog_images(*)
+      `)
+      .eq('user_id', profileData.id)
+      .order('display_order', { ascending: true }),
+    
+    supabase
+      .from('catalog_settings')
+      .select('*')
+      .eq('user_id', profileData.id)
+      .single()
+  ]);
+
+  if (entriesResult.error) throw entriesResult.error;
+  const data = entriesResult.data;
 
   if (data?.length === 0) return [];
-  if (error) throw error;
 
-  // Fetch catalog settings separately
-  const { data: settingsData, error: settingsError } = await supabase
-    .from('catalog_settings')
-    .select('*')
-    .eq('user_id', profileData.id)
-    .single();
-
-  if (settingsError) throw settingsError;
+  if (settingsResult.error) throw settingsResult.error;
+  const settingsData = settingsResult.data;
 
   // Combine the data with settings
   const enrichedData = data?.map(entry => ({
