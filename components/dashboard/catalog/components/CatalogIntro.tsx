@@ -27,6 +27,7 @@ const formSchema = z.object({
   show_bio: z.boolean(),
   layout_type: z.enum(['grid', 'list']),
   address: z.string().nullable(),
+  logo : z.string().nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -41,7 +42,10 @@ export function CatalogIntro({settings,isLoading,isAdmin} : Props) {
   const { theme } = useTheme()
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
-
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [logoTimestamp, setLogoTimestamp] = useState(Date.now());
+  
   const { data } = useQuery<Profile>({
     queryKey: ['profile2'],
     queryFn: getProfile,
@@ -103,20 +107,103 @@ export function CatalogIntro({settings,isLoading,isAdmin} : Props) {
     setIsEditing(false);
   };
 
+
+
+  const handleLogoUpload = async (file: File) => {
+    setLogoError(null);
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setLogoError('Only JPEG, PNG, and WebP images are allowed.');
+      toast.error('Only JPEG, PNG, and WebP images are allowed.');
+      return;
+    }
+    if (file.size > 300 * 1024) {
+      setLogoError('Logo must be less than 300KB.');
+      toast.error('Logo must be less than 300KB.');
+      return;
+    }
+    setLogoUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/profiles/upload-logo', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data?.imageUrl) {
+        form.setValue('logo', data.imageUrl);
+        setLogoTimestamp(Date.now()); // Update timestamp when logo changes
+        await queryClient.invalidateQueries({ queryKey: ['profile2'] });
+        toast.success('Logo uploaded!');
+      } else {
+        setLogoError(data?.error || 'Failed to upload logo.');
+        toast.error(data?.error || 'Failed to upload logo.');
+      }
+    } catch {
+      setLogoError('Failed to upload logo.');
+      toast.error('Failed to upload logo.');
+    } finally {
+      setLogoUploading(false);
+      const fileInput = document.getElementById('logo-upload') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    }
+  };
+
+  const getLogoUrl = (url: string | null | undefined) => {
+    if (!url) return theme === 'dark' ? '/logo_dark.png' : '/logo_light.png';
+    return `${url}?t=${logoTimestamp}`;
+  };
+
   return (
     <div className={cn("bg-muted/30 border-b  py-6  flex flex-col items-start md:items-center text-center  gap-3 md:gap-4",
       `${isAdmin ? 'px-4' : ' px-4 sm:px-6 lg:px-10 '}`
     )}>
-
       <div className={`flex justify-between items-center w-full`}>
-            <div className="flex gap-1 sm:gap-2 items-center justify-center ">
+        <div className="flex gap-1 sm:gap-2 items-center justify-center ">
+          {isAdmin ? (
+            <div className="relative group">
               <Image 
-                  src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'} 
-                  width={35} 
-                  height={35}   
-                  alt="clutchly" 
-                  className="rounded-full" 
-                />
+                src={getLogoUrl(profile?.logo)} 
+                width={35} 
+                height={35}   
+                alt="profile logo" 
+                className="rounded-full cursor-pointer" 
+                onClick={() => document.getElementById('logo-upload')?.click()}
+              />
+              <div  onClick={() => document.getElementById('logo-upload')?.click()} className="absolute -bottom-2 -right-1 bg-background rounded-full p-1 border shadow-sm transition-opacity cursor-pointer">
+                <Pencil className="h-3 w-3 text-foreground/70" />
+              </div>
+              <input
+                type="file"
+                id="logo-upload"
+                className="hidden"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleLogoUpload(file);
+                }}
+              />
+              {logoUploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-full">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              )}
+              {logoError && (
+                <p className="absolute -bottom-6 left-0 text-xs text-destructive whitespace-nowrap">
+                  {logoError}
+                </p>
+              )}
+            </div>
+          ) : (
+            <Image 
+              src={getLogoUrl(profile?.logo)} 
+              width={35} 
+              height={35}   
+              alt="profile logo" 
+              className="rounded-full" 
+            />
+          )}
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight capitalize">{profile ? profile.full_name : "--"}</h1>
             </div>
             <div className="flex items-center gap-3 sm:gap-4 xl:gap-5">
