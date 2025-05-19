@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CatalogImageUpload } from './CatalogImageUpload';
+import { formatPrice } from '@/lib/utils';
 
 interface CatalogEntryDetailsProps {
   catalogEntry: EnrichedCatalogEntry;
@@ -115,7 +116,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
         <CardContent>
           <div className="space-y-6">
   
-            
+            <h3 className='text-2xl md:text-3xl xl:text-4xl font-bold'>{formatPrice(reptile?.price) || '0.00'}</h3>
             {/* Reptile info */}
             {reptile && (
               <div className="space-y-4">
@@ -124,6 +125,10 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="font-medium">Morph</span>
                     <span>{reptile.morph_name || 'Unknown'}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="font-medium">Code</span>
+                    <span>{reptile.reptile_code || 'Unknown'}</span>
                   </div>
                   
                   <div className="flex justify-between items-center py-2 border-b">

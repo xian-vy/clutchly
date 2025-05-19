@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
-import { cn, extractLastTwoDigitsOfYear } from '@/lib/utils';
+import { cn, extractLastTwoDigitsOfYear, formatPrice } from '@/lib/utils';
 import {
   CircleHelp,
   Mars,
@@ -111,19 +111,22 @@ export function ReptileCard({
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
               {morph}
             </p>
-            <div className="flex items-center gap-1.5">
-              <div>
-                {reptile?.sex === 'male' ? (
-                  <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5 shrink-0" />
-                ) : reptile?.sex === 'female' ? (
-                  <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
-                ) : (
-                  <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-                )}
-              </div>
-              <p className="text-xs md:text-sm text-muted-foreground truncate">
-                {extractLastTwoDigitsOfYear(reptile?.hatch_date || '')}
-              </p>
+            <div className="flex justify-between w-full items-center">
+                <p className='text-sm md:text-base 3xl:text-lg font-semibold'>{formatPrice(reptile?.price)}</p>
+                <div className="flex items-center gap-1">
+                    <div>
+                      {reptile?.sex === 'male' ? (
+                        <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5 shrink-0" />
+                      ) : reptile?.sex === 'female' ? (
+                        <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
+                      ) : (
+                        <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">
+                      {extractLastTwoDigitsOfYear(reptile?.hatch_date || '')}
+                    </p>
+                </div>
             </div>
           </div>
         </CardContent>
@@ -156,7 +159,6 @@ export function ReptileCard({
           <p className="text-xs sm:text-sm text-muted-foreground truncate">{morph}</p>
         </div>
 
-        <p>{reptile?.price}</p>
         
         {isAdmin && (
           <div className="">

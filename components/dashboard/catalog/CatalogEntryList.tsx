@@ -132,7 +132,7 @@ export function CatalogEntryList({
                         )}
                   </div>
                 </div>
-              <div className={cn('grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4')}>
+              <div className={cn('grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 3xl:!grid-cols-6 gap-2 sm:gap-3 lg:gap-4')}>
                 {catalogEntries.map((entry) => (
                   <ReptileCard
                     key={entry.id}
