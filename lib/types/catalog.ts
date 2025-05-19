@@ -1,3 +1,4 @@
+import { MinProfileInfo } from "./profile";
 import { Reptile } from "./reptile";
 
 export interface CatalogEntry {
@@ -39,6 +40,7 @@ export interface EnrichedCatalogEntry extends CatalogEntry {
   };
   catalog_settings: CatalogSettings;
   catalog_images: CatalogImage[];
+  profile : MinProfileInfo
 }
 export type NewCatalogEntry = Omit<CatalogEntry, 'id' | 'created_at' | 'updated_at'>;
 export type NewCatalogImage = Omit<CatalogImage, 'id' | 'created_at'>;

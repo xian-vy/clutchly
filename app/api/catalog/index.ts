@@ -7,7 +7,17 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const supabase = await createClient()
   const currentUser = await supabase.auth.getUser();
   const userId = currentUser.data.user?.id;
-  if (!currentUser) throw new Error('Unauthorized');
+  if (!currentUser || !userId) throw new Error('Unauthorized');
+
+    // Fetch species names in a single query
+    const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .select(' id, full_name, logo')
+    .eq('id', userId)
+    .single()
+  
+    if (profileError) throw profileError;
+    if (!profileData) throw new Error('Profile not found');
 
   const { data, error } = await supabase
     .from('catalog_entries')
@@ -59,7 +69,8 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
       species_name: speciesMap.get(entry.reptiles.species_id) || ''
     },
     catalog_images: entry.catalog_images || [],
-    catalog_settings: settingsData
+    catalog_settings: settingsData,
+    profile: profileData
   }));
 
 
@@ -72,7 +83,7 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
 
   const { data: profileData, error: profileError } = await supabase
     .from('view_public_profiles')
-    .select('id')
+    .select('id, full_name, logo')
     .eq('full_name', profileName)
     .single();
 
@@ -103,7 +114,8 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
   const enrichedData = data?.map(entry => ({
     ...entry,
     catalog_images: entry.catalog_images || [],
-    catalog_settings: settingsData
+    catalog_settings: settingsData,
+    profile: profileData
   }));
 
   return enrichedData || [];

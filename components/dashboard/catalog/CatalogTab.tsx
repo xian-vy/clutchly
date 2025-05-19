@@ -19,7 +19,6 @@ import CatalogActions from './CatalogActions';
 import { CatalogIntro } from './components/CatalogIntro';
 import { Separator } from '@/components/ui/separator';
 import CatalogFooter from './components/CatalogFooter';
-import { getProfile } from '@/app/api/profiles/profiles';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -60,12 +59,6 @@ export function CatalogTab() {
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-
-  const { data: profileData } = useQuery({
-    queryKey: ['profile2'],
-    queryFn: getProfile,
-  });
-  const profile = Array.isArray(profileData) ? profileData[0] : profileData;
 
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
@@ -216,7 +209,12 @@ export function CatalogTab() {
       <Separator />
 
 
-      <CatalogIntro settings={enrichedCatalog[0].catalog_settings} isLoading={isLoading} isAdmin={true} />
+      <CatalogIntro
+       settings={enrichedCatalog[0].catalog_settings} 
+       isLoading={isLoading} 
+       isAdmin={true}
+       profile = {enrichedCatalog[0].profile}
+       />
 
 
 
@@ -308,7 +306,7 @@ export function CatalogTab() {
         currentFilters={filters}
       />
       <CatalogFooter 
-        profileName={profile?.full_name || ''}
+        profile = {enrichedCatalog[0].profile}
         settings={enrichedCatalog[0]?.catalog_settings}
         isAdmin={true}
       />

@@ -19,3 +19,8 @@ export interface ProfileFormData {
   selected_species: string[] | null; // Array of species IDs
   logo: string | null;
 } 
+//for catalog
+export interface MinProfileInfo {
+  full_name: string | null;
+  logo : string | null;
+}

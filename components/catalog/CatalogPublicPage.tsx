@@ -148,7 +148,12 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
               <p className='text-[0.65rem] sm:[0.7rem] lg:text-xs'>Made with <a href={APP_URL} className='font-medium' target='_blank'>Clutchly</a></p>
         </div>
        
-      <CatalogIntro settings={enrichedCatalog[0].catalog_settings} isLoading={isLoading} isAdmin={false} />
+        <CatalogIntro
+          settings={enrichedCatalog[0].catalog_settings} 
+          isLoading={isLoading} 
+          isAdmin={false}
+          profile = {enrichedCatalog[0].profile}
+       />
 
      <div className="container mx-auto xl:px-16 2xl:px-24 3xl:px-0">
           {detailView && reptileForDetail ? (
@@ -189,7 +194,11 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
             currentFilters={filters}
         />
         </div>
-        <CatalogFooter profileName={profileName} settings={catalogSettings} isAdmin={false} />
+        <CatalogFooter      
+          profile = {enrichedCatalog[0].profile}
+          settings={catalogSettings} 
+          isAdmin={false}
+        />
 
     </main>
   );

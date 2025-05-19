@@ -1,16 +1,12 @@
 'use client';
-
-
 import { updateCatalogSettings } from '@/app/api/catalog';
-import { getProfile } from '@/app/api/profiles/profiles';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { CatalogSettings } from '@/lib/types/catalog';
-import { Profile } from '@/lib/types/profile';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {  useQueryClient } from '@tanstack/react-query';
 import { Loader2, Pencil, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -21,6 +17,7 @@ import Image from 'next/image';
 import { CatalogIntroContact } from './CatalogIntroContact';
 import { AboutSettingsDialog } from './CatalogIntroAbout';
 import { cn } from '@/lib/utils';
+import { MinProfileInfo } from '@/lib/types/profile';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -35,8 +32,9 @@ interface Props {
   settings : CatalogSettings;
   isLoading : boolean;
   isAdmin: boolean;
+  profile : MinProfileInfo
 }
-export function CatalogIntro({settings,isLoading,isAdmin} : Props) {
+export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   const { theme } = useTheme()
@@ -46,10 +44,6 @@ export function CatalogIntro({settings,isLoading,isAdmin} : Props) {
   const [logoError, setLogoError] = useState<string | null>(null);
   const [logoTimestamp, setLogoTimestamp] = useState(Date.now());
   
-  const { data } = useQuery<Profile>({
-    queryKey: ['profile2'],
-    queryFn: getProfile,
-  }); 
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -96,7 +90,6 @@ export function CatalogIntro({settings,isLoading,isAdmin} : Props) {
       </Card>
     );
   }
-  const profile = Array.isArray(data) ? data[0] : data;
 
   const handleCancel = () => {
     form.reset({
@@ -134,7 +127,7 @@ export function CatalogIntro({settings,isLoading,isAdmin} : Props) {
       if (data?.imageUrl) {
         form.setValue('logo', data.imageUrl);
         setLogoTimestamp(Date.now()); // Update timestamp when logo changes
-        await queryClient.invalidateQueries({ queryKey: ['profile2'] });
+        await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
         toast.success('Logo uploaded!');
       } else {
         setLogoError(data?.error || 'Failed to upload logo.');
