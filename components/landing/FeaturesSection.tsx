@@ -1,4 +1,4 @@
-import { Database, Dna, Heart, LineChart, Check, Zap, Package, Store, Bug, Network } from 'lucide-react'
+import { Database, Dna, Heart, LineChart, Check, Zap, Package,  Bug, Network, Globe } from 'lucide-react'
 import { FeatureCard } from './FeatureCard'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -69,11 +69,12 @@ export function FeaturesSection() {
       ]
     },
     {
-      icon: Store,
-      title: 'Online Store',
+      icon: Globe,
+      title: 'Free Website',
       features: [
-        'Free URL link to your store',
-        'Minimal setup, share featured reptiles directly from your collection',
+        'Free URL link to your website',
+        'Clean, modern and cuztomizable website. Tailored for social media sharing',
+        'Minimal setup, list reptile to your website directly from your collection',
       ]
     },
     {
