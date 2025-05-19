@@ -3,7 +3,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CatalogEntry, EnrichedCatalogEntry } from '@/lib/types/catalog';
-import {  ReptileWithMorpgAndSpecies } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
 import {
   FilterIcon,
@@ -17,7 +16,6 @@ type ViewMode = 'grid' | 'list';
 
 interface CatalogEntryListProps {
   catalogEntries: EnrichedCatalogEntry[] ;
-  reptiles: ReptileWithMorpgAndSpecies[] | null;
   onEdit?: (entry: CatalogEntry) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
@@ -32,7 +30,6 @@ interface CatalogEntryListProps {
 
 export function CatalogEntryList({
   catalogEntries,
-  reptiles,
   onEdit,
   onDelete,
   onAddNew,
@@ -114,7 +111,7 @@ export function CatalogEntryList({
               <div className="flex items-center justify-between gap-4">
                   <div>
                         <h2 className="text-2xl md:text-3xl  font-bold tracking-tight">All Reptiles</h2>
-                        <p className="text-muted-foreground">{reptiles?.length} reptiles in this collection </p>
+                        <p className="text-muted-foreground">{catalogEntries?.length} reptiles in this collection </p>
                   </div>
                   <div className="flex items-center justify-start">
                       { onFilter && (

@@ -7,7 +7,7 @@ import { CatalogEntry, EnrichedCatalogEntry, NewCatalogEntry } from '@/lib/types
 import { useState,  useMemo } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
-import {  useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { CatalogEntryDetails } from './CatalogEntryDetails';
 import { Button } from '@/components/ui/button';
@@ -242,7 +242,6 @@ export function CatalogTab() {
         <div className="grid">
           <CatalogEntryList
             catalogEntries={filteredEntries}
-            reptiles={reptiles}
             onEdit={(entry) => {
               setSelectedCatalogEntry(entry);
               setIsDialogOpen(true);
@@ -289,6 +288,8 @@ export function CatalogTab() {
                 : await handleCreate(data);
               if (success) {
                 onDialogChange();
+                await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+
               }
             }}
             onCancel={onDialogChange}

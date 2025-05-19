@@ -15,7 +15,6 @@ import { APP_URL } from '@/lib/constants/app';
 import CatalogFooter from '../dashboard/catalog/components/CatalogFooter';
 import { CatalogIntro } from '../dashboard/catalog/components/CatalogIntro';
 import NotSetup from '../dashboard/catalog/components/NotSetup';
-import { ReptileWithMorpgAndSpecies } from '@/lib/types/reptile';
 interface CatalogClientPageProps {
   profileName: string;
 }
@@ -189,7 +188,6 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
             <div className="grid">
               <CatalogEntryList
                 catalogEntries={filteredEntries}
-                reptiles={reptiles as ReptileWithMorpgAndSpecies[]}
                 onViewDetails={(entry) => setDetailView(entry)}
                 isAdmin={false}
                 onFilter={() => setIsFilterDialogOpen(true)}
