@@ -4,12 +4,10 @@ import { createCatalogEntry, deleteCatalogEntry, getCatalogEntries, updateCatalo
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
 import { CatalogEntry, EnrichedCatalogEntry, NewCatalogEntry } from '@/lib/types/catalog';
-import { Reptile } from '@/lib/types/reptile';
 import { useState,  useMemo } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getReptiles } from '@/app/api/reptiles/reptiles';
+import {  useQueryClient } from '@tanstack/react-query';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { CatalogEntryDetails } from './CatalogEntryDetails';
 import { Button } from '@/components/ui/button';
@@ -53,13 +51,9 @@ export function CatalogTab() {
 
   // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
   const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
+  const reptiles = enrichedCatalog?.map((entry) => entry.reptiles);
 
-  // Get reptiles for selection
-  const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  });
-
+ 
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
     if (enrichedCatalog.length === 0) return [];
@@ -127,7 +121,7 @@ export function CatalogTab() {
     });
   }, [enrichedCatalog, filters, reptiles]);
 
-  const isLoading = catalogEntriesLoading || reptilesLoading 
+  const isLoading = catalogEntriesLoading
 
   if (isLoading) {
     return (
