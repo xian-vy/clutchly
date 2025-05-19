@@ -3,11 +3,11 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CatalogEntry, EnrichedCatalogEntry } from '@/lib/types/catalog';
-import { Reptile } from '@/lib/types/reptile';
+import {  ReptileWithMorpgAndSpecies } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
 import {
   FilterIcon,
-  HeartIcon,
+  Globe,
   PlusIcon
 } from 'lucide-react';
 import { ReptileCard } from './components/ReptileCard';
@@ -17,7 +17,7 @@ type ViewMode = 'grid' | 'list';
 
 interface CatalogEntryListProps {
   catalogEntries: EnrichedCatalogEntry[] ;
-  reptiles: Reptile[];
+  reptiles: ReptileWithMorpgAndSpecies[] | null;
   onEdit?: (entry: CatalogEntry) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
@@ -53,9 +53,9 @@ export function CatalogEntryList({
       {catalogEntries.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
           <div className="rounded-full bg-primary/10 p-4 mb-4">
-            <HeartIcon className="h-8 w-8 text-primary" />
+            <Globe className="h-8 w-8 text-primary" />
           </div>
-          <h3 className="text-lg font-semibold">No reptiles in catalog</h3>
+          <h3 className="text-lg font-semibold">Setup your Free Website!</h3>
           <p className="text-sm text-muted-foreground max-w-xs mt-1 mb-4">
             {activeFilterCount > 0 
               ? "No reptiles match your current filters. Try adjusting your filter criteria."
@@ -106,7 +106,7 @@ export function CatalogEntryList({
               <div className="flex items-center justify-between gap-4">
                   <div>
                         <h2 className="text-2xl md:text-3xl  font-bold tracking-tight">All Reptiles</h2>
-                        <p className="text-muted-foreground">{reptiles.length} reptiles in this collection </p>
+                        <p className="text-muted-foreground">{reptiles?.length} reptiles in this collection </p>
                   </div>
                   <div className="flex items-center justify-start">
                       { onFilter && (

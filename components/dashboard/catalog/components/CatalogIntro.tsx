@@ -29,7 +29,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 interface Props {
-  settings : CatalogSettings;
+  settings : CatalogSettings | null;
   isLoading : boolean;
   isAdmin: boolean;
   profile : MinProfileInfo
@@ -209,7 +209,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
           {isAdmin ? (
             !isEditing ? (
               <div className="flex items-start justify-center">
-                <p className="text-start  text-sm md:text-base max-w-3xl">{settings?.bio || 'Add your Bio/Intro here !'}</p>
+                <p className="text-start  text-sm md:text-base max-w-3xl text-muted-foreground italic">{settings?.bio || 'Add your website introduction or bio here !'}</p>
                 <Button
                   variant="ghost"
                   size="icon"

@@ -1,5 +1,5 @@
 import { MinProfileInfo } from "./profile";
-import { Reptile } from "./reptile";
+import {  ReptileWithMorpgAndSpecies } from "./reptile";
 
 export interface CatalogEntry {
   id: string;
@@ -34,11 +34,8 @@ export interface CatalogSettings {
 }
 
 export interface EnrichedCatalogEntry extends CatalogEntry {
-  reptiles: Reptile & {
-    morph_name: string;
-    species_name: string;
-  };
-  catalog_settings: CatalogSettings;
+  reptiles: ReptileWithMorpgAndSpecies | null;
+  catalog_settings: CatalogSettings | null;
   catalog_images: CatalogImage[];
   profile : MinProfileInfo
 }

@@ -28,7 +28,22 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     `)
     .eq('user_id', userId)
     .order('display_order', { ascending: true });
-
+    if (data?.length === 0) {
+      // Return an empty array but with profile and settings data
+      return [{
+        id: '',
+        user_id: userId,
+        reptile_id: '',
+        featured: false,
+        display_order: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        reptiles:null,
+        catalog_images: [],
+        catalog_settings: null,
+        profile: profileData
+      }];
+    }
   if (error) throw error;
 
   // Fetch catalog settings separately
@@ -99,6 +114,8 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
     `)
     .eq('user_id', profileData.id)
     .order('display_order', { ascending: true });
+
+  if (data?.length === 0) return [];
   if (error) throw error;
 
   // Fetch catalog settings separately

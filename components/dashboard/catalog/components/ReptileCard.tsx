@@ -41,7 +41,7 @@ export function ReptileCard({
 }: ReptileCardProps) {
   const imageUrl = entry.catalog_images[0]?.image_url;
   const reptile = entry.reptiles;
-  const morph = entry.reptiles.morph_name;
+  const morph = entry.reptiles?.morph_name;
 
   if (viewMode === 'grid') {
     return (
@@ -59,7 +59,7 @@ export function ReptileCard({
               <div className="relative w-full h-full">
                 <Image
                   src={imageUrl}
-                  alt={reptile.name}
+                  alt={reptile?.name || 'Reptile'}
                   fill
                   className="object-cover transition-transform group-hover:scale-115 duration-300"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -105,22 +105,22 @@ export function ReptileCard({
 
         <CardContent className="p-4">
           <div className="space-y-1">
-            <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">{reptile.name}</h3>       
+            <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">{reptile?.name}</h3>       
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
               {morph}
             </p>
             <div className="flex items-center gap-1.5">
               <div>
-                {reptile.sex === 'male' ? (
+                {reptile?.sex === 'male' ? (
                   <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5 shrink-0" />
-                ) : reptile.sex === 'female' ? (
+                ) : reptile?.sex === 'female' ? (
                   <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
                 ) : (
                   <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
                 )}
               </div>
               <p className="text-xs md:text-sm text-muted-foreground truncate">
-                {extractLastTwoDigitsOfYear(reptile.hatch_date)}
+                {extractLastTwoDigitsOfYear(reptile?.hatch_date || '')}
               </p>
             </div>
           </div>
@@ -136,7 +136,7 @@ export function ReptileCard({
           {imageUrl ? (
             <Image
               src={imageUrl}
-              alt={reptile.name}
+              alt={reptile?.name || 'Reptile'}
               fill
               className="object-cover"
             />
@@ -149,7 +149,7 @@ export function ReptileCard({
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium ">{reptile.name}</h3>
+            <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium ">{reptile?.name}</h3>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground truncate">{morph}</p>
         </div>

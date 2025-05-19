@@ -109,7 +109,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
             <h2 className="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold">
                {reptileName}
             </h2>
-             <span className='text-muted-foreground'>{reptile.species_name || 'Unknown'}</span> 
+             <span className='text-muted-foreground'>{reptile?.species_name || 'Unknown'}</span> 
             </CardTitle>
         </CardHeader>
         <CardContent>

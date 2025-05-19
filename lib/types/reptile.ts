@@ -37,7 +37,10 @@ export interface Reptile {
   location_id?: string | null
   original_breeder : string | null //produced_by
 }
-
+export type ReptileWithMorpgAndSpecies = Reptile & {
+  morph_name: string;
+  species_name: string;
+}
 export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'user_id' | 'last_modified'>
 
 //for breeding

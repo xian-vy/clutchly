@@ -17,6 +17,7 @@ import CatalogActions from './CatalogActions';
 import { CatalogIntro } from './components/CatalogIntro';
 import { Separator } from '@/components/ui/separator';
 import CatalogFooter from './components/CatalogFooter';
+import { ReptileWithMorpgAndSpecies } from '@/lib/types/reptile';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -51,15 +52,20 @@ export function CatalogTab() {
 
   // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
   const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
-  const reptiles = enrichedCatalog?.map((entry) => entry.reptiles);
+  const reptiles = useMemo(() => 
+    enrichedCatalog
+      .map((entry) => entry.reptiles)
+      .filter((reptile): reptile is ReptileWithMorpgAndSpecies => reptile !== null)
+  , [enrichedCatalog]);
+  const catalog_settings = enrichedCatalog[0]?.catalog_settings  || null
+  const profile = enrichedCatalog[0]?.profile  || null
 
- 
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
     if (enrichedCatalog.length === 0) return [];
 
     return enrichedCatalog.filter(entry => {
-      const reptile = reptiles.find(r => r.id === entry.reptile_id);
+      const reptile = reptiles.find(r => r?.id === entry.reptile_id);
       if (!reptile) return false;
 
       // Filter by species
@@ -101,8 +107,8 @@ export function CatalogTab() {
       return true;
     }).sort((a, b) => {
       // Apply sorting
-      const reptileA = reptiles.find(r => r.id === a.reptile_id);
-      const reptileB = reptiles.find(r => r.id === b.reptile_id);
+      const reptileA = reptiles.find(r => r?.id === a.reptile_id);
+      const reptileB = reptiles.find(r => r?.id === b.reptile_id);
       
       if (!reptileA || !reptileB) return 0;
 
@@ -141,7 +147,7 @@ export function CatalogTab() {
 
   // Filter out reptiles that are already in the catalog
   const availableReptiles = reptiles.filter(reptile => 
-    !catalogEntries.some(entry => entry.reptile_id === reptile.id)
+    !catalogEntries.some(entry => entry.reptile_id === reptile?.id)
   );
 
   const handleEntryDelete = async (id: string) => {
@@ -156,7 +162,7 @@ export function CatalogTab() {
   };
 
   // Function to find reptile by ID
-  const findReptile = (reptileId: string) => reptiles.find((r) => r.id === reptileId);
+  const findReptile = (reptileId: string) => reptiles.find((r) => r?.id === reptileId);
   
   // Find the reptile for detail view
   const reptileForDetail = detailView ? findReptile(detailView.reptile_id) : null;
@@ -204,12 +210,11 @@ export function CatalogTab() {
 
 
       <CatalogIntro
-       settings={enrichedCatalog[0].catalog_settings} 
+       settings={catalog_settings} 
        isLoading={isLoading} 
        isAdmin={true}
-       profile = {enrichedCatalog[0].profile}
+       profile = {profile}
        />
-
 
 
       {detailView && reptileForDetail ? (
@@ -300,8 +305,8 @@ export function CatalogTab() {
         currentFilters={filters}
       />
       <CatalogFooter 
-        profile = {enrichedCatalog[0].profile}
-        settings={enrichedCatalog[0]?.catalog_settings}
+        profile = {profile}
+        settings={catalog_settings}
         isAdmin={true}
       />
     </div>
