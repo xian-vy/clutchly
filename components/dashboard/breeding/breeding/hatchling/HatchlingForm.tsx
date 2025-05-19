@@ -210,6 +210,7 @@ export function HatchlingForm({
           het_traits: hetTraits,
           notes: values.notes || '',
           visual_traits: visualTraits,
+          price :  0,
         };
         await onSubmit(hatchlingData);
       });

@@ -136,7 +136,8 @@ export const generateMockReptiles = (): Reptile[] => {
     parent_clutch_id: null,
     location_id: null,
     original_breeder: 'Premium Breeders Inc.',
-    project_ids: [] as string[]
+    project_ids: [] as string[],
+    price : 0
   };
 
   // Create the reptiles with proper lineage connections and realistic morphs
