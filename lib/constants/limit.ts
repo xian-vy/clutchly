@@ -1,0 +1,2 @@
+export const MAX_PROFILE_NAME_LENGTH = 20;
+export const MAX_PROFILE_COLLECTION_SIZE = 999999;
