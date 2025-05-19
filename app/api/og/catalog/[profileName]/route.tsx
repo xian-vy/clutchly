@@ -1,30 +1,10 @@
-import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
+import { getOpenGraphImages } from '@/app/api/catalog';
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
-// Define the enriched type for the API response
-type EnrichedCatalogEntry = {
-  id: string;
-  user_id: string;
-  reptile_id: string;
-  featured: boolean;
-  display_order: number;
-  created_at: string;
-  updated_at: string;
-  reptiles: {
-    id: string;
-    name: string;
-    species_id: string;
-    morph_id: string;
-  };
-  catalog_images: Array<{
-    id: string;
-    image_url: string;
-  }>;
-};
-type Params = Promise<{ profileName: string}>;
+type Params = Promise<{ profileName: string }>;
 
 export async function GET(
   request: NextRequest,
@@ -33,15 +13,11 @@ export async function GET(
   try {
     const { profileName } = await params;
     
-    // Get catalog entries for the user
-    const catalogEntries = await getCatalogEntriesByProfileName(profileName) as EnrichedCatalogEntry[];
-    
-    // Filter for featured entries, or use all entries if none are featured
-    const featuredEntries = catalogEntries.filter(entry => entry.featured);
-    const entriesToShow = featuredEntries.length > 0 ? featuredEntries : catalogEntries;
+    // Get simplified OG data
+    const ogData = await getOpenGraphImages(profileName);
     
     // Limit to 6 entries max
-    const limitedEntries = entriesToShow.slice(0, 6);
+    const limitedEntries = ogData.slice(0, 3);
     
     return new ImageResponse(
       (
@@ -55,112 +31,118 @@ export async function GET(
             height: '100%',
             backgroundColor: 'white',
             padding: '40px 50px',
-            fontFamily: 'sans-serif',
           }}
         >
           <div
             style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               marginBottom: '20px',
+              width: '100%',
             }}
           >
-            <div
+            <h1
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
+                fontSize: '36px',
+                fontWeight: 'bold',
+                margin: '0 0 10px 0',
+                color: '#111',
                 textAlign: 'center',
               }}
             >
-              <h1
-                style={{
-                  fontSize: '48px',
-                  fontWeight: 'bold',
-                  margin: '0 0 10px 0',
-                  color: '#0f172a',
-                }}
-              >
-                {profileName}&apos;s Reptile Collection
-              </h1>
-              <p
-                style={{
-                  fontSize: '20px',
-                  color: '#64748b',
-                  margin: '0 0 30px 0',
-                }}
-              >
-                A curated catalog of {limitedEntries.length} reptiles
-              </p>
-            </div>
+              {profileName}&apos;s Collection
+            </h1>
+            <p
+              style={{
+                fontSize: '16px',
+                color: '#666',
+                margin: '0 0 30px 0',
+                textAlign: 'center',
+              }}
+            >
+              {limitedEntries.length} Featured Reptiles
+            </p>
           </div>
 
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '20px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '30px',
               width: '100%',
+              justifyContent: 'center',
+              alignItems: 'flex-start',
             }}
           >
-            {limitedEntries.map((entry, index) => {
-              const reptile = entry.reptiles;
-              const imageUrl = entry.catalog_images?.[0]?.image_url;
-              
-              return (
-                <div
-                  key={index}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflow: 'hidden',
-                    borderRadius: '10px',
-                    border: '1px solid #e2e8f0',
-                    backgroundColor: '#f8fafc',
-                  }}
-                >
-                  {imageUrl ? (
+            {limitedEntries.map((entry, index) => (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '300px',
+                  overflow: 'hidden',
+                  borderRadius: '10px',
+                  border: '1px solid #e2e8f0',
+                  backgroundColor: '#f8fafc',
+                }}
+              >
+                {entry.image_url ? (
+                  <div style={{ display: 'flex', width: '100%' }}>
                     <img
-                      src={imageUrl}
-                      alt={reptile.name}
-                      width="100%"
-                      height="150px"
+                      src={entry.image_url}
+                      alt={entry.reptile}
+                      width="300"
+                      height="150"
                       style={{
                         objectFit: 'cover',
+                        width: '100%',
                       }}
                     />
-                  ) : (
-                    <div
-                      style={{
-                        height: '150px',
-                        backgroundColor: '#e2e8f0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#64748b',
-                      }}
-                    >
-                      No Image
-                    </div>
-                  )}
-                  <div style={{ padding: '10px' }}>
-                    <h2
-                      style={{
-                        fontSize: '20px',
-                        fontWeight: 'bold',
-                        margin: '0 0 5px 0',
-                        color: '#0f172a',
-                      }}
-                    >
-                      {reptile.name}
-                    </h2>
-                    <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>
-                      {reptile.morph_id}
-                    </p>
                   </div>
+                ) : (
+                  <div
+                    style={{
+                      display: 'flex',
+                      height: '150px',
+                      backgroundColor: '#e2e8f0',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#64748b',
+                      width: '100%',
+                    }}
+                  >
+                    No Image
+                  </div>
+                )}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  padding: '20px',
+                  width: '100%',
+                }}>
+                  <h2
+                    style={{
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      margin: '0 0 5px 0',
+                      color: '#111',
+                    }}
+                  >
+                    {entry.reptile}
+                  </h2>
+                  <p style={{ fontSize: '14px', color: '#666', margin: 0 }}>
+                    {entry.morph_name}
+                  </p>
+                  {entry.price && (
+                    <p style={{ fontSize: '16px', color: '#0f172a', margin: '5px 0 0 0' }}>
+                      {entry.price}
+                    </p>
+                  )}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
 
           <div
@@ -169,15 +151,17 @@ export async function GET(
               alignItems: 'center',
               justifyContent: 'center',
               marginTop: '30px',
+              width: '100%',
             }}
           >
             <p
               style={{
-                fontSize: '16px',
-                color: '#64748b',
+                fontSize: '18px',
+                color: '#111',
+                textAlign: 'center',
               }}
             >
-              Visit https://clutcly.vercel.app/catalog/{profileName} to see more
+              Visit <span style={{ borderBottom: "2px solid #666", paddingBottom: "1px" ,marginLeft:"10px",marginRight:"10px"}}>clutchly.vercel.app/catalog/{profileName}</span> to see more
             </p>
           </div>
         </div>
