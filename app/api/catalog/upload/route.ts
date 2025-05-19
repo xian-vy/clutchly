@@ -52,40 +52,69 @@ export async function POST(request: NextRequest) {
     }
 
     // Read the file as buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const buffer = Buffer.from(await file.arrayBuffer()) as Buffer;
+    const MAX_DIMENSION = 1200;
+    const OPTIMIZED_MAX_SIZE = 500 * 1024; // 500KB for PNG
 
-    // Optimize image with sharp
-    const optimizedImageBuffer = await sharp(buffer)
-      .resize(1600, null, { fit: 'inside', withoutEnlargement: true }) // Resize to max width of 1600px
-      .webp({ quality: 80 }) // Convert to WebP with 80% quality
-      .toBuffer();
+    // Get original image metadata
+    const metadata = await sharp(buffer).metadata();
+    const needsResize = (metadata.width || 0) > MAX_DIMENSION || (metadata.height || 0) > MAX_DIMENSION;
+    const needsOptimization = buffer.byteLength > OPTIMIZED_MAX_SIZE;
 
-    // Check if optimized image is within the size limit (200KB)
-    const OPTIMIZED_MAX_SIZE = 200 * 1024; // 200KB
-    if (optimizedImageBuffer.byteLength > OPTIMIZED_MAX_SIZE) {
-      // Try again with lower quality
-      const furtherOptimizedImageBuffer = await sharp(buffer)
-        .resize(1200, null, { fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 60 })
-        .toBuffer();
+    let optimizedImageBuffer: Buffer = buffer;
+    
+    // Only optimize if needed
+    if (needsResize || needsOptimization) {
+      const sharpInstance = sharp(buffer);
+      
+      if (needsResize) {
+        sharpInstance.resize(MAX_DIMENSION, null, { 
+          fit: 'inside', 
+          withoutEnlargement: true 
+        });
+      }
 
-      if (furtherOptimizedImageBuffer.byteLength > OPTIMIZED_MAX_SIZE) {
-        return NextResponse.json(
-          { error: 'Unable to optimize image to required size (200KB)' },
-          { status: 400 }
-        );
+      // Only apply PNG optimization if the original size is too large
+      if (needsOptimization) {
+        sharpInstance.png({ 
+          quality: 80,
+          compressionLevel: 9,
+          effort: 10 // Maximum compression effort
+        });
+      }
+
+      optimizedImageBuffer = await sharpInstance.toBuffer();
+
+      // If still too large, try more aggressive optimization
+      if (optimizedImageBuffer.byteLength > OPTIMIZED_MAX_SIZE) {
+        optimizedImageBuffer = await sharp(buffer)
+          .resize(MAX_DIMENSION, null, { fit: 'inside', withoutEnlargement: true })
+          .png({ 
+            quality: 60,
+            compressionLevel: 9,
+            effort: 10,
+            palette: true // En80le palette mode for better compression
+          })
+          .toBuffer();
+
+        if (optimizedImageBuffer.byteLength > OPTIMIZED_MAX_SIZE) {
+          return NextResponse.json(
+            { error: 'Unable to optimize image to required size (500KB)' },
+            { status: 400 }
+          );
+        }
       }
     }
 
     // Generate a unique filename
     const timestamp = Date.now();
-    const filename = `${user.id}/${catalogEntryId}/${timestamp}.webp`;
+    const filename = `${user.id}/${catalogEntryId}/${timestamp}.png`;
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
       .from('catalog-images')
       .upload(filename, optimizedImageBuffer, {
-        contentType: 'image/webp',
+        contentType: 'image/png',
         cacheControl: '3600',
       });
 
