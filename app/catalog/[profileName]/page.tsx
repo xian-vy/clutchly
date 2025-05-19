@@ -15,8 +15,9 @@ export async function generateMetadata(
 
   const ogUrl = new URL(`/api/og/catalog/${profileName}`, APP_URL);
 
+
   return {
-    title: `${profileName}'s Reptile Collection | HerpTrack`,
+    title: `${profileName}'s Collection | Clutchly`,
     description: `A curated catalog of ${profileName}'s reptiles. Browse morphs, species, and photos.`,
     openGraph: {
       title: `Check out ${profileName}'s Reptile Collection`,

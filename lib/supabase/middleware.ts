@@ -47,12 +47,13 @@ export async function updateSession(request: NextRequest) {
 
   // If user is not authenticated and trying to access protected routes,
   // redirect to landing page
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    request.nextUrl.pathname !== '/' && 
-    !request.nextUrl.pathname.startsWith('/catalog/') // Allow access to landing page and catalog
-  ) {
+  const isPublicRoute = 
+  request.nextUrl.pathname === '/' ||
+  request.nextUrl.pathname.startsWith('/auth') ||
+  request.nextUrl.pathname.startsWith('/catalog/') ||
+  request.nextUrl.pathname.startsWith('/api/og');
+  if (!user && !isPublicRoute)
+  {
     // no user, redirect to landing page for protected routes
     const url = request.nextUrl.clone()
     url.pathname = '/'

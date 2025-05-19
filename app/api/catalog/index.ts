@@ -1,6 +1,7 @@
 'use server'
 import { CatalogEntry, CatalogImage, CatalogSettings, EnrichedCatalogEntry, NewCatalogEntry, NewCatalogImage, NewCatalogSettings } from '@/lib/types/catalog';
 import { createClient } from '@/lib/supabase/server'
+import { OGTYPE } from '@/lib/types/og';
 
 // Get all catalog entries for the current user
 export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
@@ -163,6 +164,30 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
   return enrichedData || [];
 }
 
+export async function getOpenGraphImages (profileName: string): Promise<OGTYPE[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('view_open_graph')
+   .select(`image_url,reptile,price,morph_name `)
+   .eq('profile', profileName)
+
+  if (error) throw error;
+  if (!data) return [];
+
+  return data as OGTYPE[];
+}
+export async function getOpenGraphByEntryId(entryId: string): Promise<OGTYPE> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('view_open_graph')
+   .select(`image_url,reptile,price,morph_name `)
+   .eq('entry_id', entryId)
+   .single();
+
+  if (error) throw error;
+  if (!data) return {} as OGTYPE;
+  return data as OGTYPE;
+}
 // Create a new catalog entry
 export async function createCatalogEntry(entry: NewCatalogEntry): Promise<CatalogEntry> {
   const supabase = await createClient()
