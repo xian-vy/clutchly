@@ -14,6 +14,7 @@ import { APP_URL } from '@/lib/constants/app';
 
 import CatalogFooter from '../dashboard/catalog/components/CatalogFooter';
 import { CatalogIntro } from '../dashboard/catalog/components/CatalogIntro';
+import NotSetup from '../dashboard/catalog/components/NotSetup';
 interface CatalogClientPageProps {
   profileName: string;
 }
@@ -39,10 +40,11 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
 
   const enrichedCatalog  = useMemo(() => data as EnrichedCatalogEntry[], [data]) 
   const reptiles = enrichedCatalog?.map((entry) => entry.reptiles);
-  const findReptile = (reptileId: string) => reptiles.find((r) => r.id === reptileId);
-  const catalogSettings = isLoading ? null : enrichedCatalog[0].catalog_settings
+  const findReptile = (reptileId: string) => reptiles?.find((r) => r.id === reptileId);
+  const catalogSettings = isLoading ? null : enrichedCatalog?.[0]?.catalog_settings || null;
   const reptileForDetail = detailView ? findReptile(detailView.reptile_id) : null;
-
+  const profile = enrichedCatalog?.[0]?.profile || null;
+  
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
     if (!enrichedCatalog) return [];
@@ -142,6 +144,10 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
       </div>
     );
   }
+
+  if (!enrichedCatalog || enrichedCatalog.length === 0) {
+    return <NotSetup isAdmin={false}/>;
+  }
   return (
     <main className="min-h-screen bg-background ">
         <div className="flex flex-col justify-center items-center bg-primary w-full text-white dark:text-black min-h-[30px] px-2">
@@ -149,10 +155,10 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
         </div>
        
         <CatalogIntro
-          settings={enrichedCatalog[0].catalog_settings} 
+          settings={catalogSettings} 
           isLoading={isLoading} 
           isAdmin={false}
-          profile = {enrichedCatalog[0].profile}
+          profile = {profile}
        />
 
      <div className="container mx-auto xl:px-16 2xl:px-24 3xl:px-0">
@@ -195,7 +201,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
         />
         </div>
         <CatalogFooter      
-          profile = {enrichedCatalog[0].profile}
+          profile = {profile}
           settings={catalogSettings} 
           isAdmin={false}
         />
