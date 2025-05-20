@@ -15,6 +15,7 @@ import { ImportReptileDialog } from "./ImportReptileDialog";
 import { ReptileDetailsDialog } from "./ReptileDetailsDialog";
 import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/details/pdfGenerator";
 import { getReptileDetails } from "@/app/api/reptiles/reptileDetails";
+import { formatChartAmount } from "@/lib/utils";
 
 export interface EnrichedReptile extends Reptile {
   species_name: string;
@@ -147,7 +148,13 @@ export function ReptileList({
           return false;
         }
       }
-      
+      // Price range filter
+      if (filters.priceRange) {
+        const [min, max] = filters.priceRange;
+        const price = reptile.price;
+        if (price === null || price < min || price > max) return false;
+      }
+   
       return true;
     });
   }, [reptiles, filters]);
@@ -166,6 +173,8 @@ export function ReptileList({
     if (filters.hatchDateRange) count++;
     if (filters.visualTraits?.length) count++;
     if (filters.hetTraits?.length) count++;
+    if (filters.priceRange) count++;
+
     return count;
   }, [filters]);
 
@@ -183,6 +192,16 @@ export function ReptileList({
     {
       accessorKey: "name",
       header: "Name",
+    },
+    {
+      accessorKey: "price",
+      header: "Price",
+      cell: ({ row }) => {
+        const price = row.getValue("price") as number;
+        return (
+          <p>{formatChartAmount(price || 0)}</p>
+        );
+      },
     },
     {
       accessorKey: "species_name",
