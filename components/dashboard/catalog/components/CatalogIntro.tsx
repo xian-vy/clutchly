@@ -18,6 +18,8 @@ import { CatalogIntroContact } from './CatalogIntroContact';
 import { AboutSettingsDialog } from './CatalogIntroAbout';
 import { cn } from '@/lib/utils';
 import { MinProfileInfo } from '@/lib/types/profile';
+import ShareURLDialog from './ShareURLDialog';
+import { APP_NAME } from '@/lib/constants/app';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -42,7 +44,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoError, setLogoError] = useState<string | null>(null);
   const [logoTimestamp, setLogoTimestamp] = useState(Date.now());
-  
+  const [openShareDialog, setOpenShareDialog] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -198,9 +200,10 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
           )}
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight capitalize">{profile ? profile.full_name : "--"}</h1>
             </div>
-            <div className="flex items-center gap-3 sm:gap-4 xl:gap-5">
-                    <span onClick={() => setIsAboutDialogOpen(true)} className='text-sm cursor-pointer font-medium'>About</span>
-                    <span onClick={() => setIsContactDialogOpen(true)} className='text-sm cursor-pointer font-medium'>Contact</span>
+            <div className="flex items-center gap-4 sm:gap-5">
+                    <span onClick={() => setIsAboutDialogOpen(true)} className='text-[0.8rem] md:text-sm cursor-pointer '>About</span>
+                    <span onClick={() => setIsContactDialogOpen(true)} className='text-[0.8rem] md:text-sm cursor-pointer '>Contact</span>
+                    <span onClick={() => setOpenShareDialog(true)} className='text-[0.8rem] md:text-sm cursor-pointer '>Share</span>
             </div>
         </div>
       <Card className='p-0 border-0 w-full  '>
@@ -288,8 +291,14 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
       onOpenChange={setIsAboutDialogOpen}
       settings={settings}
       isAdmin={isAdmin}
-
     />
+
+    <ShareURLDialog 
+      profileName={profile.full_name || APP_NAME} 
+      open={openShareDialog} 
+      onClose={() => setOpenShareDialog(false)} 
+      />
+
     </div>
   );
 }

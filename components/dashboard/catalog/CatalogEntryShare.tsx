@@ -1,14 +1,17 @@
 import { getProfile } from '@/app/api/profiles/profiles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { APP_URL } from '@/lib/constants/app';
+import { APP_NAME, APP_URL } from '@/lib/constants/app';
 import { Profile } from '@/lib/types/profile';
 import { useQuery } from '@tanstack/react-query';
 import { Copy, Share2Icon } from 'lucide-react';
-import React from 'react'
+import React, { useState } from 'react'
 import { toast } from 'sonner';
+import ShareURLDialog from './components/ShareURLDialog';
 
 const CatalogEntryShare = () => {
+  const [openShareDialog, setOpenShareDialog] = useState(false);
+
     const { data: profile } = useQuery<Profile>({
         queryKey: ['profile2'],
         queryFn: getProfile
@@ -37,9 +40,12 @@ const CatalogEntryShare = () => {
                   type="button"
                   variant="outline"
                   size="icon"
+                  onClick={() => setOpenShareDialog(true)}
                 >
                   <Share2Icon className=" h-4 w-4" />
                 </Button>
+                            
+              <ShareURLDialog profileName={userProfile?.full_name || APP_NAME} open={openShareDialog} onClose={() => setOpenShareDialog(false)} />
         </div>
         
   )
