@@ -143,7 +143,7 @@ return (
       isAdmin={isAdmin}
     />
       <ShareURLDialog 
-        profileName={profile.full_name || APP_NAME} 
+        profileName={profile?.full_name || APP_NAME} 
         open={openShareDialog} 
         onClose={() => setOpenShareDialog(false)} 
       />
