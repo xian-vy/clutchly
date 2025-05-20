@@ -33,6 +33,7 @@ export async function generateMetadata(
       description: `A curated catalog of ${profile_name}'s reptiles. Browse morphs, species, and photos.`,
       images: [{
         url: logo,
+        alt: `${profile_name}'s Collection`,
       }],
       type: 'website',
       url: `${APP_URL}/catalog/${profile_name}`,

@@ -1,0 +1,14 @@
+# Allow all crawlers
+User-agent: *
+
+# Allow access to most pages
+Allow: /
+Allow: /catalog/
+
+# Disallow private/sensitive routes
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://clutchly.vercel.app/sitemap.xml

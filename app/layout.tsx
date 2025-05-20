@@ -28,11 +28,9 @@ export const metadata: Metadata = {
     siteName: APP_NAME,
     images: [
       {
-        url: "/og.png", 
-        width: 745,
-        height: 881,
-        alt: SITE_TITLE,
-      },
+        url: "/og.png",
+        alt: APP_NAME,
+      }
     ],
     locale: "en_US",
     type: "website",
@@ -41,19 +39,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_TITLE,
     description: APP_DESCRIPTION,
-    images: ["/og.png"], 
+    images: [`${APP_URL}/og.png`], 
     creator: "@clutchly", 
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
   other: {
     'google-site-verification': 'vVikk-GsXog3O1npUfmjcRoob951D1XWIJ4gOLsBjOQ',
