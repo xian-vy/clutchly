@@ -11,9 +11,9 @@ const BreedingProjecParentsInfo = ({reptileMap,project} : Props) => {
   return (
     <div className=" flex justify-center items-start p-5 gap-3 sm:gap-5 md:gap-8 xl:gap-10 2xl:gap-16 border rounded-md my-5">
         <div className='min-w-[40%] lg:min-w-[30%] flex flex-col items-center gap-1'>
-            <p className='text-sm xl:text-base text-center  flex items-center gap-1 font-semibold'>
+            <p className='text-sm xl:text-base text-center  flex items-center gap-1 font-semibold !leading-[1.1]'>
                 {reptileMap.get(project.male_id)?.name || 'Unknown'}
-                <Mars className="h-3 w-3 text-blue-400"/>
+                <Mars className="h-3 w-3 text-blue-400 shrink-0"/>
             </p>
             <span className='text-[0.7rem] sm:text-xs text-muted-foreground'>{reptileMap.get(project.male_id)?.reptile_code || '--'}</span>
             <Badge variant="default">{reptileMap.get(project.male_id)?.morphName} </Badge>
@@ -40,9 +40,9 @@ const BreedingProjecParentsInfo = ({reptileMap,project} : Props) => {
             <X strokeWidth={1} className='text-muted-foreground h-4 w-4 sm:w-5 sm:h-5'/>
         </div>              
         <div  className='min-w-[40%] lg:min-w-[30%] flex flex-col items-center  gap-1'>
-            <p className='text-sm xl:text-base flex items-center gap-1 font-semibold'>
+            <p className='text-sm xl:text-base flex items-center gap-1 font-semibold !leading-[1.1]'>
                 {reptileMap.get(project.female_id)?.name || 'Unknown'}
-                <Venus className="h-3 w-3 text-red-500"/>
+                <Venus className="h-3 w-3 text-red-500 shrink-0"/>
             </p>
             <span className='text-[0.7rem] sm:text-xs text-muted-foreground'>{reptileMap.get(project.female_id)?.reptile_code || '--'}</span>
             <Badge variant="default">{reptileMap.get(project.female_id)?.morphName} </Badge>
