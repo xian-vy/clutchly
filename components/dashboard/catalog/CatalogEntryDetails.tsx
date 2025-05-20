@@ -145,27 +145,28 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
                     <span className='capitalize'>{reptile.sex || 'Unknown'}</span>
                   </div>
                   
-                  {reptile.hatch_date && (
                     <div className="flex justify-between items-center py-2 border-b">
                       <span className="font-medium">Hatch Date</span>
-                      <span>{new Date(reptile.hatch_date).toLocaleDateString()}</span>
+                      <span>{reptile.hatch_date ? new Date(reptile.hatch_date).toLocaleDateString() : "--"}</span>
                     </div>
-                  )}
                   
-                  {reptile.weight && (
                     <div className="flex justify-between items-center py-2 border-b">
                       <span className="font-medium">Weight</span>
                       <span>{reptile.weight} g</span>
                     </div>
-                  )}
                   
-                  {reptile.length && (
                     <div className="flex justify-between items-center py-2 border-b">
                       <span className="font-medium">Length</span>
                       <span>{reptile.length} cm</span>
                     </div>
-                  )}
-
+                    <div className="flex justify-between items-center py-2 border-b">
+                      <span className="font-medium">Produced By</span>
+                      <span>{reptile.original_breeder}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b">
+                      <span className="font-medium">Breeder</span>
+                      <span>{reptile.project_ids?.length || 0  > 0 ? 'Yes' : 'No'}</span>
+                    </div>
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="font-medium">Traits</span>
                     <div className="flex flex-wrap gap-2 lg:gap-3 items-center">
