@@ -32,6 +32,7 @@ export function HelpDialog() {
             <AccordionContent>
               <ol className="list-decimal pl-5 space-y-2">
                 <li>Create your first reptile profile to start</li>
+                <li>Manage your free Website</li>
                 <li>You can  import existing data in <strong>Reptiles</strong> page</li>
                 <li> When importing, <strong>morphs</strong>, <strong>species</strong> and <strong>relationships</strong> will be created as well</li>
                 <li>Set up housing arrangements (rooms, racks)</li>
@@ -40,6 +41,19 @@ export function HelpDialog() {
                 <li>Monitor reptile health and growth</li>
                 <li>Manage breeding pairs and lineages</li>
               </ol>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="website-management">
+            <AccordionTrigger>Website Management</AccordionTrigger>
+            <AccordionContent>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>Add introduction/bio, address and contact details</li>
+                <li>List your featured reptiles</li>
+                <li>Upload up to 3 images for each reptile</li>
+                <li>List up to 30 reptiles</li>
+                <li>Share your website link</li>
+              </ul>
             </AccordionContent>
           </AccordionItem>
 
