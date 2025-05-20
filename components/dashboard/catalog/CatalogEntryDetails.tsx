@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { CatalogImageUpload } from './CatalogImageUpload';
 import { formatPrice } from '@/lib/utils';
+import { Copy } from 'lucide-react';
 
 interface CatalogEntryDetailsProps {
   catalogEntry: EnrichedCatalogEntry;
@@ -128,7 +129,15 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
                   </div>
                   <div className="flex justify-between items-center py-2 border-b">
                     <span className="font-medium">Code</span>
-                    <span>{reptile.reptile_code || 'Unknown'}</span>
+                    <div className="flex items-center gap-2">
+                      <span>{reptile.reptile_code || 'Unknown'}</span>
+                        <Copy
+                        onClick={() => {
+                          navigator.clipboard.writeText(reptile.reptile_code || 'Unknown Code');
+                          toast.success('Reptile code copied to clipboard');
+                        }}
+                        className=" h-4 w-4 cursor-pointer" />
+                    </div>
                   </div>
                   
                   <div className="flex justify-between items-center py-2 border-b">
