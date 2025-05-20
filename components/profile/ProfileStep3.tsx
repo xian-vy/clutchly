@@ -83,7 +83,7 @@ export function ProfileStep3({ form, onPrev, isSubmitting }: ProfileStep3Props) 
                 filteredSpecies.map((species) => (
                   <Badge
                     key={species.id}
-                    variant={selectedSpecies.includes(species.id.toString()) ? "default" : "outline"}
+                    variant={selectedSpecies.includes(species.id.toString()) ? "default" : "secondary"}
                     className={cn(
                       "cursor-pointer py-1.5 px-3 transition-all",
                       selectedSpecies.includes(species.id.toString()) 
