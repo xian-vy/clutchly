@@ -188,7 +188,7 @@ export function CatalogImageUpload({
       )}
 
       {/* Grid of images - including existing and empty slots */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Existing Images */}
         {existingImages.map((image) => (
           <Card key={image.id} className="overflow-hidden group relative h-[220px] py-0">

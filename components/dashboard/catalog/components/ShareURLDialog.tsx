@@ -46,8 +46,8 @@ const ShareURLDialog = ({profileName, open, onClose} : Props) => {
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="p-5 sm:p-6 sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle className="text-lg md:text-xl font-semibold text-start">
-                        Share Your Website
+                    <DialogTitle className="text-lg md:text-xl font-semibold text-start capitalize">
+                        Share {profileName}
                     </DialogTitle>
                     <DialogDescription className="text-start">
                         Share your website with friends and followers on your favorite platforms

@@ -19,11 +19,11 @@ const CatalogEntryShare = () => {
       const userProfile = Array.isArray(profile) ? profile[0] : profile;
     
   return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full">
                 <Input
                   readOnly
                   value={`clutchly.vercel.app/catalog/${userProfile?.full_name || 'your-profile'}`}
-                  className="bg-muted w-full sm:w-[300px]"
+                  className="bg-muted w-full sm:w-[300px] h-8"
                 />
                 <Button
                   type="button"
@@ -33,6 +33,7 @@ const CatalogEntryShare = () => {
                     navigator.clipboard.writeText(`${APP_URL}/catalog/${userProfile?.full_name || 'your-profile'}`);
                     toast.success('URL copied to clipboard');
                   }}
+                  className='h-8'
                 >
                   <Copy className=" h-4 w-4" />
                 </Button>
@@ -41,6 +42,7 @@ const CatalogEntryShare = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => setOpenShareDialog(true)}
+                  className='h-8'
                 >
                   <Share2Icon className=" h-4 w-4" />
                 </Button>
