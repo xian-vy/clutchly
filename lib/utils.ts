@@ -5,6 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const getSpeciesAbbreviation = (name: string) => {
+  return name.split(' ')
+    .map(word => word[0]?.toUpperCase())
+    .join('');
+};
+
+
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

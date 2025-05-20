@@ -18,30 +18,30 @@ export function InstallDialog() {
           Install
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] md:max-w-[700px] 2xl:max-w-[900px]  overflow-y-auto max-h-[90vh]">
-        <DialogHeader className="space-y-2">
+        <DialogHeader className="sm:space-y-2">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl md:text-2xl font-bold">Install {APP_NAME}</DialogTitle>
 
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground text-start">
             Install {APP_NAME} on your mobile device for the best experience. Choose your platform below:
           </p>
         </DialogHeader>
         
-        <div className="grid md:grid-cols-2 gap-6 ">
+        <div className="grid md:grid-cols-2 gap-3 sm:gap-6 ">
           {/* iOS Card */}
           <Card className="relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4 mb-8">
+            <CardContent >
+              <div className="flex items-center gap-4 mb-3 sm:mb-5">
                 <div className="p-2 rounded-full bg-primary/10">
                   <Globe className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="text-lg font-semibold">iOS Installation</h3>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-3 sm:space-y-6">
                 <p className="text-sm text-muted-foreground">Follow these steps on your iPhone or iPad:</p>
-                <div className="space-y-5">
+                <div className="space-y-3 sm:space-y-5">
                   {[
                     { icon: null, text: "Open Safari browser on your iOS device" },
                     { icon: null, text: "Visit Clutchly website" },
@@ -66,17 +66,17 @@ export function InstallDialog() {
 
           {/* Android Card */}
           <Card className="relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4 mb-8">
+            <CardContent >
+              <div className="flex items-center gap-4 mb-3  sm:mb-5">
                 <div className="p-2 rounded-full bg-primary/10">
                   <Chrome className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="text-lg font-semibold">Android Installation</h3>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-3 sm:space-y-6">
                 <p className="text-sm text-muted-foreground">Follow these steps on your Android device:</p>
-                <div className="space-y-5">
+                <div className="space-y-3 sm:space-y-5">
                   {[
                     { icon: null, text: "Open Chrome browser on your Android device" },
                     { icon: null, text: "Visit Clutchly website" },

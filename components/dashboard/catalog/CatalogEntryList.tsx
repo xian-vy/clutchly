@@ -86,7 +86,7 @@ export function CatalogEntryList({
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                   <div>
                     <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Featured Reptiles</h2>
-                    <p className="text-muted-foreground">Exceptional specimens from this collection</p>
+                    <p className="text-sm 2xl:text-base text-muted-foreground">Exceptional specimens from this collection</p>
                   </div>
                 </div>
                 
@@ -111,7 +111,7 @@ export function CatalogEntryList({
               <div className="flex items-center justify-between gap-4">
                   <div>
                         <h2 className="text-2xl md:text-3xl  font-bold tracking-tight">All Reptiles</h2>
-                        <p className="text-muted-foreground">{catalogEntries?.length} reptiles in this collection </p>
+                        <p className="text-sm 2xl:text-base text-muted-foreground">{catalogEntries?.length} reptiles in this collection </p>
                   </div>
                   <div className="flex items-center justify-start">
                       { onFilter && (

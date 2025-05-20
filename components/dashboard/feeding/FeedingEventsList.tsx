@@ -17,6 +17,8 @@ import { Loader2, Save } from 'lucide-react';
 import { getSortedReptiles, saveEventNotes } from './utils';
 import { QueryClient } from '@tanstack/react-query';
 import { useGroupedFeederSelect } from '@/lib/hooks/useGroupedFeederSelect';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getSpeciesAbbreviation } from '@/lib/utils';
 
 interface Props {
   date: string;
@@ -82,12 +84,30 @@ const FeedingEventsList = ({
                     </div>
                   </TableCell>
                   <TableCell className="py-1 sm:py-2 xl:py-3">
-                    <div className="font-normal">
-                      {event.reptile_name}
-                    </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                              <p className="mt-1 truncate max-w-[80px] sm:max-w-[100px] lg:max-w-[120px] xl:max-w-[130px] 2xl:max-w-[150px]">{event.reptile_name}</p>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                              {event.reptile_name}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                   </TableCell>
                   <TableCell className="py-1 sm:py-2 xl:py-3">{event.morph_name}</TableCell>
-                  <TableCell className="py-1 sm:py-2 xl:py-3">{event.species_name}</TableCell>
+                  <TableCell className="py-1 sm:py-2 xl:py-3">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            {getSpeciesAbbreviation(event.species_name)}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{event.species_name}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                  </TableCell>
                   <TableCell className="py-1 sm:py-2 xl:py-3">
                     <FeederSelect
                       value={feederTypeSize[event.id] || ''}

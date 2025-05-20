@@ -191,12 +191,42 @@ export function BreedingProjectList({
       },
     },
     {
-      accessorKey: 'male_name',
-      header: 'Sire (M)',
+      accessorKey: "male_name",
+      header: "Sire (M)",
+      cell: ({ row }) => {
+        const male_name = row.getValue("male_name") as number;
+        return (
+          <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] 2xl:max-w-[150px]">{male_name}</p>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{male_name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        );
+      },
     },
     {
-      accessorKey: 'female_name',
+      accessorKey: "female_name",
       header: 'Dam (F)',
+      cell: ({ row }) => {
+        const female_name = row.getValue("female_name") as number;
+        return (
+          <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] 2xl:max-w-[150px]">{female_name}</p>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{female_name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        );
+      },
     },
     {
       accessorKey: 'start_date',
