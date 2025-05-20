@@ -31,18 +31,18 @@ const CustomNode = ({ data }: Props) => (
   >
     <Handle type="target" position={Position.Top} />
     <div className="flex flex-col items-center gap-1.5 justify-center h-[200px] ">
-     <div className="flex flex-col items-center">
-           <div className="flex items-center gap-2">
+     <div className="flex flex-col items-center gap-0.5">
+           <div className="flex items-center gap-1">
                   <>
                     {data.sex === 'male' ? (
-                      <Mars className="h-4 w-4 text-blue-400"/>
+                      <Mars className="h-4 w-4 text-blue-400 shrink-0"/>
                     ) : data.sex === 'female' ? (
-                      <Venus className="h-4 w-4 text-red-500"/>
+                      <Venus className="h-4 w-4 text-red-500 shrink-0"/>
                     ) :(
-                      <CircleHelp className="h-4 w-4 text-muted-foreground"/>
+                      <CircleHelp className="h-4 w-4 text-muted-foreground shrink-0"/>
                     )}
                   </>
-                  <div className="font-bold text-base lg:text-lg text-black dark:text-white">{data.name || 'Unknown'}</div>  
+                  <div className="font-bold text-base lg:text-lg text-black dark:text-white !leading-[1.1]">{data.name || 'Unknown'}</div>  
               </div>
               <span className="text-[0.7rem] sm:text-[0.8rem] text-muted-foreground">
                     {data.code || '--'}

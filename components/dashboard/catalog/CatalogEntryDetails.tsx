@@ -46,15 +46,15 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
   // Update the JSX to use currentEntry instead of catalogEntry
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-0 lg:gap-3 xl:gap-4 2xl:gap-5 sm:mb-5 xl:mb-10 ">
-      <Card className="overflow-hidden py-0 lg:pt-6 border-0 lg:border gap-0">
+      <Card className="overflow-hidden py-0 border-0 rounded-none  gap-0">
         <CardHeader className='px-0 pb-0'>
-          <div className="relative h-[350px] sm:h-[500px] lg:h-[600px] bg-muted rounded-none lg:rounded-t-md overflow-hidden">
+          <div className="relative h-[350px] sm:h-[500px] lg:h-[600px] bg-muted rounded-none  overflow-hidden">
             {catalogEntry.catalog_images.length > 0 && catalogEntry.catalog_images[selectedImageIndex]?.image_url ? (
               <Image
                 src={catalogEntry.catalog_images[selectedImageIndex].image_url}
                 alt={reptileName}
                 fill
-                className="object-contain bg-background"
+                className="object-contain object-top bg-background"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             ) : (

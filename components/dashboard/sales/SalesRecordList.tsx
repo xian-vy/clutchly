@@ -18,6 +18,7 @@ import { PAYMENT_COLORS, SALES_STATUS_COLORS, YES_NO_COLORS } from '@/lib/consta
 
 export interface EnrichedSaleRecord extends SaleRecord {
   reptile_name?: string;
+  reptile_code?: string;
   species_name?: string;
   morph_name?: string;
 }
@@ -125,13 +126,13 @@ export function SalesRecordList({
       header: "Buyer",
     },
     {
-      accessorKey: "reptile_name",
+      accessorKey: "reptile_code",
       header: "Reptile",
       cell: ({ row }) => {
         const record = row.original;
         return (
-          <div className="max-w-[120px] truncate">
-            {record.reptile_name || "Unknown"}
+          <div>
+            {record.reptile_code || "Unknown"}
           </div>
         );
       }
@@ -163,7 +164,7 @@ export function SalesRecordList({
       header: "Price",
       cell: ({ row }) => {
         const price = row.getValue("price") as number;
-        return `$${price.toFixed(2)}`;
+        return `${price.toFixed(2)}`;
       },
     },
     {
@@ -173,6 +174,14 @@ export function SalesRecordList({
         const date = row.getValue("sale_date") as string;
         return format(new Date(date), 'MMM d, yyyy');
       },
+    },
+    {
+      accessorKey: "invoice_number",
+      header: "Invoice",
+      cell: ({ row }) => {
+        const invoiceNumber = row.getValue("invoice_number") as string;
+        return invoiceNumber || "-";
+      }
     },
     {
       accessorKey: "payment_method",
@@ -204,14 +213,6 @@ export function SalesRecordList({
           </Badge>
         );
       },
-    },
-    {
-      accessorKey: "invoice_number",
-      header: "Invoice",
-      cell: ({ row }) => {
-        const invoiceNumber = row.getValue("invoice_number") as string;
-        return invoiceNumber || "-";
-      }
     },
     {
       id: "notes",

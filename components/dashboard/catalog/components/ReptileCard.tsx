@@ -116,11 +116,11 @@ export function ReptileCard({
                 <div className="flex items-center gap-1">
                     <div>
                       {reptile?.sex === 'male' ? (
-                        <Mars className="h-3.5 w-3.5 text-blue-400 mt-0.5 shrink-0" />
+                        <Mars className="h-3.5 w-3.5 text-blue-400 shrink-0" />
                       ) : reptile?.sex === 'female' ? (
-                        <Venus className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0" />
+                        <Venus className="h-3.5 w-3.5 text-red-500 shrink-0" />
                       ) : (
-                        <CircleHelp className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                        <CircleHelp className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                       )}
                     </div>
                     <p className="text-xs md:text-sm text-muted-foreground truncate">

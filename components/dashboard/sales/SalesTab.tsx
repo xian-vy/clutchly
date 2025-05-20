@@ -67,6 +67,7 @@ export function SalesTab() {
         reptile_name: reptile?.name || 'Unknown',
         species_name: speciesData?.name || 'Unknown Species',
         morph_name: morphData?.name || 'Unknown Morph',
+        reptile_code : reptile?.reptile_code || '--',
       };
     });
   }, [salesRecords, reptiles, species, morphs]);

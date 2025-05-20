@@ -10,6 +10,7 @@ import { Edit, Filter, Trash2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { GrowthFilterDialog, GrowthFilters } from "./GrowthFilterDialog";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface GrowthEntryListProps {
   growthEntries: GrowthEntry[];
@@ -100,8 +101,23 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
 
   const columns: ColumnDef<GrowthEntry>[] = [
     {
-      accessorKey: 'reptile',
-      header: 'Reptile', 
+      accessorKey: "reptile",
+      header: "Reptile",
+      cell: ({ row }) => {
+        const reptile = row.getValue("reptile") as number;
+        return (
+          <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[140px] xl:max-w-[150px] 2xl:max-w-[180px]">{reptile}</p>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{reptile}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        );
+      },
     },
     {
       accessorKey:'morph',

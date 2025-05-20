@@ -15,7 +15,7 @@ import { ImportReptileDialog } from "./ImportReptileDialog";
 import { ReptileDetailsDialog } from "./ReptileDetailsDialog";
 import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/details/pdfGenerator";
 import { getReptileDetails } from "@/app/api/reptiles/reptileDetails";
-import { formatChartAmount } from "@/lib/utils";
+import { formatChartAmount, getSpeciesAbbreviation } from "@/lib/utils";
 
 export interface EnrichedReptile extends Reptile {
   species_name: string;
@@ -192,6 +192,21 @@ export function ReptileList({
     {
       accessorKey: "name",
       header: "Name",
+      cell: ({ row }) => {
+        const name = row.getValue("name") as number;
+        return (
+          <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[140px] xl:max-w-[150px] 2xl:max-w-[180px]">{name}</p>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        );
+      },
     },
     {
       accessorKey: "price",
@@ -209,12 +224,7 @@ export function ReptileList({
       cell: ({ row }) => {
         const speciesName = row.getValue("species_name") as string;
         // Convert species name to abbreviation
-        const getSpeciesAbbreviation = (name: string) => {
-          return name.split(' ')
-            .map(word => word[0]?.toUpperCase())
-            .join('');
-        };
-        
+ 
         return (
           <TooltipProvider>
             <Tooltip>
@@ -249,13 +259,13 @@ export function ReptileList({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center">
-                  <MapPin className={`h-4 w-4 mr-1 ${hasLocation ? 'text-primary' : 'text-gray-300'}`} />
+                  {hasLocation &&<MapPin className={`h-4 w-4 mr-1 ${hasLocation ? 'text-primary' : 'text-gray-300'}`} />}
                   {hasLocation ? (
                     <span className="text-xs truncate w-[100px]">
                       {reptile.location_label}
                     </span>
                   ) : (
-                    <span className="text-xs text-gray-400">Not assigned</span>
+                    <span className="text-xs text-gray-400">--</span>
                   )}
                 </div>
               </TooltipTrigger>

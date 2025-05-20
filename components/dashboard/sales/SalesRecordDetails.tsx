@@ -41,6 +41,10 @@ export function SalesRecordDetails({ sale }: SalesRecordDetailsProps) {
           <h3 className="text-sm sm:text-base xl:text-lg font-semibold">Reptile Information</h3>
           <div className="space-y-1 sm:space-y-2">
             <div className="flex justify-between">
+              <span className="text-xs sm:text-sm text-muted-foreground">Reptile Code:</span>
+              <span className="text-xs sm:text-sm font-medium">{sale.reptile_code || 'Unknown'}</span>
+            </div>
+            <div className="flex justify-between">
               <span className="text-xs sm:text-sm text-muted-foreground">Name:</span>
               <span className="text-xs sm:text-sm font-medium">{sale.reptile_name || 'Unknown'}</span>
             </div>
@@ -61,7 +65,7 @@ export function SalesRecordDetails({ sale }: SalesRecordDetailsProps) {
           <div className="space-y-1 sm:space-y-2">
             <div className="flex justify-between">
               <span className="text-xs sm:text-sm text-muted-foreground">Price:</span>
-              <span className="text-xs sm:text-sm font-medium">${sale.price.toFixed(2)}</span>
+              <span className="text-xs sm:text-sm font-medium">{sale.price.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-xs sm:text-sm text-muted-foreground">Method:</span>

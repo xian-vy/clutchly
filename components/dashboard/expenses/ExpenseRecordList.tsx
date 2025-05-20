@@ -91,7 +91,7 @@ export function ExpenseRecordList({
     {
       accessorKey: 'amount',
       header: 'Amount',
-      cell: ({ row }) => `$${(row.getValue('amount') as number).toFixed(2)}`,
+      cell: ({ row }) => `${(row.getValue('amount') as number).toFixed(2)}`,
     },
     {
       accessorKey: 'status',

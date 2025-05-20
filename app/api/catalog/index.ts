@@ -43,6 +43,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const data = entriesResult.data;
 
   if (data?.length === 0) {
+    const settingsData = settingsResult.data;
     return [{
       id: '',
       user_id: userId,
@@ -53,8 +54,8 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
       updated_at: new Date().toISOString(),
       reptiles: null,
       catalog_images: [],
-      catalog_settings: null,
-      profile: profileData
+      catalog_settings: settingsData || null,
+      profile: profileData || null
     }];
   }
 
