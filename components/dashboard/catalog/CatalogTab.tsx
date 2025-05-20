@@ -202,8 +202,6 @@ export function CatalogTab() {
       <CatalogActions 
         isAdmin={true}
         onAddNew={() => setIsDialogOpen(true)}
-        viewMode={detailView? 'list' : 'grid'}
-        onViewModeChange={() => {}}
       />
 
       <Separator />

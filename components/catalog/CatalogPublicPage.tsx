@@ -165,7 +165,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
 
      <div className="container mx-auto xl:px-16 2xl:px-24 3xl:px-0">
           {detailView && reptileForDetail ? (
-            <div className="space-y-6 mt-5">
+            <div className="space-y-0 sm:space-y-3 md:space-y-6 mt-5 px-4">
               <div className="flex items-center">
                 <Button 
                   variant="ghost" 

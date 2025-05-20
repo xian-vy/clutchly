@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { CatalogImageUpload } from './CatalogImageUpload';
 import { formatPrice } from '@/lib/utils';
+import { Copy } from 'lucide-react';
 
 interface CatalogEntryDetailsProps {
   catalogEntry: EnrichedCatalogEntry;
@@ -44,16 +45,16 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
 
   // Update the JSX to use currentEntry instead of catalogEntry
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-6 mb-5 xl:mb-10">
-      <Card className="overflow-hidden pt-0">
+    <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-0 lg:gap-3 xl:gap-4 2xl:gap-5 sm:mb-5 xl:mb-10 ">
+      <Card className="overflow-hidden py-0 lg:pt-6 border-0 lg:border gap-0">
         <CardHeader className='px-0 pb-0'>
-          <div className="relative h-[500px] bg-muted rounded-t-md overflow-hidden">
+          <div className="relative h-[350px] sm:h-[500px] lg:h-[600px] bg-muted rounded-none lg:rounded-t-md overflow-hidden">
             {catalogEntry.catalog_images.length > 0 && catalogEntry.catalog_images[selectedImageIndex]?.image_url ? (
               <Image
                 src={catalogEntry.catalog_images[selectedImageIndex].image_url}
                 alt={reptileName}
                 fill
-                className="object-cover"
+                className="object-contain bg-background"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             ) : (
@@ -66,17 +67,17 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
         </CardHeader>
    
         <CardContent>
-        <div className="space-y-4">
+        <div className={`space-y-4 ${catalogEntry.catalog_images.length > 1 ? 'mb-4 sm:mb-6' : ''}`}>
 
             {/* Thumbnail gallery */}
             {catalogEntry.catalog_images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-5 gap-2 sm:gap-5">
                 {catalogEntry.catalog_images.map((image, index) => (
                   <div 
                     key={image.id}
                     className={`
                       aspect-square relative rounded-md overflow-hidden cursor-pointer
-                      ${index === selectedImageIndex ? 'ring-2 ring-primary' : ''}
+                      ${index === selectedImageIndex ? 'ring-1 ring-primary' : ''}
                     `}
                     onClick={() => setSelectedImageIndex(index)}
                   >
@@ -104,79 +105,76 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
       </Card>
 
       {/* Right column - Details */}
-      <Card className='p-3 sm:p-4 md:p-5 xl:p-6 xl:py-10'>
+      <Card className='px-0 py-5 sm:p-6 lg:p-2 xl:p-3 border-0 border-t-1 rounded-none lg:rounded-lg lg:border gap-2 sm:gap-4'>
         <CardHeader>
-          <CardTitle className='flex flex-col items-start gap-1 sm:gap-2'>
-            <h2 className="text-xl md:text-2xl xl:text-3xl 2xl:text-4xl font-bold">
+          <CardTitle className='flex flex-col items-start gap-1 sm:gap-2 mt-3'>
+            <h2 className="text-2xl  md:text-3xl 2xl:text-[2rem] font-bold text-foreground/80 leading-[1.1]">
                {reptileName}
             </h2>
              <span className='text-muted-foreground'>{reptile?.species_name || 'Unknown'}</span> 
             </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent >
           <div className="space-y-6">
   
-            <h3 className='text-2xl md:text-3xl xl:text-4xl font-bold'>{formatPrice(reptile?.price) || '0.00'}</h3>
+            <h3 className='text-2xl md:text-3xl xl:text-[2rem] font-bold text-foreground/80'>{formatPrice(reptile?.price) || '0.00'}</h3>
             {/* Reptile info */}
             {reptile && (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-3">
- 
                   <div className="flex justify-between items-center py-2 border-b">
-                    <span className="font-medium">Morph</span>
-                    <span>{reptile.morph_name || 'Unknown'}</span>
+                    <span className="text-sm xl:text-base">Morph</span>
+                    <span className="text-sm xl:text-base">{reptile.morph_name || 'Unknown'}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b">
-                    <span className="font-medium">Code</span>
-                    <span>{reptile.reptile_code || 'Unknown'}</span>
+                    <span className="text-sm xl:text-base">Code</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm xl:text-base">{reptile.reptile_code || 'Unknown'}</span>
+                        <Copy
+                        onClick={() => {
+                          navigator.clipboard.writeText(reptile.reptile_code || 'Unknown Code');
+                          toast.success('Reptile code copied to clipboard');
+                        }}
+                        className=" h-4 w-4 cursor-pointer" />
+                    </div>
                   </div>
                   
                   <div className="flex justify-between items-center py-2 border-b">
-                    <span className="font-medium">Sex</span>
-                    <span className='capitalize'>{reptile.sex || 'Unknown'}</span>
+                    <span className="text-sm xl:text-base">Sex</span>
+                    <span className='capitalize text-xs sm:text-sm'>{reptile.sex || 'Unknown'}</span>
                   </div>
                   
-                  {reptile.hatch_date && (
                     <div className="flex justify-between items-center py-2 border-b">
-                      <span className="font-medium">Hatch Date</span>
-                      <span>{new Date(reptile.hatch_date).toLocaleDateString()}</span>
+                      <span className="text-sm xl:text-base">Hatch Date</span>
+                      <span className="text-sm xl:text-base">{reptile.hatch_date ? new Date(reptile.hatch_date).toLocaleDateString() : "--"}</span>
                     </div>
-                  )}
                   
-                  {reptile.weight && (
                     <div className="flex justify-between items-center py-2 border-b">
-                      <span className="font-medium">Weight</span>
-                      <span>{reptile.weight} g</span>
+                      <span className="text-sm xl:text-base">Weight</span>
+                      <span className="text-sm xl:text-base">{reptile.weight} g</span>
                     </div>
-                  )}
                   
-                  {reptile.length && (
                     <div className="flex justify-between items-center py-2 border-b">
-                      <span className="font-medium">Length</span>
-                      <span>{reptile.length} cm</span>
+                      <span className="text-sm xl:text-base">Length</span>
+                      <span className="text-sm xl:text-base">{reptile.length} cm</span>
                     </div>
-                  )}
-
-                  <div className="flex justify-between items-center py-2 border-b">
-                    <span className="font-medium">Traits</span>
+                    <div className="flex justify-between items-center py-2 border-b">
+                      <span className="text-sm xl:text-base">Produced By</span>
+                      <span className="text-sm xl:text-base">{reptile.original_breeder}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b">
+                      <span className="text-sm xl:text-base">Breeder</span>
+                      <span className="text-sm xl:text-base">{reptile.project_ids?.length || 0  > 0 ? 'Yes' : 'No'}</span>
+                    </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-sm xl:text-base">Traits</span>
                     <div className="flex flex-wrap gap-2 lg:gap-3 items-center">
                       {reptile.het_traits?.map((trait,i) => 
                         <span key={i} className="text-xs sm:text-sm"> {trait.percentage}% het {trait.trait}</span>
                       )} 
                     </div>
                   </div>
-
                 </div>
-                
-                {/* {reptile.notes && (
-                  <div className="mt-4 p-4 bg-muted rounded-md">
-                    <div className="flex items-center gap-2 mb-2">
-                      <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">Notes</span>
-                    </div>
-                    <p className="text-sm whitespace-pre-wrap">{reptile.notes}</p>
-                  </div>
-                )} */}
               </div>
             )}
           </div>
