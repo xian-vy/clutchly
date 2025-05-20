@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CatalogSettings } from "@/lib/types/catalog";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, Save, Trash } from "lucide-react";
+import { ExternalLink, Loader2, Plus, Save, Trash } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -68,6 +68,15 @@ export function CatalogIntroContact({ open, onOpenChange, settings, isAdmin }: C
       toast.error("Failed to update contact settings");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const isValidUrl = (str: string) => {
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
     }
   };
 
@@ -167,9 +176,19 @@ export function CatalogIntroContact({ open, onOpenChange, settings, isAdmin }: C
           <div className="py-4 px-2 text-sm text-muted-foreground min-h-[100px] space-y-2">
             {settings?.contacts && settings.contacts.length > 0 ? (
               settings.contacts.map((contact, idx) => (
-                <div key={idx} className="flex gap-2">
+                <div key={idx} className="flex gap-2 items-center">
                   <span className="font-medium capitalize">{contact.type}:</span>
                   <span>{contact.link}</span>
+                  {isValidUrl(contact.link) && (
+                    <a
+                      href={contact.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center hover:text-primary"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  )}
                 </div>
               ))
             ) : (
