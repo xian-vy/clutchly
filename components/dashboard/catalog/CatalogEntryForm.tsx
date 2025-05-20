@@ -8,8 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
 
 interface CatalogEntryFormProps {
   initialData?: CatalogEntry;
@@ -36,6 +36,8 @@ export function CatalogEntryForm({
   onCancel,
   featuredLimit,
 }: CatalogEntryFormProps) {
+
+  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: availableReptiles});
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -76,24 +78,13 @@ export function CatalogEntryForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Reptile</FormLabel>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-                disabled={!!initialData}
-              >
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a reptile" />
-                  </SelectTrigger>
+                    <ReptileSelect
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select a reptile"
+                      />
                 </FormControl>
-                <SelectContent>
-                  {availableReptiles.map((reptile) => (
-                    <SelectItem key={reptile.id} value={reptile.id}>
-                      {reptile.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               {!initialData && availableReptiles.length === 0 && (
                 <FormDescription className="text-destructive">
                   Please add a reptile first before adding a catalog entry.
