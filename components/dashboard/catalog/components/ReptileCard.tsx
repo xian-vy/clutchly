@@ -48,7 +48,7 @@ export function ReptileCard({
       <Card 
         onClick={() => onClick?.(entry)}
         className={cn(
-          "overflow-hidden group transition-all pt-0 pb-2 gap-0 cursor-pointer",
+          "overflow-hidden group transition-all py-0 gap-0 cursor-pointer",
           entry.featured ? "" : "",
           isAdmin ? "hover:shadow-md" : ""
         )}

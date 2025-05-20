@@ -31,7 +31,8 @@ export interface ReptileFilters {
   hatchDateRange?: [string, string] | null;
   visualTraits?: string[];
   hetTraits?: string[];
-  ageInMonths?: [number, number] | null; 
+  ageInMonths?: [number, number] | null;
+  priceRange?: [number, number] | null;
 }
 
 const filterSchema = z.object({
@@ -47,6 +48,7 @@ const filterSchema = z.object({
   visualTraits: z.array(z.string()).optional(),
   hetTraits: z.array(z.string()).optional(),
   ageInMonths: z.tuple([z.number(), z.number()]).nullable().optional(),
+  priceRange: z.tuple([z.number(), z.number()]).nullable().optional(),
 });
 
 interface ReptileFilterDialogProps {
@@ -62,13 +64,14 @@ export function ReptileFilterDialog({
   onApplyFilters,
   currentFilters,
 }: ReptileFilterDialogProps) {
-
-
   const [weightRange, setWeightRange] = useState<[number, number]>(
     currentFilters.weightRange || [0, 1000]
   );
   const [ageRange, setAgeRange] = useState<[number, number]>(
-    currentFilters.ageInMonths || [0, 80] // Default range 0-60 months (5 years)
+    currentFilters.ageInMonths || [0, 80]
+  );
+  const [priceRange, setPriceRange] = useState<[number, number]>(
+    currentFilters.priceRange || [0, 150000]
   );
 
   const form = useForm<ReptileFilters>({
@@ -82,6 +85,7 @@ export function ReptileFilterDialog({
       visualTraits: currentFilters.visualTraits || [],
       hetTraits: currentFilters.hetTraits || [],
       ageInMonths: currentFilters.ageInMonths || [0, 60],
+      priceRange: currentFilters.priceRange || [0, 150000],
     },
   });
 
@@ -105,10 +109,13 @@ export function ReptileFilterDialog({
       hatchDateRange: null,
       visualTraits: [],
       hetTraits: [],
-      ageInMonths: [0, 60],
+      ageInMonths: null,
+      priceRange: null,
     });
     setWeightRange([0, 1000]);
     setAgeRange([0, 60]);
+    setPriceRange([0, 150000]);
+    onApplyFilters({});
   }
 
   const formatAgeLabel = (months: number) => {
@@ -124,8 +131,8 @@ export function ReptileFilterDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-5 xl:space-y-6 3xl:space-y-8">
-            <div className="grid grid-cols-2  gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-5 2xl:space-y-6 3xl:space-y-8">
+            <div className="grid grid-cols-2  gap-4 mb-0">
               {/* Species Filter */}
               <FormField
                 control={form.control}
@@ -190,7 +197,7 @@ export function ReptileFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2 ">
               {/* Sex Filter */}
               <FormField
                 control={form.control}
@@ -198,7 +205,7 @@ export function ReptileFilterDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Sex</FormLabel>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1 md:gap-2 xl:gap-2.5">
                       {sex.map((sex) => (
                         <Badge
                           key={sex}
@@ -228,7 +235,7 @@ export function ReptileFilterDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1 md:gap-2 xl:gap-2.5">
                       {reptileStatus.map((status ) => (
                         <Badge
                           key={status}
@@ -254,7 +261,7 @@ export function ReptileFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4">
               {/* Breeder Filter */}
               <FormField
                 control={form.control}
@@ -317,14 +324,36 @@ export function ReptileFilterDialog({
             </div>
 
             <Separator />
-            <div className="grid grid-cols-2  gap-4 xl:gap-5 2xl:gap-7 3xl:gap-8">
-
+            
+            <div className="grid grid-cols-1 xl:grid-cols-3  gap-5 xl:gap-3 3xl:gap-8">
+            <FormField
+                control={form.control}
+                name="priceRange"
+                render={({ field }) => (
+                  <FormItem className="gap-1 xl:gap-2">
+                    <FormLabel>Price Range ($): {priceRange[0]} - {priceRange[1]}</FormLabel>
+                    <FormControl>
+                      <Slider
+                        min={0}
+                        max={150000}
+                        step={100}
+                        value={priceRange}
+                        onValueChange={(value) => {
+                          setPriceRange(value as [number, number]);
+                          field.onChange(value as [number, number]);
+                        }}
+                        className="mt-2"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             {/* Weight Range Filter */}
             <FormField
               control={form.control}
               name="weightRange"
               render={({ field }) => (
-                <FormItem>
+                <FormItem  className="gap-1 xl:gap-2">
                   <FormLabel>Weight Range (g): {weightRange[0]} - {weightRange[1]}</FormLabel>
                   <FormControl>
                     <Slider
@@ -346,7 +375,7 @@ export function ReptileFilterDialog({
                       control={form.control}
                       name="ageInMonths"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="gap-1 xl:gap-2">
                           <FormLabel>
                             Age Range: {formatAgeLabel(ageRange[0])} - {formatAgeLabel(ageRange[1])}
                           </FormLabel>
@@ -368,6 +397,9 @@ export function ReptileFilterDialog({
                     />
 
              </div>
+
+             <Separator />
+
               {/* Acquisition Date Range */}
               <FormField
                 control={form.control}
@@ -427,10 +459,10 @@ export function ReptileFilterDialog({
               />
 
             <DialogFooter className="flex flex-row w-full justify-end">
-              <Button type="button" variant="outline" onClick={resetFilters}>
+              <Button size="sm" type="button" variant="outline" onClick={resetFilters}>
                 Reset Filters
               </Button>
-              <Button type="submit">Apply Filters</Button>
+              <Button  size="sm" type="submit">Apply Filters</Button>
             </DialogFooter>
           </form>
         </Form>

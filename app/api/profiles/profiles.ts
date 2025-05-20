@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { Profile, ProfileFormData } from '@/lib/types/profile'
+import { MinProfileInfo, Profile, ProfileFormData } from '@/lib/types/profile'
 
 export async function getProfile() {
   const supabase = await createClient()
@@ -23,6 +23,23 @@ export async function getProfile() {
     console.error('Error in getProfile:', err)
     throw err
   }
+}
+
+export async function getPublicProfile(profileName: string) : Promise<MinProfileInfo | null>  {
+  const supabase = await createClient()
+
+  const { data: profileData, error: profileError } = await supabase
+  .from('view_public_profiles')
+  .select('id, full_name, logo')
+  .eq('full_name', profileName)
+  .single();
+
+  if (profileError || !profileData) {
+    console.error("Error fetching public profile:", profileError.message);
+    return null;
+  }
+
+  return profileData as Profile;
 }
 
 export async function createProfile(profileData: ProfileFormData) {

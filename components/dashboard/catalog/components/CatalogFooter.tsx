@@ -1,4 +1,4 @@
-import { APP_URL } from '@/lib/constants/app'
+import { APP_NAME, APP_URL } from '@/lib/constants/app'
 import { CatalogSettings } from '@/lib/types/catalog'
 import { MapPin, Pencil } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { CatalogIntroContact } from './CatalogIntroContact'
 import { AboutSettingsDialog } from './CatalogIntroAbout'
 import { MinProfileInfo } from '@/lib/types/profile'
+import ShareURLDialog from './ShareURLDialog'
 
 interface Props {
      profile : MinProfileInfo
@@ -33,6 +34,7 @@ const CatalogFooter = ({profile,settings, isAdmin} : Props) => {
    const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
     const queryClient = useQueryClient();
     const [logoTimestamp, setLogoTimestamp] = useState(Date.now());
+    const [openShareDialog, setOpenShareDialog] = useState(false);
 
     const form = useForm({
       resolver: zodResolver(formSchema),
@@ -78,7 +80,7 @@ return (
       </div>
       <div className="w-full flex flex-col md:flex-row md:justify-center md:items-center gap-2 md:gap-6 text-sm text-foreground/90 px-4">
         {/* Address */}
-        <div className="flex items-center justify-center gap-2 min-w-[120px] ">
+        <div className="flex  items-center justify-center gap-2 min-w-[120px] ">
           <MapPin className="h-4 w-4 text-primary/80 shrink-0" />
           {isAdmin ? (
             isEditing ? (
@@ -105,16 +107,18 @@ return (
               </>
             )
           ) : (
-            <span>{settings?.address || ''}</span>
+            <span className='text-center'>{settings?.address || ''}</span>
           )}
         </div>
 
       
       </div>
       <div className="flex items-center gap-3 md:gap-4 justify-center">
-          <span onClick={() => setIsAboutDialogOpen(true)} className='text-sm cursor-pointer'>About</span>
+          <span onClick={() => setIsAboutDialogOpen(true)} className='text-[0.8rem] md:text-sm cursor-pointer'>About</span>
           <span className='text-sm text-muted-foreground'>|</span>
-          <span onClick={() => setIsContactDialogOpen(true)} className='text-sm cursor-pointer'>Contact</span>
+          <span onClick={() => setIsContactDialogOpen(true)} className='text-[0.8rem] md:text-sm cursor-pointer'>Contact</span>
+          <span className='text-sm text-muted-foreground'>|</span>
+          <span onClick={() => setOpenShareDialog(true)} className='text-[0.8rem] md:text-sm cursor-pointer '>Share</span>
         </div>
       {!isAdmin &&
       <div className="w-full flex flex-col justify-center items-center mt-6">
@@ -137,8 +141,12 @@ return (
       onOpenChange={setIsAboutDialogOpen}
       settings={settings}
       isAdmin={isAdmin}
-
     />
+      <ShareURLDialog 
+        profileName={profile.full_name || APP_NAME} 
+        open={openShareDialog} 
+        onClose={() => setOpenShareDialog(false)} 
+      />
     </footer>
   )
 }
