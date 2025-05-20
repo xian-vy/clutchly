@@ -56,8 +56,7 @@ export function CatalogTab() {
   });
   // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
   const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
-
-  const catalog_settings = enrichedCatalog[0]?.catalog_settings  || null
+  const catalog_settings = useMemo(() => enrichedCatalog[0]?.catalog_settings  || null ,[enrichedCatalog])
   const profile = enrichedCatalog[0]?.profile  || null
 
   // Apply filters and sorting to catalog entries
@@ -152,8 +151,24 @@ export function CatalogTab() {
 
   const handleEntryDelete = async (id: string) => {
     try {
+      // Store settings and profile before deletion
+      const currentSettings = catalog_settings;
+      const currentProfile = profile;
+      
       await handleDelete(id);
-    
+      
+      // Update the enrichedCatalog with preserved settings
+      if (enrichedCatalog.length === 1) {
+        queryClient.setQueryData(['catalog-entries'], (oldData: EnrichedCatalogEntry[]) => {
+          if (!oldData || !Array.isArray(oldData)) return [];
+          // Return empty array but with settings preserved
+          return [{
+            catalog_settings: currentSettings,
+            profile: currentProfile
+          }];
+        });
+      }
+      
       return true;
     } catch (error) {
       console.error('Error deleting catalog entry:', error);
