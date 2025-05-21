@@ -50,7 +50,7 @@ const ShareURLDialog = ({profileName, open, onClose} : Props) => {
                         Share {profileName}
                     </DialogTitle>
                     <DialogDescription className="text-start">
-                        Share your website with friends and followers on your favorite platforms
+                        Share {profileName} with friends and followers on your favorite platforms
                     </DialogDescription>
                 </DialogHeader>
                 
