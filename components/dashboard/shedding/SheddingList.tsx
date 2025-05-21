@@ -240,11 +240,18 @@ export function SheddingList({
         onOpenChange={setShowFilters}
         onApplyFilters={setFilters}
         currentFilters={filters}
-        reptiles={sheddingRecords.map(record => ({
-          id: record.reptile_id,
-          name: record.reptile.name,
-          reptile_code: record.reptile.reptile_code || undefined
-        }))}
+        reptiles={Array.from(
+          new Map(
+            sheddingRecords.map(record => [
+              record.reptile_id,
+              {
+                id: record.reptile_id,
+                name: record.reptile.name,
+                reptile_code: record.reptile.reptile_code || undefined
+              }
+            ])
+          ).values()
+        )}
       />
 
       {editingShedding && (
