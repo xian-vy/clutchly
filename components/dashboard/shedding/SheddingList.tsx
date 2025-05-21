@@ -14,7 +14,7 @@ import { SheddingFilterDialog, SheddingFilters } from './SheddingFilterDialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
-import { YES_NO_COLORS } from '@/lib/constants/colors'
+import { SHEDDING_COLORS, YES_NO_COLORS } from '@/lib/constants/colors'
 import { getSpeciesAbbreviation } from '@/lib/utils'
 
 interface Props {
@@ -141,8 +141,10 @@ export function SheddingList({
       cell: ({ row }) => {
         const completeness = row.getValue("completeness") as string;
         return (
-          <Badge variant="outline">
-            {completeness.charAt(0).toUpperCase() + completeness.slice(1)}
+          <Badge variant="outline"
+          className={`${SHEDDING_COLORS[completeness.toLowerCase() as keyof typeof SHEDDING_COLORS]} capitalize`}
+          >
+            {completeness}
           </Badge>
         );
       }
