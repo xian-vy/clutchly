@@ -34,10 +34,12 @@ export function SheddingList({
 }: Props) {
   const [editingShedding, setEditingShedding] = useState<SheddingWithReptile | null>(null)
   const [showFilters, setShowFilters] = useState(false)
-  const [filters, setFilters] = useState<SheddingFilters>({})
+  const [filters, setFilters] = useState<SheddingFilters | null>(null)
   const {species} = useSpeciesStore()
 
   const filteredRecords = useMemo(() => {
+    if (!filters) return sheddingRecords;
+    
     return sheddingRecords.filter((record) => {
       // Filter by completeness
       if (filters.completeness?.length && !filters.completeness.includes(record.completeness)) {
@@ -56,9 +58,28 @@ export function SheddingList({
         }
       }
 
-      // Filter by reptile IDs
-      if (filters.reptileIds?.length && !filters.reptileIds.includes(record.reptile_id)) {
-        return false
+      // Filter by species
+      if (filters.species?.length) {
+        const reptileSpecies = record.reptile.species_id.toString();
+        if (!filters.species.includes(reptileSpecies)) {
+          return false;
+        }
+      }
+
+      // Filter by morphs
+      if (filters.morphs?.length) {
+        const reptileMorphId = record.reptile.morph_id;
+        if (!filters.morphs.includes(reptileMorphId)) {
+          return false;
+        }
+      }
+
+      // Filter by notes
+      if (filters.hasNotes !== null) {
+        const hasNotes = Boolean(record.notes && record.notes.length > 0);
+        if (filters.hasNotes !== hasNotes) {
+          return false;
+        }
       }
 
       return true
@@ -67,10 +88,14 @@ export function SheddingList({
 
   // Get active filter count for the badge
   const activeFilters = useMemo(() => {
+    if (!filters) return 0;
+    
     let count = 0
     if (filters.completeness?.length) count++
     if (filters.dateRange) count++
-    if (filters.reptileIds?.length) count++
+    if (filters.species?.length) count++
+    if (filters.morphs?.length) count++
+    if (filters.hasNotes !== null) count++
     return count
   }, [filters])
 
@@ -240,20 +265,8 @@ export function SheddingList({
       <SheddingFilterDialog
         open={showFilters}
         onOpenChange={setShowFilters}
-        onApplyFilters={setFilters}
-        currentFilters={filters}
-        reptiles={Array.from(
-          new Map(
-            sheddingRecords.map(record => [
-              record.reptile_id,
-              {
-                id: record.reptile_id,
-                name: record.reptile.name,
-                reptile_code: record.reptile.reptile_code || undefined
-              }
-            ])
-          ).values()
-        )}
+        onApplyFilters={(newFilters) => setFilters(Object.keys(newFilters).length ? newFilters : null)}
+        currentFilters={filters || {}}
       />
 
       {editingShedding && (
