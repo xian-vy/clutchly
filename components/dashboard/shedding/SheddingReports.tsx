@@ -2,11 +2,28 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
+import { format, subMonths, differenceInDays } from 'date-fns'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { getReptiles } from '@/app/api/reptiles/reptiles'
+import { Reptile } from '@/lib/types/reptile'
 import { SheddingWithReptile } from '@/lib/types/shedding'
+import { SheddingFilters } from './components/SheddingFilters'
+import { SheddingOverview } from './components/SheddingOverview'
+import { SheddingCharts } from './components/SheddingCharts'
+import { SheddingDataTable } from './components/SheddingDataTable'
 
 export function SheddingReports() {
   const supabase = createClientComponentClient()
+  const [selectedReptileId, setSelectedReptileId] = useState<string>('')
+  const [selectedMetric, setSelectedMetric] = useState<'intervals' | 'completeness'>('intervals')
+  const [timeRange, setTimeRange] = useState<'3m' | '6m' | '1y' | 'all'>('6m')
+
+  const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  })
 
   const { data: sheddingRecords, isLoading } = useQuery({
     queryKey: ['shedding'],
@@ -40,101 +57,132 @@ export function SheddingReports() {
     },
   })
 
-  if (isLoading) {
-    return <div>Loading reports...</div>
+  // Filter records based on selected time range
+  const filteredRecords = sheddingRecords?.filter(record => {
+    if (timeRange === 'all') return true
+    const months = timeRange === '3m' ? 3 : timeRange === '6m' ? 6 : 12
+    return new Date(record.shed_date) >= subMonths(new Date(), months)
+  })
+
+  // Calculate shedding intervals for the selected reptile
+  const calculateSheddingIntervals = (reptileId: string) => {
+    const reptileSheds = filteredRecords
+      ?.filter(record => record.reptile.id === reptileId)
+      .sort((a, b) => new Date(a.shed_date).getTime() - new Date(b.shed_date).getTime())
+
+    if (!reptileSheds || reptileSheds.length < 2) return []
+
+    return reptileSheds.map((shed, index) => {
+      if (index === 0) return null
+      const prevShed = reptileSheds[index - 1]
+      const interval = differenceInDays(
+        new Date(shed.shed_date),
+        new Date(prevShed.shed_date)
+      )
+      return {
+        date: format(new Date(shed.shed_date), 'MMM d, yyyy'),
+        interval,
+        completeness: shed.completeness,
+      }
+    }).filter((item): item is NonNullable<typeof item> => item !== null)
   }
 
-  // Calculate statistics
-  const totalSheds = sheddingRecords?.length || 0
-  const shedsByCompleteness = sheddingRecords?.reduce((acc, record) => {
-    acc[record.completeness] = (acc[record.completeness] || 0) + 1
-    return acc
-  }, {} as Record<string, number>) || {}
+  // Calculate shedding completeness trends
+  const calculateCompletenessTrends = (reptileId: string) => {
+    const reptileSheds = filteredRecords
+      ?.filter(record => record.reptile.id === reptileId)
+      .sort((a, b) => new Date(a.shed_date).getTime() - new Date(b.shed_date).getTime())
 
-  // Calculate average shed interval per reptile
-  const reptileShedIntervals = sheddingRecords?.reduce((acc, record) => {
-    if (!acc[record.reptile.id]) {
-      acc[record.reptile.id] = {
-        name: record.reptile.name,
-        sheds: [],
-      }
+    if (!reptileSheds) return []
+
+    return reptileSheds.map(shed => ({
+      date: format(new Date(shed.shed_date), 'MMM d, yyyy'),
+      completeness: shed.completeness,
+      completenessValue: shed.completeness === 'full' ? 3 : 
+                        shed.completeness === 'partial' ? 2 :
+                        shed.completeness === 'retained' ? 1 : 0
+    }))
+  }
+
+  // Calculate shedding statistics
+  const calculateSheddingStats = (reptileId: string) => {
+    const intervals = calculateSheddingIntervals(reptileId)
+    if (intervals.length === 0) return null
+
+    const avgInterval = intervals.reduce((sum, item) => sum + item.interval, 0) / intervals.length
+    const completenessCounts = intervals.reduce((acc, item) => {
+      acc[item.completeness] = (acc[item.completeness] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+
+    return {
+      averageInterval: Math.round(avgInterval),
+      totalSheds: intervals.length + 1,
+      completenessBreakdown: completenessCounts,
+      lastShedDate: intervals[intervals.length - 1].date,
+      daysSinceLastShed: differenceInDays(
+        new Date(),
+        new Date(intervals[intervals.length - 1].date)
+      )
     }
-    acc[record.reptile.id].sheds.push(new Date(record.shed_date))
-    return acc
-  }, {} as Record<string, { name: string; sheds: Date[] }>)
+  }
 
-  const averageIntervals = Object.entries(reptileShedIntervals || {})
-    .map(([id, data]) => {
-      const sheds = data.sheds.sort((a, b) => a.getTime() - b.getTime())
-      if (sheds.length < 2) return null
+  const sheddingStats = selectedReptileId ? calculateSheddingStats(selectedReptileId) : null
+  const intervalData = selectedReptileId ? calculateSheddingIntervals(selectedReptileId) : []
+  const completenessData = selectedReptileId ? calculateCompletenessTrends(selectedReptileId) : []
+  const selectedReptile = reptiles.find(r => r.id === selectedReptileId)
 
-      const intervals = []
-      for (let i = 1; i < sheds.length; i++) {
-        const interval = (sheds[i].getTime() - sheds[i - 1].getTime()) / (1000 * 60 * 60 * 24) // in days
-        intervals.push(interval)
-      }
-
-      const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length
-      return {
-        reptileId: id,
-        reptileName: data.name,
-        averageInterval: Math.round(avgInterval),
-        shedCount: sheds.length,
-      }
-    })
-    .filter((item): item is NonNullable<typeof item> => item !== null)
-    .sort((a, b) => b.shedCount - a.shedCount)
+  if (isLoading || reptilesLoading) {
+    return (
+      <div className="w-full flex flex-col justify-center items-center min-h-[70vh]">
+        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card>
-        <CardHeader>
-          <CardTitle>Total Sheds</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalSheds}</div>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <SheddingFilters
+        reptiles={reptiles}
+        selectedReptileId={selectedReptileId}
+        timeRange={timeRange}
+        onReptileChange={setSelectedReptileId}
+        onTimeRangeChange={setTimeRange}
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Shed Completeness</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {Object.entries(shedsByCompleteness).map(([type, count]) => (
-              <div key={type} className="flex justify-between">
-                <span className="capitalize">{type}</span>
-                <span className="font-medium">{count}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {selectedReptileId && (
+        <Tabs defaultValue="overview" className="w-full space-y-5">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="charts">Shedding Charts</TabsTrigger>
+            <TabsTrigger value="data">Raw Data</TabsTrigger>
+          </TabsList>
 
-      <Card className="md:col-span-2 lg:col-span-3">
-        <CardHeader>
-          <CardTitle>Average Shed Intervals</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {averageIntervals.map(({ reptileId, reptileName, averageInterval, shedCount }) => (
-              <div key={reptileId} className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">{reptileName}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {shedCount} sheds recorded
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium">{averageInterval} days</div>
-                  <div className="text-sm text-muted-foreground">average interval</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+          <TabsContent value="overview">
+            <SheddingOverview
+              reptile={selectedReptile}
+              sheddingStats={sheddingStats}
+            />
+          </TabsContent>
+
+          <TabsContent value="charts">
+            <SheddingCharts
+              intervalData={intervalData}
+              completenessData={completenessData}
+              selectedMetric={selectedMetric}
+              onMetricChange={setSelectedMetric}
+            />
+          </TabsContent>
+
+          <TabsContent value="data">
+            <SheddingDataTable
+              reptile={selectedReptile}
+              intervalData={intervalData}
+              sheddingRecords={filteredRecords}
+            />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   )
 } 
