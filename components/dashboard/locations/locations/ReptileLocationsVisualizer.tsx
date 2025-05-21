@@ -15,6 +15,8 @@ import { useResource } from '@/lib/hooks/useResource';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+
 interface ReptileLocationsVisualizerProps {
   selectedRoom?: Room | null;
   selectedRack?: Rack | null;
@@ -38,6 +40,7 @@ export function ReptileLocationsVisualizer({
   const {morphs} = useMorphsStore()
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedEnclosure, setSelectedEnclosure] = useState<string|null>(null);
+  const queryClient = useQueryClient();
 
   const {
     resources: reptiles,
@@ -77,13 +80,15 @@ const updateReptileLocation = async () => {
     location_id: selectedEnclosure
   };
   try {
-   const success =  await handleUpdate(updatedReptile);
-
-   if (success){
-    toast.success("Reptile assigned to enclosure.");
-   }
+    const success = await handleUpdate(updatedReptile);
+    if (success) {
+      // Invalidate all reptile queries to ensure all components get updated data
+      await queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+      toast.success("Reptile assigned to enclosure.");
+    }
   } catch (error) {
     console.error('Error updating reptile location:', error);
+    toast.error("Failed to assign reptile to enclosure.");
   }
 }
 
