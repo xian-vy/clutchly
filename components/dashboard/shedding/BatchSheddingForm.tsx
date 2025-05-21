@@ -10,7 +10,9 @@ import { CreateSheddingInput } from '@/lib/types/shedding'
 import { Reptile } from '@/lib/types/reptile'
 import { getRooms } from '@/app/api/locations/rooms'
 import { getRacksByRoom } from '@/app/api/locations/racks'
-import { getReptilesByLocation } from '@/app/api/shedding/shedding'
+import { getReptiles } from '@/app/api/reptiles/reptiles'
+import { getLocations, getLocationDetails } from '@/app/api/locations/locations'
+import { Location } from '@/lib/types/location'
 import {
   Form,
   FormControl,
@@ -49,8 +51,8 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-interface ReptileWithLocationFromAPI extends Reptile {
-  location: {
+interface ReptileWithLocation extends Reptile {
+  location?: {
     id: string;
     label: string;
     rack: {
@@ -79,24 +81,25 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
     },
   })
 
-  const { data: reptiles } = useQuery({
-    queryKey: ['reptiles', 'all'],
+  const { data: reptiles = [] } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  })
+
+  const { data: locations = [] } = useQuery<Location[]>({
+    queryKey: ['locations'],
+    queryFn: getLocations,
+  })
+
+  const { data: locationDetails = [] } = useQuery({
+    queryKey: ['location-details', locations.map(l => l.id)],
     queryFn: async () => {
-      let data;
-      if (selectedRoom === 'all' && selectedRack === 'all') {
-        // Get all reptiles
-        data = await getReptilesByLocation('room', 'all')
-      } else if (selectedRoom !== 'all' && selectedRack === 'all') {
-        // Get reptiles by room
-        data = await getReptilesByLocation('room', selectedRoom)
-      } else if (selectedRack !== 'all') {
-        // Get reptiles by rack
-        data = await getReptilesByLocation('rack', selectedRack)
-      } else {
-        return []
-      }
-      return (data as unknown) as ReptileWithLocationFromAPI[]
+      const details = await Promise.all(
+        locations.map(loc => getLocationDetails(loc.id))
+      )
+      return details
     },
+    enabled: locations.length > 0,
   })
 
   const { data: rooms } = useQuery({
@@ -111,6 +114,37 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
       return getRacksByRoom(selectedRoom)
     },
     enabled: !!selectedRoom && selectedRoom !== 'all',
+  })
+
+  // Combine reptiles with their locations
+  const reptilesWithLocations: ReptileWithLocation[] = reptiles.map(reptile => {
+    const locationDetail = reptile.location_id 
+      ? locationDetails.find(detail => detail.id === reptile.location_id)
+      : null
+
+    return {
+      ...reptile,
+      location: locationDetail ? {
+        id: locationDetail.id,
+        label: locationDetail.label,
+        rack: {
+          id: locationDetail.rack_id,
+          name: locationDetail.racks?.name || 'Unknown Rack',
+          room: {
+            id: locationDetail.room_id,
+            name: locationDetail.rooms?.name || 'Unknown Room'
+          }
+        }
+      } : null
+    }
+  })
+
+  const filteredReptiles = reptilesWithLocations.filter(reptile => {
+    if (!reptile.location) return false
+    if (selectedRoom === 'all' && selectedRack === 'all') return true
+    if (selectedRoom !== 'all' && reptile.location.rack.room.id !== selectedRoom) return false
+    if (selectedRack !== 'all' && reptile.location.rack.id !== selectedRack) return false
+    return true
   })
 
   const onSubmitForm = async (data: FormData) => {
@@ -138,14 +172,6 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
       setIsSubmitting(false)
     }
   }
-
-  const filteredReptiles = reptiles?.filter(reptile => {
-    if (selectedRoom === 'all' && selectedRack === 'all') return true
-    if (!reptile.location) return false
-    if (selectedRoom !== 'all' && reptile.location.rack.room.id !== selectedRoom) return false
-    if (selectedRack !== 'all' && reptile.location.rack.id !== selectedRack) return false
-    return true
-  })
 
   const handleSelectAll = () => {
     const allIds = filteredReptiles?.map(r => r.id) || []
