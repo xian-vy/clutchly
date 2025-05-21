@@ -1,3 +1,5 @@
+import { ProfileTab } from '@/components/dashboard/settings/ProfileTab';
+import DownloadTab from '@/components/backup';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings } from 'lucide-react';
@@ -13,22 +15,23 @@ export default async function SettingsPage() {
               Options
             </Button>
         </div>
-      <Tabs defaultValue="profile" className="space-y-2 md:space-y-3 xl:space-y-6">
+      <Tabs defaultValue="profile" className="space-y-2 md:space-y-3">
         <div className="flex flex-col w-full">
             <TabsList>
               <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="system">System</TabsTrigger>
+              <TabsTrigger value="backup">Backup</TabsTrigger>
             </TabsList>
             <hr className='mt-[1px]'/>
         </div>
     
         <TabsContent value="profile">
+            <ProfileTab />
         </TabsContent>
 
-        <TabsContent value="system">
-        </TabsContent>
+        <TabsContent value="backup">
+                <DownloadTab />
+         </TabsContent>
 
-       
       </Tabs>
     </div>
   )

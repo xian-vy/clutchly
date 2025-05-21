@@ -86,7 +86,7 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
                 type="date"
                 value={dateRange.from.toISOString().split('T')[0]}
                 onChange={(e) => setDateRange(prev => ({ ...prev, from: new Date(e.target.value) }))}
-                className="w-full  border rounded-md px-3 py-2"
+                className="w-full  border rounded-md px-3 py-2 text-xs sm:text-sm"
               />
             </div>
             <span className="text-muted-foreground">to</span>
@@ -95,7 +95,7 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
                 type="date"
                 value={dateRange.to.toISOString().split('T')[0]}
                 onChange={(e) => setDateRange(prev => ({ ...prev, to: new Date(e.target.value) }))}
-                className="w-full  border rounded-md px-3 py-2"
+                className="w-full  border rounded-md px-3 py-2  text-xs sm:text-sm"
               />
             </div>
           </div>
@@ -142,6 +142,7 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
           className="w-fit float-right"
           disabled={!canBackup || isPending}
           onClick={() => handleBackup()}
+          size="sm"
         >
           <Download className="h-4 w-4 " />
           {isPending ? 'Creating Backup...' : canBackup ? 'Download' : 'Rate Limited'}

@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,7 +54,7 @@ export function AboutSettingsDialog({ open, onOpenChange, settings, isAdmin }: A
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>About Your Store</DialogTitle>
+          <DialogTitle>About</DialogTitle>
         </DialogHeader>
         {isAdmin ? (
           <Form {...form}>
@@ -64,7 +64,6 @@ export function AboutSettingsDialog({ open, onOpenChange, settings, isAdmin }: A
                 name="about"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>About</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Tell visitors about your store, breeding program, or collection..."

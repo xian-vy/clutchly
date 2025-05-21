@@ -1,4 +1,4 @@
-import { Database, Dna, Heart, LineChart, Check, Zap, Package,  Bug, Network, Globe } from 'lucide-react'
+import { Database, Dna, Heart, LineChart, Check, Zap, Package,  Bug, Network, Globe, Sprout } from 'lucide-react'
 import { FeatureCard } from './FeatureCard'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -11,9 +11,18 @@ export function FeaturesSection() {
       icon: Database,
       title: 'Data Management',
       features: [
-        'Biological and genetic data management',
+        'Reptile biological and genetic data management',
         'Complete lineage and acquisition history',
         'Data import and export'
+      ]
+    },
+    {
+      icon: Globe,
+      title: 'Free Website',
+      features: [
+        'Free URL link to your website',
+        'Clean, modern and cuztomizable website.',
+        'Minimal setup, list reptile to your website directly from your collection',
       ]
     },
     {
@@ -27,7 +36,7 @@ export function FeaturesSection() {
     },
     {
       icon: LineChart,
-      title: 'Growth Analytics',
+      title: 'Growth Management',
       features: [
         'Detailed growth history tracking',
         'Interactive growth trend visualization',
@@ -69,21 +78,21 @@ export function FeaturesSection() {
       ]
     },
     {
-      icon: Globe,
-      title: 'Free Website',
-      features: [
-        'Free URL link to your website',
-        'Clean, modern and cuztomizable website. Tailored for social media sharing',
-        'Minimal setup, list reptile to your website directly from your collection',
-      ]
-    },
-    {
       icon: Bug,
       title: 'Feeding Management',
       features: [
         'Customizable feeding schedule',
         'Feeding by selected reptiles, room or rack',
         'Reports and feeding history',
+      ]
+    },
+    {
+      icon:Sprout,
+      title: 'Shedding Management',
+      features: [
+        'Create and manage shedding records',
+        'Batch shedding records',
+        'Reports and shedding history',
       ]
     }
   ]

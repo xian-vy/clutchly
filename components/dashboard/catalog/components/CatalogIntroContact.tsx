@@ -84,7 +84,7 @@ export function CatalogIntroContact({ open, onOpenChange, settings, isAdmin }: C
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Contact Settings</DialogTitle>
+          <DialogTitle>Contact</DialogTitle>
         </DialogHeader>
         {isAdmin ? (
           <Form {...form}>

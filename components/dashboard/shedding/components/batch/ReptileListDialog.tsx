@@ -74,11 +74,11 @@ export function ReptileListDialog({
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="sm:max-w-xl md:max-w-2xl max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle>All Reptiles</DialogTitle>
+          <DialogTitle>Select Reptiles</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-4">
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -140,7 +140,7 @@ export function ReptileListDialog({
                   />
                   <label
                     htmlFor={`dialog-${reptile.id}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     {reptile.name}
                     {reptile.reptile_code ? ` (${reptile.reptile_code})` : ''}
