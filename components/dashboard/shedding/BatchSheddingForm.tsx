@@ -1,75 +1,35 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { CreateSheddingInput } from '@/lib/types/shedding'
-import { Reptile } from '@/lib/types/reptile'
 import { getRooms } from '@/app/api/locations/rooms'
 import { getRacksByRoom } from '@/app/api/locations/racks'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { getLocations, getLocationDetails } from '@/app/api/locations/locations'
-import { Location } from '@/lib/types/location'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { ScrollArea } from '@/components/ui/scroll-area'
-
-const formSchema = z.object({
-  reptile_ids: z.array(z.string()).min(1, 'Please select at least one reptile'),
-  shed_date: z.string().min(1, 'Please select a date'),
-  completeness: z.enum(['full', 'partial', 'retained', 'unknown'], {
-    required_error: 'Please select completeness',
-  }),
-  notes: z.string().optional(),
-  photo_url: z.string().optional(),
-})
-
-type FormData = z.infer<typeof formSchema>
+import { DetailsSection } from './components/batch/DetailsSection'
+import { FiltersSection } from './components/batch/FiltersSection'
+import { ReptileSelection } from './components/batch/ReptileSelection'
+import { FormData, FilterState, ReptileWithLocation, formSchema } from './components/batch/types'
 
 interface Props {
   onSubmit: (data: CreateSheddingInput[]) => Promise<boolean>
   onOpenChange: (open: boolean) => void
 }
 
-interface ReptileWithLocation extends Reptile {
-  location?: {
-    id: string;
-    label: string;
-    rack: {
-      id: string;
-      name: string;
-      room: {
-        id: string;
-        name: string;
-      };
-    };
-  } | null;
-}
-
 export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [selectedRoom, setSelectedRoom] = useState<string>('all')
-  const [selectedRack, setSelectedRack] = useState<string>('all')
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [filters, setFilters] = useState<FilterState>({
+    room: 'all',
+    rack: 'all',
+    ageGroup: 'all'
+  })
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -81,12 +41,12 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
     },
   })
 
-  const { data: reptiles = [] } = useQuery<Reptile[]>({
+  const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   })
 
-  const { data: locations = [] } = useQuery<Location[]>({
+  const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: getLocations,
   })
@@ -108,12 +68,12 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
   })
 
   const { data: racks } = useQuery({
-    queryKey: ['racks', selectedRoom],
+    queryKey: ['racks', filters.room],
     queryFn: async () => {
-      if (selectedRoom === 'all') return []
-      return getRacksByRoom(selectedRoom)
+      if (filters.room === 'all') return []
+      return getRacksByRoom(filters.room)
     },
-    enabled: !!selectedRoom && selectedRoom !== 'all',
+    enabled: !!filters.room && filters.room !== 'all',
   })
 
   // Combine reptiles with their locations
@@ -139,18 +99,42 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
     }
   })
 
+  // Calculate age groups based on reptile data
+  const ageGroups = useMemo(() => {
+    return [
+      { id: 'all', label: 'All Ages' },
+      { id: 'hatchling', label: 'Hatchling (< 3 months)' },
+      { id: 'juvenile', label: 'Juvenile (3-6 months)' },
+      { id: 'subadult', label: 'Subadult (6-12 months)' },
+      { id: 'adult', label: 'Adult (> 12 months)' }
+    ]
+  }, [])
+
+  // Filter reptiles based on all criteria
   const filteredReptiles = reptilesWithLocations.filter(reptile => {
+    // Location filters
     if (!reptile.location) return false
-    if (selectedRoom === 'all' && selectedRack === 'all') return true
-    if (selectedRoom !== 'all' && reptile.location.rack.room.id !== selectedRoom) return false
-    if (selectedRack !== 'all' && reptile.location.rack.id !== selectedRack) return false
+    if (filters.room !== 'all' && reptile.location.rack.room.id !== filters.room) return false
+    if (filters.rack !== 'all' && reptile.location.rack.id !== filters.rack) return false
+
+    // Age group filter
+    if (filters.ageGroup !== 'all') {
+      const age = reptile.hatch_date ? 
+        (new Date().getTime() - new Date(reptile.hatch_date).getTime()) / (1000 * 60 * 60 * 24 * 30) : 0
+      
+      if (filters.ageGroup === 'hatchling' && age >= 3) return false
+      if (filters.ageGroup === 'juvenile' && (age < 3 || age >= 6)) return false
+      if (filters.ageGroup === 'subadult' && (age < 6 || age > 12)) return false
+      if (filters.ageGroup === 'adult' && age <= 12) return false
+    }
+
     return true
   })
 
   const onSubmitForm = async (data: FormData) => {
     setIsSubmitting(true)
     try {
-      const sheddingRecords = data.reptile_ids.map(reptile_id => ({
+      const sheddingRecords = data.reptile_ids.map((reptile_id: string) => ({
         reptile_id,
         shed_date: data.shed_date,
         completeness: data.completeness,
@@ -161,8 +145,11 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
       const success = await onSubmit(sheddingRecords)
       if (success) {
         form.reset()
-        setSelectedRoom('all')
-        setSelectedRack('all')
+        setFilters({
+          room: 'all',
+          rack: 'all',
+          ageGroup: 'all'
+        })
         toast.success('Batch shedding records created successfully')
       }
     } catch (error) {
@@ -183,214 +170,40 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
   }
 
   return (
-     <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="shed_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Shed Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-3">
+        <DetailsSection form={form} />
 
-              <FormField
-                control={form.control}
-                name="completeness"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Completeness</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select completeness" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="full">Full Shed</SelectItem>
-                        <SelectItem value="partial">Partial Shed</SelectItem>
-                        <SelectItem value="retained">Retained Shed</SelectItem>
-                        <SelectItem value="unknown">Unknown</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+        <FiltersSection
+          filters={filters}
+          setFilters={setFilters}
+          rooms={rooms}
+          racks={racks}
+          ageGroups={ageGroups}
+        />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <FormLabel>Filter by Location</FormLabel>
-                <div className="grid grid-cols-2 gap-2">
-                  <Select
-                    value={selectedRoom}
-                    onValueChange={(value) => {
-                      setSelectedRoom(value)
-                      setSelectedRack('all')
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select room" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Rooms</SelectItem>
-                      {rooms?.map((room) => (
-                        <SelectItem key={room.id} value={room.id}>
-                          {room.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+        <ReptileSelection
+          form={form}
+          filteredReptiles={filteredReptiles}
+          isDialogOpen={isDialogOpen}
+          onDialogOpenChange={setIsDialogOpen}
+          onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
+        />
 
-                  <Select
-                    value={selectedRack}
-                    onValueChange={setSelectedRack}
-                    disabled={selectedRoom === 'all'}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select rack" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Racks</SelectItem>
-                      {racks?.map((rack) => (
-                        <SelectItem key={rack.id} value={rack.id}>
-                          {rack.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <FormLabel>Reptile Selection</FormLabel>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSelectAll}
-                  >
-                    Select All
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDeselectAll}
-                  >
-                    Deselect All
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="reptile_ids"
-              render={() => (
-                <FormItem>
-                  <FormControl>
-                    <ScrollArea className="h-[200px] rounded-md border p-4">
-                      <div className="space-y-2">
-                        {filteredReptiles?.map((reptile) => (
-                          <div
-                            key={reptile.id}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={reptile.id}
-                              checked={form.watch('reptile_ids').includes(reptile.id)}
-                              onCheckedChange={(checked) => {
-                                const currentIds = form.watch('reptile_ids')
-                                if (checked) {
-                                  form.setValue('reptile_ids', [...currentIds, reptile.id])
-                                } else {
-                                  form.setValue(
-                                    'reptile_ids',
-                                    currentIds.filter((id) => id !== reptile.id)
-                                  )
-                                }
-                              }}
-                            />
-                            <label
-                              htmlFor={reptile.id}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {reptile.name}
-                              {reptile.reptile_code ? ` (${reptile.reptile_code})` : ''}
-                              {/* {reptile.location
-                                ? ` - ${reptile.location.rack.room.name} > ${reptile.location.rack.name} > ${reptile.location.label}`
-                                : ''} */}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add any notes about the shedding..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="photo_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Photo URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter URL to shedding photo"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Batch Shedding Records'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Creating...' : 'Create Batch Shedding Records'}
+          </Button>
+        </div>
+      </form>
+    </Form>
   )
 } 
