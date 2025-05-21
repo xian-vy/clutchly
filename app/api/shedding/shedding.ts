@@ -218,6 +218,7 @@ export async function getReptilesByLocation(locationType: 'room' | 'rack', locat
       )
     `)
     .eq('user_id', userId)
+    .eq("status", "active")
 
   if (locationType === 'room') {
     query = query.eq('location.rack.room.id', locationId)
