@@ -69,7 +69,7 @@ export const CatalogSettingsForm = ({ settings, onSubmit, onCancel }: CatalogSet
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 p-2">
         <FormField
           control={form.control}
           name="bio"
@@ -176,7 +176,7 @@ export const CatalogSettingsForm = ({ settings, onSubmit, onCancel }: CatalogSet
               <label className="text-sm font-medium">About</label>
               <FormControl>
                 <textarea
-                  className="w-full mt-1 p-2 border rounded-md"
+                  className="w-full mt-1 p-2 border rounded-md text-xs sm:text-sm xl:text-base"
                   {...field}
                   value={field.value || ''}
                   rows={3}

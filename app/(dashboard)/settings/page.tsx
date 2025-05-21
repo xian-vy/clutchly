@@ -15,7 +15,7 @@ export default async function SettingsPage() {
               Options
             </Button>
         </div>
-      <Tabs defaultValue="profile" className="space-y-2 md:space-y-3 xl:space-y-6">
+      <Tabs defaultValue="profile" className="space-y-2 md:space-y-3">
         <div className="flex flex-col w-full">
             <TabsList>
               <TabsTrigger value="profile">Profile</TabsTrigger>

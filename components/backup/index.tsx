@@ -29,7 +29,7 @@ const DownloadTab = () => {
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {backupTypes.map((type) => (
                 <div key={type.id} className="rounded-lg border bg-card">
-                <div className="p-6">
+                <div className="px-4  py-6 sm:p-6">
                     <div className="mb-4">
                     <h3 className="font-semibold">{type.label}</h3>
                     <p className="text-sm text-muted-foreground">{type.description}</p>
