@@ -25,8 +25,8 @@ export function NewSheddingDialog({
         </DialogHeader>
         <Tabs defaultValue="individual" className="w-full">
           <TabsList>
-            <TabsTrigger value="individual">Individual Shed</TabsTrigger>
-            <TabsTrigger value="batch">Batch Shed</TabsTrigger>
+            <TabsTrigger value="individual">Single</TabsTrigger>
+            <TabsTrigger value="batch">Multiple</TabsTrigger>
           </TabsList>
           <TabsContent value="individual">
             <IndividualSheddingForm
