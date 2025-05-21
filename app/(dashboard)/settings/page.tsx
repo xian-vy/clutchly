@@ -1,3 +1,4 @@
+import { ProfileTab } from '@/components/dashboard/settings/ProfileTab';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings } from 'lucide-react';
@@ -23,6 +24,7 @@ export default async function SettingsPage() {
         </div>
     
         <TabsContent value="profile">
+            <ProfileTab />
         </TabsContent>
 
         <TabsContent value="system">
