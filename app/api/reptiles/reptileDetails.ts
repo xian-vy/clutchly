@@ -1,10 +1,10 @@
-
 import { createClient } from '@/lib/supabase/client'
 import { GrowthEntry } from '@/lib/types/growth'
 import { Reptile } from '@/lib/types/reptile'
 import { BreedingProject, Clutch } from '@/lib/types/breeding'
 import { FeedingEvent } from '@/lib/types/feeding'
 import { HealthLogEntryWithCategory } from '@/lib/types/health'
+import { Shedding } from '@/lib/types/shedding'
 
 export interface DetailedReptile extends Reptile {
   species_name: string
@@ -17,6 +17,7 @@ export interface DetailedReptile extends Reptile {
   clutches: Clutch[]
   feeding_history: FeedingEvent[]
   offspring: Reptile[]
+  shedding_records: Shedding[]
 }
 
 export async function getReptileDetails(id: string): Promise<DetailedReptile> {
@@ -194,6 +195,15 @@ export async function getReptileDetails(id: string): Promise<DetailedReptile> {
 
   if (feedingError) throw feedingError
 
+  // Get shedding records
+  const { data: sheddingRecords, error: sheddingError } = await supabase
+    .from('shedding')
+    .select('*')
+    .eq('reptile_id', id)
+    .order('shed_date', { ascending: false })
+
+  if (sheddingError) throw sheddingError
+
   // Construct the detailed reptile object
   const detailedReptile: DetailedReptile = {
     ...reptileData,
@@ -206,7 +216,8 @@ export async function getReptileDetails(id: string): Promise<DetailedReptile> {
     breeding_projects_as_dam: breedingProjectsAsDam || [],
     clutches: clutches || [],
     feeding_history: feedingHistory || [],
-    offspring: offspring || []
+    offspring: offspring || [],
+    shedding_records: sheddingRecords || []
   }
 
   return detailedReptile

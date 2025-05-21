@@ -17,6 +17,7 @@ import { HealthTab } from "./HealthTab";
 import { FeedingTab } from "./FeedingTab";
 import { GeneticsTab } from "./GeneticsTab";
 import { BreedingTab } from "./BreedingTab";
+import { SheddingTab } from "./SheddingTab";
 import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/details/pdfGenerator";
 import { useState } from 'react';
 
@@ -115,6 +116,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
             <TabsTrigger value="growth">Growth</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="feeding">Feeding</TabsTrigger>
+            <TabsTrigger value="shedding">Shedding</TabsTrigger>
             <TabsTrigger value="genetics">Genetics</TabsTrigger>
             {reptile.is_breeder && (
               <TabsTrigger value="breeding">Breeding</TabsTrigger>
@@ -149,6 +151,12 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
 
                 <TabsContent value="feeding">
                   <FeedingTab 
+                    reptileDetails={reptileDetails || null} 
+                  />
+                </TabsContent>
+
+                <TabsContent value="shedding">
+                  <SheddingTab 
                     reptileDetails={reptileDetails || null} 
                   />
                 </TabsContent>
