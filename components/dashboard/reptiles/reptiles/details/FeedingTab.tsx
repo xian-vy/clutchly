@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Utensils } from "lucide-react";
+import { Bug } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { FeedingEvent } from "@/lib/types/feeding";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
@@ -25,16 +25,16 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
 
   if (!feedingHistory || feedingHistory.length === 0) {
     return (
-      <div className="space-y-4 mt-4">
-        <Card>
+      <div className="space-y-4">
+        <Card className="px-0 gap-3 border-0">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Utensils className="h-5 w-5" />
+              <Bug className="h-5 w-5" />
               Feeding History
             </CardTitle>
           </CardHeader>
           <CardContent className="py-4">
-            <p className="text-muted-foreground">No feeding history available</p>
+            <p className="text-muted-foreground text-sm">No feeding history available</p>
           </CardContent>
         </Card>
       </div>
@@ -47,11 +47,11 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
   const fedPercentage = totalEvents > 0 ? Math.round((fedEvents / totalEvents) * 100) : 0;
 
   return (
-    <div className="space-y-4 mt-4">
-      <Card>
-        <CardHeader className="pb-2">
+    <div className="space-y-4">
+      <Card className="pt-4 px-0 gap-3 border-0">
+        <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
-            <Utensils className="h-5 w-5" />
+            <Bug className="h-5 w-5" />
             Feeding History
           </CardTitle>
         </CardHeader>

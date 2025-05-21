@@ -17,6 +17,7 @@ import { HealthTab } from "./HealthTab";
 import { FeedingTab } from "./FeedingTab";
 import { GeneticsTab } from "./GeneticsTab";
 import { BreedingTab } from "./BreedingTab";
+import { SheddingTab } from "./SheddingTab";
 import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/details/pdfGenerator";
 import { useState } from 'react';
 
@@ -81,9 +82,14 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[620px] md:max-w-[700px] lg:max-w-screen-lg h-[90vh] overflow-hidden p-0">
-        <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between">
+        <DialogHeader className="px-6 py-2 flex flex-row items-center justify-between border-b">
           <DialogTitle className="text-base md:text-lg flex items-center gap-2">
-            {reptile.name}
+            <div className="flex flex-col items-start">
+                 {reptile.name}
+                <span className="text-sm text-muted-foreground">
+                    {reptile.reptile_code} 
+                </span>
+            </div>
             <div className="flex gap-2">
               {reptile.is_breeder && (
                 <Badge variant="custom" className={YES_NO_COLORS.yes}>
@@ -115,6 +121,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
             <TabsTrigger value="growth">Growth</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="feeding">Feeding</TabsTrigger>
+            <TabsTrigger value="shedding">Shedding</TabsTrigger>
             <TabsTrigger value="genetics">Genetics</TabsTrigger>
             {reptile.is_breeder && (
               <TabsTrigger value="breeding">Breeding</TabsTrigger>
@@ -149,6 +156,12 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
 
                 <TabsContent value="feeding">
                   <FeedingTab 
+                    reptileDetails={reptileDetails || null} 
+                  />
+                </TabsContent>
+
+                <TabsContent value="shedding">
+                  <SheddingTab 
                     reptileDetails={reptileDetails || null} 
                   />
                 </TabsContent>

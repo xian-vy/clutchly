@@ -11,9 +11,9 @@ import {
     Package,
     Plus,
     Settings,
+    Sprout,
 } from 'lucide-react';
 import { VscSnake } from "react-icons/vsc";
-import { PiChartLineUp,PiChartLineDown } from "react-icons/pi";
 
 export interface NavItem {
     name: string;
@@ -40,11 +40,11 @@ export interface NavItem {
       },
       {
       section: 'Main',
-      name: 'Sales',
-      icon: PiChartLineUp,
+      name: 'Finance',
+      icon: DollarSign,
       items: [
         {
-          name: 'Add New',
+          name: 'New Sales',
           href: '/sales/new',
           icon: Plus,
           type: "Sale",
@@ -56,15 +56,8 @@ export interface NavItem {
           icon: DollarSign,
           displayName: 'Sales Management', 
         },
-      ],
-    },
-    {
-      section: 'Main',
-      name: 'Expenses',
-      icon: PiChartLineDown,
-      items: [
         {
-          name: 'Add New',
+          name: 'New Expense',
           href: '/expenses/new',
           icon: Plus,
           type: "Expense",
@@ -74,10 +67,11 @@ export interface NavItem {
           name: 'All Expenses',
           href: '/expenses',
           icon: DollarSign,
-          displayName: 'Expenses Management', 
+          displayName: 'Sales Management', 
         },
       ],
     },
+  
     {
       section: 'Main',
       name: 'Reptiles',
@@ -116,6 +110,12 @@ export interface NavItem {
           icon: Dna,
         },
       ],
+    },
+    {
+      section: 'Health & Growth',
+      name: 'Shedding',
+      href: '/shedding',
+      icon: Sprout
     },
     {
       section: 'Health & Growth',
