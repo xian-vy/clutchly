@@ -115,11 +115,12 @@ export function SheddingList({
       }
     },
     {
-      accessorKey: "species",
+      accessorKey: "reptile.species_id",
       header: "Species",
       cell: ({ row }) => {
         const reptile = row.original.reptile;
-        const speciesName = species.find(species => species.id.toString() === reptile.species_id.toString())?.name || 'Unknown';        return (
+        const speciesName = species.find(species => species.id.toString() === reptile.species_id.toString())?.name || 'Unknown';
+        return (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
@@ -134,7 +135,7 @@ export function SheddingList({
       }
     },
     {
-      accessorKey: "reptile",
+      accessorKey: "reptile.name",
       header: "Reptile",
       cell: ({ row }) => {
         const reptile = row.original.reptile;
@@ -153,7 +154,7 @@ export function SheddingList({
       },
     },
     {
-      accessorKey: "reptile_code",
+      accessorKey: "reptile.reptile_code",
       header: "Code",
       cell: ({ row }) => {
         const reptile = row.original.reptile;
@@ -248,7 +249,7 @@ export function SheddingList({
   if (isLoading) {
     return (
       <div className="flex h-[200px] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
       </div>
     )
   }
