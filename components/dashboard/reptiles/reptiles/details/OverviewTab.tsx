@@ -35,15 +35,15 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
   };
 
   return (
-    <div className="space-y-4 mt-4">
-      <Card>
-        <CardHeader className="pb-2">
+    <div className="space-y-4 mt-2">
+      <Card className="px-0 gap-3 border-0 py-1 xl:py-2 ">
+        <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
             <Heart className="h-5 w-5" />
             Basic Information
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-y-6">
+        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-y-3 2xl:gap-y-6">
           <div>
             <p className="text-xs sm:text-sm text-muted-foreground">Species</p>
             <p className="text-xs sm:text-sm font-medium">{reptile.species_name}</p>
@@ -81,14 +81,14 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="px-0 gap-3 py-1 xl:py-2  border-0">
+        <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
             <Calendar className="h-5 w-5" />
             Dates & Measurements
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-y-6">
+        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-y-3 2xl:gap-y-6">
           <div>
             <p className="text-xs sm:text-sm text-muted-foreground">Hatch Date</p>
             <p className="text-xs sm:text-sm font-medium">{formatDate(reptile.hatch_date)}</p>
@@ -119,8 +119,8 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
       </Card>
 
       {reptile.notes && (
-        <Card>
-          <CardHeader className="pb-2">
+        <Card className="px-0 py-1 xl:py-2  gap-3 border-0"> 
+          <CardHeader className="px-0">
             <CardTitle className="text-base flex items-center gap-2">
               <Info className="h-5 w-5" />
               Notes
@@ -133,8 +133,8 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
       )}
 
       {reptileDetails?.health_logs && reptileDetails.health_logs.filter(log => !log.resolved).length > 0 && (
-        <Card className="border-yellow-500">
-          <CardHeader className="pb-2">
+        <Card className="border-yellow-500 py-1 xl:py-2  px-0 gap-3 border-0">
+          <CardHeader className="px-0">
             <CardTitle className="text-base flex items-center gap-2 text-yellow-500">
               <AlertTriangle className="h-5 w-5" />
               Active Health Issues

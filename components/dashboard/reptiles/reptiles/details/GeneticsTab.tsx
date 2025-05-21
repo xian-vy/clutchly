@@ -32,8 +32,8 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
         {traits.map((trait: string) => (
           <Badge 
             key={trait} 
-            variant="outline" 
-            className="py-1.5 px-3 text-xs font-medium rounded-full border-primary/40 bg-primary/5 hover:bg-primary/10 transition-colors"
+            variant="secondary"
+            className="py-1 px-2.5 text-xs font-medium"
           >
             {trait}
           </Badge>
@@ -53,8 +53,8 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge 
-                  variant="outline"
-                  className="flex items-center gap-1.5 py-1.5 px-3 text-xs font-medium rounded-full border-amber-300/40 bg-amber-50/30 hover:bg-amber-50/50 dark:bg-amber-950/20 dark:hover:bg-amber-950/30 dark:border-amber-700/40 transition-colors"
+                  variant="secondary"
+                  className="flex items-center gap-1.5 py-1 px-2.5 text-xs font-medium"
                 >
                   {trait.trait}
                   <span className="text-xs opacity-90 font-semibold">{trait.percentage}%</span>
@@ -79,39 +79,36 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
   ) => {
     const icon = parentType === 'dam' 
       ? <Venus className="h-4 w-4 text-rose-500" /> 
-      : <Mars className="h-4 w-4 text-sky-500" />;
+      : <Mars className="h-4 w-4 text-blue-500" />;
     
     const label = parentType === 'dam' ? 'Dam' : 'Sire';
-    const bgClass = parentType === 'dam' 
-      ? 'bg-gradient-to-br from-rose-50/60 to-rose-50/20 dark:from-rose-950/30 dark:to-rose-950/10' 
-      : 'bg-gradient-to-br from-sky-50/60 to-sky-50/20 dark:from-sky-950/30 dark:to-sky-950/10';
-    const borderClass = parentType === 'dam' 
-      ? 'border-rose-200/50 dark:border-rose-800/40' 
-      : 'border-sky-200/50 dark:border-sky-800/40';
+    const iconBgClass = parentType === 'dam' 
+      ? 'bg-rose-50 dark:bg-rose-950/30' 
+      : 'bg-blue-50 dark:bg-blue-950/30';
     
     return (
       <div className="h-full">
-        <div className={`${bgClass} ${borderClass} p-4 rounded-xl border backdrop-blur-sm h-full transition-all duration-200 hover:shadow-md`}>
+        <div className="bg-card border rounded-lg p-4 h-full transition-all duration-200 hover:shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <div className={`${parentType === 'dam' ? 'bg-rose-100 dark:bg-rose-900/40' : 'bg-sky-100 dark:bg-sky-900/40'} p-1.5 rounded-full`}>
+            <div className={`${iconBgClass} p-1.5 rounded-full`}>
               {icon}
             </div>
             <p className="text-sm font-medium">{label}</p>
           </div>
           
           {parentId ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-base">{parentData?.name || "Unknown"}</span>
               </div>
               
               <div>
-                <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Morph</p>
+                <p className="text-xs text-muted-foreground mb-1.5 font-medium uppercase tracking-wide">Morph</p>
                 {parentMorph && (
                   <div>
                     <Badge 
-                      variant="outline" 
-                      className="py-1.5 px-3 text-xs font-medium bg-primary/10 border-primary/40 hover:bg-primary/20 transition-colors"
+                      variant="secondary"
+                      className="py-1 px-2.5 text-xs font-medium"
                     >
                       {parentMorph.name}
                     </Badge>
@@ -121,14 +118,14 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
               
               {parentData?.visual_traits && parentData.visual_traits.length > 0 && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Visual Traits</p>
+                  <p className="text-xs text-muted-foreground mb-1.5 font-medium uppercase tracking-wide">Visual Traits</p>
                   {renderTraitBadges(parentData.visual_traits)}
                 </div>
               )}
               
               {parentData?.het_traits && parentData.het_traits.length > 0 && (
                 <div>
-                  <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">Het Traits</p>
+                  <p className="text-xs text-muted-foreground mb-1.5 font-medium uppercase tracking-wide">Het Traits</p>
                   {renderHetTraitBadges(parentData.het_traits)}
                 </div>
               )}
@@ -142,30 +139,25 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
   };
 
   return (
-    <div className="space-y-6 mt-4">
-      <Card className="overflow-hidden border border-border/70 shadow-sm hover:shadow-md transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2 ">
-            <div >
-              <Dna className="h-5 w-5 " />
-            </div>
+    <div className="space-y-3">
+      <Card className=" shadow-sm pt-4 px-0 gap-3 border-0">
+        <CardHeader className="px-0">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Dna className="h-4 w-4" />
             Genetic Profile
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-6 pb-6 pt-0">
-          <div className="grid grid-cols-1 gap-5">
+        <CardContent className="space-y-3  px-0">
+          <div className="grid grid-cols-1 gap-3">
             <div className="space-y-3">
-              <div className="bg-gradient-to-r from-background to-muted/20 p-5 rounded-xl border border-border/70 ">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="h-2 w-2 rounded-full bg-primary"></span>
-                  </div>
+              <div className="bg-card border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
                   <p className="text-sm font-semibold">Morph</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Badge 
-                    variant="default"
-                    className="flex items-center gap-1 py-1.5 px-3 rounded-full text-xs font-medium bg-primary/90 hover:bg-primary transition-all"
+                    variant="secondary"
+                    className="py-1 px-2.5 text-xs font-medium"
                   >
                     {reptile.morph_name}
                   </Badge>
@@ -173,11 +165,8 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
               </div>
 
               {(reptile.visual_traits && reptile.visual_traits.length > 0) && (
-                <div className="group bg-gradient-to-r from-background to-muted/20 p-5 rounded-xl border border-border/70 ">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="h-2 w-2 rounded-full bg-primary"></span>
-                    </div>
+                <div className="bg-card border rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
                     <p className="text-sm font-semibold">Visual Traits</p>
                     <TooltipProvider>
                       <Tooltip>
@@ -195,11 +184,8 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
               )}
 
               {(reptile.het_traits && reptile.het_traits.length > 0) && (
-                <div className="group bg-gradient-to-r from-background to-muted/20 p-5 rounded-xl border border-border/70 ">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-6 w-6 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center">
-                      <span className="h-2 w-2 rounded-full bg-amber-400"></span>
-                    </div>
+                <div className="bg-card border rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
                     <p className="text-sm font-semibold">Het Traits</p>
                     <TooltipProvider>
                       <Tooltip>
@@ -217,27 +203,22 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
               )}
 
               {reptile.breeding_line && (
-                <div className="group bg-gradient-to-r from-background to-muted/20 p-5 rounded-xl border border-border/70 ">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-6 w-6 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center">
-                      <Star className="h-3.5 w-3.5 text-amber-400" />
-                    </div>
+                <div className="bg-card border rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star className="h-4 w-4 text-muted-foreground" />
                     <p className="text-sm font-semibold">Breeding Line</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm bg-amber-100/50 dark:bg-amber-900/30 py-1.5 px-3 rounded-lg">
+                    <Badge variant="secondary" className="py-1 px-2.5 text-xs font-medium">
                       {reptile.breeding_line}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
               )}
             </div>
 
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="h-2 w-2 rounded-full bg-primary"></span>
-                </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold">Lineage</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

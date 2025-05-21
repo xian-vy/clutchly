@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Heart } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
 import { HealthLogEntryWithCategory } from "@/lib/types/health";
+import { SEVERITY_COLORS } from "@/lib/constants/colors";
 
 interface ReptileTabProps {
   reptileDetails: DetailedReptile | null;
@@ -31,11 +32,11 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
   
   if (!activeIssues.length && !resolvedIssues.length) {
     return (
-      <div className="space-y-4 mt-4">
+      <div className="space-y-4 ">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
+              <Heart className="h-5 w-5" />
               Health Records
             </CardTitle>
           </CardHeader>
@@ -48,13 +49,13 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
   }
 
   return (
-    <div className="space-y-4 mt-4">
+    <div className="space-y-2 ">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
+        <Card className="px-0 gap-3 border-0">
+          <CardHeader className="px-0">
             <CardTitle className="text-base">Last Defecation</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0">
             {lastDefecation ? (
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
@@ -81,14 +82,14 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
           </CardContent>
         </Card>
       </div>
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="px-0 gap-3 border-0">
+        <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5" />
+            <Heart className="h-5 w-5" />
             Health Records
           </CardTitle>
         </CardHeader>
-        <CardContent className="py-4 space-y-6">
+        <CardContent className="py-4 space-y-6 px-0">
           {activeIssues.length > 0 && (
             <div className="max-w-[320px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
               <h4 className="text-sm font-medium flex items-center gap-2 mb-2">
@@ -115,7 +116,7 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
                         {entry.custom_type_label && <span> - {entry.custom_type_label}</span>}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={entry.severity === 'high' ? 'destructive' : entry.severity === 'moderate' ? 'secondary' : 'outline'}>
+                        <Badge variant="custom" className={`${SEVERITY_COLORS[entry.severity ?? 'low']} capitalize`}>
                           {entry.severity || 'Low'}
                         </Badge>
                       </TableCell>

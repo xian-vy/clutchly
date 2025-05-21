@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
 import { Shedding } from "@/lib/types/shedding";
+import { SHEDDING_COLORS } from "@/lib/constants/colors";
+import { Sprout } from "lucide-react";
 
 interface SheddingTabProps {
   reptileDetails: DetailedReptile | null;
@@ -19,41 +21,6 @@ export function SheddingTab({ reptileDetails }: SheddingTabProps) {
     return format(parseISO(dateString), "MMM dd, yyyy");
   };
 
-  const getCompletenessBadge = (completeness: Shedding['completeness']) => {
-    const variants = {
-      full: 'custom',
-      partial: 'custom',
-      retained: 'destructive',
-      unknown: 'secondary'
-    } as const;
-
-    const labels = {
-      full: 'Full',
-      partial: 'Partial',
-      retained: 'Retained',
-      unknown: 'Unknown'
-    };
-
-    const getBadgeClassName = (type: Shedding['completeness']) => {
-      switch (type) {
-        case 'full':
-          return 'bg-green-500 hover:bg-green-600';
-        case 'partial':
-          return 'bg-yellow-500 hover:bg-yellow-600';
-        default:
-          return undefined;
-      }
-    };
-
-    return (
-      <Badge 
-        variant={variants[completeness]} 
-        className={getBadgeClassName(completeness)}
-      >
-        {labels[completeness]}
-      </Badge>
-    );
-  };
 
   const sheddingRecords = reptileDetails.shedding_records || [];
 
@@ -73,12 +40,14 @@ export function SheddingTab({ reptileDetails }: SheddingTabProps) {
   }
 
   return (
-    <div className="space-y-4 mt-4">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Shedding History</CardTitle>
+    <div className="space-y-4">
+      <Card className="pt-4 px-0 gap-3 border-0">
+        <CardHeader className="px-0">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Sprout className="h-4 w-4" />
+            Shedding History</CardTitle>
         </CardHeader>
-        <CardContent className="py-4">
+        <CardContent className=" px-0">
           <div className="max-w-[320px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
             <Table>
               <TableHeader>
@@ -93,7 +62,12 @@ export function SheddingTab({ reptileDetails }: SheddingTabProps) {
                 {sheddingRecords.map((record: Shedding) => (
                   <TableRow key={record.id}>
                     <TableCell>{formatDate(record.shed_date)}</TableCell>
-                    <TableCell>{getCompletenessBadge(record.completeness)}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" 
+                      className={`${SHEDDING_COLORS[record.completeness] || 'bg-secondary'} capitalize`}>
+                        {record.completeness}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="max-w-[200px] truncate">{record.notes || '-'}</TableCell>
                     <TableCell>
                       {record.photo_url ? (

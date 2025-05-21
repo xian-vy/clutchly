@@ -82,9 +82,14 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[620px] md:max-w-[700px] lg:max-w-screen-lg h-[90vh] overflow-hidden p-0">
-        <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between">
+        <DialogHeader className="px-6 py-2 flex flex-row items-center justify-between border-b">
           <DialogTitle className="text-base md:text-lg flex items-center gap-2">
-            {reptile.name}
+            <div className="flex flex-col items-start">
+                 {reptile.name}
+                <span className="text-sm text-muted-foreground">
+                    {reptile.reptile_code} 
+                </span>
+            </div>
             <div className="flex gap-2">
               {reptile.is_breeder && (
                 <Badge variant="custom" className={YES_NO_COLORS.yes}>
