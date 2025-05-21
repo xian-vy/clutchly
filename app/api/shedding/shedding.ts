@@ -11,9 +11,7 @@ export async function getSheddingRecords(): Promise<SheddingWithReptile[]> {
     .select(`
       *,
       reptile:reptiles (
-        id,
-        name,
-        reptile_code,
+      *,
         location:locations (
           id,
           label,
@@ -47,9 +45,7 @@ export async function getSheddingById(id: string) {
     .select(`
       *,
       reptile:reptiles (
-        id,
-        name,
-        reptile_code,
+      *,
         location:locations (
           id,
           label,
@@ -87,9 +83,7 @@ export async function createShedding(shedding: CreateSheddingInput): Promise<She
     .select(`
       *,
       reptile:reptiles (
-        id,
-        name,
-        reptile_code,
+      *,
         location:locations (
           id,
           label,
@@ -129,9 +123,7 @@ export async function createBatchShedding(sheddings: CreateSheddingInput[]): Pro
     .select(`
       *,
       reptile:reptiles (
-        id,
-        name,
-        reptile_code,
+      *,
         location:locations (
           id,
           label,
@@ -165,9 +157,7 @@ export async function updateShedding(id: string, updates: UpdateSheddingInput): 
     .select(`
       *,
       reptile:reptiles (
-        id,
-        name,
-        reptile_code,
+      *,
         location:locations (
           id,
           label,

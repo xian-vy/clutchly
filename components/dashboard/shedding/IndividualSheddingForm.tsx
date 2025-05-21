@@ -10,12 +10,6 @@ import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect'
 import { useQuery } from '@tanstack/react-query'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
   Form,
   FormControl,
   FormField,
@@ -47,12 +41,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 interface Props {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   onSubmit: (data: CreateSheddingInput) => Promise<void>
+  onOpenChange: (open: boolean) => void
 }
 
-export function IndividualSheddingForm({ open, onOpenChange, onSubmit }: Props) {
+export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { data: reptiles = [] } = useQuery({
@@ -78,7 +71,6 @@ export function IndividualSheddingForm({ open, onOpenChange, onSubmit }: Props) 
     try {
       await onSubmit(data)
       form.reset()
-      onOpenChange(false)
     } catch (error) {
       console.error('Failed to create shedding record:', error)
       toast.error('Failed to create shedding record')
@@ -88,11 +80,6 @@ export function IndividualSheddingForm({ open, onOpenChange, onSubmit }: Props) 
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Log Individual Shedding</DialogTitle>
-        </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -203,7 +190,6 @@ export function IndividualSheddingForm({ open, onOpenChange, onSubmit }: Props) 
             </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+
   )
 } 

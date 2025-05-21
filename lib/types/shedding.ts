@@ -1,3 +1,5 @@
+import { Reptile } from './reptile'
+
 export interface Shedding {
     id: string;
     reptile_id: string;
@@ -23,15 +25,8 @@ export interface ReptileLocation {
   };
 }
 
-export interface ReptileWithLocation {
-  id: string;
-  name: string;
-  reptile_code: string | null;
-  location: ReptileLocation | null;
-}
-
 export interface SheddingWithReptile extends Shedding {
-  reptile: ReptileWithLocation;
+  reptile: Reptile;
 }
 
 // Form types
@@ -55,62 +50,23 @@ export interface BatchSheddingFormData {
 export type CreateSheddingInput = Omit<Shedding, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
 export type UpdateSheddingInput = Partial<Omit<Shedding, 'id' | 'user_id' | 'created_at' | 'updated_at'>>;
 
-// Type for raw data from Supabase
-interface RawReptileLocation {
-  id: string;
-  label: string;
-  rack: {
-    id: string;
-    name: string;
-    room: {
-      id: string;
-      name: string;
-    };
-  };
-}
-
-interface RawReptileData {
-  id: string;
-  name: string;
-  reptile_code: string | null;
-  location: RawReptileLocation | null;
-}
-
 // Type assertion functions
-export function assertReptileWithLocation(data: unknown): ReptileWithLocation {
+export function assertReptileWithLocation(data: unknown): Reptile {
   if (!data || typeof data !== 'object') {
     throw new Error('Invalid reptile data');
   }
 
-  const reptileData = data as RawReptileData;
-  const { id, name, reptile_code, location } = reptileData;
+  const reptileData = data as Reptile;
+  const { id, name } = reptileData;
 
   if (typeof id !== 'string' || typeof name !== 'string') {
     throw new Error('Invalid reptile data: missing required fields');
   }
 
-  const reptileLocation = location ? {
-    id: location.id,
-    label: location.label,
-    rack: {
-      id: location.rack.id,
-      name: location.rack.name,
-      room: {
-        id: location.rack.room.id,
-        name: location.rack.room.name,
-      },
-    },
-  } : null;
-
-  return {
-    id,
-    name,
-    reptile_code: reptile_code || null,
-    location: reptileLocation,
-  };
+  return reptileData;
 }
 
-export function assertReptilesWithLocation(data: unknown[]): ReptileWithLocation[] {
+export function assertReptilesWithLocation(data: unknown[]): Reptile[] {
   if (!Array.isArray(data)) {
     throw new Error('Invalid data: expected an array');
   }

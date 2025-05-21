@@ -2,28 +2,24 @@
 
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
 import { SheddingList } from './SheddingList'
-import { IndividualSheddingForm } from './IndividualSheddingForm'
-import { BatchSheddingForm } from './BatchSheddingForm'
 import { SheddingReports } from './SheddingReports'
 import { useResource } from '@/lib/hooks/useResource'
 import { getSheddingRecords, updateShedding, deleteShedding, createShedding, createBatchShedding } from '@/app/api/shedding/shedding'
 import { SheddingWithReptile, CreateSheddingInput, UpdateSheddingInput } from '@/lib/types/shedding'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
+import { NewSheddingDialog } from './NewSheddingDialog'
+import { Button } from '@/components/ui/button'
+import { Settings } from 'lucide-react'
 
 export function SheddingPage() {
   const queryClient = useQueryClient()
-  const [isIndividualDialogOpen, setIsIndividualDialogOpen] = useState(false)
-  const [isBatchDialogOpen, setIsBatchDialogOpen] = useState(false)
+  const [isNewDialogOpen, setIsNewDialogOpen] = useState(false)
 
   const {
     resources: sheddingRecords,
     isLoading,
-    selectedResource,
-    setSelectedResource,
     handleCreate: handleCreateShedding,
     handleUpdate,
     handleDelete,
@@ -46,6 +42,7 @@ export function SheddingPage() {
     if (!success) {
       throw new Error('Failed to create shedding record')
     }
+    setIsNewDialogOpen(false)
   }
 
   const handleBatchCreate = async (data: CreateSheddingInput[]): Promise<boolean> => {
@@ -53,6 +50,7 @@ export function SheddingPage() {
       await createBatchShedding(data)
       await queryClient.invalidateQueries({ queryKey: ['shedding'] })
       toast.success('Batch shedding records created successfully')
+      setIsNewDialogOpen(false)
       return true
     } catch (error) {
       console.error('Failed to create batch shedding records:', error)
@@ -61,26 +59,20 @@ export function SheddingPage() {
     }
   }
 
+  const handleDeleteWithConfirmation = async (id: string): Promise<void> => {
+    if (confirm('Are you sure you want to delete this shedding record?')) {
+      await handleDelete(id)
+    }
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Shedding Management</h1>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setIsIndividualDialogOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Log Individual Shed
+      <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
+          <h1 className="text-lg sm:text-xl 2xl:text-2xl 3xl:!text-3xl font-bold">Shed Management</h1>
+          <Button size="sm" variant="outline">
+            <Settings className="h-4 w-4" />
+            Options
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => setIsBatchDialogOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Log Batch Shed
-          </Button>
-        </div>
       </div>
 
       <Tabs defaultValue="list" className="space-y-4">
@@ -93,10 +85,9 @@ export function SheddingPage() {
           <SheddingList
             sheddingRecords={sheddingRecords}
             isLoading={isLoading}
-            selectedResource={selectedResource}
-            setSelectedResource={setSelectedResource}
             onUpdate={handleUpdate}
-            onDelete={handleDelete}
+            onDelete={handleDeleteWithConfirmation}
+            onAddNew={() => setIsNewDialogOpen(true)}
           />
         </TabsContent>
 
@@ -105,16 +96,11 @@ export function SheddingPage() {
         </TabsContent>
       </Tabs>
 
-      <IndividualSheddingForm
-        open={isIndividualDialogOpen}
-        onOpenChange={setIsIndividualDialogOpen}
+      <NewSheddingDialog
+        open={isNewDialogOpen}
+        onOpenChange={setIsNewDialogOpen}
         onSubmit={handleCreate}
-      />
-
-      <BatchSheddingForm
-        open={isBatchDialogOpen}
-        onOpenChange={setIsBatchDialogOpen}
-        onSubmit={handleBatchCreate}
+        onBatchSubmit={handleBatchCreate}
       />
     </div>
   )

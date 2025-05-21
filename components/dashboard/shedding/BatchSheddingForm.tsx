@@ -6,17 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { assertReptilesWithLocation } from '@/lib/types/shedding'
 import { CreateSheddingInput } from '@/lib/types/shedding'
+import { Reptile } from '@/lib/types/reptile'
 import { getRooms } from '@/app/api/locations/rooms'
 import { getRacksByRoom } from '@/app/api/locations/racks'
 import { getReptilesByLocation } from '@/app/api/shedding/shedding'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -51,12 +45,26 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 interface Props {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   onSubmit: (data: CreateSheddingInput[]) => Promise<boolean>
+  onOpenChange: (open: boolean) => void
 }
 
-export function BatchSheddingForm({ open, onOpenChange, onSubmit }: Props) {
+interface ReptileWithLocationFromAPI extends Reptile {
+  location: {
+    id: string;
+    label: string;
+    rack: {
+      id: string;
+      name: string;
+      room: {
+        id: string;
+        name: string;
+      };
+    };
+  } | null;
+}
+
+export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedRoom, setSelectedRoom] = useState<string>('all')
   const [selectedRack, setSelectedRack] = useState<string>('all')
@@ -74,20 +82,20 @@ export function BatchSheddingForm({ open, onOpenChange, onSubmit }: Props) {
   const { data: reptiles } = useQuery({
     queryKey: ['reptiles', 'all'],
     queryFn: async () => {
+      let data;
       if (selectedRoom === 'all' && selectedRack === 'all') {
         // Get all reptiles
-        const data = await getReptilesByLocation('room', 'all')
-        return assertReptilesWithLocation(data)
+        data = await getReptilesByLocation('room', 'all')
       } else if (selectedRoom !== 'all' && selectedRack === 'all') {
         // Get reptiles by room
-        const data = await getReptilesByLocation('room', selectedRoom)
-        return assertReptilesWithLocation(data)
+        data = await getReptilesByLocation('room', selectedRoom)
       } else if (selectedRack !== 'all') {
         // Get reptiles by rack
-        const data = await getReptilesByLocation('rack', selectedRack)
-        return assertReptilesWithLocation(data)
+        data = await getReptilesByLocation('rack', selectedRack)
+      } else {
+        return []
       }
-      return []
+      return (data as unknown) as ReptileWithLocationFromAPI[]
     },
   })
 
@@ -121,7 +129,6 @@ export function BatchSheddingForm({ open, onOpenChange, onSubmit }: Props) {
         form.reset()
         setSelectedRoom('all')
         setSelectedRack('all')
-        onOpenChange(false)
         toast.success('Batch shedding records created successfully')
       }
     } catch (error) {
@@ -150,13 +157,7 @@ export function BatchSheddingForm({ open, onOpenChange, onSubmit }: Props) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px]">
-        <DialogHeader>
-          <DialogTitle>Log Batch Shedding</DialogTitle>
-        </DialogHeader>
-
-        <Form {...form}>
+     <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -364,7 +365,6 @@ export function BatchSheddingForm({ open, onOpenChange, onSubmit }: Props) {
             </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+
   )
 } 

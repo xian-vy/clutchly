@@ -7,71 +7,72 @@ import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
 import { EditSheddingDialog } from './EditSheddingDialog'
 import { Badge } from '@/components/ui/badge'
-import { Pencil, Trash2, Filter } from 'lucide-react'
+import { Pencil, Trash2, Filter, MoreHorizontal } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
 import { ColumnDef } from '@tanstack/react-table'
 import { SheddingFilterDialog, SheddingFilters } from './SheddingFilterDialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSpeciesStore } from '@/lib/stores/speciesStore'
+import { YES_NO_COLORS } from '@/lib/constants/colors'
+import { getSpeciesAbbreviation } from '@/lib/utils'
 
 interface Props {
-  sheddingRecords: SheddingWithReptile[] | undefined
+  sheddingRecords: SheddingWithReptile[]
   isLoading: boolean
-  selectedResource: SheddingWithReptile | undefined
-  setSelectedResource: (resource: SheddingWithReptile | undefined) => void
-  onUpdate: (data: UpdateSheddingInput) => Promise<boolean>
+  onUpdate: (data: Partial<UpdateSheddingInput>) => Promise<boolean>
   onDelete: (id: string) => Promise<void>
+  onAddNew: () => void
 }
 
 export function SheddingList({
-  sheddingRecords = [],
+  sheddingRecords,
   isLoading,
-  selectedResource,
-  setSelectedResource,
   onUpdate,
   onDelete,
+  onAddNew,
 }: Props) {
   const [editingShedding, setEditingShedding] = useState<SheddingWithReptile | null>(null)
-  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState<SheddingFilters>({})
+  const {species} = useSpeciesStore()
 
-  // Apply filters to the shedding records
   const filteredRecords = useMemo(() => {
-    return sheddingRecords.filter(record => {
-      // Completeness filter
+    return sheddingRecords.filter((record) => {
+      // Filter by completeness
       if (filters.completeness?.length && !filters.completeness.includes(record.completeness)) {
-        return false;
+        return false
       }
-      
-      // Date range filter
+
+      // Filter by date range
       if (filters.dateRange) {
-        const [startDate, endDate] = filters.dateRange;
-        const shedDate = new Date(record.shed_date);
-        if (startDate && shedDate < startDate) {
-          return false;
+        const [startDate, endDate] = filters.dateRange
+        const shedDate = new Date(record.shed_date)
+        if (startDate && new Date(startDate) > shedDate) {
+          return false
         }
-        if (endDate && shedDate > endDate) {
-          return false;
+        if (endDate && new Date(endDate) < shedDate) {
+          return false
         }
       }
-      
-      // Reptile filter
+
+      // Filter by reptile IDs
       if (filters.reptileIds?.length && !filters.reptileIds.includes(record.reptile_id)) {
-        return false;
+        return false
       }
-      
-      return true;
-    });
-  }, [sheddingRecords, filters]);
+
+      return true
+    })
+  }, [sheddingRecords, filters])
 
   // Get active filter count for the badge
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (filters.completeness?.length) count++;
-    if (filters.dateRange) count++;
-    if (filters.reptileIds?.length) count++;
-    return count;
-  }, [filters]);
+  const activeFilters = useMemo(() => {
+    let count = 0
+    if (filters.completeness?.length) count++
+    if (filters.dateRange) count++
+    if (filters.reptileIds?.length) count++
+    return count
+  }, [filters])
 
   const columns: ColumnDef<SheddingWithReptile>[] = [
     {
@@ -89,20 +90,49 @@ export function SheddingList({
       }
     },
     {
+      accessorKey: "species",
+      header: "Species",
+      cell: ({ row }) => {
+        const reptile = row.original.reptile;
+        const speciesName = species.find(species => species.id.toString() === reptile.species_id.toString())?.name || 'Unknown';        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                {getSpeciesAbbreviation(speciesName)}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{speciesName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
+    },
+    {
       accessorKey: "reptile",
       header: "Reptile",
       cell: ({ row }) => {
         const reptile = row.original.reptile;
         return (
-          <div>
-            {reptile.name}
-            {reptile.reptile_code && (
-              <span className="ml-2 text-muted-foreground">
-                ({reptile.reptile_code})
-              </span>
-            )}
-          </div>
+          <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[140px] xl:max-w-[150px] 2xl:max-w-[180px]">{reptile.name}</p>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{reptile.name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         );
+      },
+    },
+    {
+      accessorKey: "reptile_code",
+      header: "Code",
+      cell: ({ row }) => {
+        const reptile = row.original.reptile;
+        return <div className="text-left">{reptile.reptile_code}</div>;
       }
     },
     {
@@ -118,8 +148,21 @@ export function SheddingList({
       }
     },
     {
+      id: "notes",
       accessorKey: "notes",
       header: "Notes",
+      cell: ({ row }) => {
+        const notes = row.getValue("notes") as string | null;
+        const label = notes && notes.length > 0 ? "yes" : "no";
+        return (
+          <Badge
+            variant="custom"
+            className={`${YES_NO_COLORS[label.toLowerCase() as keyof typeof YES_NO_COLORS]} capitalize`}
+          >
+            {label}
+          </Badge>
+        );
+      }
     },
     {
       id: "actions",
@@ -127,16 +170,7 @@ export function SheddingList({
         const record = row.original;
         return (
           <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSelectedResource(record);
-                setEditingShedding(record);
-              }}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -145,7 +179,6 @@ export function SheddingList({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => {
-                  setSelectedResource(record);
                   setEditingShedding(record);
                 }}>
                   <Pencil className="mr-2 h-4 w-4" />
@@ -169,44 +202,42 @@ export function SheddingList({
 
   // Custom filter button for the DataTable
   const CustomFilterButton = () => (
-    <Button 
-      variant="outline" 
-      size="sm" 
-      onClick={() => setIsFilterDialogOpen(true)}
-      className="relative"
+    <Button
+      variant="outline"
+      size="sm"
+      className="h-8 gap-1"
+      onClick={() => setShowFilters(true)}
     >
-      <Filter className="h-4 w-4 mr-1" />
-      Filter
-      {activeFilterCount > 0 && (
-        <Badge 
-          variant="destructive" 
-          className="absolute text-white rounded-sm -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 font-normal text-[0.65rem]"
-        >
-          {activeFilterCount}
+      <Filter className="h-4 w-4" />
+      Filters
+      {activeFilters > 0 && (
+        <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+          {activeFilters}
         </Badge>
       )}
     </Button>
-  );
+  )
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex h-[200px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
-      <DataTable 
-        columns={columns} 
+      <DataTable
+        columns={columns}
         data={filteredRecords}
         filterButton={<CustomFilterButton />}
+        onAddNew={onAddNew}
       />
 
       <SheddingFilterDialog
-        open={isFilterDialogOpen}
-        onOpenChange={setIsFilterDialogOpen}
+        open={showFilters}
+        onOpenChange={setShowFilters}
         onApplyFilters={setFilters}
         currentFilters={filters}
         reptiles={sheddingRecords.map(record => ({
@@ -220,19 +251,11 @@ export function SheddingList({
         <EditSheddingDialog
           shedding={editingShedding}
           open={!!editingShedding}
-          onOpenChange={(open) => {
-            if (!open) {
+          onOpenChange={(open) => !open && setEditingShedding(null)}
+          onSubmit={async (data) => {
+            const success = await onUpdate(data)
+            if (success) {
               setEditingShedding(null)
-              setSelectedResource(undefined)
-            }
-          }}
-          onSubmit={async (data: UpdateSheddingInput) => {
-            if (selectedResource) {
-              const success = await onUpdate(data)
-              if (success) {
-                setEditingShedding(null)
-                setSelectedResource(undefined)
-              }
             }
           }}
         />
