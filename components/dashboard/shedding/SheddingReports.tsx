@@ -9,10 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { Reptile } from '@/lib/types/reptile'
 import { SheddingWithReptile } from '@/lib/types/shedding'
-import { SheddingFilters } from './components/SheddingFilters'
-import { SheddingOverview } from './components/SheddingOverview'
-import { SheddingCharts } from './components/SheddingCharts'
-import { SheddingDataTable } from './components/SheddingDataTable'
+import { SheddingFilters } from './components/reports/SheddingFilters'
+import { SheddingOverview } from './components/reports/SheddingOverview'
+import { SheddingCharts } from './components/reports/SheddingCharts'
+import { SheddingDataTable } from './components/reports/SheddingDataTable'
 
 export function SheddingReports() {
   const supabase = createClientComponentClient()
