@@ -1,4 +1,5 @@
 import { ProfileTab } from '@/components/dashboard/settings/ProfileTab';
+import DownloadTab from '@/components/backup';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings } from 'lucide-react';
@@ -18,7 +19,7 @@ export default async function SettingsPage() {
         <div className="flex flex-col w-full">
             <TabsList>
               <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="system">System</TabsTrigger>
+              <TabsTrigger value="backup">Backup</TabsTrigger>
             </TabsList>
             <hr className='mt-[1px]'/>
         </div>
@@ -27,10 +28,10 @@ export default async function SettingsPage() {
             <ProfileTab />
         </TabsContent>
 
-        <TabsContent value="system">
-        </TabsContent>
+        <TabsContent value="backup">
+                <DownloadTab />
+         </TabsContent>
 
-       
       </Tabs>
     </div>
   )

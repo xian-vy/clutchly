@@ -2,7 +2,6 @@ import {
   Bug,
     Dna,
     DollarSign,
-    Download,
     Globe,
     Heart,
     LayoutDashboard,
@@ -141,12 +140,7 @@ export interface NavItem {
       href: '/feeding',
       icon: Bug,
     },
-    {
-      section: 'System',
-      name: 'Backup',
-      href: '/download',
-      icon: Download,
-    },
+   
     {
       section: 'System',
       name: 'Settings',

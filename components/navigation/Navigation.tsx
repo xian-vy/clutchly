@@ -117,7 +117,7 @@ export function Navigation() {
           )}
         </div>
         <ScrollArea className='h-full'>
-          <nav className="px-3 2xl:px-4 space-y-2 2xl:space-y-3 3xl:!space-y-5 pt-1 3xl:pt-1.5 flex-1">
+          <nav className="px-3 2xl:px-4 space-y-2 md:space-y-3 2xl:space-y-4 3xl:!space-y-6 pt-1 2xl:pt-1.5 flex-1">
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && (
@@ -131,7 +131,7 @@ export function Navigation() {
                     return (
                       <Collapsible 
                         key={item.name} 
-                        className="space-y-1"
+                        className="space-y-2"
                         open={openSection === item.name}
                       >
                         <CollapsibleTrigger
