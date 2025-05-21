@@ -56,9 +56,10 @@ export function SheddingFilterDialog({
                 <SelectValue placeholder="Select completeness" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="complete">Complete</SelectItem>
+                <SelectItem value="full">Full</SelectItem>
                 <SelectItem value="partial">Partial</SelectItem>
-                <SelectItem value="incomplete">Incomplete</SelectItem>
+                <SelectItem value="retained">Retained</SelectItem>
+                <SelectItem value="unknown">Unknown</SelectItem>
               </SelectContent>
             </Select>
           </div>
