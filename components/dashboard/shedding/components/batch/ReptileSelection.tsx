@@ -41,8 +41,6 @@ export function ReptileSelection({
             isOpen={isDialogOpen}
             onOpenChange={onDialogOpenChange}
             filteredReptiles={filteredReptiles}
-            onSelectAll={onSelectAll}
-            onDeselectAll={onDeselectAll}
             trigger={
               <Button
                 type="button"
