@@ -10,14 +10,19 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const userId = currentUser.data.user?.id;
   if (!currentUser || !userId) throw new Error('Unauthorized');
 
-  // Execute profile and catalog entries queries in parallel
-  const [profileResult, entriesResult, settingsResult] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('id, full_name, logo')
-      .eq('id', userId)
-      .single(),
-    
+  // First get profile since it's required
+  const profileResult = await supabase
+    .from('profiles')
+    .select('id, full_name, logo')
+    .eq('id', userId)
+    .single();
+
+  if (profileResult.error) throw profileResult.error;
+  if (!profileResult.data) throw new Error('Profile not found');
+  const profileData = profileResult.data;
+
+  // Execute all remaining queries in parallel
+  const [entriesResult, settingsResult, morphResult, speciesResult] = await Promise.all([
     supabase
       .from('catalog_entries')
       .select(`
@@ -32,16 +37,43 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
       .from('catalog_settings')
       .select('*')
       .eq('user_id', userId)
-      .single()
-  ]);
+      .single(),
 
-  if (profileResult.error) throw profileResult.error;
-  if (!profileResult.data) throw new Error('Profile not found');
-  const profileData = profileResult.data;
+    // Get unique morph IDs from entries first
+    supabase
+      .from('catalog_entries')
+      .select('reptiles!inner(morph_id)')
+      .eq('user_id', userId)
+      .overrideTypes<{ reptiles: { morph_id: string } }[], { merge: false }>()
+      .then(async (result) => {
+        if (result.error) return { data: [] };
+        const morphIds = [...new Set(result.data?.map(entry => entry.reptiles.morph_id).filter(Boolean) || [])];
+        return supabase
+          .from('morphs')
+          .select('id, name')
+          .in('id', morphIds);
+      }),
+
+    // Get unique species IDs from entries first
+    supabase
+      .from('catalog_entries')
+      .select('reptiles!inner(species_id)')
+      .eq('user_id', userId)
+      .overrideTypes<{ reptiles: { species_id: string } }[], { merge: false }>()
+      .then(async (result) => {
+        if (result.error) return { data: [] };
+        const speciesIds = [...new Set(result.data?.map(entry => entry.reptiles.species_id).filter(Boolean) || [])];
+        return supabase
+          .from('species')
+          .select('id, name')
+          .in('id', speciesIds);
+      })
+  ]);
 
   if (entriesResult.error) throw entriesResult.error;
   const data = entriesResult.data;
 
+  // Handle empty results case
   if (data?.length === 0) {
     const settingsData = settingsResult.data;
     return [{
@@ -73,29 +105,9 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     return [{...data[0], catalog_settings: defaultSettings, profile: profileData}];
   }
 
-  // Get unique IDs
-  const morphIds = [...new Set(data?.map(entry => entry.reptiles.morph_id) || [])];
-  const speciesIds = [...new Set(data?.map(entry => entry.reptiles.species_id) || [])];
-
-  // Fetch morph and species data in parallel
-  const [morphResult, speciesResult] = await Promise.all([
-    supabase
-      .from('morphs')
-      .select('id, name')
-      .in('id', morphIds),
-    
-    supabase
-      .from('species')
-      .select('id, name')
-      .in('id', speciesIds)
-  ]);
-
-  const morphData = morphResult.data || [];
-  const speciesData = speciesResult.data || [];
-
-  // Create maps
-  const morphMap = new Map(morphData?.map(morph => [morph.id, morph.name]));
-  const speciesMap = new Map(speciesData?.map(sp => [sp.id, sp.name]));
+  // Create maps from morph and species results
+  const morphMap = new Map(morphResult.data?.map(morph => [morph.id, morph.name]) || []);
+  const speciesMap = new Map(speciesResult.data?.map(sp => [sp.id, sp.name]) || []);
 
   // Transform the data
   const enrichedData = data?.map(entry => ({

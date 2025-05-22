@@ -20,15 +20,22 @@ export function formatCurrency(amount: number): string {
 }
 
 export const formatChartAmount = (value: number): string => {
+  const format = (val: number, suffix: string) => {
+    const formatted = (val).toFixed(1);
+    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}${suffix}`;
+  };
+
   if (value >= 1000000) {
-    return `${(value / 1000000).toFixed(1)}M`;
+    return format(value / 1000000, 'M');
   } else if (value >= 1000) {
-    return `${(value / 1000).toFixed(1)}k`;
+    return format(value / 1000, 'k');
   } else if (value >= 100) {
-    return `${Math.round(value / 100)}h`;
+    return format(value / 100, 'h')  
   }
+
   return value.toString();
 };
+
 
 export function calculateAgeInMonths(date: Date): number {
   const now = new Date();

@@ -83,14 +83,27 @@ async function processImport(
   try {
     // Track species and morphs by name to avoid duplicates
     const speciesMap: Record<string, number> = {}
-    // Change morphMap to use compound keys (species_id:morph_name)
     const morphMap: Record<string, number> = {}
     
-    // Step 1: Fetch existing species and morphs
-    const { data: existingSpecies } = await supabase
-      .from('species')
-      .select('id, name')
-      .or(`user_id.eq.${userId},is_global.eq.true`)
+    // Step 1: Fetch existing species, morphs, and reptiles in parallel
+    const [existingSpeciesResult, existingMorphsResult, existingReptilesResult] = await Promise.all([
+      supabase
+        .from('species')
+        .select('id, name')
+        .or(`user_id.eq.${userId},is_global.eq.true`),
+      supabase
+        .from('morphs')
+        .select('id, name, species_id')
+        .or(`user_id.eq.${userId},is_global.eq.true`),
+      supabase
+        .from('reptiles')
+        .select('*')
+        .eq('user_id', userId)
+    ])
+    
+    const existingSpecies = existingSpeciesResult.data
+    const existingMorphs = existingMorphsResult.data
+    const existingReptiles = existingReptilesResult.data
     
     if (existingSpecies) {
       existingSpecies.forEach(species => {
@@ -98,24 +111,12 @@ async function processImport(
       })
     }
     
-    const { data: existingMorphs } = await supabase
-      .from('morphs')
-      .select('id, name, species_id')
-      .or(`user_id.eq.${userId},is_global.eq.true`)
-    
     if (existingMorphs) {
       existingMorphs.forEach(morph => {
-        // Use compound key with species_id and morph name
         const compoundKey = `${morph.species_id}:${morph.name.toLowerCase()}`
         morphMap[compoundKey] = morph.id
       })
     }
-    
-    // Fetch existing reptiles for sequence number generation and parent lookup
-    const { data: existingReptiles } = await supabase
-      .from('reptiles')
-      .select('*')
-      .eq('user_id', userId)
     
     // Create a map of existing reptile names for parent lookup
     const existingReptileMap = new Map<string, string>()
@@ -129,6 +130,7 @@ async function processImport(
     const importedReptileMap = new Map<string, string>()
     
     // Steps 2 & 3: Process species and morphs that don't exist yet
+    // Keep these sequential due to dependencies
     const newSpecies: NewSpecies[] = []
     for (const row of selectedRows) {
       if (!row.species) continue
@@ -137,11 +139,10 @@ async function processImport(
       const speciesKey = speciesName.toLowerCase()
       
       if (!speciesMap[speciesKey]) {
-        // Add to list of new species to create
         newSpecies.push({
           name: speciesName,
           scientific_name: null,
-          care_level: 'intermediate', // Default value
+          care_level: 'intermediate',
           is_global: false
         })
       }
@@ -161,16 +162,16 @@ async function processImport(
           speciesMap[species.name.toLowerCase()] = species.id
           response.speciesAdded.push({
             user_id: userId,
-            id : species.id,
+            id: species.id,
             name: species.name,
             scientific_name: null,
-            care_level : 'intermediate',
+            care_level: 'intermediate',
           })
         })
       }
     }
     
-    // Step 4: Process morphs that don't exist yet
+    // Process morphs that don't exist yet
     for (const row of selectedRows) {
       if (!row.morph) continue
       
@@ -184,11 +185,9 @@ async function processImport(
         continue
       }
       
-      // Create compound key with species_id and morph name
       const compoundKey = `${speciesId}:${morphName.toLowerCase()}`
       
       if (!morphMap[compoundKey]) {
-        // Create new morph
         const newMorph: NewMorph = {
           name: morphName,
           description: null,
@@ -211,7 +210,7 @@ async function processImport(
             id: createdMorph.id,
             name: createdMorph.name,
             species_id: speciesId,
-            description : "",
+            description: "",
             species: {
               name: row.species
             }
@@ -220,13 +219,13 @@ async function processImport(
       }
     }
     
-    // Step 4: First pass - Create reptiles without setting parents
-    for (const row of selectedRows) {
+    // Step 4: Create reptiles in parallel
+    const reptilePromises = selectedRows.map(async (row) => {
       try {
         const speciesId = speciesMap[String(row.species).toLowerCase()]
         if (!speciesId) {
           response.errors.push(`Species not found for reptile ${row.name}`)
-          continue
+          return null
         }
         
         // Check if reptile with same name already exists
@@ -239,14 +238,13 @@ async function processImport(
         
         if (existingReptile) {
           response.errors.push(`Reptile with name ${row.name} already exists, skipping`)
-          continue
+          return null
         }
         
         // Get morph name for reptile code generation
         let morphName = ""
         if (row.morph) {
           const speciesId = speciesMap[String(row.species).toLowerCase()]
-          // Use compound key to look up the morph
           const compoundKey = `${speciesId}:${String(row.morph).toLowerCase()}`
           const morphId = morphMap[compoundKey]
           
@@ -268,8 +266,6 @@ async function processImport(
             
           if (speciesObj) {
             const speciesCode = getSpeciesCode(speciesObj.name)
-            
-            // Include newly created reptiles in this import to avoid duplicate sequence numbers
             const allReptiles = [
               ...(existingReptiles || []), 
               ...response.reptiles
@@ -285,7 +281,6 @@ async function processImport(
           }
         }
         
-        // Prepare reptile data
         const newReptile: NewReptile = {
           name: row.name,
           reptile_code: reptileCode || null,
@@ -310,15 +305,14 @@ async function processImport(
           breeding_line: row.breeding_line || undefined,
           generation: typeof row.generation !== 'undefined' ? Number(row.generation) : undefined,
           original_breeder: row.original_breeder || '',
-          location_id: null, // Not supported in import
-          parent_clutch_id: null, // Not supported in import
-          dam_id: null, // Not supported in import
-          sire_id: null, // Not supported in import
-          project_ids: undefined, // Not supported in import,
+          location_id: null,
+          parent_clutch_id: null,
+          dam_id: null,
+          sire_id: null,
+          project_ids: undefined,
           price: row.price || null,
         }
         
-        // Insert reptile
         const { data: createdReptile, error: reptileError } = await supabase
           .from('reptiles')
           .insert([{ ...newReptile, user_id: userId }])
@@ -328,11 +322,9 @@ async function processImport(
         if (reptileError) throw reptileError
         
         if (createdReptile) {
-          response.reptiles.push(createdReptile)
-          // Store the created reptile ID for parent linking
           importedReptileMap.set(createdReptile.name.toLowerCase(), createdReptile.id)
           
-          // Only create growth entry if weight or length is provided
+          // Create growth entry if needed
           if (row.weight || row.length) {
             const growthEntry: CreateGrowthEntryInput = {
               reptile_id: createdReptile.id,
@@ -344,89 +336,86 @@ async function processImport(
               attachments: [],
             }
             
-            const { error: growthError } = await supabase
+            await supabase
               .from('growth_entries')
               .insert([growthEntry])
-            
-            if (growthError) throw growthError
           }
+          
+          return createdReptile
         }
+        return null
       } catch (error) {
         console.error('Error processing row:', error)
         const errorMessage = error instanceof Error ? error.message : String(error)
         response.errors.push(`Error processing ${row.name}: ${errorMessage}`)
+        return null
       }
-    }
+    })
     
-    // Step 5: Second pass - Update reptiles with parent references
-    for (const row of selectedRows) {
-      if (!row.dam_name && !row.sire_name) continue
-      
-      try {
-        // Look up the reptile we just created
-        const reptileName = row.name.toLowerCase()
-        const reptileId = importedReptileMap.get(reptileName)
-        
-        if (!reptileId) {
-          response.errors.push(`Could not find reptile ID for ${row.name} to set parents`)
-          continue
-        }
-        
-        let damId: string | null = null
-        let sireId: string | null = null
-        
-        // Look up dam
-        if (row.dam_name) {
-          const damName = row.dam_name.toLowerCase()
-          // Check imported reptiles first, then existing reptiles
-          damId = importedReptileMap.get(damName) || existingReptileMap.get(damName) || null
+    const createdReptiles = (await Promise.all(reptilePromises)).filter((r): r is Reptile => r !== null)
+    response.reptiles.push(...createdReptiles)
+    
+    // Step 5: Update parent references in parallel
+    const parentUpdatePromises = selectedRows
+      .filter(row => row.dam_name || row.sire_name)
+      .map(async (row) => {
+        try {
+          const reptileName = row.name.toLowerCase()
+          const reptileId = importedReptileMap.get(reptileName)
           
-          if (!damId) {
-            response.errors.push(`Could not find dam "${row.dam_name}" for reptile ${row.name}`)
-          }
-        }
-        
-        // Look up sire
-        if (row.sire_name) {
-          const sireName = row.sire_name.toLowerCase()
-          // Check imported reptiles first, then existing reptiles
-          sireId = importedReptileMap.get(sireName) || existingReptileMap.get(sireName) || null
-          
-          if (!sireId) {
-            response.errors.push(`Could not find sire "${row.sire_name}" for reptile ${row.name}`)
-          }
-        }
-        
-        // Only update if we found at least one parent
-        if (damId || sireId) {
-          const updateData: { dam_id?: string; sire_id?: string } = {}
-          if (damId) updateData.dam_id = damId
-          if (sireId) updateData.sire_id = sireId
-          
-          const { error: updateError } = await supabase
-            .from('reptiles')
-            .update(updateData)
-            .eq('id', reptileId)
-          
-          if (updateError) {
-            throw updateError
+          if (!reptileId) {
+            response.errors.push(`Could not find reptile ID for ${row.name} to set parents`)
+            return
           }
           
-          // Update the reptile in our response array
-          const reptileIndex = response.reptiles.findIndex(r => r.id === reptileId)
-          if (reptileIndex !== -1) {
-            response.reptiles[reptileIndex] = {
-              ...response.reptiles[reptileIndex],
-              ...updateData
+          let damId: string | null = null
+          let sireId: string | null = null
+          
+          if (row.dam_name) {
+            const damName = row.dam_name.toLowerCase()
+            damId = importedReptileMap.get(damName) || existingReptileMap.get(damName) || null
+            
+            if (!damId) {
+              response.errors.push(`Could not find dam "${row.dam_name}" for reptile ${row.name}`)
             }
           }
+          
+          if (row.sire_name) {
+            const sireName = row.sire_name.toLowerCase()
+            sireId = importedReptileMap.get(sireName) || existingReptileMap.get(sireName) || null
+            
+            if (!sireId) {
+              response.errors.push(`Could not find sire "${row.sire_name}" for reptile ${row.name}`)
+            }
+          }
+          
+          if (damId || sireId) {
+            const updateData: { dam_id?: string; sire_id?: string } = {}
+            if (damId) updateData.dam_id = damId
+            if (sireId) updateData.sire_id = sireId
+            
+            await supabase
+              .from('reptiles')
+              .update(updateData)
+              .eq('id', reptileId)
+            
+            // Update the reptile in our response array
+            const reptileIndex = response.reptiles.findIndex(r => r.id === reptileId)
+            if (reptileIndex !== -1) {
+              response.reptiles[reptileIndex] = {
+                ...response.reptiles[reptileIndex],
+                ...updateData
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error updating parent references:', error)
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          response.errors.push(`Error setting parents for ${row.name}: ${errorMessage}`)
         }
-      } catch (error) {
-        console.error('Error updating parent references:', error)
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        response.errors.push(`Error setting parents for ${row.name}: ${errorMessage}`)
-      }
-    }
+      })
+    
+    await Promise.all(parentUpdatePromises)
     
     response.success = true
     return response
