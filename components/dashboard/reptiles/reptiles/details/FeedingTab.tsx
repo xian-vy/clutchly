@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Bug } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { FeedingEvent } from "@/lib/types/feeding";
+import {  FeedingEventsWithFeederDetails } from "@/lib/types/feeding";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
 import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
 interface FeedingTabProps {
@@ -43,7 +43,7 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
 
   // Calculate feeding statistics
   const totalEvents = feedingHistory.length;
-  const fedEvents = feedingHistory.filter((event: FeedingEvent) => event.fed).length;
+  const fedEvents = feedingHistory.filter((event: FeedingEventsWithFeederDetails) => event.fed).length;
   const fedPercentage = totalEvents > 0 ? Math.round((fedEvents / totalEvents) * 100) : 0;
 
   return (
@@ -55,7 +55,7 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
             Feeding History
           </CardTitle>
         </CardHeader>
-        <CardContent className="py-4 space-y-6">
+        <CardContent className="space-y-6 px-0 sm:px-2">
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Feeding Success Rate</h4>
             <Progress value={fedPercentage} className="h-2" />
@@ -69,17 +69,23 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Feeder</TableHead>
                   <TableHead>Notes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {feedingHistory.slice(0, 5).map((entry: FeedingEvent) => (
+                {feedingHistory.slice(0, 10).map((entry: FeedingEventsWithFeederDetails) => (
                   <TableRow key={entry.id}>
                     <TableCell>{formatDate(entry.scheduled_date)}</TableCell>
                     <TableCell>
                       <Badge variant={entry.fed ? "custom" : "destructive"} className={entry.fed ? YES_NO_COLORS.yes : ""}>
                         {entry.fed ? "Fed" : "Refused"}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {entry.feeder_type_name && entry.feeder_size_name 
+                        ? `${entry.feeder_type_name} (${entry.feeder_size_name})`
+                        : '-'}
                     </TableCell>
                     <TableCell>{entry.notes || '-'}</TableCell>
                   </TableRow>

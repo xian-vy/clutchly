@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/client'
 import { GrowthEntry } from '@/lib/types/growth'
 import { Reptile } from '@/lib/types/reptile'
 import { BreedingProject, Clutch } from '@/lib/types/breeding'
-import { FeedingEvent } from '@/lib/types/feeding'
+import {  FeedingEventsWithFeederDetails } from '@/lib/types/feeding'
 import { HealthLogEntryWithCategory } from '@/lib/types/health'
 import { Shedding } from '@/lib/types/shedding'
 
@@ -15,7 +15,7 @@ export interface DetailedReptile extends Reptile {
   breeding_projects_as_sire: BreedingProject[]
   breeding_projects_as_dam: BreedingProject[]
   clutches: Clutch[]
-  feeding_history: FeedingEvent[]
+  feeding_history: FeedingEventsWithFeederDetails[]
   offspring: Reptile[]
   shedding_records: Shedding[]
 }
@@ -93,10 +93,16 @@ export async function getReptileDetails(id: string): Promise<DetailedReptile> {
       .order('hatch_date', { ascending: false }),
     supabase
       .from('feeding_events')
-      .select('*')
+      .select(` *,
+        feeder_sizes (name,
+          feeder_types (
+            name
+          )
+        )
+      `)
       .eq('reptile_id', id)
       .order('scheduled_date', { ascending: false })
-      .limit(50),
+      .limit(10),
     supabase
       .from('shedding')
       .select('*')
@@ -160,6 +166,13 @@ export async function getReptileDetails(id: string): Promise<DetailedReptile> {
     };
   }));
 
+  // Enhance feeding events with feeder information
+  const feedingHistory = (feedingResult.data || []).map(event => ({
+    ...event,
+    feeder_size_name: event.feeder_sizes?.name || null,
+    feeder_type_name: event.feeder_sizes?.feeder_types?.name || null
+  }));
+
   // Construct the detailed reptile object
   const detailedReptile: DetailedReptile = {
     ...reptileData,
@@ -171,7 +184,7 @@ export async function getReptileDetails(id: string): Promise<DetailedReptile> {
     breeding_projects_as_sire: breedingSireResult.data || [],
     breeding_projects_as_dam: breedingDamResult.data || [],
     clutches: clutches || [],
-    feeding_history: feedingResult.data || [],
+    feeding_history: feedingHistory || [],
     offspring: offspringResult.data || [],
     shedding_records: sheddingResult.data || []
   }
