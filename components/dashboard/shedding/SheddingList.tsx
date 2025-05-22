@@ -2,10 +2,9 @@
 
 import { useState, useMemo } from 'react'
 import { format } from 'date-fns'
-import { SheddingWithReptile, UpdateSheddingInput } from '@/lib/types/shedding'
+import { SheddingWithReptile } from '@/lib/types/shedding'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
-import { EditSheddingDialog } from './EditSheddingDialog'
 import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2, Filter, MoreHorizontal } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
@@ -20,19 +19,18 @@ import { getSpeciesAbbreviation } from '@/lib/utils'
 interface Props {
   sheddingRecords: SheddingWithReptile[]
   isLoading: boolean
-  onUpdate: (data: Partial<UpdateSheddingInput>) => Promise<boolean>
   onDelete: (id: string) => Promise<void>
   onAddNew: () => void
+  onEdit : (shedding: SheddingWithReptile) => void
 }
 
 export function SheddingList({
   sheddingRecords,
   isLoading,
-  onUpdate,
   onDelete,
   onAddNew,
+  onEdit,
 }: Props) {
-  const [editingShedding, setEditingShedding] = useState<SheddingWithReptile | null>(null)
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState<SheddingFilters | null>(null)
   const {species} = useSpeciesStore()
@@ -207,15 +205,13 @@ export function SheddingList({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => {
-                  setEditingShedding(record);
+                  onEdit(record);
                 }}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
-                  if (confirm('Are you sure you want to delete this shedding record?')) {
                     onDelete(record.id);
-                  }
                 }}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
@@ -270,19 +266,7 @@ export function SheddingList({
         currentFilters={filters || {}}
       />
 
-      {editingShedding && (
-        <EditSheddingDialog
-          shedding={editingShedding}
-          open={!!editingShedding}
-          onOpenChange={(open) => !open && setEditingShedding(null)}
-          onSubmit={async (data) => {
-            const success = await onUpdate(data)
-            if (success) {
-              setEditingShedding(null)
-            }
-          }}
-        />
-      )}
+
     </div>
   )
 } 

@@ -29,7 +29,7 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
 
   const displayGrowthData = (growthHistory: GrowthEntry[]) => {
     if (!growthHistory || growthHistory.length === 0) {
-      return <p className="text-muted-foreground">No growth data available</p>;
+      return <p className="text-muted-foreground text-sm">No growth data available</p>;
     }
 
     // Format data for the chart
@@ -165,7 +165,7 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
             Growth History
           </CardTitle>
         </CardHeader>
-        <CardContent className="py-2 px-0">
+        <CardContent className="px-0">
           {displayGrowthData(reptileDetails.growth_history)}
         </CardContent>
       </Card>
