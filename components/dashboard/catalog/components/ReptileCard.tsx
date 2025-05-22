@@ -28,6 +28,7 @@ interface ReptileCardProps {
   onEdit?: (entry: EnrichedCatalogEntry) => void;
   onDelete?: (id: string) => void;
   onClick?: (entry: EnrichedCatalogEntry) => void;
+  isFeatured?: boolean;
 }
 
 export function ReptileCard({
@@ -37,7 +38,8 @@ export function ReptileCard({
   onFeatureToggle,
   onEdit,
   onDelete,
-  onClick
+  onClick,
+  isFeatured
 }: ReptileCardProps) {
   const imageUrl = entry.catalog_images ? entry.catalog_images[0]?.image_url  : null;
   const reptile = entry.reptiles;
@@ -61,8 +63,9 @@ export function ReptileCard({
                   src={imageUrl}
                   alt={reptile?.name || 'Reptile'}
                   fill
+                  loading='lazy'
                   className="object-cover transition-transform group-hover:scale-115 duration-300"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  sizes={isFeatured ? "(max-width: 768px) 70vw, (max-width: 1200px) 40vw, 25vw" : "(max-width: 768px) 60vw, (max-width: 1200px) 33vw, 15vw"}
                 />
               </div>
             ) : (
@@ -143,7 +146,9 @@ export function ReptileCard({
               src={imageUrl}
               alt={reptile?.name || 'Reptile'}
               fill
+              loading='lazy'
               className="object-cover"
+              sizes={isFeatured ? "(max-width: 768px) 70vw, (max-width: 1200px) 50vw, 33vw" : "(max-width: 768px) 80vw, (max-width: 1200px) 50vw, 10vw"}
             />
           ) : (
             <div className="flex items-center justify-center h-full w-full bg-muted">

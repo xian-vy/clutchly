@@ -23,10 +23,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
 
   useEffect(() => {
     const scrollToTop = () => {
-      const element = document.getElementById('catalog-entry-details');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     scrollToTop();
   }, []);
@@ -64,8 +61,9 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
                 src={catalogEntry.catalog_images[selectedImageIndex].image_url}
                 alt={reptileName}
                 fill
+                loading='lazy'
                 className="object-contain object-top bg-background"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 768px) 80vw, (max-width: 1200px) 60vw, 50vw"
               />
             ) : (
                 <div className="flex items-center justify-center h-full w-full bg-muted">
@@ -95,8 +93,9 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
                       src={image.image_url}
                       alt={`${reptileName} thumbnail ${index + 1}`}
                       fill
+                      loading='lazy'
                       className="object-cover"
-                      sizes="(max-width: 768px) 25vw, 10vw"
+                      sizes="(max-width: 768px) 15vw, 5vw"
                     />
                   </div>
                 ))}
@@ -115,7 +114,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
       </Card>
 
       {/* Right column - Details */}
-      <Card className='px-0 py-5 sm:p-6 lg:p-2 xl:p-3 border-0 border-t-1 rounded-none lg:rounded-lg lg:border gap-2 sm:gap-4'>
+      <Card className='px-0 py-5 sm:p-6 lg:p-2 xl:p-3 border-0 border-t-1 rounded-none  lg:border-t-0 lg:border-l-1 gap-2 sm:gap-4'>
         <CardHeader>
           <CardTitle className='flex flex-col items-start gap-1 sm:gap-2 mt-3'>
             <h2 className="text-2xl  md:text-3xl 2xl:text-[2rem] font-bold text-foreground/80 leading-[1.1]">

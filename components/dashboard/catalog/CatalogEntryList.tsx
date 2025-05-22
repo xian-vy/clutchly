@@ -100,6 +100,7 @@ export function CatalogEntryList({
                       onEdit={onEdit}
                       onDelete={onDelete}
                       onClick={onViewDetails}
+                      isFeatured={true}
                     />
                   ))}
                 </div>
@@ -143,6 +144,7 @@ export function CatalogEntryList({
                     onEdit={onEdit}
                     onDelete={onDelete}
                     onClick={onViewDetails}
+                    isFeatured={false}
                   />
                 ))}
               </div>
