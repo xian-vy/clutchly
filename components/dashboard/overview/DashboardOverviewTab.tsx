@@ -15,7 +15,7 @@ import { ExpensesSummary } from '@/lib/types/expenses';
 import { useEffect, useMemo, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
-import { FilterX, Loader2 } from 'lucide-react';
+import { FilterX } from 'lucide-react';
 import { StatsCards } from './StatsCards';
 import { ActionItems } from './ActionItems';
 import { RecentActivity } from './RecentActivity';
@@ -43,8 +43,8 @@ export function DashboardOverviewTab() {
 
   
   // Get species and morph data from their respective stores
-  const { species, isLoading: speciesLoading, fetchSpecies } = useSpeciesStore();
-  const { morphs, isLoading: morphsLoading,downloadCommonMorphs  } = useMorphsStore();
+  const { species, fetchSpecies } = useSpeciesStore();
+  const { morphs, downloadCommonMorphs  } = useMorphsStore();
   const { feederSizes,feederTypes,fetchFeederSizes,fetchFeederTypes } = useFeedersStore();
 
   
@@ -141,7 +141,7 @@ export function DashboardOverviewTab() {
     ]
   });
 
-  // Destructure the results
+  // Destructure the results with loading states
   const [
     { data: reptiles = [], isLoading: reptilesLoading },
     { data: healthLogs = [], isLoading: healthLoading },
@@ -183,7 +183,6 @@ export function DashboardOverviewTab() {
     setTimePeriod('monthly');
   };
   
- 
   
   const hasActiveFilters = !!dateRange || timePeriod !== 'monthly';
   
@@ -228,26 +227,28 @@ export function DashboardOverviewTab() {
             </div>
         </div>
         <TabsContent value="0">
-                <StatsCards 
-                  reptiles={reptiles} 
-                  healthLogs={healthLogs}
-                  growthEntries={growthEntries}
-                  salesSummary={salesSummary}
-                  expensesSummary={expensesSummary}
-                  breedingProjects={breedingProjects}
-                  tabIndex={0}
-                />
+          <StatsCards 
+            reptiles={reptiles} 
+            healthLogs={healthLogs}
+            growthEntries={growthEntries}
+            salesSummary={salesSummary}
+            expensesSummary={expensesSummary}
+            breedingProjects={breedingProjects}
+            tabIndex={0}
+            isLoading={reptilesLoading || healthLoading || growthLoading || breedingLoading || salesLoading || expensesLoading}
+          />
         </TabsContent>
         <TabsContent value="1">
-                <StatsCards 
-                  reptiles={reptiles} 
-                  healthLogs={healthLogs}
-                  growthEntries={growthEntries}
-                  salesSummary={salesSummary}
-                  expensesSummary={expensesSummary}
-                  breedingProjects={breedingProjects}
-                  tabIndex={1}
-                />
+          <StatsCards 
+            reptiles={reptiles} 
+            healthLogs={healthLogs}
+            growthEntries={growthEntries}
+            salesSummary={salesSummary}
+            expensesSummary={expensesSummary}
+            breedingProjects={breedingProjects}
+            tabIndex={1}
+            isLoading={salesLoading || expensesLoading}
+          />
         </TabsContent>
       </Tabs>
 
@@ -260,6 +261,7 @@ export function DashboardOverviewTab() {
           period={timePeriod}
           startDate={dateRange?.from}
           endDate={dateRange?.to}
+          isLoading={salesLoading || expensesLoading}
         />
       </div>
 
@@ -273,11 +275,12 @@ export function DashboardOverviewTab() {
           breedingProjects={breedingProjects}
           species={species}
           morphs={morphs}
+          isLoading={reptilesLoading || healthLoading || breedingLoading}
         />
       </div>
       
       {/* Main dashboard content - stacked layout */}
-      <div className="grid grid-cols-1  gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Action items */}
         <div>
           <ActionItems 
@@ -286,6 +289,7 @@ export function DashboardOverviewTab() {
             breedingProjects={breedingProjects}
             growthEntries={growthEntries}
             clutches={allClutches}
+            isLoading={reptilesLoading || healthLoading || breedingLoading || growthLoading || clutchesLoading}
           />
         </div>
         
@@ -295,6 +299,7 @@ export function DashboardOverviewTab() {
             reptiles={reptiles}
             healthLogs={healthLogs}
             growthEntries={growthEntries}
+            isLoading={reptilesLoading || healthLoading || growthLoading}
           />
         </div>
       </div>

@@ -18,6 +18,7 @@ import {
   Area,
   TooltipProps,
 } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type TimePeriod = 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
 
@@ -36,6 +37,7 @@ interface SalesExpensesChartProps {
   period: TimePeriod;
   startDate?: Date;
   endDate?: Date;
+  isLoading: boolean;
 }
 
 // Custom tooltip component
@@ -81,7 +83,8 @@ export function SalesExpensesChart({
   expensesSummary, 
   period, 
   startDate, 
-  endDate 
+  endDate,
+  isLoading
 }: SalesExpensesChartProps) {
   const screen = useScreenSize();
   // Chart title based on period
@@ -415,6 +418,23 @@ export function SalesExpensesChart({
       return a.period.localeCompare(b.period);
     });
   }, [salesSummary, expensesSummary, period, startDate, endDate]);
+
+  // If loading
+  if (isLoading) {
+    return (
+      <Card className="col-span-1 lg:col-span-2">
+        <CardHeader>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent className="h-80 px-0 2xl:pl-2 2xl:pr-4">
+          <div className="w-full h-full flex items-center justify-center">
+            <Skeleton className="w-full h-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // If data is empty
   if (chartData.length === 0) {
