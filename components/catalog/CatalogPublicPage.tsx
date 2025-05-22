@@ -129,7 +129,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
       </div>
     );
   }
