@@ -211,9 +211,7 @@ export function SheddingList({
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
-                  if (confirm('Are you sure you want to delete this shedding record?')) {
                     onDelete(record.id);
-                  }
                 }}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete

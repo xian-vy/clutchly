@@ -62,12 +62,6 @@ export function SheddingPage() {
     }
   }
 
-  const handleDeleteWithConfirmation = async (id: string): Promise<void> => {
-    if (confirm('Are you sure you want to delete this shedding record?')) {
-      await handleDelete(id)
-    }
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
@@ -89,7 +83,7 @@ export function SheddingPage() {
             sheddingRecords={sheddingRecords}
             isLoading={isLoading}
             onEdit={setSelectedResource}
-            onDelete={handleDeleteWithConfirmation}
+            onDelete={handleDelete}
             onAddNew={() => setIsNewDialogOpen(true)}
           />
         </TabsContent>
