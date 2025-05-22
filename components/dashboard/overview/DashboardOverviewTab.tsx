@@ -103,7 +103,7 @@ export function DashboardOverviewTab() {
   const independentQueries = useQueries({
     queries: [
       {
-        queryKey: ['reptiles', dateFilterParams],
+        queryKey: ['reptiles'],
         queryFn: getReptiles,
       },
       {
