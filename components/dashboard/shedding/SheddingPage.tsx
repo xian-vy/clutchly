@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { NewSheddingDialog } from './NewSheddingDialog'
 import { Button } from '@/components/ui/button'
 import { Settings } from 'lucide-react'
+import { EditSheddingDialog } from './EditSheddingDialog'
 
 export function SheddingPage() {
   const queryClient = useQueryClient()
@@ -21,8 +22,10 @@ export function SheddingPage() {
     resources: sheddingRecords,
     isLoading,
     handleCreate: handleCreateShedding,
-    handleUpdate,
     handleDelete,
+    handleUpdate,
+    setSelectedResource,
+    selectedResource
   } = useResource<SheddingWithReptile, UpdateSheddingInput>({
     resourceName: 'Shedding',
     queryKey: ['shedding'],
@@ -85,7 +88,7 @@ export function SheddingPage() {
           <SheddingList
             sheddingRecords={sheddingRecords}
             isLoading={isLoading}
-            onUpdate={handleUpdate}
+            onEdit={setSelectedResource}
             onDelete={handleDeleteWithConfirmation}
             onAddNew={() => setIsNewDialogOpen(true)}
           />
@@ -102,6 +105,24 @@ export function SheddingPage() {
         onSubmit={handleCreate}
         onBatchSubmit={handleBatchCreate}
       />
+       <EditSheddingDialog
+          shedding={selectedResource}
+          open={!!selectedResource}
+          onOpenChange={(open) => !open && setSelectedResource(undefined)}
+          onSubmit={async (data) => {
+            try {
+              const success = await handleUpdate(data)
+              if (success) {
+                setSelectedResource(undefined)
+                return true
+              }
+              return false
+            } catch (error) {
+              console.error('SheddingList: Failed to update shedding record:', error)
+              return false
+            }
+          }}
+        />
     </div>
   )
 } 

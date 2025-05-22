@@ -16,22 +16,28 @@ import { SheddingWithReptile, UpdateSheddingInput } from '@/lib/types/shedding'
 import { useState } from 'react'
 
 interface Props {
-  shedding: SheddingWithReptile
+  shedding: SheddingWithReptile | undefined
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: UpdateSheddingInput) => Promise<void>
+  onSubmit: (data: { id: string } & UpdateSheddingInput) => Promise<boolean>
 }
 
 export function EditSheddingDialog({ shedding, open, onOpenChange, onSubmit }: Props) {
   const [formData, setFormData] = useState<UpdateSheddingInput>({
-    shed_date: shedding.shed_date,
-    completeness: shedding.completeness,
-    notes: shedding.notes || '',
+    shed_date: shedding?.shed_date,
+    completeness: shedding?.completeness,
+    notes: shedding?.notes || '',
   })
+  if (!shedding) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await onSubmit(formData)
+    console.log('EditSheddingDialog: Submitting form with data:', { id: shedding.id, ...formData })
+    const success = await onSubmit({ id: shedding.id, ...formData })
+    console.log('EditSheddingDialog: Submit result:', success)
+    if (success) {
+      onOpenChange(false)
+    }
   }
 
   // Ensure shed_date is a valid date string
