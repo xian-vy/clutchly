@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SEVERITY_COLORS, SEX_COLORS, STATUS_COLORS } from "@/lib/constants/colors";
+import { SEVERITY_COLORS,  STATUS_COLORS, YES_NO_COLORS } from "@/lib/constants/colors";
 import { format, parseISO } from "date-fns";
 import { AlertTriangle, Calendar, DollarSign,  Info,  MapPin, Notebook, Ruler, User, Weight } from "lucide-react";
 import { EnrichedReptile } from "../ReptileList";
@@ -34,6 +34,7 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
     }
     return `${years} years, ${months} months`;
   };
+  const isBreeder = (reptile.project_ids?.length ?? 0) > 0 || reptile.is_breeder;
 
   return (
     <div className="space-y-4 2xl:space-y-5 3xl:space-y-8 mt-2">
@@ -54,9 +55,12 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
             <p className="text-xs sm:text-sm font-medium">{reptile.morph_name}</p>
           </div>
           <div>
-            <p className="text-xs sm:text-sm text-muted-foreground">Sex</p>
-            <Badge variant="custom" className={`${SEX_COLORS[reptile.sex]} capitalize`}>
-              {reptile.sex}
+            <p className="text-xs sm:text-sm text-muted-foreground">Breeder</p>
+            <Badge
+                variant="custom"
+                className={`${YES_NO_COLORS[isBreeder ? 'yes' : 'no']} capitalize`}
+              >
+                {isBreeder ? 'Yes' : 'No'}
             </Badge>
           </div>
           <div>

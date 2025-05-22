@@ -26,14 +26,14 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
   if (!feedingHistory || feedingHistory.length === 0) {
     return (
       <div className="space-y-4">
-        <Card className="px-0 gap-3 border-0">
-          <CardHeader className="pb-2">
+        <Card className="px-0 py-3 gap-3 border-0">
+          <CardHeader className="p-0">
             <CardTitle className="text-base flex items-center gap-2">
               <Bug className="h-5 w-5" />
               Feeding History
             </CardTitle>
           </CardHeader>
-          <CardContent className="py-4">
+          <CardContent className="p-0">
             <p className="text-muted-foreground text-sm">No feeding history available</p>
           </CardContent>
         </Card>

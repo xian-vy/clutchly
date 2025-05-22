@@ -1,14 +1,12 @@
 'use client';
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useReptileDetails } from "./useReptileDetails";
 import { EnrichedReptile } from "../ReptileList";
 import { Reptile } from "@/lib/types/reptile";
-import { YES_NO_COLORS } from "@/lib/constants/colors";
-import { AlertTriangle, Printer } from "lucide-react";
+import { AlertTriangle, Mars,  Printer, Venus, CircleHelp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OverviewTab } from "./OverviewTab";
@@ -84,24 +82,24 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
       <DialogContent className="sm:max-w-[620px] md:max-w-[700px] lg:max-w-screen-lg h-[90vh] 3xl:h-[85vh] overflow-hidden p-0">
         <DialogHeader className="px-6 py-2 flex flex-row items-center justify-between border-b">
           <DialogTitle className="text-base md:text-lg flex items-center gap-2">
-            <div className="flex flex-col items-star">
-                <span className="text-base sm:text-lg 3xl:!text-xl font-bold">{reptile.name}</span> 
-                <span className="text-sm text-muted-foreground font-medium">
+            <div className="flex flex-col items-start">
+              <div className="flex items-center gap-1">
+                  <>
+                      {reptile.sex === 'male' ? (
+                        <Mars className="h-4 w-4 text-blue-400 shrink-0"/>
+                      ) : reptile.sex === 'female' ? (
+                        <Venus className="h-4 w-4 text-red-500 shrink-0"/>
+                      ) :(
+                        <CircleHelp className="h-4 w-4 text-muted-foreground shrink-0"/>
+                      )}
+                  </>
+                  <span className="text-base sm:text-lg 3xl:!text-xl font-bold">{reptile.name}</span> 
+              </div>
+                <span className="text-sm text-muted-foreground font-medium ml-1">
                     {reptile.reptile_code} 
                 </span>
             </div>
-            <div className="flex gap-2">
-              {reptile.is_breeder && (
-                <Badge variant="custom" className={YES_NO_COLORS.yes}>
-                  Breeder
-                </Badge>
-              )}
-              {reptile.retired_breeder && (
-                <Badge variant="custom" className="bg-gray-500">
-                  Retired
-                </Badge>
-              )}
-            </div>
+       
           </DialogTitle>
       
         </DialogHeader>
@@ -114,9 +112,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
             <TabsTrigger value="feeding">Feeding</TabsTrigger>
             <TabsTrigger value="shedding">Shedding</TabsTrigger>
             <TabsTrigger value="genetics">Genetics</TabsTrigger>
-            {reptile.is_breeder && (
-              <TabsTrigger value="breeding">Breeding</TabsTrigger>
-            )}
+            <TabsTrigger value="breeding">Breeding</TabsTrigger>
           </TabsList>
 
           <ScrollArea className="h-[calc(60vh)] px-6">
@@ -165,14 +161,12 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
                   />
                 </TabsContent>
 
-                {reptile.is_breeder && (
-                  <TabsContent value="breeding">
-                    <BreedingTab 
-                      reptiles={reptiles}
-                      reptileDetails={reptileDetails || null} 
-                    />
-                  </TabsContent>
-                )}
+                <TabsContent value="breeding">
+                  <BreedingTab 
+                    reptiles={reptiles}
+                    reptileDetails={reptileDetails || null} 
+                  />
+                </TabsContent>
               </>
             )}
           </ScrollArea>

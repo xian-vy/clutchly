@@ -33,15 +33,15 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
   if (!activeIssues.length && !resolvedIssues.length) {
     return (
       <div className="space-y-4 ">
-        <Card>
-          <CardHeader className="pb-2">
+        <Card className="px-0 py-3 gap-3 border-0">
+          <CardHeader className="p-0">
             <CardTitle className="text-base flex items-center gap-2">
               <Heart className="h-5 w-5" />
               Health Records
             </CardTitle>
           </CardHeader>
-          <CardContent className="py-4">
-            <p className="text-muted-foreground">No health records available</p>
+          <CardContent className="p-0">
+            <p className="text-muted-foreground text-sm">No health records available</p>
           </CardContent>
         </Card>
       </div>
