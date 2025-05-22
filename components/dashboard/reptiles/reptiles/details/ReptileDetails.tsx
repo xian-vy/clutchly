@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,7 +40,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
   if (!reptile) return null;
 
   const renderLoadingContent = () => (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6  p-2">
       <Skeleton className="h-8 w-3/4" />
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Skeleton className="h-24" />
@@ -54,8 +54,8 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
   const renderErrorContent = () => (
     <div className="flex flex-col items-center justify-center py-12">
       <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-      <h3 className="text-lg font-medium">Failed to load reptile details</h3>
-      <p className="text-muted-foreground mt-2">
+      <h3 className="text-base font-medium">Failed to load reptile details</h3>
+      <p className="text-muted-foreground mt-2 text-sm">
         {error instanceof Error ? error.message : "An unknown error occurred"}
       </p>
       <Button variant="outline" className="mt-4" onClick={() => refetch()}>
@@ -81,12 +81,12 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[620px] md:max-w-[700px] lg:max-w-screen-lg h-[90vh] overflow-hidden p-0">
+      <DialogContent className="sm:max-w-[620px] md:max-w-[700px] lg:max-w-screen-lg h-[90vh] 3xl:h-[85vh] overflow-hidden p-0">
         <DialogHeader className="px-6 py-2 flex flex-row items-center justify-between border-b">
           <DialogTitle className="text-base md:text-lg flex items-center gap-2">
-            <div className="flex flex-col items-start">
-                 {reptile.name}
-                <span className="text-sm text-muted-foreground">
+            <div className="flex flex-col items-star">
+                <span className="text-base sm:text-lg 3xl:!text-xl font-bold">{reptile.name}</span> 
+                <span className="text-sm text-muted-foreground font-medium">
                     {reptile.reptile_code} 
                 </span>
             </div>
@@ -103,16 +103,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
               )}
             </div>
           </DialogTitle>
-          {!isLoading && !error && reptileDetails && (
-            <Button 
-              variant="outline" 
-              onClick={handlePrintPDF}
-              disabled={isPrinting}
-            >
-              <Printer className="mr-2 h-4 w-4" />
-              {isPrinting ? "Generating..." : "Print"}
-            </Button>
-          )}
+      
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full h-full">
@@ -128,7 +119,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
             )}
           </TabsList>
 
-          <ScrollArea className="h-[calc(90vh-140px)] px-6">
+          <ScrollArea className="h-[calc(60vh)] px-6">
             {isLoading ? (
               renderLoadingContent()
             ) : error ? (
@@ -186,6 +177,21 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
             )}
           </ScrollArea>
         </Tabs>
+        <DialogFooter className="px-2 py-2 border-t">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Close
+          </Button>
+          {!isLoading && !error && reptileDetails && (
+            <Button 
+              variant="outline" 
+              onClick={handlePrintPDF}
+              disabled={isPrinting}
+            >
+              <Printer className="h-4 w-4" />
+              {isPrinting ? "Generating..." : "Print"}
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

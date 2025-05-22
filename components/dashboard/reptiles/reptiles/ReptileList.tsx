@@ -188,6 +188,14 @@ export function ReptileList({
     {
       accessorKey: "reptile_code",
       header: "Code",
+      cell: ({ row }) => {
+        const reptile = row.original
+
+        return <div onClick={()=>{
+          setSelectedReptile(reptile);
+          setDetailsDialogOpen(true);
+        }} className="text-left">{reptile.reptile_code}</div>; 
+      }
     },
     {
       accessorKey: "name",
