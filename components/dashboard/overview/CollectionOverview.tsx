@@ -11,6 +11,7 @@ import { Morph } from "@/lib/types/morph";
 import { Reptile } from "@/lib/types/reptile";
 import { Species } from "@/lib/types/species";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CollectionOverviewProps {
   reptiles: Reptile[];
@@ -18,6 +19,7 @@ interface CollectionOverviewProps {
   breedingProjects: BreedingProject[];
   species: Species[];
   morphs: (Morph & { species: { name: string } })[];
+  isLoading: boolean;
 }
 
 export function CollectionOverview({ 
@@ -25,8 +27,36 @@ export function CollectionOverview({
   healthLogs, 
   breedingProjects, 
   species, 
-  morphs 
+  morphs,
+  isLoading
 }: CollectionOverviewProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-5 w-20" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Skeleton className="h-10 w-full" />
+        </CardFooter>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>

@@ -51,7 +51,7 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
   return (
     <div className="space-y-2 ">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="px-0 gap-3 border-0">
+        <Card className="px-0 py-3 gap-3 border-0">
           <CardHeader className="px-0">
             <CardTitle className="text-base">Last Defecation</CardTitle>
           </CardHeader>

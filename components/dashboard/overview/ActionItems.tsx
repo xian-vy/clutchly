@@ -11,6 +11,7 @@ import { Reptile } from "@/lib/types/reptile";
 import { differenceInDays, isPast, parseISO } from "date-fns";
 import { AlertTriangle, Calendar, CheckCircle, Egg, Scale } from "lucide-react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ActionItemsProps {
   reptiles: Reptile[];
@@ -18,6 +19,7 @@ interface ActionItemsProps {
   breedingProjects: BreedingProject[];
   growthEntries: GrowthEntry[];
   clutches: Clutch[];
+  isLoading: boolean;
 }
 
 export function ActionItems({ 
@@ -25,8 +27,32 @@ export function ActionItems({
   healthLogs, 
   breedingProjects, 
   growthEntries,
-  clutches 
+  clutches,
+  isLoading
 }: ActionItemsProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-4 w-48" />
+        </CardHeader>
+        <CardContent className="space-y-3 pt-0">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 p-2.5">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-5 flex-1" />
+              <Skeleton className="h-5 w-20" />
+            </div>
+          ))}
+        </CardContent>
+        <CardFooter className="pt-0">
+          <Skeleton className="h-10 w-full" />
+        </CardFooter>
+      </Card>
+    );
+  }
+
   // Calculate alert items
   const alertItems = [];
   

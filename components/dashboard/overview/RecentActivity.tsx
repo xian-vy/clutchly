@@ -8,14 +8,51 @@ import { Reptile } from "@/lib/types/reptile";
 import { format, parseISO } from "date-fns";
 import { Activity, Clock, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RecentActivityProps {
   reptiles: Reptile[];
   healthLogs: HealthLogEntry[];
   growthEntries: GrowthEntry[];
+  isLoading: boolean;
 }
 
-export function RecentActivity({ reptiles, healthLogs, growthEntries }: RecentActivityProps) {
+export function RecentActivity({ 
+  reptiles, 
+  healthLogs, 
+  growthEntries,
+  isLoading
+}: RecentActivityProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-4 w-48" />
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <Skeleton className="h-8 w-8 rounded-full mt-0.5" />
+                <div className="space-y-1 flex-1">
+                  <div className="flex justify-between items-center">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <Skeleton className="h-4 w-48" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter className="pt-0">
+          <Skeleton className="h-10 w-full" />
+        </CardFooter>
+      </Card>
+    );
+  }
+
   // Get recent activity
   const recentActivity = [
     // Growth entries, newest first

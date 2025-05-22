@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Edit, Eye, Filter, Trash2 } from 'lucide-react';
+import { Edit, Eye, Filter, MoreHorizontal, Trash} from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import { BreedingFilterDialog, BreedingFilters } from './BreedingFilterDialog';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface EnrichedBreedingProject extends BreedingProject {
   male_name: string;
@@ -218,7 +219,7 @@ export function BreedingProjectList({
           <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] 2xl:max-w-[150px]">{female_name}</p>
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[130px] xl:max-w-[140px] 3xl:max-w-[150px]">{female_name}</p>
             </TooltipTrigger>
             <TooltipContent>
                 <p>{female_name}</p>
@@ -268,36 +269,47 @@ export function BreedingProjectList({
       },
     },
     {
-      id: 'actions',
+      id: "actions",
       cell: ({ row }) => {
         const project = row.original;
         return (
-          <div className="flex justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
+          <>
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="sm"
               onClick={() => onViewDetails(project)}
             >
-              <Eye strokeWidth={1.5} className="h-4 w-4" />
+              <Eye className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(project)}
-            >
-              <Edit strokeWidth={1.5} className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onDelete(project.id)}
-            >
-              <Trash2 strokeWidth={1.5} className="h-4 w-4" />
-            </Button>
+ 
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem   onClick={() => onViewDetails(project)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Project Details
+                </DropdownMenuItem>
+                <DropdownMenuItem  onClick={() => onEdit(project)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem   onClick={() => onDelete(project.id)}>
+                  <Trash className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
+          </>
         );
       },
     },
+   
   ];
 
   // Custom filter button for the DataTable

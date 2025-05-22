@@ -4,10 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { SEX_COLORS, STATUS_COLORS, YES_NO_COLORS } from "@/lib/constants/colors";
+import {  STATUS_COLORS, YES_NO_COLORS } from "@/lib/constants/colors";
 import { Reptile } from "@/lib/types/reptile";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, Filter, MapPin, MoreHorizontal, Printer, Trash } from "lucide-react";
+import { CircleHelp, Edit, Eye, Filter, MapPin, Mars, MoreHorizontal, Printer, Trash, Venus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ReptileFilterDialog, ReptileFilters } from "./ReptileFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -188,20 +188,39 @@ export function ReptileList({
     {
       accessorKey: "reptile_code",
       header: "Code",
+      cell: ({ row }) => {
+        const reptile = row.original
+
+        return <div onClick={()=>{
+          setSelectedReptile(reptile);
+          setDetailsDialogOpen(true);
+        }} className="text-left">{reptile.reptile_code}</div>; 
+      }
     },
     {
       accessorKey: "name",
       header: "Name",
       cell: ({ row }) => {
-        const name = row.getValue("name") as number;
+        const reptile = row.original;
         return (
           <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger>
-                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[140px] xl:max-w-[150px] 2xl:max-w-[180px]">{name}</p>
+            <TooltipTrigger className="flex items-center gap-1">
+                <div className="mt-0.5">
+                    {reptile.sex === 'male' ? (
+                      <Mars className="h-4 w-4 text-blue-400 shrink-0"/>
+                    ) : reptile.sex === 'female' ? (
+                      <Venus className="h-4 w-4 text-red-500 shrink-0"/>
+                    ) :(
+                      <CircleHelp className="h-4 w-4 text-muted-foreground shrink-0"/>
+                    )}
+                </div>
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[130px] xl:max-w-[140px] 3xl:max-w-[180px]">
+                 {reptile.name || 'Unknown'}
+                </p>
             </TooltipTrigger>
             <TooltipContent>
-                <p>{name}</p>
+                <p>{reptile.name}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -242,10 +261,42 @@ export function ReptileList({
     {
       accessorKey: "morph_name",
       header: "Morph",
+      cell: ({ row }) => {
+        const morphName = row.getValue("morph_name") as string;
+ 
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="truncate max-w-[85px]">
+                {morphName}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{morphName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
     {
-      accessorKey: "acquisition_date",
-      header: "Acquired",
+      accessorKey: "hatch_date",
+      header: "Hatch",
+      cell: ({ row }) => {
+        const hatch = row.getValue("hatch_date") as string;
+        const year = hatch ? new Date(hatch).getFullYear() : "--";
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="truncate max-w-[85px]">
+                {year}
+              </TooltipTrigger>
+              <TooltipContent>
+              <p>{hatch || "--"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
     {
       id: "location",
@@ -265,7 +316,7 @@ export function ReptileList({
                       {reptile.location_label}
                     </span>
                   ) : (
-                    <span className="text-xs text-gray-400">--</span>
+                    <span className="text-xs">--</span>
                   )}
                 </div>
               </TooltipTrigger>
@@ -278,21 +329,6 @@ export function ReptileList({
           </TooltipProvider>
         );
       }
-    },
-    {
-      accessorKey: "sex",
-      header: "Sex",
-      cell: ({ row }) => {
-        const sex = row.getValue("sex") as keyof typeof SEX_COLORS;
-        return (
-          <Badge
-            variant="custom"
-            className={`${SEX_COLORS[sex.toLowerCase() as keyof typeof SEX_COLORS]} capitalize`}
-          >
-            {sex}
-          </Badge>
-        );
-      },
     },
     {
       accessorKey: "is_breeder",

@@ -4,7 +4,7 @@ import { deleteCatalogImage } from '@/app/api/catalog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { CatalogImageUpload } from './CatalogImageUpload';
 import { formatPrice } from '@/lib/utils';
@@ -20,6 +20,16 @@ interface CatalogEntryDetailsProps {
 export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImageChange }: CatalogEntryDetailsProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const reptile = catalogEntry.reptiles;
+
+  useEffect(() => {
+    const scrollToTop = () => {
+      const element = document.getElementById('catalog-entry-details');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    scrollToTop();
+  }, []);
 
   const handleImageRemoved = async (imageId: string) => {
     if (!confirm('Are you sure you want to delete this image?')) return;
@@ -47,7 +57,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-0 lg:gap-3 xl:gap-4 2xl:gap-5 sm:mb-5 xl:mb-10 ">
       <Card className="overflow-hidden py-0 border-0 rounded-none  gap-0">
-        <CardHeader className='px-0 pb-0'>
+        <CardHeader id='catalog-entry-details' className='px-0 pb-0'>
           <div className="relative h-[350px] sm:h-[500px] lg:h-[600px] bg-muted rounded-none  overflow-hidden">
             {catalogEntry.catalog_images.length > 0 && catalogEntry.catalog_images[selectedImageIndex]?.image_url ? (
               <Image

@@ -10,6 +10,7 @@ import { SalesSummary } from "@/lib/types/sales";
 import { differenceInDays, parseISO } from "date-fns";
 import { BarChart, Dna, DollarSign, Heart, LineChart, Turtle, Wallet } from "lucide-react";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StatsCardsProps {
   reptiles: Reptile[];
@@ -18,7 +19,8 @@ interface StatsCardsProps {
   salesSummary?: SalesSummary;
   expensesSummary?: ExpensesSummary;
   breedingProjects: BreedingProject[];
-  tabIndex  : number
+  tabIndex: number;
+  isLoading: boolean;
 }
 
 export function StatsCards({ 
@@ -26,9 +28,10 @@ export function StatsCards({
   healthLogs, 
   growthEntries, 
   salesSummary, 
-  expensesSummary ,
+  expensesSummary,
   breedingProjects,
-  tabIndex
+  tabIndex,
+  isLoading
 }: StatsCardsProps) {
   // Calculate statistics
   const activeReptiles = reptiles.filter(r => r.status === 'active').length;
@@ -137,6 +140,29 @@ export function StatsCards({
       tabIndex : 1
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-5 3xl:gap-10">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Card key={index} className="h-full border bg-card">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <div className="flex justify-between items-center">
+                <div className="min-w-0 w-full">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Skeleton className="h-5 w-5 rounded-full" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                  <Skeleton className="h-8 w-20 mb-2" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-2  xl:grid-cols-4 gap-4 xl:gap-5 3xl:gap-10">

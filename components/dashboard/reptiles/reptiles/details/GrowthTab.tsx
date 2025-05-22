@@ -124,26 +124,28 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
 
         <div>
           <h4 className="text-sm font-medium mb-2">Growth Log</h4>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Weight (g)</TableHead>
-                <TableHead>Length (cm)</TableHead>
-                <TableHead>Notes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {growthHistory.slice(0, 5).map((entry: GrowthEntry) => (
-                <TableRow key={entry.id}>
-                  <TableCell>{formatDate(entry.date)}</TableCell>
-                  <TableCell>{entry.weight} g</TableCell>
-                  <TableCell>{entry.length} cm</TableCell>
-                  <TableCell>{entry.notes || '-'}</TableCell>
+          <div className="max-w-[320px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Weight (g)</TableHead>
+                  <TableHead>Length (cm)</TableHead>
+                  <TableHead>Notes</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {growthHistory.slice(0, 5).map((entry: GrowthEntry) => (
+                  <TableRow key={entry.id}>
+                    <TableCell>{formatDate(entry.date)}</TableCell>
+                    <TableCell>{entry.weight} g</TableCell>
+                    <TableCell>{entry.length} cm</TableCell>
+                    <TableCell>{entry.notes || '-'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
           {growthHistory.length > 5 && (
             <div className="text-center mt-2">
               <Button variant="link" size="sm">View All Growth Records</Button>
@@ -156,14 +158,14 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
 
   return (
     <div className="space-y-4 ">
-      <Card className="px-0 gap-3 border-0">
+      <Card className="px-0 gap-3 border-0 py-3">
         <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
             <LineChart className="h-5 w-5" />
             Growth History
           </CardTitle>
         </CardHeader>
-        <CardContent className="py-4 px-0">
+        <CardContent className="py-2 px-0">
           {displayGrowthData(reptileDetails.growth_history)}
         </CardContent>
       </Card>
