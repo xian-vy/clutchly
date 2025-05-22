@@ -1,16 +1,14 @@
 'use client';
 
-import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles';
+import {  getReptiles } from '@/app/api/reptiles/reptiles';
 import { getHealthLogs, getHealthLogsByDate } from '@/app/api/health/entries';
 import { getGrowthEntries, getGrowthEntriesByDate } from '@/app/api/growth/entries';
 import { getBreedingProjects, getBreedingProjectsByDate } from '@/app/api/breeding/projects';
 import { getClutches, getAllClutchesByDate } from '@/app/api/breeding/clutches';
 import { getSalesSummary } from '@/app/api/sales';
 import { getExpensesSummary } from '@/app/api/expenses';
-import { useResource } from '@/lib/hooks/useResource';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
-import { Reptile, NewReptile } from '@/lib/types/reptile';
 import { Clutch } from '@/lib/types/breeding';
 import { SalesSummary } from '@/lib/types/sales';
 import { ExpensesSummary } from '@/lib/types/expenses';
@@ -24,7 +22,7 @@ import { RecentActivity } from './RecentActivity';
 import { CollectionOverview } from './CollectionOverview';
 import { TimeRangeSelector, TimePeriod } from './TimeRangeSelector';
 import { SalesExpensesChart } from './SalesExpensesChart';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueries } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { FeedingOverview } from './FeedingOverview';
@@ -42,18 +40,7 @@ export function DashboardOverviewTab() {
     return format(date, 'yyyy-MM-dd');
   };
   
-  // Get reptiles data using useResource hook
-  const {
-    resources: reptiles,
-    isLoading: reptilesLoading,
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
-    queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: createReptile,
-    updateResource: updateReptile,
-    deleteResource: deleteReptile,
-  });
+
   
   // Get species and morph data from their respective stores
   const { species, isLoading: speciesLoading, fetchSpecies } = useSpeciesStore();
@@ -112,56 +99,59 @@ export function DashboardOverviewTab() {
     };
   }, [dateRange]);
 
-  // Fetch health logs using React Query with date filtering
-  const { data: healthLogs = [], isLoading: healthLoading } = useQuery({
-    queryKey: ['health-logs', dateFilterParams],
-    queryFn: () => dateFilterParams 
-      ? getHealthLogsByDate(dateFilterParams) 
-      : getHealthLogs(),
-      enabled : !!profile
-  });
-  
-  // Fetch growth entries using React Query with date filtering
-  const { data: growthEntries = [], isLoading: growthLoading } = useQuery({
-    queryKey: ['growth-entries', dateFilterParams],
-    queryFn: () => dateFilterParams 
-      ? getGrowthEntriesByDate(dateFilterParams) 
-      : getGrowthEntries(),
-      enabled : !!profile
-
-  });
-  
-  // Fetch breeding projects using React Query with date filtering
-  const { data: breedingProjects = [], isLoading: breedingLoading } = useQuery({
-    queryKey: ['breeding-projects', dateFilterParams],
-    queryFn: () => dateFilterParams 
-      ? getBreedingProjectsByDate({ 
-          ...dateFilterParams, 
-          dateField: 'start_date' 
-        }) 
-      : getBreedingProjects(),
-      enabled : !!profile
-  });
-
-  // Fetch sales summary data using React Query with date filtering and period
-  const { data: salesSummary, isLoading: salesLoading } = useQuery<SalesSummary>({
-    queryKey: ['sales-summary', dateFilterParams, timePeriod],
-    queryFn: () => getSalesSummary({
-      ...dateFilterParams,
-      period: timePeriod === 'custom' ? undefined : timePeriod,
-    }),
-    enabled : !!profile
-  });
-
-  // Fetch expenses summary data using React Query with date filtering
-  const { data: expensesSummary, isLoading: expensesLoading } = useQuery<ExpensesSummary>({
-    queryKey: ['expenses-summary', dateFilterParams],
-    queryFn: () => getExpensesSummary(dateFilterParams),
-    enabled : !!profile
+  // Group independent queries together using useQueries
+  const independentQueries = useQueries({
+    queries: [
+      {
+        queryKey: ['reptiles', dateFilterParams],
+        queryFn: getReptiles,
+      },
+      {
+        queryKey: ['health-logs', dateFilterParams],
+        queryFn: () => dateFilterParams 
+          ? getHealthLogsByDate(dateFilterParams) 
+          : getHealthLogs(),
+      },
+      {
+        queryKey: ['growth-entries', dateFilterParams],
+        queryFn: () => dateFilterParams 
+          ? getGrowthEntriesByDate(dateFilterParams) 
+          : getGrowthEntries(),
+      },
+      {
+        queryKey: ['breeding-projects', dateFilterParams],
+        queryFn: () => dateFilterParams 
+          ? getBreedingProjectsByDate({ 
+              ...dateFilterParams, 
+              dateField: 'start_date' 
+            }) 
+          : getBreedingProjects(),
+      },
+      {
+        queryKey: ['sales-summary', dateFilterParams, timePeriod],
+        queryFn: (): Promise<SalesSummary> => getSalesSummary({
+          ...dateFilterParams,
+          period: timePeriod === 'custom' ? undefined : timePeriod,
+        }),
+      },
+      {
+        queryKey: ['expenses-summary', dateFilterParams],
+        queryFn: (): Promise<ExpensesSummary> => getExpensesSummary(dateFilterParams),
+      }
+    ]
   });
 
+  // Destructure the results
+  const [
+    { data: reptiles = [], isLoading: reptilesLoading },
+    { data: healthLogs = [], isLoading: healthLoading },
+    { data: growthEntries = [], isLoading: growthLoading },
+    { data: breedingProjects = [], isLoading: breedingLoading },
+    { data: salesSummary, isLoading: salesLoading },
+    { data: expensesSummary, isLoading: expensesLoading }
+  ] = independentQueries;
 
-  // Fetch clutches using React Query with date filtering
+  // Keep the dependent clutches query separate since it depends on breedingProjects
   const { data: allClutches = [], isLoading: clutchesLoading } = useQuery<Clutch[]>({
     queryKey: ['clutches', dateFilterParams, breedingProjects],
     queryFn: async () => {
@@ -174,7 +164,7 @@ export function DashboardOverviewTab() {
       }
       return [];
     },
-    enabled: !breedingLoading && !!profile, // Only run when breeding projects are loaded
+    enabled: !breedingLoading && !!profile && !!breedingProjects,
   });
   
   // Handle date range changes
@@ -193,27 +183,11 @@ export function DashboardOverviewTab() {
     setTimePeriod('monthly');
   };
   
-  const isLoading = 
-    reptilesLoading || 
-    speciesLoading || 
-    morphsLoading || 
-    healthLoading || 
-    growthLoading || 
-    breedingLoading ||
-    salesLoading ||
-    expensesLoading ||
-    clutchesLoading ||
-    !profile
+ 
   
   const hasActiveFilters = !!dateRange || timePeriod !== 'monthly';
   
-  if (isLoading) {
-    return (
-      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
-        <Loader2 className='w-4 h-4 animate-spin text-primary' />
-      </div>
-    );
-  }
+
   
   return (
     <div className="space-y-2 md:space-y-3 xl:space-y-4 max-w-screen-2xl mx-auto">
