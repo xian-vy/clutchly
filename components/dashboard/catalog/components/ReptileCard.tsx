@@ -110,18 +110,18 @@ export function ReptileCard({
           )}
         </div>
 
-        <CardContent className="p-4">
-          <div className="space-y-1">
-            <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">
+        <CardContent className={`${isFeatured ? "p-4" : "p-2 sm:p-4"}`}>
+          <div className={`${isFeatured ? "space-y-1" : "space-y-0.5 sm:space-y-1"}`}>
+            <h3 className={`${isFeatured ? "min-h-[30px] sm:min-h-[40px] " : "min-h-[15px] sm:min-h-[20px] md:min-h-[40px] "} text-xs sm:text-sm md:text-[0.9rem] 3xl:text-base font-medium tracking-wide`}>
               { isFeatured ? reptile?.name : 
-             size ==="mobile" ? reptile?.name.length || 0 > 30  ? reptile?.name.slice(0, 30) + " ..." : reptile?.name : reptile?.name
+             size ==="mobile" ? reptile?.name.length || 0 > 12  ? reptile?.name.slice(0, 12) + " .." : reptile?.name : reptile?.name
                }
             </h3>       
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
               {morph}
             </p>
             <div className="flex justify-between w-full items-center">
-                <p className='text-sm md:text-base 3xl:text-lg font-semibold'>{formatPrice(reptile?.price)}</p>
+                <p className={`${isFeatured ? "text-sm sm:text-sm " : "text-xs sm:text-sm "} md:text-base 3xl:text-lg font-semibold`}>{formatPrice(reptile?.price)}</p>
                 <div className="flex items-center gap-1">
                     <div>
                       {reptile?.sex === 'male' ? (
