@@ -7,6 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useScreenSize } from '@/lib/hooks/useScreenSize';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { cn, extractLastTwoDigitsOfYear, formatPrice } from '@/lib/utils';
 import {
@@ -41,6 +42,7 @@ export function ReptileCard({
   onClick,
   isFeatured
 }: ReptileCardProps) {
+  const size = useScreenSize()
   const imageUrl = entry.catalog_images ? entry.catalog_images[0]?.image_url  : null;
   const reptile = entry.reptiles;
   const morph = entry.reptiles?.morph_name;
@@ -65,7 +67,7 @@ export function ReptileCard({
                   fill
                   loading='lazy'
                   className="object-cover transition-transform group-hover:scale-115 duration-300"
-                  sizes={isFeatured ? "(max-width: 768px) 45vw, (max-width: 1200px) 40vw, 25vw" : "(max-width: 768px) 33vw, (max-width: 1200px) 33vw, 15vw"}
+                  sizes={isFeatured ? "(max-width: 768px) 45vw, (max-width: 1200px) 40vw, 25vw" : "(max-width: 768px) 30vw, (max-width: 1200px) 33vw, 15vw"}
                 />
               </div>
             ) : (
@@ -110,7 +112,11 @@ export function ReptileCard({
 
         <CardContent className="p-4">
           <div className="space-y-1">
-            <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">{reptile?.name}</h3>       
+            <h3 className="text-xs md:text-[0.9rem] 3xl:text-base font-medium min-h-[30px] sm:min-h-[40px] tracking-wide">
+              { isFeatured ? reptile?.name : 
+             size ==="mobile" ? reptile?.name.length || 0 > 30  ? reptile?.name.slice(0, 30) + " ..." : reptile?.name : reptile?.name
+               }
+            </h3>       
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
               {morph}
             </p>
