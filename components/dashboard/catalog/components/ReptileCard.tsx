@@ -65,7 +65,7 @@ export function ReptileCard({
                   fill
                   loading='lazy'
                   className="object-cover transition-transform group-hover:scale-115 duration-300"
-                  sizes={isFeatured ? "(max-width: 768px) 70vw, (max-width: 1200px) 40vw, 25vw" : "(max-width: 768px) 60vw, (max-width: 1200px) 33vw, 15vw"}
+                  sizes={isFeatured ? "(max-width: 768px) 45vw, (max-width: 1200px) 40vw, 25vw" : "(max-width: 768px) 33vw, (max-width: 1200px) 33vw, 15vw"}
                 />
               </div>
             ) : (
@@ -145,10 +145,10 @@ export function ReptileCard({
             <Image
               src={imageUrl}
               alt={reptile?.name || 'Reptile'}
-              fill
+              fill  
               loading='lazy'
               className="object-cover"
-              sizes={isFeatured ? "(max-width: 768px) 70vw, (max-width: 1200px) 50vw, 33vw" : "(max-width: 768px) 80vw, (max-width: 1200px) 50vw, 10vw"}
+              sizes={isFeatured ? "(max-width: 768px) 45vw, (max-width: 1200px) 40vw, 25vw" : "(max-width: 768px) 33vw, (max-width: 1200px) 33vw, 15vw"}
             />
           ) : (
             <div className="flex items-center justify-center h-full w-full bg-muted">

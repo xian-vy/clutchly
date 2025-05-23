@@ -63,7 +63,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
                 fill
                 loading='lazy'
                 className="object-contain object-top bg-background"
-                sizes="(max-width: 768px) 80vw, (max-width: 1200px) 60vw, 50vw"
+                sizes="(max-width: 768px) 70vw, (max-width: 1200px) 60vw, 50vw"
               />
             ) : (
                 <div className="flex items-center justify-center h-full w-full bg-muted">
