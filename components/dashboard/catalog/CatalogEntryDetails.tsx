@@ -62,7 +62,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
                 alt={reptileName}
                 fill
                 loading='lazy'
-                className="object-contain object-top bg-background"
+                className="object-contain object-center bg-background"
                 sizes="(max-width: 768px) 70vw, (max-width: 1200px) 60vw, 50vw"
               />
             ) : (

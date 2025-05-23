@@ -1,5 +1,3 @@
-
-
 import { getPublicProfile } from '@/app/api/profiles/profiles';
 import { CatalogPublicPage } from '@/components/catalog/CatalogPublicPage';
 import { QueryProvider } from '@/components/providers/QueryProvider';
@@ -23,26 +21,26 @@ export async function generateMetadata(
       description: 'A curated catalog of reptiles. Browse morphs, species, and photos.',
     };
   }
-  const logo = publicProfile?.logo || '/logo_dark.png';
+  const logo = publicProfile?.logo?.endsWith('.webp') ? '/logo_dark.png' : (publicProfile?.logo || '/logo_dark.png');
   const profile_name  = publicProfile.full_name
   return {
     title: `${profile_name}'s Collection | Clutchly`,
     description: `A curated catalog of ${profile_name}'s reptiles. Browse morphs, species, and photos.`,
     openGraph: {
-      title: `Check out ${profile_name}'s Reptile Collection`,
+      title: `Check out ${profile_name}'s collection`,
       description: `A curated catalog of ${profile_name}'s reptiles. Browse morphs, species, and photos.`,
       images: [{
         url: logo,
         alt: `${profile_name}'s Collection`,
       }],
       type: 'website',
-      url: `${APP_URL}/catalog/${profile_name}`,
+      url: `${APP_URL}/c/${profile_name}`,
       siteName: 'Clutchly',
       locale: 'en_US',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `Check out ${profile_name}'s Reptile Collection`,
+      title: `Check out ${profile_name}'s collection`,
       description: `A curated catalog of ${profile_name}'s reptiles. Browse morphs, species, and photos.`,
       images: [logo],
     },

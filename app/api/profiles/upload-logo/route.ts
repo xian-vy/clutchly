@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       // Optimize image with sharp
       const optimizedImageBuffer = await sharp(buffer)
         .resize(300, 300, { fit: 'inside', withoutEnlargement: true })
-        .webp({ quality: 90 })
+        .png({ quality: 90 })
         .toBuffer();
 
       // Check if optimized image is within the size limit (100KB)
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         // Try again with lower quality
         finalBuffer = await sharp(buffer)
           .resize(200, 200, { fit: 'inside', withoutEnlargement: true })
-          .webp({ quality: 80 })
+          .png({ quality: 80 })
           .toBuffer();
           
         if (finalBuffer.byteLength > OPTIMIZED_MAX_SIZE) {
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Generate a unique filename (overwrite for user)
-      const filename = `${user.id}/logo.webp`;
+      const filename = `${user.id}/logo.png`;
 
       try {
         // Remove any existing logo for this user
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       const { error: uploadError } = await supabase.storage
         .from('profile-logos')
         .upload(filename, finalBuffer, {
-          contentType: 'image/webp',
+          contentType: 'image/png',
           cacheControl: '3600',
           upsert: true,
         });

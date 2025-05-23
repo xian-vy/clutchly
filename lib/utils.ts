@@ -61,10 +61,10 @@ export function extractLastTwoDigitsOfYear(dateString : string | null): string {
 
 export function formatPrice(amount: number | null | undefined): string {
   if (amount === null || amount === undefined) {
-    return '0.00';
+    return '0';
   }
   return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2
   }).format(amount);
 }

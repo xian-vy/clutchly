@@ -161,7 +161,7 @@ export async function GET(
                 textAlign: 'center',
               }}
             >
-              Visit <span style={{ borderBottom: "2px solid #666", paddingBottom: "1px" ,marginLeft:"10px",marginRight:"10px"}}>clutchly.vercel.app/catalog/{profileName}</span> to see more
+              Visit <span style={{ borderBottom: "2px solid #666", paddingBottom: "1px" ,marginLeft:"10px",marginRight:"10px"}}>clutchly.vercel.app/c/{profileName}</span> to see more
             </p>
           </div>
         </div>
