@@ -22,7 +22,7 @@ const CatalogEntryShare = () => {
         <div className="flex items-center gap-2 w-full">
                 <Input
                   readOnly
-                  value={`clutchly.vercel.app/catalog/${userProfile?.full_name || 'your-profile'}`}
+                  value={`clutchly.vercel.app/c/${userProfile?.full_name || 'your-profile'}`}
                   className="bg-muted w-full sm:w-[300px] h-8"
                 />
                 <Button
@@ -30,7 +30,7 @@ const CatalogEntryShare = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => {
-                    navigator.clipboard.writeText(`${APP_URL}/catalog/${userProfile?.full_name || 'your-profile'}`);
+                    navigator.clipboard.writeText(`${APP_URL}/c/${userProfile?.full_name || 'your-profile'}`);
                     toast.success('URL copied to clipboard');
                   }}
                   className='h-8'

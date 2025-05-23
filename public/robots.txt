@@ -3,7 +3,7 @@ User-agent: *
 
 # Allow access to most pages
 Allow: /
-Allow: /catalog/
+Allow: /c/
 
 # Disallow private/sensitive routes
 Disallow: /dashboard/

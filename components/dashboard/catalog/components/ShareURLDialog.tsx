@@ -24,7 +24,7 @@ interface Props {
 }
 
 const ShareURLDialog = ({profileName, open, onClose} : Props) => {
-    const URL = `${APP_URL}/catalog/${profileName}`;
+    const URL = `${APP_URL}/c/${profileName}`;
     const [isCopied, setIsCopied] = useState(false);
     
     const handleCopyUrl = async () => {
@@ -57,7 +57,7 @@ const ShareURLDialog = ({profileName, open, onClose} : Props) => {
                 <div className="flex flex-col justify-center items-center space-y-4 mt-2 w-full">
                     <div className="flex w-full items-center space-x-2">
                         <Input 
-                            value={`clutchly.vercel.app/catalog/${profileName}`} 
+                            value={`clutchly.vercel.app/c/${profileName}`} 
                             readOnly 
                             className="text-sm font-medium"
                         />

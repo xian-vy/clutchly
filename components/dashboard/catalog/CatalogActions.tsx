@@ -33,7 +33,7 @@ const CatalogActions = ({isAdmin,onAddNew  } : CatalogHeaderProps) => {
             <CatalogEntryShare />
             <div className="flex items-center gap-2">
                 {isAdmin && (
-                    <Button  onClick={() => window.open(`${APP_URL}/catalog/${profile ? profile.full_name.trim() : "notfound"}`, '_blank')} variant="outline" size="sm" className="h-8">
+                    <Button  onClick={() => window.open(`${APP_URL}/c/${profile ? profile.full_name.trim() : "notfound"}`, '_blank')} variant="outline" size="sm" className="h-8">
                       <Eye className="h-3.5 w-3.5" />
                       {s !== "mobile" && "View Site"}
                     </Button>
