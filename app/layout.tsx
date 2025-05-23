@@ -10,7 +10,7 @@ const sourceSans = Source_Sans_3({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: SITE_TITLE,
   description: APP_DESCRIPTION,
-  keywords: ["reptile husbandry", "breeding records", "reptile management", "clutchly", "reptile health tracking", "reptile data management"],
+  keywords: ["reptile husbandry app", "reptile management app", "clutchly", "reptile data management"],
   authors: [{ name: "Clutchly Team" }],
   creator: APP_NAME,
   publisher: APP_NAME,
@@ -49,6 +49,7 @@ export const metadata: Metadata = {
   other: {
     'google-site-verification': 'vVikk-GsXog3O1npUfmjcRoob951D1XWIJ4gOLsBjOQ',
   },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
