@@ -10,17 +10,9 @@ const sourceSans = Source_Sans_3({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: SITE_TITLE,
   description: APP_DESCRIPTION,
-  keywords: ["reptile husbandry app", "reptile management app", "clutchly", "reptile data management"],
-  authors: [{ name: "Clutchly Team" }],
+  keywords: ["reptile husbandry app", "reptile management app", "clutchly", "reptile data management", "reptile breeding management"],
+  authors: [{ name: APP_NAME, url: APP_URL }],
   creator: APP_NAME,
-  publisher: APP_NAME,
-  metadataBase: new URL(APP_URL), 
-  alternates: {
-    canonical: "/",
-    languages: {
-      'en-US': "/en-us",
-    },
-  },
   openGraph: {
     title: SITE_TITLE,
     description: APP_DESCRIPTION,
@@ -39,8 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_TITLE,
     description: APP_DESCRIPTION,
-    images: [`${APP_URL}/og.png`], 
-    creator: "@clutchly", 
+    images: "/og.png", 
   },
   robots: {
     index: true,
@@ -48,6 +39,9 @@ export const metadata: Metadata = {
   },
   other: {
     'google-site-verification': 'vVikk-GsXog3O1npUfmjcRoob951D1XWIJ4gOLsBjOQ',
+  },
+  alternates: {
+    canonical: APP_URL,
   },
   manifest: '/manifest.json',
 };
