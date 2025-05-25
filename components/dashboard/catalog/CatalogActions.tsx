@@ -7,9 +7,9 @@ import {
 } from 'lucide-react';
 import CatalogEntryShare from './CatalogEntryShare';
 import { APP_URL } from '@/lib/constants/app';
-import { Profile } from '@/lib/types/profile';
+import { Organization } from '@/lib/types/organizations';
 import { useQuery } from '@tanstack/react-query';
-import { getProfile } from '@/app/api/profiles/profiles';
+import { getOrganization } from '@/app/api/organizations/organizations';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
 
 
@@ -21,19 +21,19 @@ interface CatalogHeaderProps {
   
 const CatalogActions = ({isAdmin,onAddNew  } : CatalogHeaderProps) => {
   const s = useScreenSize();
-  const { data } = useQuery<Profile>({
-    queryKey: ['profile2'],
-    queryFn: getProfile,
+  const { data } = useQuery<Organization>({
+    queryKey: ['organization2'],
+    queryFn: getOrganization,
   }); 
 
-  const profile = Array.isArray(data) ? data[0] : data;
+  const organization = Array.isArray(data) ? data[0] : data;
 
   return (
     <div className="flex flex-row items-center justify-between gap-2">
             <CatalogEntryShare />
             <div className="flex items-center gap-2">
                 {isAdmin && (
-                    <Button  onClick={() => window.open(`${APP_URL}/c/${profile ? profile.full_name.trim() : "notfound"}`, '_blank')} variant="outline" size="sm" className="h-8">
+                    <Button  onClick={() => window.open(`${APP_URL}/c/${organization ? organization.full_name.trim() : "notfound"}`, '_blank')} variant="outline" size="sm" className="h-8">
                       <Eye className="h-3.5 w-3.5" />
                       {s !== "mobile" && "View Site"}
                     </Button>

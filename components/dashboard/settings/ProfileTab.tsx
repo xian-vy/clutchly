@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getProfile } from '@/app/api/profiles/profiles';
+import { getOrganization } from '@/app/api/organizations/organizations';
 import { getCatalogSettings, updateCatalogSettings } from '@/app/api/catalog';
-import { Profile } from '@/lib/types/profile';
+import { Organization } from '@/lib/types/organizations';
 import { CatalogSettings, NewCatalogSettings } from '@/lib/types/catalog';
 import { ProfileDisplay } from './components/ProfileDisplay';
 import { CatalogSettingsDisplay } from './components/CatalogSettingsDisplay';
@@ -16,11 +16,11 @@ export const ProfileTab = () => {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
 
-  // Get profile data
-  const { data: profile, isLoading: isProfileLoading } = useQuery<Profile>({
-    queryKey: ['profile2'],
+  // Get organization data
+  const { data: organization, isLoading: isProfileLoading } = useQuery<Organization>({
+    queryKey: ['organization2'],
     queryFn: async () => {
-      const data = await getProfile();
+      const data = await getOrganization();
       return Array.isArray(data) ? data[0] : data;
     },
   });
@@ -80,7 +80,7 @@ export const ProfileTab = () => {
 
   return (
     <div className="space-y-2 md:space-y-3 xl:space-y-5">
-      <ProfileDisplay profile={profile} />
+      <ProfileDisplay organization={organization} />
       {isEditing ? (
         <CatalogSettingsForm
           settings={settings}

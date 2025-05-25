@@ -144,7 +144,7 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
         <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
             <Dna className="h-4 w-4" />
-            Genetic Profile
+            Genetic Organization
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3  px-0">

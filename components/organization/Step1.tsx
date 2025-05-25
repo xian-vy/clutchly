@@ -4,7 +4,7 @@ import { User, Turtle, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { UseFormReturn } from 'react-hook-form';
-import { ProfileFormValues } from './ProfileSetupDialog';
+import { ProfileFormValues } from './OrganizationSetupDialog';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { MAX_PROFILE_COLLECTION_SIZE, MAX_PROFILE_NAME_LENGTH } from '@/lib/constants/limit';
 
@@ -13,7 +13,7 @@ interface ProfileStep1Props {
   onNext: () => void;
 }
 
-export function ProfileStep1({ form, onNext }: ProfileStep1Props) {
+export function Step1({ form, onNext }: ProfileStep1Props) {
   return (
     <div className="space-y-4 xl:space-y-6">
       <FormField
@@ -23,7 +23,7 @@ export function ProfileStep1({ form, onNext }: ProfileStep1Props) {
           <FormItem className="space-y-0">
             <FormLabel className="text-sm font-medium flex items-center gap-2">
               <User className="h-4 w-4 text-primary" />
-              Profile Name
+              Organization Name
             </FormLabel>
             <FormControl>
               <Input

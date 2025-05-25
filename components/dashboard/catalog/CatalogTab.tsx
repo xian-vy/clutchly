@@ -57,7 +57,7 @@ export function CatalogTab() {
   // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
   const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])
   const catalog_settings = useMemo(() => enrichedCatalog[0]?.catalog_settings  || null ,[enrichedCatalog])
-  const profile = enrichedCatalog[0]?.profile  || null
+  const organization = enrichedCatalog[0]?.organization  || null
 
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
@@ -151,9 +151,9 @@ export function CatalogTab() {
 
   const handleEntryDelete = async (id: string) => {
     try {
-      // Store settings and profile before deletion
+      // Store settings and organization before deletion
       const currentSettings = catalog_settings;
-      const currentProfile = profile;
+      const currentProfile = organization;
       
       await handleDelete(id);
       
@@ -164,7 +164,7 @@ export function CatalogTab() {
           // Return empty array but with settings preserved
           return [{
             catalog_settings: currentSettings,
-            profile: currentProfile
+            organization: currentProfile
           }];
         });
       }
@@ -226,7 +226,7 @@ export function CatalogTab() {
        settings={catalog_settings} 
        isLoading={isLoading} 
        isAdmin={true}
-       profile = {profile}
+       organization = {organization}
        />
 
 
@@ -319,7 +319,7 @@ export function CatalogTab() {
         currentFilters={filters}
       />
       <CatalogFooter 
-        profile = {profile}
+        organization = {organization}
         settings={catalog_settings}
         isAdmin={true}
       />

@@ -1,5 +1,5 @@
 'use client'
-import { getProfile } from '@/app/api/profiles/profiles';
+import { getOrganization } from '@/app/api/organizations/organizations';
 import { logout } from '@/app/auth/logout/actions';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Profile } from '@/lib/types/profile';
+import { Organization } from '@/lib/types/organizations';
 import { useQuery } from '@tanstack/react-query';
 import {
     ChevronDown,
@@ -28,9 +28,9 @@ interface Props {
 }
 const AccountAvatar =   ({isCollapsed } : Props) => {
     const { theme, setTheme } = useTheme();
-    const { data, isLoading } = useQuery<Profile>({
-        queryKey: ['profile2'],
-        queryFn: getProfile,
+    const { data, isLoading } = useQuery<Organization>({
+        queryKey: ['organization2'],
+        queryFn: getOrganization,
     }); 
     const queryClient = useQueryClient();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -59,9 +59,9 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
             </div>
         )
     }
-    const profile = Array.isArray(data) ? data[0] : data;
-    const userEmail = profile?.email;
-    const userFullname = profile?.full_name;
+    const organization = Array.isArray(data) ? data[0] : data;
+    const userEmail = organization?.email;
+    const userFullname = organization?.full_name;
 
     const handleLogout = async () => {
         try {

@@ -1,6 +1,6 @@
 export type ProfileType = 'keeper' | 'breeder' | 'facility';
 
-export interface Profile {
+export interface Organization {
   id: string;
   email: string;
   full_name: string | null;

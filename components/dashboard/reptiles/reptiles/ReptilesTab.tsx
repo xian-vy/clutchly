@@ -12,8 +12,8 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { ReptileForm } from './ReptileForm';
 import { EnrichedReptile, ReptileList } from './ReptileList';
 import { Loader2 } from 'lucide-react';
-import { getProfile } from '@/app/api/profiles/profiles';
-import { Profile } from '@/lib/types/profile';
+import { getOrganization } from '@/app/api/organizations/organizations';
+import { Organization } from '@/lib/types/organizations';
 import { toast } from 'sonner';
 
 type EnrichedReptileWithLabel = EnrichedReptile & {
@@ -40,10 +40,10 @@ export function ReptilesTab() {
     deleteResource: deleteReptile,
   })
 
-  const { data: profile, isLoading : profileLoading } = useQuery<Profile>({
-    queryKey: ['profile2'],
+  const { data: organization, isLoading : profileLoading } = useQuery<Organization>({
+    queryKey: ['organization2'],
     queryFn: async () => {
-      const data = await getProfile();
+      const data = await getOrganization();
       return Array.isArray(data) ? data[0] : data;
     },
   })
@@ -161,7 +161,7 @@ export function ReptilesTab() {
               }
             }}
             onCancel={onDialogChange}
-            profile={profile}
+            organization={organization}
           />
         </DialogContent>
       </Dialog>

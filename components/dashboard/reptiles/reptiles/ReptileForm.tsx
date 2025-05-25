@@ -20,7 +20,7 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { HetTraitsForm } from './HetTraitsForm'
 import { VisualTraitsForm } from './VisualTraitsForm'
-import { Profile } from '@/lib/types/profile'
+import { Organization } from '@/lib/types/organizations'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -57,10 +57,10 @@ interface ReptileFormProps {
   initialData?: EnrichedReptile
   onSubmit: (data: NewReptile) => Promise<void>
   onCancel: () => void
-  profile : Profile | undefined
+  organization : Organization | undefined
 }
 
-export function ReptileForm({ initialData, onSubmit, onCancel,profile }: ReptileFormProps) {
+export function ReptileForm({ initialData, onSubmit, onCancel,organization }: ReptileFormProps) {
   const { species, fetchSpecies } = useSpeciesStore()
 
   const { 
@@ -86,7 +86,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,profile }: Reptile
 
   // Initialize form with default values, preselecting first species and morph if no initialData
   const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? species[0].id.toString() : '');
-  const actualProfile = Array.isArray(profile) ? profile[0] : profile;
+  const actualProfile = Array.isArray(organization) ? organization[0] : organization;
   const defaultBreeder = initialData?.original_breeder || actualProfile?.full_name || '';
 
   const form = useForm<z.infer<typeof formSchema>>({

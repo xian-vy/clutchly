@@ -15,16 +15,16 @@ export default async function SettingsPage() {
               Options
             </Button>
         </div>
-      <Tabs defaultValue="profile" className="space-y-2 md:space-y-3">
+      <Tabs defaultValue="organization" className="space-y-2 md:space-y-3">
         <div className="flex flex-col w-full">
             <TabsList>
-              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="organization">Organization</TabsTrigger>
               <TabsTrigger value="backup">Backup</TabsTrigger>
             </TabsList>
             <hr className='mt-[1px]'/>
         </div>
     
-        <TabsContent value="profile">
+        <TabsContent value="organization">
             <ProfileTab />
         </TabsContent>
 

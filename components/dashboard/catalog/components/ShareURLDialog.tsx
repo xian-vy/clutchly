@@ -18,13 +18,13 @@ import { useState } from "react";
 import { Separator } from '@/components/ui/separator';
 
 interface Props {
-    profileName: string;
+    orgName: string;
     open: boolean;
     onClose: () => void;
 }
 
-const ShareURLDialog = ({profileName, open, onClose} : Props) => {
-    const URL = `${APP_URL}/c/${profileName}`;
+const ShareURLDialog = ({orgName, open, onClose} : Props) => {
+    const URL = `${APP_URL}/c/${orgName}`;
     const [isCopied, setIsCopied] = useState(false);
     
     const handleCopyUrl = async () => {
@@ -47,17 +47,17 @@ const ShareURLDialog = ({profileName, open, onClose} : Props) => {
             <DialogContent className="p-5 sm:p-6 sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle className="text-lg md:text-xl font-semibold text-start capitalize">
-                        Share {profileName}
+                        Share {orgName}
                     </DialogTitle>
                     <DialogDescription className="text-start">
-                        Share {profileName} with friends and followers on your favorite platforms
+                        Share {orgName} with friends and followers on your favorite platforms
                     </DialogDescription>
                 </DialogHeader>
                 
                 <div className="flex flex-col justify-center items-center space-y-4 mt-2 w-full">
                     <div className="flex w-full items-center space-x-2">
                         <Input 
-                            value={`clutchly.vercel.app/c/${profileName}`} 
+                            value={`clutchly.vercel.app/c/${orgName}`} 
                             readOnly 
                             className="text-sm font-medium"
                         />

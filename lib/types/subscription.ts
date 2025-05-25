@@ -3,7 +3,7 @@ export type SubscriptionStatus = 'active' | 'trialing' | 'canceled' | 'past_due'
 
 export interface Subscription {
   id: string;
-  profile_id: string;
+  org_id: string;
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
   stripe_customer_id: string | null;
@@ -15,7 +15,7 @@ export interface Subscription {
 }
 
 export interface SubscriptionWithProfile extends Subscription {
-  profile: {
+  organization: {
     full_name: string | null;
     email: string;
   };
