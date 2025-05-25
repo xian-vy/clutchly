@@ -10,16 +10,16 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const userId = currentUser.data.user?.id;
   if (!currentUser || !userId) throw new Error('Unauthorized');
 
-  // First get profile since it's required
-  const profileResult = await supabase
-    .from('profiles')
+  // First get organization since it's required
+  const orgResult = await supabase
+    .from('organizations')
     .select('id, full_name, logo')
     .eq('id', userId)
     .single();
 
-  if (profileResult.error) throw profileResult.error;
-  if (!profileResult.data) throw new Error('Profile not found');
-  const profileData = profileResult.data;
+  if (orgResult.error) throw orgResult.error;
+  if (!orgResult.data) throw new Error('Organization not found');
+  const orgData = orgResult.data;
 
   // Execute all remaining queries in parallel
   const [entriesResult, settingsResult, morphResult, speciesResult] = await Promise.all([
@@ -87,7 +87,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
       reptiles: null,
       catalog_images: [],
       catalog_settings: settingsData || null,
-      profile: profileData || null
+      organization: orgData || null
     }];
   }
 
@@ -102,7 +102,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
       address: null,
       about: null
     };
-    return [{...data[0], catalog_settings: defaultSettings, profile: profileData}];
+    return [{...data[0], catalog_settings: defaultSettings, organization: orgData}];
   }
 
   // Create maps from morph and species results
@@ -119,25 +119,25 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     },
     catalog_images: entry.catalog_images || [],
     catalog_settings: settingsData,
-    profile: profileData
+    organization: orgData
   }));
 
   return enrichedData || [];
 }
 
-// Get catalog entries by profile name (public)
-export async function getCatalogEntriesByProfileName(profileName: string): Promise<EnrichedCatalogEntry[]> {
+// Get catalog entries by organization name (public)
+export async function getCatalogEntriesByorgName(orgName: string): Promise<EnrichedCatalogEntry[]> {
   const supabase = await createClient()
 
-  // First get the profile data since other queries depend on it
-  const { data: profileData, error: profileError } = await supabase
-    .from('view_public_profiles')
+  // First get the organization data since other queries depend on it
+  const { data: orgData, error: orgError } = await supabase
+    .from('view_public_organizations')
     .select('id, full_name, logo')
-    .eq('full_name', profileName)
+    .eq('full_name', orgName)
     .single();
 
-  if (profileError) throw profileError;
-  if (!profileData) throw new Error('Profile not found');
+  if (orgError) throw orgError;
+  if (!orgData) throw new Error('Organization not found');
 
   // Now we can run the entries and settings queries in parallel
   const [entriesResult, settingsResult] = await Promise.all([
@@ -148,13 +148,13 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
         reptiles:view_public_catalog!inner(*),
         catalog_images(*)
       `)
-      .eq('user_id', profileData.id)
+      .eq('user_id', orgData.id)
       .order('display_order', { ascending: true }),
     
     supabase
       .from('catalog_settings')
       .select('*')
-      .eq('user_id', profileData.id)
+      .eq('user_id', orgData.id)
       .single()
   ]);
 
@@ -171,18 +171,18 @@ export async function getCatalogEntriesByProfileName(profileName: string): Promi
     ...entry,
     catalog_images: entry.catalog_images || [],
     catalog_settings: settingsData,
-    profile: profileData
+    organization: orgData
   }));
 
   return enrichedData || [];
 }
 
-export async function getOpenGraphImages (profileName: string): Promise<OGTYPE[]> {
+export async function getOpenGraphImages (orgName: string): Promise<OGTYPE[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('view_open_graph')
    .select(`image_url,reptile,price,morph_name `)
-   .eq('profile', profileName)
+   .eq('organization', orgName)
 
   if (error) throw error;
   if (!data) return [];
@@ -209,8 +209,8 @@ export async function createCatalogEntry(entry: NewCatalogEntry): Promise<Catalo
   if (!currentUser) throw new Error('Unauthorized');
 
   // Check if user is at limit (30 for trial users)
-  const { data: profile } = await supabase
-    .from('profiles')
+  const { data: organization } = await supabase
+    .from('organizations')
     .select('subscription_tier')
     .eq('id', userId)
     .single();
@@ -221,7 +221,7 @@ export async function createCatalogEntry(entry: NewCatalogEntry): Promise<Catalo
     .eq('user_id', userId);
   
   // If trial user and at limit
-  if (profile?.subscription_tier === 'trial' && count && count >= 30) {
+  if (organization?.subscription_tier === 'trial' && count && count >= 30) {
     throw new Error('Trial users are limited to 30 reptiles in catalog. Please upgrade your account.');
   }
 

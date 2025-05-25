@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Profile, ProfileFormData } from '@/lib/types/profile';
+import { Organization, ProfileFormData } from '@/lib/types/organizations';
 import { 
-  getProfile, 
-  createProfile, 
-  updateProfile, 
-} from '@/app/api/profiles/profiles';
+  getOrganization, 
+  createOrganization, 
+  updateOrganization, 
+} from '@/app/api/organizations/organizations';
 import { 
   Dialog,
   DialogContent,
@@ -22,9 +22,9 @@ import { toast } from 'sonner';
 import { Sparkles } from 'lucide-react';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { ProfileStep1 } from './ProfileStep1';
-import { ProfileStep2 } from './ProfileStep2';
-import { ProfileStep3 } from './ProfileStep3';
+import { Step1 } from './Step1';
+import { Step2 } from './Step2';
+import { Step3 } from './Step3';
 import { useQuery } from '@tanstack/react-query';
 import { APP_NAME } from '@/lib/constants/app';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
@@ -52,19 +52,19 @@ export const profileFormSchema = profileStep1Schema
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-async function getProfiles(): Promise<Profile[]> {
+async function getOrganizations(): Promise<Organization[]> {
   try {
-    const profile = await getProfile();
-    return profile ? [profile] : [];
+    const organization = await getOrganization();
+    return organization ? [organization] : [];
   } catch (error) {
-    console.error('Error fetching profile:', error);
+    console.error('Error fetching organization:', error);
     return [];
   }
 }
 
 
 
-export function ProfileSetupDialog() {
+export function OrganizationSetupDialog() {
   const [step, setStep] = useState(1);
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -76,14 +76,14 @@ export function ProfileSetupDialog() {
   // Access morphs store for later use
   const { downloadCommonMorphs } = useMorphsStore();
   
-  const { data: profiles, isLoading } = useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfiles
+  const { data: organizations, isLoading } = useQuery({
+    queryKey: ['organization'],
+    queryFn: getOrganizations
   })
 
-  const profile = profiles ? profiles[0] : null;
+  const organization = organizations ? organizations[0] : null;
 
-  const isProfileComplete = profile ? (!!profile.full_name && !!profile.account_type && (profile.selected_species && profile.selected_species.length > 0)) : false;
+  const isProfileComplete = organization ? (!!organization.full_name && !!organization.account_type && (organization.selected_species && organization.selected_species.length > 0)) : false;
   
   // Initialize the form with react-hook-form and zod validation
   const form = useForm<ProfileFormValues>({
@@ -108,25 +108,25 @@ export function ProfileSetupDialog() {
     fetchFeederSizes();
   }, [fetchFeederSizes]);
 
-  // Set dialog state once profile data is loaded
+  // Set dialog state once organization data is loaded
   useEffect(() => {
     if (!isLoading) {
-      // Force open dialog if profile is not complete
+      // Force open dialog if organization is not complete
       setOpen(!isProfileComplete);
     }
   }, [isLoading, isProfileComplete]);
 
-  // Update form data when profile changes
+  // Update form data when organization changes
   useEffect(() => {
-    if (profile) {
+    if (organization) {
       form.reset({
-        full_name: profile.full_name || '',
-        account_type: profile.account_type || 'keeper',
-        collection_size: profile.collection_size,
-        selected_species: profile.selected_species || []
+        full_name: organization.full_name || '',
+        account_type: organization.account_type || 'keeper',
+        collection_size: organization.collection_size,
+        selected_species: organization.selected_species || []
       });
     }
-  }, [profile, form]);
+  }, [organization, form]);
 
   const handleNextStep = async () => {
     let canProceed = false;
@@ -152,7 +152,7 @@ export function ProfileSetupDialog() {
     setIsSubmitting(true);
     try {
       // Convert the form data to match ProfileFormData
-      const profileData: ProfileFormData = {
+      const orgData: ProfileFormData = {
         full_name: data.full_name,
         account_type: data.account_type,
         collection_size: data.collection_size || null,
@@ -164,34 +164,34 @@ export function ProfileSetupDialog() {
         // Download morphs for the selected species
         await downloadCommonMorphs(data.selected_species);
       }
-      if (profile) {
+      if (organization) {
         // Set the selected resource before update
-        const success = await updateProfile(profileData);
+        const success = await updateOrganization(orgData);
         if (success) {
-          console.log("Profile updated successfully");
+          console.log("Organization updated successfully");
         } else {
-          console.error("Profile update failed");
-          toast.error("There was a problem updating your profile. Please try again.");
+          console.error("Organization update failed");
+          toast.error("There was a problem updating your organization. Please try again.");
         }
       } else {
-        await createProfile(profileData);
-        console.log("Profile created successfully");
+        await createOrganization(orgData);
+        console.log("Organization created successfully");
       }
       
-      toast.success("Your profile has been successfully set up!");
+      toast.success("Your organization has been successfully set up!");
       
 
-      // Only close the dialog if profile setup succeeded
+      // Only close the dialog if organization setup succeeded
       setTimeout(() => {
         if (data.full_name && data.account_type && data.selected_species && data.selected_species.length > 0) {
           setOpen(false);
         } else {
-          toast.error("Profile setup failed. Please try again.");
+          toast.error("Organization setup failed. Please try again.");
         }
       }, 500);
     } catch (error) {
-      console.error("Profile update error:", error);
-      toast.error("There was a problem updating your profile. Please try again.");
+      console.error("Organization update error:", error);
+      toast.error("There was a problem updating your organization. Please try again.");
     } finally {
       setIsSubmitting(false);
      window.location.reload();
@@ -201,7 +201,7 @@ export function ProfileSetupDialog() {
   // Don't render at all if loading
   if (isLoading) return null;
 
-  // Don't allow dialog to be closed if profile is incomplete
+  // Don't allow dialog to be closed if organization is incomplete
   const allowClose = isProfileComplete;
 
   return (
@@ -233,11 +233,11 @@ export function ProfileSetupDialog() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 pt-4">
             {step === 1 ? (
-              <ProfileStep1 form={form} onNext={handleNextStep} />
+              <Step1 form={form} onNext={handleNextStep} />
             ) : step === 2 ? (
-              <ProfileStep2 form={form} onNext={handleNextStep} onPrev={handlePrevStep} />
+              <Step2 form={form} onNext={handleNextStep} onPrev={handlePrevStep} />
             ) : (
-              <ProfileStep3 
+              <Step3 
                 form={form} 
                 onPrev={handlePrevStep} 
                 isSubmitting={isSubmitting} 

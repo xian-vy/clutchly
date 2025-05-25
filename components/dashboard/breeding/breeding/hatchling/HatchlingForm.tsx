@@ -35,8 +35,8 @@ import { VisualTraitsForm } from "@/components/dashboard/reptiles/reptiles/Visua
 import { HetTraitsForm } from "@/components/dashboard/reptiles/reptiles/HetTraitsForm";
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useQuery } from "@tanstack/react-query";
-import { getProfile } from "@/app/api/profiles/profiles";
-import { Profile } from "@/lib/types/profile";
+import { getOrganization } from "@/app/api/organizations/organizations";
+import { Organization } from "@/lib/types/organizations";
 import {toast} from 'sonner';
 
 
@@ -75,11 +75,11 @@ export function HatchlingForm({
     queryFn: getReptiles
   })
   
-  const { data: profile } = useQuery<Profile>({
-    queryKey: ['profile2'],
-    queryFn: getProfile
+  const { data: organization } = useQuery<Organization>({
+    queryKey: ['organization2'],
+    queryFn: getOrganization
   })
-  const userProfile = Array.isArray(profile) ? profile[0] : profile;
+  const userProfile = Array.isArray(organization) ? organization[0] : organization;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

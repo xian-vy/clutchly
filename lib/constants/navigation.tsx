@@ -11,6 +11,7 @@ import {
     Plus,
     Settings,
     Sprout,
+    Users2,
 } from 'lucide-react';
 import { VscSnake } from "react-icons/vsc";
 
@@ -109,6 +110,13 @@ export interface NavItem {
           icon: Dna,
         },
       ],
+    },
+    {
+      section: 'Main',
+      name: 'Users',
+      href: '/users',
+      icon: Users2,
+      displayName: 'User Management', 
     },
     {
       section: 'Health & Growth',

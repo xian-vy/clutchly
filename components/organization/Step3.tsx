@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Loader2, Search } from 'lucide-react';
-import { ProfileFormValues } from './ProfileSetupDialog';
+import { ProfileFormValues } from './OrganizationSetupDialog';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 
 interface ProfileStep3Props {
@@ -16,7 +16,7 @@ interface ProfileStep3Props {
   isSubmitting: boolean;
 }
 
-export function ProfileStep3({ form, onPrev, isSubmitting }: ProfileStep3Props) {
+export function Step3({ form, onPrev, isSubmitting }: ProfileStep3Props) {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Load species using the species store

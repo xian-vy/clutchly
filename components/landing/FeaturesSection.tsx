@@ -30,7 +30,7 @@ export function FeaturesSection() {
       title: 'Health Management',
       features: [
         'Record and monitor health events',
-        'Display records in reptile pdf profile',
+        'Display records in reptile pdf organization',
         'Reports and analytics'
       ]
     },

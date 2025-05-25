@@ -43,7 +43,7 @@ const AddNewShortcut = ({type} : Props) => {
                         onCancel={() => {
                         setDialogToOpen(null);
                         }}
-                        profile={undefined}
+                        organization={undefined}
                      />
                 ): dialogToOpen === 'Sale' ? (
                     <SalesRecordForm

@@ -12,7 +12,7 @@ export async function getSubscription() {
   const { data: subscription, error } = await supabase
     .from('subscriptions')
     .select('*')
-    .eq('profile_id', user.id)
+    .eq('org_id', user.id)
     .single()
 
   // If subscription doesn't exist, create a free one
@@ -35,7 +35,7 @@ export async function createSubscription(plan: SubscriptionPlan) {
   trialEnd.setDate(trialEnd.getDate() + 14)
   
   const newSubscription = {
-    profile_id: user.id,
+    org_id: user.id,
     plan: plan,
     status: plan === 'Free' ? 'active' : 'trialing',
     stripe_customer_id: null,
@@ -84,7 +84,7 @@ export async function updateSubscription(plan: SubscriptionPlan, stripeData?: {
   const { data, error } = await supabase
     .from('subscriptions')
     .update(updates)
-    .eq('profile_id', user.id)
+    .eq('org_id', user.id)
     .select()
     .single()
 
@@ -108,7 +108,7 @@ export async function cancelSubscription() {
       status: 'canceled',
       updated_at: new Date().toISOString()
     })
-    .eq('profile_id', user.id)
+    .eq('org_id', user.id)
     .select()
     .single()
 

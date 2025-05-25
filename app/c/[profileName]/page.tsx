@@ -1,19 +1,19 @@
-import { getPublicProfile } from '@/app/api/profiles/profiles';
+import { getPublicOrganization } from '@/app/api/organizations/organizations';
 import { CatalogPublicPage } from '@/components/catalog/CatalogPublicPage';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { APP_URL } from '@/lib/constants/app';
 import { Metadata } from 'next';
 
-type Params = Promise<{ profileName: string}>;
+type Params = Promise<{ orgName: string}>;
 
 
 export async function generateMetadata(
   { params }: {params : Params}
 ): Promise<Metadata> {
-  const { profileName } = await params;
+  const { orgName } = await params;
 
-  //const ogUrl = new URL(`/api/og/catalog/${profileName}`, APP_URL);
-  const publicProfile = await getPublicProfile(profileName);
+  //const ogUrl = new URL(`/api/og/catalog/${orgName}`, APP_URL);
+  const publicProfile = await getPublicOrganization(orgName);
 
   if (!publicProfile) {
     return {
@@ -51,11 +51,11 @@ export default async function Page({
   params,
 }: {params : Params}) {
   const resolvedParams = await params;
-  const { profileName } = resolvedParams;
+  const { orgName } = resolvedParams;
   
   return (
     <QueryProvider>
-        <CatalogPublicPage profileName={profileName} />
+        <CatalogPublicPage orgName={orgName} />
     </QueryProvider>
   );
 }

@@ -1,8 +1,8 @@
-import { getProfile } from '@/app/api/profiles/profiles';
+import { getOrganization } from '@/app/api/organizations/organizations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { APP_NAME, APP_URL } from '@/lib/constants/app';
-import { Profile } from '@/lib/types/profile';
+import { Organization } from '@/lib/types/organizations';
 import { useQuery } from '@tanstack/react-query';
 import { Copy, Share2Icon } from 'lucide-react';
 import React, { useState } from 'react'
@@ -12,17 +12,17 @@ import ShareURLDialog from './components/ShareURLDialog';
 const CatalogEntryShare = () => {
   const [openShareDialog, setOpenShareDialog] = useState(false);
 
-    const { data: profile } = useQuery<Profile>({
-        queryKey: ['profile2'],
-        queryFn: getProfile
+    const { data: organization } = useQuery<Organization>({
+        queryKey: ['organization2'],
+        queryFn: getOrganization
       })
-      const userProfile = Array.isArray(profile) ? profile[0] : profile;
+      const userProfile = Array.isArray(organization) ? organization[0] : organization;
     
   return (
         <div className="flex items-center gap-2 w-full">
                 <Input
                   readOnly
-                  value={`clutchly.vercel.app/c/${userProfile?.full_name || 'your-profile'}`}
+                  value={`clutchly.vercel.app/c/${userProfile?.full_name || 'your-organization'}`}
                   className="bg-muted w-full sm:w-[300px] h-8"
                 />
                 <Button
@@ -30,7 +30,7 @@ const CatalogEntryShare = () => {
                   variant="outline"
                   size="icon"
                   onClick={() => {
-                    navigator.clipboard.writeText(`${APP_URL}/c/${userProfile?.full_name || 'your-profile'}`);
+                    navigator.clipboard.writeText(`${APP_URL}/c/${userProfile?.full_name || 'your-organization'}`);
                     toast.success('URL copied to clipboard');
                   }}
                   className='h-8'
@@ -47,7 +47,7 @@ const CatalogEntryShare = () => {
                   <Share2Icon className=" h-4 w-4" />
                 </Button>
                             
-              <ShareURLDialog profileName={userProfile?.full_name || APP_NAME} open={openShareDialog} onClose={() => setOpenShareDialog(false)} />
+              <ShareURLDialog orgName={userProfile?.full_name || APP_NAME} open={openShareDialog} onClose={() => setOpenShareDialog(false)} />
         </div>
         
   )

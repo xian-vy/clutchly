@@ -7,9 +7,9 @@ export async function getSpecies() {
   const currentUser = await supabase.auth.getUser()
   const userId = currentUser.data.user?.id
   
-  // get the user's profile to get selected_species
-  const { data: profile } = await supabase
-    .from('profiles')
+  // get the user's organization to get selected_species
+  const { data: organization } = await supabase
+    .from('organizations')
     .select('selected_species')
     .eq('id', userId)
     .single()
@@ -29,7 +29,7 @@ export async function getSpecies() {
 
   if (error) throw error
   
-  const selectedSpecies = profile?.selected_species || []
+  const selectedSpecies = organization?.selected_species || []
   const sortedSpecies = [...species].sort((a, b) => {
     const aSelected = selectedSpecies.includes(a.id.toString())
     const bSelected = selectedSpecies.includes(b.id.toString())

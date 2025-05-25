@@ -5,7 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ProfileFormValues } from './ProfileSetupDialog';
+import { ProfileFormValues } from './OrganizationSetupDialog';
 import { FormField } from '@/components/ui/form';
 
 interface ProfileStep2Props {
@@ -14,7 +14,7 @@ interface ProfileStep2Props {
   onPrev: () => void;
 }
 
-export function ProfileStep2({ form, onNext, onPrev }: ProfileStep2Props) {
+export function Step2({ form, onNext, onPrev }: ProfileStep2Props) {
   return (
     <div className="space-y-6">
       <div className="space-y-3">

@@ -17,7 +17,7 @@ import Image from 'next/image';
 import { CatalogIntroContact } from './CatalogIntroContact';
 import { AboutSettingsDialog } from './CatalogIntroAbout';
 import { cn } from '@/lib/utils';
-import { MinProfileInfo } from '@/lib/types/profile';
+import { MinProfileInfo } from '@/lib/types/organizations';
 import ShareURLDialog from './ShareURLDialog';
 import { APP_NAME } from '@/lib/constants/app';
 
@@ -33,9 +33,9 @@ interface Props {
   settings : CatalogSettings | null;
   isLoading : boolean;
   isAdmin: boolean;
-  profile : MinProfileInfo
+  organization : MinProfileInfo
 }
-export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
+export function CatalogIntro({settings,isLoading,isAdmin,organization} : Props) {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   const { theme } = useTheme()
@@ -121,7 +121,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('/api/profiles/upload-logo', {
+      const res = await fetch('/api/organizations/upload-logo', {
         method: 'POST',
         body: formData,
       });
@@ -158,10 +158,10 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
           {isAdmin ? (
             <div className="relative group">
               <Image 
-                src={getLogoUrl(profile?.logo)} 
+                src={getLogoUrl(organization?.logo)} 
                 width={35} 
                 height={35}   
-                alt="profile logo" 
+                alt="organization logo" 
                 className="rounded-full cursor-pointer" 
                 onClick={() => document.getElementById('logo-upload')?.click()}
               />
@@ -191,14 +191,14 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
             </div>
           ) : (
             <Image 
-              src={getLogoUrl(profile?.logo)} 
+              src={getLogoUrl(organization?.logo)} 
               width={35} 
               height={35}   
-              alt="profile logo" 
+              alt="organization logo" 
               className="rounded-full" 
             />
           )}
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight capitalize">{profile ? profile.full_name : "--"}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight capitalize">{organization ? organization.full_name : "--"}</h1>
             </div>
             <div className="flex items-center gap-4 sm:gap-5">
                     <span onClick={() => setIsAboutDialogOpen(true)} className='text-[0.8rem] md:text-sm cursor-pointer '>About</span>
@@ -294,7 +294,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,profile} : Props) {
     />
 
     <ShareURLDialog 
-      profileName={profile?.full_name || APP_NAME} 
+      orgName={organization?.full_name || APP_NAME} 
       open={openShareDialog} 
       onClose={() => setOpenShareDialog(false)} 
       />

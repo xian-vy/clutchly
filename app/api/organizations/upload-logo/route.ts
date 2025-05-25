@@ -101,15 +101,15 @@ export async function POST(request: NextRequest) {
         .from('profile-logos')
         .getPublicUrl(filename);
 
-      const { error: profileError } = await supabase
-      .from('profiles')
+      const { error: orgError } = await supabase
+      .from('organizations')
       .update({ logo: publicUrl })
       .eq('id', user.id);
 
-      if (profileError) {
-        console.error('Error updating profile:', profileError);
+      if (orgError) {
+        console.error('Error updating organization:', orgError);
         return NextResponse.json(
-          { error: 'Failed to update profile with logo', details: profileError.message },
+          { error: 'Failed to update organization with logo', details: orgError.message },
           { status: 500 }
         );
       }

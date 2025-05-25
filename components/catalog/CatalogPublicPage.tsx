@@ -1,6 +1,6 @@
 'use client';
 
-import { getCatalogEntriesByProfileName } from '@/app/api/catalog';
+import { getCatalogEntriesByorgName } from '@/app/api/catalog';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { calculateAgeInMonths } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -16,10 +16,10 @@ import CatalogFooter from '../dashboard/catalog/components/CatalogFooter';
 import { CatalogIntro } from '../dashboard/catalog/components/CatalogIntro';
 import NotSetup from '../dashboard/catalog/components/NotSetup';
 interface CatalogClientPageProps {
-  profileName: string;
+  orgName: string;
 }
 
-export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
+export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
   const [detailView, setDetailView] = useState<EnrichedCatalogEntry | null>(null);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<CatalogFilters>({
@@ -32,8 +32,8 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   });
   
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['catalog', profileName],
-    queryFn: () => getCatalogEntriesByProfileName(profileName),
+    queryKey: ['catalog', orgName],
+    queryFn: () => getCatalogEntriesByorgName(orgName),
   });
 
 
@@ -43,7 +43,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
   const findReptile = (reptileId: string) => reptiles?.find((r) => r?.id === reptileId);
   const catalogSettings = isLoading ? null : enrichedCatalog?.[0]?.catalog_settings || null;
   const reptileForDetail = detailView ? findReptile(detailView.reptile_id) : null;
-  const profile = enrichedCatalog?.[0]?.profile || null;
+  const organization = enrichedCatalog?.[0]?.organization || null;
   
   // Apply filters and sorting to catalog entries
   const filteredEntries = useMemo(() => {
@@ -160,7 +160,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
           settings={catalogSettings} 
           isLoading={isLoading} 
           isAdmin={false}
-          profile = {profile}
+          organization = {organization}
        />
 
      <div className="container mx-auto xl:px-16 2xl:px-24 3xl:px-0">
@@ -202,7 +202,7 @@ export function CatalogPublicPage({ profileName }: CatalogClientPageProps) {
         />
         </div>
         <CatalogFooter      
-          profile = {profile}
+          organization = {organization}
           settings={catalogSettings} 
           isAdmin={false}
         />

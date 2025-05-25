@@ -27,8 +27,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { FeedingOverview } from './FeedingOverview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Profile } from '@/lib/types/profile';
-import { getProfile } from '@/app/api/profiles/profiles';
+import { Organization } from '@/lib/types/organizations';
+import { getOrganization } from '@/app/api/organizations/organizations';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
 
 export function DashboardOverviewTab() {
@@ -66,29 +66,29 @@ export function DashboardOverviewTab() {
     }
   }, [fetchFeederTypes,feederTypes])
  
-  const { data: profile } = useQuery<Profile>({
-    queryKey: ['profile2'],
-    queryFn: getProfile
+  const { data: organization } = useQuery<Organization>({
+    queryKey: ['organization2'],
+    queryFn: getOrganization
   })
 
-  // In the event local storage has been cleared (Refetch morphs base on profile sp selection)
+  // In the event local storage has been cleared (Refetch morphs base on organization sp selection)
   useEffect(() => {
-    if (morphs.length === 0 && profile) {
+    if (morphs.length === 0 && organization) {
        async function fetchMorphs() {
-        if (!profile) {
-          console.error('No profile found to download common morphs');
+        if (!organization) {
+          console.error('No organization found to download common morphs');
           return;
         }
-        const speciesIds = profile.selected_species
+        const speciesIds = organization.selected_species
         if (!speciesIds) {
-          console.error('No species IDs found in profile');
+          console.error('No species IDs found in organization');
           return;
         }
        await downloadCommonMorphs(speciesIds);
       }
       fetchMorphs()
     }
-  }, [profile, morphs,downloadCommonMorphs]);
+  }, [organization, morphs,downloadCommonMorphs]);
 
   // Create date filter params for API calls
   const dateFilterParams = useMemo(() => {
@@ -164,7 +164,7 @@ export function DashboardOverviewTab() {
       }
       return [];
     },
-    enabled: !breedingLoading && !!profile && !!breedingProjects,
+    enabled: !breedingLoading && !!organization && !!breedingProjects,
   });
   
   // Handle date range changes

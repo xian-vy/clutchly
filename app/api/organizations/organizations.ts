@@ -1,134 +1,134 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { MinProfileInfo, Profile, ProfileFormData } from '@/lib/types/profile'
+import { MinProfileInfo, Organization, ProfileFormData } from '@/lib/types/organizations'
 
-export async function getProfile() {
+export async function getOrganization() {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
   
   try {
-    const { data: profile, error } = await supabase
-      .from('profiles')
+    const { data: organization, error } = await supabase
+      .from('organizations')
       .select('*')
       .eq('id', user.id)
       .single()
 
 
     if (error) throw error
-    return profile as Profile
+    return organization as Organization
   } catch (err) {
-    console.error('Error in getProfile:', err)
+    console.error('Error in getOrganization:', err)
     throw err
   }
 }
 
-export async function getPublicProfile(profileName: string) : Promise<MinProfileInfo | null>  {
+export async function getPublicOrganization(orgName: string) : Promise<MinProfileInfo | null>  {
   const supabase = await createClient()
 
-  const { data: profileData, error: profileError } = await supabase
-  .from('view_public_profiles')
+  const { data: orgData, error: orgError } = await supabase
+  .from('view_public_organizations')
   .select('id, full_name, logo')
-  .eq('full_name', profileName)
+  .eq('full_name', orgName)
   .single();
 
-  if (profileError || !profileData) {
-    console.error("Error fetching public profile:", profileError.message);
+  if (orgError || !orgData) {
+    console.error("Error fetching public organization:", orgError.message);
     return null;
   }
 
-  return profileData as Profile;
+  return orgData as Organization;
 }
 
-export async function createProfile(profileData: ProfileFormData) {
+export async function createOrganization(orgData: ProfileFormData) {
   const supabase = await createClient()
   
   try {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')
     
-    // First check if profile already exists
+    // First check if organization already exists
     const { data: existingProfile } = await supabase
-      .from('profiles')
+      .from('organizations')
       .select('id')
       .eq('id', user.id)
       .single()
       
     if (existingProfile) {
-      // Profile exists, update it instead
-      return updateProfile(profileData)
+      // Organization exists, update it instead
+      return updateOrganization(orgData)
     }
     
-    const newProfile: Partial<Profile> = {
+    const newProfile: Partial<Organization> = {
       id: user.id,
       email: user.email || '',
-      full_name: profileData.full_name,
-      account_type: profileData.account_type,
-      collection_size: profileData.collection_size,
-      selected_species: profileData.selected_species,
+      full_name: orgData.full_name,
+      account_type: orgData.account_type,
+      collection_size: orgData.collection_size,
+      selected_species: orgData.selected_species,
       is_active: true
     }
     
     
     const { data, error } = await supabase
-      .from('profiles')
+      .from('organizations')
       .insert([newProfile])
       .select()
       .single()
       
     if (error) {
-      console.error("Error creating profile:", error.message, error)
+      console.error("Error creating organization:", error.message, error)
       throw error
     }
     
-    return data as Profile
+    return data as Organization
   } catch (err) {
-    console.error('Error in createProfile:', err)
+    console.error('Error in createOrganization:', err)
     throw err
   }
 }
 
-export async function updateProfile(profileData: ProfileFormData) {
+export async function updateOrganization(orgData: ProfileFormData) {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
   
   const { data, error } = await supabase
-    .from('profiles')
+    .from('organizations')
     .update({
-      full_name: profileData.full_name,
-      account_type: profileData.account_type,
-      collection_size: profileData.collection_size,
-      selected_species: profileData.selected_species
+      full_name: orgData.full_name,
+      account_type: orgData.account_type,
+      collection_size: orgData.collection_size,
+      selected_species: orgData.selected_species
     })
     .eq('id', user.id)
     .select()
     .single()
     
   if (error) {
-    console.error("Error updating profile:", error.message)
+    console.error("Error updating organization:", error.message)
     throw error
   }
   
-  return data as Profile
+  return data as Organization
 }
 
-export async function deleteProfile() {
+export async function deleteOrganization() {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
   
   const { error } = await supabase
-    .from('profiles')
+    .from('organizations')
     .delete()
     .eq('id', user.id)
     
   if (error) {
-    console.error("Error deleting profile:", error.message)
+    console.error("Error deleting organization:", error.message)
     throw error
   }
 }
@@ -140,7 +140,7 @@ export async function isProfileComplete() {
   if (!user) return false
   
   const { data, error } = await supabase
-    .from('profiles')
+    .from('organizations')
     .select('full_name, account_type, selected_species')
     .eq('id', user.id)
     .single()

@@ -1,7 +1,7 @@
 import { Navigation } from '@/components/navigation/Navigation';
 import TopNavigation from '@/components/navigation/TopNavigation';
 import { QueryProvider } from '@/components/providers/QueryProvider';
-import { ProfileSetupDialog } from '@/components/profile/ProfileSetupDialog';
+import { OrganizationSetupDialog } from '@/components/organization/OrganizationSetupDialog';
 import './dashboard.css';
 
 interface LayoutProps {
@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
           <div className="flex-1 lg:ml-[var(--sidebar-width)]  3xl:ml-[var(--sidebar-width-3xl)] transition-all duration-200">
             <TopNavigation />
             <div className="p-4 lg:p-6 xl:p-7 2xl:p-9 3xl:!p-10 max-w-screen-2xl mx-auto">
-                <ProfileSetupDialog />
+                <OrganizationSetupDialog />
                 {children}
             </div>
           </div>

@@ -31,7 +31,7 @@ export function HelpDialog() {
             <AccordionTrigger>Getting Started</AccordionTrigger>
             <AccordionContent>
               <ol className="list-decimal pl-5 space-y-2">
-                <li>Create your first reptile profile to start</li>
+                <li>Create your first reptile organization to start</li>
                 <li>Manage your free Website</li>
                 <li>You can  import existing data in <strong>Reptiles</strong> page</li>
                 <li> When importing, <strong>morphs</strong>, <strong>species</strong> and <strong>relationships</strong> will be created as well</li>

@@ -14,11 +14,11 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { CatalogIntroContact } from './CatalogIntroContact'
 import { AboutSettingsDialog } from './CatalogIntroAbout'
-import { MinProfileInfo } from '@/lib/types/profile'
+import { MinProfileInfo } from '@/lib/types/organizations'
 import ShareURLDialog from './ShareURLDialog'
 
 interface Props {
-     profile : MinProfileInfo
+     organization : MinProfileInfo
     settings : CatalogSettings | null
     isAdmin: boolean
 }
@@ -27,7 +27,7 @@ const formSchema = z.object({
   address: z.string().nullable(),
 });
 
-const CatalogFooter = ({profile,settings, isAdmin} : Props) => {
+const CatalogFooter = ({organization,settings, isAdmin} : Props) => {
     const { theme } = useTheme()
     const [isEditing, setIsEditing] = React.useState(false);
     const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
@@ -70,13 +70,13 @@ return (
     <footer className="border-t pt-8 xl:pt-12 flex flex-col items-center w-full gap-4 xl:gap-5 bg-background/90">
       <div className="flex flex-col items-center gap-1 mb-3 lg:mb-5">
         <Image 
-           src={getLogoUrl(profile?.logo)} 
+           src={getLogoUrl(organization?.logo)} 
           width={40} 
           height={40}   
           alt="clutchly" 
           className="rounded-full" 
         />
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight capitalize mt-1">{profile?.full_name}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight capitalize mt-1">{organization?.full_name}</h1>
       </div>
       <div className="w-full flex flex-col md:flex-row md:justify-center md:items-center gap-2 md:gap-6 text-sm text-foreground/90 px-4">
         {/* Address */}
@@ -143,7 +143,7 @@ return (
       isAdmin={isAdmin}
     />
       <ShareURLDialog 
-        profileName={profile?.full_name || APP_NAME} 
+        orgName={organization?.full_name || APP_NAME} 
         open={openShareDialog} 
         onClose={() => setOpenShareDialog(false)} 
       />

@@ -4,17 +4,17 @@ import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
-type Params = Promise<{ profileName: string }>;
+type Params = Promise<{ orgName: string }>;
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Params }
 ) {
   try {
-    const { profileName } = await params;
+    const { orgName } = await params;
     
     // Get simplified OG data
-    const ogData = await getOpenGraphImages(profileName);
+    const ogData = await getOpenGraphImages(orgName);
     
     // Limit to 6 entries max
     const limitedEntries = ogData.slice(0, 3);
@@ -51,7 +51,7 @@ export async function GET(
                 textAlign: 'center',
               }}
             >
-              {profileName}&apos;s Collection
+              {orgName}&apos;s Collection
             </h1>
             <p
               style={{
@@ -161,7 +161,7 @@ export async function GET(
                 textAlign: 'center',
               }}
             >
-              Visit <span style={{ borderBottom: "2px solid #666", paddingBottom: "1px" ,marginLeft:"10px",marginRight:"10px"}}>clutchly.vercel.app/c/{profileName}</span> to see more
+              Visit <span style={{ borderBottom: "2px solid #666", paddingBottom: "1px" ,marginLeft:"10px",marginRight:"10px"}}>clutchly.vercel.app/c/{orgName}</span> to see more
             </p>
           </div>
         </div>
