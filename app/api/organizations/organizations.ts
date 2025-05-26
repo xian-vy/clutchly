@@ -88,7 +88,8 @@ export async function createOrganization(orgData: ProfileFormData) {
       id: user.id,
       org_id: user.id,
       full_name: orgData.full_name,
-      role: 'admin'
+      role: 'admin',
+      status: 'active',
     }
 
     const staffPages = pages.filter(page => 

@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { User } from '@/lib/types/users';
+import { User,  } from '@/lib/types/users';
 import { ColumnDef } from '@tanstack/react-table';
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -59,6 +59,14 @@ export function UserList({ users, onEdit, onDelete, onAddNew,organizationId }: U
         return <div className="capitalize">{isOwner ? "--" : profileName}</div>;
       }
     },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status;
+        return <div className={`capitalize ${status === 'active' ? 'text-green-500' : 'text-orange-500'}`}>{status === 'active'? 'Active' : "Pending Email Confirmation" }</div>;
+      },
+   },
     {
       id: "actions",
       cell: ({ row }) => {

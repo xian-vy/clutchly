@@ -1,4 +1,5 @@
 export type UserRoles = 'admin' | 'staff';
+export type UserStatus = 'active' | 'pending';
 
 export interface User {
     id: string;
@@ -6,6 +7,7 @@ export interface User {
     access_profile_id: string;
     full_name: string;
     role: UserRoles;
+    status: UserStatus;
     email?: string; // Optional since it's stored in auth.users
 }
 

@@ -11,6 +11,7 @@ import { UserList } from './UserList';
 import { useQuery } from '@tanstack/react-query';
 import { getOrganization } from '@/app/api/organizations/organizations';
 import { Organization } from '@/lib/types/organizations';
+import {toast} from 'sonner'
 
 export default function UsersTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -27,7 +28,11 @@ export default function UsersTab() {
     resourceName: 'User',
     queryKey: ['users'],
     getResources: getUsers,
-    createResource: createUser,
+    createResource: async (data) => {
+      const result = await createUser(data);
+      toast.success('User created successfully');
+      return result.user;
+    },
     updateResource: updateUser,
     deleteResource: deleteUser,
   });

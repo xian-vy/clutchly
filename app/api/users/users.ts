@@ -49,12 +49,17 @@ export async function createUser(user: CreateUser) {
       access_profile_id: user.access_profile_id,
       full_name: user.full_name,
       role: user.role,
+      status: 'pending', // Set initial status as pending
     })
     .select()
     .single();
 
   if (error) throw error;
-  return data as User;
+  
+  return {
+    user: data as User,
+    message: 'User created successfully. Please check your email to confirm your account.'
+  };
 }
 
 export async function updateUser(id: string, user: Partial<User>) {
