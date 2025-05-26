@@ -2,6 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { MinProfileInfo, Organization, ProfileFormData } from '@/lib/types/organizations'
+import { User } from '@/lib/types/users'
+import { createAccessProfile } from '@/app/api/users/access'
+import { getPages } from '@/app/api/users/access'
 
 export async function getOrganization() {
   const supabase = await createClient()
@@ -49,17 +52,27 @@ export async function createOrganization(orgData: ProfileFormData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')
     
+    
     // First check if organization already exists
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile, error: checkError } = await supabase
       .from('organizations')
       .select('id')
       .eq('id', user.id)
       .single()
       
+    if (checkError) {
+      console.error('Error checking organization:', checkError)
+    }
+    
     if (existingProfile) {
       // Organization exists, update it instead
       return updateOrganization(orgData)
     }
+
+    // Prepare all data in parallel
+    const [pages] = await Promise.all([
+      getPages()
+    ]);
     
     const newProfile: Partial<Organization> = {
       id: user.id,
@@ -70,20 +83,80 @@ export async function createOrganization(orgData: ProfileFormData) {
       selected_species: orgData.selected_species,
       is_active: true
     }
-    
-    
-    const { data, error } = await supabase
+
+    const newUser: Partial<User> = {
+      id: user.id,
+      org_id: user.id,
+      full_name: orgData.full_name,
+      role: 'owner',
+      status: 'active',
+    }
+
+    const staffPages = pages.filter(page => 
+      ['Shedding', 'Feeding', 'Enclosures', 'Health', 'Growth'].includes(page.name)
+    );
+
+    // First create the organization
+    const { data: org, error: orgError } = await supabase
       .from('organizations')
       .insert([newProfile])
       .select()
-      .single()
-      
-    if (error) {
-      console.error("Error creating organization:", error.message, error)
-      throw error
+      .single();
+
+    if (orgError) {
+      console.error("Error creating organization:", orgError.message, orgError)
+      throw orgError
+    }
+
+    // Then create the user
+    const { error: userError } = await supabase
+      .from('users')
+      .upsert([newUser])
+
+    if (userError) {
+      console.error("Error creating user:", userError.message, userError)
+      throw userError
+    }
+
+    // Finally create access profiles
+    try {
+      await Promise.all([
+        createAccessProfile({
+          org_id: user.id,
+          name: 'Admin',
+          description: 'Full access to all features',
+          access_controls: pages.map(page => ({
+            page_id: page.id,
+            can_view: true,
+            can_edit: true,
+            can_delete: true
+          }))
+        }).catch(error => {
+          console.error("Error creating admin profile:", error);
+          throw error;
+        }),
+        createAccessProfile({
+          org_id: user.id,
+          name: 'Staff',
+          description: 'Access to basic features',
+          access_controls: staffPages.map(page => ({
+            page_id: page.id,
+            can_view: true,
+            can_edit: true,
+            can_delete: true
+          }))
+        }).catch(error => {
+          console.error("Error creating staff profile:", error);
+          throw error;
+        })
+      ]);
+      console.log('Created access profiles successfully')
+    } catch (profileError) {
+      console.error('Error creating access profiles:', profileError)
+      throw profileError
     }
     
-    return data as Organization
+    return org as Organization
   } catch (err) {
     console.error('Error in createOrganization:', err)
     throw err

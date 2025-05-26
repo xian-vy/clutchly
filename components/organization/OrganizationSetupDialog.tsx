@@ -28,6 +28,7 @@ import { Step3 } from './Step3';
 import { useQuery } from '@tanstack/react-query';
 import { APP_NAME } from '@/lib/constants/app';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
+import { useUser } from '@/lib/hooks/useUser';
 
 // Validation schemas for each step
 export const profileStep1Schema = z.object({
@@ -62,28 +63,31 @@ async function getOrganizations(): Promise<Organization[]> {
   }
 }
 
-
-
 export function OrganizationSetupDialog() {
   const [step, setStep] = useState(1);
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Load species using the species store
   const { fetchSpecies } = useSpeciesStore();
-  const { fetchFeederSizes,fetchFeederTypes } = useFeedersStore();
-
-  // Access morphs store for later use
+  const { fetchFeederSizes, fetchFeederTypes } = useFeedersStore();
   const { downloadCommonMorphs } = useMorphsStore();
-  
+  const { user, isLoading: userLoading } = useUser();
+
   const { data: organizations, isLoading } = useQuery({
     queryKey: ['organization'],
-    queryFn: getOrganizations
+    queryFn: getOrganizations,
   })
 
   const organization = organizations ? organizations[0] : null;
 
-  const isProfileComplete = organization ? (!!organization.full_name && !!organization.account_type && (organization.selected_species && organization.selected_species.length > 0)) : false;
+
+  const isProfileComplete = 
+    user ? true :
+    organization ? (
+      !!organization.full_name && 
+      !!organization.account_type && 
+      (organization.selected_species && organization.selected_species?.length > 0)
+    ) : false;
   
   // Initialize the form with react-hook-form and zod validation
   const form = useForm<ProfileFormValues>({
@@ -110,11 +114,12 @@ export function OrganizationSetupDialog() {
 
   // Set dialog state once organization data is loaded
   useEffect(() => {
-    if (!isLoading) {
-      // Force open dialog if organization is not complete
-      setOpen(!isProfileComplete);
-    }
-  }, [isLoading, isProfileComplete]);
+    if (isLoading || userLoading) return;
+
+    const shouldOpen = !user && !isProfileComplete;
+
+    setOpen(shouldOpen);
+  }, [isLoading, isProfileComplete, user, userLoading]);
 
   // Update form data when organization changes
   useEffect(() => {
@@ -198,14 +203,12 @@ export function OrganizationSetupDialog() {
     }
   };
 
-  // Don't render at all if loading
-  if (isLoading) return null;
-
-  // Don't allow dialog to be closed if organization is incomplete
-  const allowClose = isProfileComplete;
+  // Simplified loading and user checks
+  if (isLoading || userLoading) return null;
+  if (user) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => allowClose && setOpen(newOpen)}>
+    <Dialog open={open} onOpenChange={(newOpen) => setOpen(newOpen)}>
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden bg-gradient-to-b from-background to-background/95 border-0 [&>button]:hidden">
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-background/0 pointer-events-none" />
         

@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { User } from '@/lib/types/users';
+import { User,  } from '@/lib/types/users';
 import { ColumnDef } from '@tanstack/react-table';
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -15,9 +15,10 @@ interface UserListProps {
   onEdit: (user: User) => void;
   onDelete: (id: string) => Promise<void>;
   onAddNew: () => void;
+  organizationId?: string;
 }
 
-export function UserList({ users, onEdit, onDelete, onAddNew }: UserListProps) {
+export function UserList({ users, onEdit, onDelete, onAddNew,organizationId }: UserListProps) {
   const { data: accessProfiles } = useQuery<AccessProfile[]>({
     queryKey: ['access-profiles'],
     queryFn: getAccessProfiles,
@@ -42,22 +43,34 @@ export function UserList({ users, onEdit, onDelete, onAddNew }: UserListProps) {
       accessorKey: "role",
       header: "Role",
       cell: ({ row }) => {
-        const role = row.getValue("role") as string;
-        return <div className="capitalize">{role}</div>;
+        const user = row.original
+        return <div className="capitalize">{ user.role}</div>;
       }
     },
     {
       accessorKey: "access_profile_id",
       header: "Access Profile",
       cell: ({ row }) => {
-        const profileId = row.getValue("access_profile_id") as string;
-        return getAccessProfileName(profileId);
+        const user = row.original
+        const profileId = user.access_profile_id;
+        const profileName = getAccessProfileName(profileId);
+        const isOwner = user.id === organizationId
+        return <div className="capitalize">{isOwner ? "--" : profileName}</div>;
       }
     },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status;
+        return <div className={`capitalize ${status === 'active' ? 'text-green-500' : 'text-orange-500'}`}>{status === 'active'? 'Active' : "Pending Email Confirmation" }</div>;
+      },
+   },
     {
       id: "actions",
       cell: ({ row }) => {
         const user = row.original;
+        const isOwner = user.id === organizationId
         return (
           <div className="flex items-center">
             <DropdownMenu>
@@ -67,11 +80,11 @@ export function UserList({ users, onEdit, onDelete, onAddNew }: UserListProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(user)}>
+                <DropdownMenuItem disabled={isOwner} onClick={() => onEdit(user)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDelete(user.id)}>
+                <DropdownMenuItem  disabled={isOwner} onClick={() => onDelete(user.id)}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>

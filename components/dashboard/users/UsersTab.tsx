@@ -11,6 +11,7 @@ import { UserList } from './UserList';
 import { useQuery } from '@tanstack/react-query';
 import { getOrganization } from '@/app/api/organizations/organizations';
 import { Organization } from '@/lib/types/organizations';
+import {toast} from 'sonner'
 
 export default function UsersTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -27,19 +28,23 @@ export default function UsersTab() {
     resourceName: 'User',
     queryKey: ['users'],
     getResources: getUsers,
-    createResource: createUser,
+    createResource: async (data) => {
+      const result = await createUser(data);
+      toast.success('User created successfully');
+      return result.user;
+    },
     updateResource: updateUser,
     deleteResource: deleteUser,
   });
 
   const { data: organization, isLoading: profileLoading, error: organizationError } = useQuery<Organization>({
-    queryKey: ['organization'],
+    queryKey: ['organization2'],
     queryFn: async () => {
       const data = await getOrganization();
       return Array.isArray(data) ? data[0] : data;
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 1, // Only retry once on failure
+    staleTime: 60 * 60 * 1000,
+    retry: 1,
   });
 
   const isLoading = usersLoading || profileLoading;
@@ -75,6 +80,7 @@ export default function UsersTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
+        organizationId={organization?.id}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>

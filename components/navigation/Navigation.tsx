@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useMemo } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { useTheme } from 'next-themes';
 import { TopLoader } from '../ui/TopLoader';
@@ -18,6 +18,9 @@ import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Dot, Loader2, Menu } from 'lucide-react';
 import dynamic from 'next/dynamic'
 import { APP_NAME } from '@/lib/constants/app';
+import useAccessControl from '@/lib/hooks/useAccessControl';
+import { useUser } from '@/lib/hooks/useUser';
+
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
   loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
@@ -25,17 +28,6 @@ const AddNewShortcut = dynamic(() => import('./AddNewShortcut'),
   </div>,
  }
 )
-
-
-// Group items by section
-const groupedNavItems = NAV_ITEMS.reduce((acc, item) => {
-  const section = item.section || '';
-  if (!acc[section]) {
-    acc[section] = [];
-  }
-  acc[section].push(item);
-  return acc;
-}, {} as Record<string, NavItem[]>);
 
 export function Navigation() {
   const pathname = usePathname();
@@ -49,7 +41,29 @@ export function Navigation() {
   const { 
     upcomingFeedings, 
   } = useUpcomingFeedings();
-  const [dialogToOpen , setDialogToOpen] = React.useState<"Reptile" | "Sale" | "Expense" | null>(null)
+  const [dialogToOpen, setDialogToOpen] = React.useState<"Reptile" | "Sale" | "Expense" | null>(null)
+
+  // Get user and access control data
+  const { user, isLoading: userLoading } = useUser();
+  const { filterNavItems, isLoading: accessLoading } = useAccessControl(user);
+
+  // Filter navigation items based on access
+  const accessibleNavItems = useMemo(() => {
+    if (userLoading || accessLoading) return NAV_ITEMS; // Show all items while loading
+    return filterNavItems(NAV_ITEMS);
+  }, [filterNavItems, userLoading, accessLoading]);
+
+  // Group accessible items by section
+  const groupedNavItems = useMemo(() => {
+    return accessibleNavItems.reduce((acc: Record<string, NavItem[]>, item: NavItem) => {
+      const section = item.section || '';
+      if (!acc[section]) {
+        acc[section] = [];
+      }
+      acc[section].push(item);
+      return acc;
+    }, {});
+  }, [accessibleNavItems]);
 
   const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
   const pendingTodayFeedings = todayFeedings.filter(feeding => !feeding.isCompleted);
