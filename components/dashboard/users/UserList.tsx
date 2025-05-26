@@ -44,8 +44,7 @@ export function UserList({ users, onEdit, onDelete, onAddNew,organizationId }: U
       header: "Role",
       cell: ({ row }) => {
         const user = row.original
-        const isOwner = user.id === organizationId
-        return <div className="capitalize">{isOwner ? "Owner" : user.role}</div>;
+        return <div className="capitalize">{ user.role}</div>;
       }
     },
     {
