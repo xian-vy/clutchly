@@ -1,6 +1,6 @@
 'use client';
 
-import { AccessProfile, CreateAccessProfile } from '@/lib/types/access';
+import { AccessProfileWithControls, CreateAccessProfile } from '@/lib/types/access';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,13 +24,14 @@ const formSchema = z.object({
 });
 
 interface AccessProfileFormProps {
-  profile?: AccessProfile | null;
+  profile?: AccessProfileWithControls | null;
+  org_id: string;  // Required for new profiles
   onSubmit: (data: CreateAccessProfile) => void;
   onCancel: () => void;
   pages: Page[];
 }
 
-export function AccessProfileForm({ profile, onSubmit, onCancel, pages }: AccessProfileFormProps) {
+export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }: AccessProfileFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,7 +47,10 @@ export function AccessProfileForm({ profile, onSubmit, onCancel, pages }: Access
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit(values);
+    onSubmit({
+      ...values,
+      org_id: profile?.org_id || org_id, // Use existing org_id if editing, or provided org_id for new profile
+    });
   };
 
   return (

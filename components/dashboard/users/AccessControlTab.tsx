@@ -14,7 +14,7 @@ import { Page } from '@/app/api/users/access';
 export default function AccessControlTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<AccessProfileWithControls | null>(null);
-
+  const org_id = 'your-org-id'; // TODO: Get this from your auth context or props
 
   const { data: pages = [] } = useQuery<Page[]>({
     queryKey: ['pages'],
@@ -81,6 +81,7 @@ export default function AccessControlTab() {
           </DialogTitle>
           <AccessProfileForm
             profile={selectedProfile}
+            org_id={org_id}
             onSubmit={handleSubmit}
             onCancel={handleClose}
             pages={pages}

@@ -17,7 +17,7 @@ const userFormSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6).optional(),
   full_name: z.string().min(2),
-  role: z.enum(['admin', 'staff'] as const),
+  role: z.enum(['admin', 'staff', 'owner'] as const),
   access_profile_id: z.string().uuid(),
   org_id: z.string().uuid(),
 });
