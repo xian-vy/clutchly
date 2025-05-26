@@ -2,15 +2,39 @@ import { createClient } from '@/lib/supabase/client'
 import { CreateUser, User } from '@/lib/types/users';
 
 export async function getUsers() {
-  const supabase =  createClient()
+  const supabase = createClient()
+  
+  try {
+    // Get the current user's organization
+    const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+    if (authError) {
+      console.error('Auth error in getUsers:', authError);
+      throw authError;
+    }
+    if (!currentUser) {
+      console.error('No authenticated user found in getUsers');
+      throw new Error('No authenticated user found');
+    }
 
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .order('created_at', { ascending: false });
 
-  if (error) throw error;
-  return data as User[];
+    // Get all users in the same organization using a direct query
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .or(`id.eq.${currentUser.id},org_id.eq.${currentUser.id}`)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching organization users:', error);
+      throw error;
+    }
+
+    console.log('Users fetched successfully:', { count: data?.length });
+    return data as User[];
+  } catch (error) {
+    console.error('Error in getUsers:', error);
+    throw error;
+  }
 }
 
 export async function createUser(user: CreateUser) {
