@@ -33,7 +33,7 @@ export default function UsersTab() {
   });
 
   const { data: organization, isLoading: profileLoading, error: organizationError } = useQuery<Organization>({
-    queryKey: ['organization'],
+    queryKey: ['organization2'],
     queryFn: async () => {
       const data = await getOrganization();
       return Array.isArray(data) ? data[0] : data;
