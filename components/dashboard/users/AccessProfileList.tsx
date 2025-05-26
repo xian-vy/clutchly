@@ -1,6 +1,6 @@
 'use client';
 
-import { AccessProfile } from '@/lib/types/access';
+import { AccessProfileWithControls } from '@/lib/types/access';
 import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -9,14 +9,14 @@ import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface AccessProfileListProps {
-  profiles: AccessProfile[];
-  onEdit: (profile: AccessProfile) => void;
+  profiles: AccessProfileWithControls[];
+  onEdit: (profile: AccessProfileWithControls) => void;
   onDelete: (id: string) => Promise<void>;
   onAddNew: () => void;
 }
 
 export function AccessProfileList({ profiles, onEdit, onDelete, onAddNew }: AccessProfileListProps) {
-  const columns: ColumnDef<AccessProfile>[] = [
+  const columns: ColumnDef<AccessProfileWithControls>[] = [
     {
       header: "#",
       cell: ({ row }) => {
@@ -39,8 +39,8 @@ export function AccessProfileList({ profiles, onEdit, onDelete, onAddNew }: Acce
       accessorKey: "access_controls",
       header: "Access Controls",
       cell: ({ row }) => {
-        const controls = row.getValue("access_controls") as AccessProfile['access_controls'];
-        return <div>{controls.length} controls</div>;
+        const controls = row.getValue("access_controls") as AccessProfileWithControls['access_controls'];
+        return <div>{controls?.length ?? 0} controls</div>;
       }
     },
     {

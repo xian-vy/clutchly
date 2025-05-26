@@ -1,7 +1,7 @@
 'use client';
 
 import { useResource } from '@/lib/hooks/useResource';
-import { AccessProfile, CreateAccessProfile } from '@/lib/types/access';
+import { AccessProfileWithControls, CreateAccessProfile } from '@/lib/types/access';
 import { getAccessProfiles, createAccessProfile, updateAccessProfile, deleteAccessProfile, getPages } from '@/app/api/users/access';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -13,7 +13,7 @@ import { Page } from '@/app/api/users/access';
 
 export default function AccessControlTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<AccessProfile | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<AccessProfileWithControls | null>(null);
 
 
   const { data: pages = [] } = useQuery<Page[]>({
@@ -27,7 +27,7 @@ export default function AccessControlTab() {
     handleCreate,
     handleUpdate,
     handleDelete,
-  } = useResource<AccessProfile, CreateAccessProfile>({
+  } = useResource<AccessProfileWithControls, CreateAccessProfile>({
     resourceName: 'Access Profile',
     queryKey: ['access-profiles'],
     getResources: getAccessProfiles,
@@ -36,7 +36,7 @@ export default function AccessControlTab() {
     deleteResource: deleteAccessProfile,
   });
 
-  const handleEdit = (profile: AccessProfile) => {
+  const handleEdit = (profile: AccessProfileWithControls) => {
     setSelectedProfile(profile);
     setIsDialogOpen(true);
   };
