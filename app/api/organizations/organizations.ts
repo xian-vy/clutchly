@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { MinProfileInfo, Organization, ProfileFormData } from '@/lib/types/organizations'
+import { User } from '@/lib/types/users'
 
 export async function getOrganization() {
   const supabase = await createClient()
@@ -77,10 +78,27 @@ export async function createOrganization(orgData: ProfileFormData) {
       .insert([newProfile])
       .select()
       .single()
-      
+
+      const newUser: Partial<User> = {
+        id: user.id,
+        org_id: user.id,
+        full_name : orgData.full_name,
+        role : 'admin'
+      }
+      console.log("newUser",newUser)
+
+      const {  error : userError } = await supabase
+      .from('users')
+      .upsert([newUser])
+
     if (error) {
       console.error("Error creating organization:", error.message, error)
       throw error
+    }
+
+    if (userError) {
+      console.error("Error creating user:", userError.message, userError)
+      throw userError
     }
     
     return data as Organization
