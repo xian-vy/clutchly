@@ -38,8 +38,8 @@ export default function UsersTab() {
       const data = await getOrganization();
       return Array.isArray(data) ? data[0] : data;
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 1, // Only retry once on failure
+    staleTime: 60 * 60 * 1000,
+    retry: 1,
   });
 
   const isLoading = usersLoading || profileLoading;
@@ -75,6 +75,7 @@ export default function UsersTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
+        organizationId={organization?.id}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
