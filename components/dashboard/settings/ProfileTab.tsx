@@ -40,7 +40,7 @@ export const ProfileTab = () => {
       if (!settings) throw new Error('No settings found to update');
       
       const updateData: NewCatalogSettings = {
-        user_id: settings.user_id,
+        org_id: settings.org_id,
         bio: data.bio,
         contacts: data.contacts,
         address: data.address,

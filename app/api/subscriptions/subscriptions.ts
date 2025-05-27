@@ -2,31 +2,17 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { Subscription, SubscriptionPlan } from '@/lib/types/subscription'
+import { getUserAndOrganizationInfo } from '../utils_server'
 
 export async function getSubscription() {
   const supabase = await createClient()
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) throw new Error('Not authenticated')
   
   try {
-    // First get the user's org_id
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('org_id')
-      .eq('id', user.id)
-      .single()
+   
 
-    if (userError) {
-      console.error('Error getting user data:', userError)
-      throw userError
-    }
-
-    if (!userData?.org_id) {
-      throw new Error('User not associated with any organization')
-    }
-
-    // Then get the subscription
     const { data: subscription, error } = await supabase
       .from('subscriptions')
       .select(`
@@ -37,7 +23,7 @@ export async function getSubscription() {
           created_at
         )
       `)
-      .eq('org_id', userData.org_id)
+      .eq('org_id', organization.id)
       .single()
 
     // If subscription doesn't exist, create a free one

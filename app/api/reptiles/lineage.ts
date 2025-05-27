@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { Reptile } from '@/lib/types/reptile';
+import { getUserAndOrganizationInfo } from '../utils_client';
 
 interface ReptileNode extends Reptile {
   children: ReptileNode[];
@@ -12,16 +13,16 @@ interface ReptileNode extends Reptile {
 
 export async function getReptileLineage(reptileId: string, cachedReptiles?: Reptile[]): Promise<ReptileNode> {
   let reptiles: Reptile[] = cachedReptiles || [];
+  const { organization } = await getUserAndOrganizationInfo()
 
   // Only fetch if no cached data provided
   if (!cachedReptiles) {
     const supabase = await createClient();
-    const userId = (await supabase.auth.getUser()).data.user?.id;
 
     const { data, error } = await supabase
       .from('reptiles')
       .select('*')
-      .eq('user_id', userId);
+      .eq('org_id', organization.id);
 
     if (error) throw new Error(`Failed to fetch reptiles: ${error.message}`);
     if (!data || data.length === 0) throw new Error('No reptiles found');

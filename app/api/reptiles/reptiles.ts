@@ -4,16 +4,15 @@ import { CreateGrowthEntryInput } from '@/lib/types/growth'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { createFeedingEventForNewLocation } from '@/app/api/feeding/events'
 import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getReptiles() {
-  const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
-
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
   const { data: reptiles, error } = await supabase
     .from('reptiles')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -35,9 +34,9 @@ export async function getReptileById(id: string) {
 
 // In createReptile function, after creating the reptile:
 export async function createReptile(reptile: NewReptile) {
-  const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
 
   // If a reptile_code is not provided or is empty, generate one
   if (!reptile.reptile_code || reptile.reptile_code.trim() === '') {
@@ -74,7 +73,7 @@ export async function createReptile(reptile: NewReptile) {
 
   const newReptile = {
     ...reptile,
-    user_id : userId,
+    org_id : organization.id,
   }
   const { data, error } = await supabase
     .from('reptiles')
@@ -89,7 +88,7 @@ export async function createReptile(reptile: NewReptile) {
 
     const newReptileGrowth : CreateGrowthEntryInput = {
       reptile_id: data.id,
-      user_id: userId || '',
+      org_id: organization.id || '',
       date: new Date().toISOString(), 
       weight: data.weight,
       length: data.length,

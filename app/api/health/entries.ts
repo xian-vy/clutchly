@@ -1,15 +1,16 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { CreateHealthLogEntryInput, HealthLogEntry } from '@/lib/types/health'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getHealthLogs() {
   const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id  
+  const { organization } = await getUserAndOrganizationInfo()
+
   const { data: healthLogs, error } = await supabase
     .from('health_log_entries')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -31,17 +32,16 @@ export async function getHealthLogById(id: string) {
 
 export async function createHealthLog(healthLog: CreateHealthLogEntryInput) {
   const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
-  
-  if (!userId) {
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
     console.error('No authenticated user found');
     throw new Error('Authentication required');
   }
   
   const newHealthLog = {
     ...healthLog,
-    user_id: userId,
+    org_id: organization.id,
   }
   
   

@@ -6,7 +6,7 @@ import { ReptileNode } from '../dashboard/breeding/lineage/components/types';
 // Mock data for ball python species
 export const mockSpecies: Species = {
   id: 1,
-  user_id: 'demo-user',
+  org_id: 'demo-user',
   name: 'Ball Python',
   scientific_name: 'Python regius',
   care_level: 'beginner',
@@ -17,7 +17,7 @@ export const mockSpecies: Species = {
 export const mockMorphs: Morph[] = [
   {
     id: 1,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Normal',
     description: 'The wild-type coloration and pattern.',
@@ -25,7 +25,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 2,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Pastel',
     description: 'A co-dominant mutation that lightens the body color and enhances yellows and golds.',
@@ -33,7 +33,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 3,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Clown',
     description: 'A recessive mutation that alters the pattern with reduced pattern on the sides and a stripe down the back.',
@@ -41,7 +41,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 4,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Pastel Clown',
     description: 'A combination of Pastel and Clown genes, resulting in a lighter colored Clown pattern.',
@@ -49,7 +49,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 5,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Pied',
     description: 'A recessive mutation that creates white patches with normal pattern.',
@@ -57,7 +57,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 6,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Spider',
     description: 'A dominant mutation that creates a web-like pattern.',
@@ -65,7 +65,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 7,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Pinstripe',
     description: 'A dominant mutation that creates a thin, pinstripe pattern along the back.',
@@ -73,7 +73,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 8,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Mojave',
     description: 'A co-dominant mutation that lightens the pattern and creates a blue-tinted pattern.',
@@ -81,7 +81,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 9,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Enchi',
     description: 'A co-dominant mutation that creates a reduced pattern with orange and gold coloration.',
@@ -89,7 +89,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 10,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Yellow Belly',
     description: 'A co-dominant mutation that enhances yellows on the sides and creates a flame pattern.',
@@ -97,7 +97,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 11,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Cinnamon',
     description: 'A co-dominant mutation that darkens the pattern and creates a rich, cinnamon-brown coloration.',
@@ -105,7 +105,7 @@ export const mockMorphs: Morph[] = [
   },
   {
     id: 12,
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     species_id: 1,
     name: 'Lesser',
     description: 'A co-dominant mutation that lightens the pattern and creates a clean, bright appearance.',
@@ -120,7 +120,7 @@ export const generateMockReptiles = (): Reptile[] => {
   // Common reptile properties
   const baseReptile = {
     created_at: new Date().toISOString(),
-    user_id: 'demo-user',
+    org_id: 'demo-user',
     reptile_code: null,
     species_id: '1', // Using string to match the Reptile interface
     morph_id: '1', // Normal morph ID as string

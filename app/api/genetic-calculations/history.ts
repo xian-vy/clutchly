@@ -1,12 +1,12 @@
 import { createClient } from "@/lib/supabase/client"
 import { GeneticCalculation } from "@/lib/types/genetic-calculator"
+import { getUserAndOrganizationInfo } from "../utils_client";
 
 export async function getGeneticCalculations() : Promise<GeneticCalculation[]> {
     const supabase = await createClient()
-    const currentUser= await supabase.auth.getUser()
-    const userId = currentUser.data.user?.id
+    const { organization } = await getUserAndOrganizationInfo()
         
-    if (!userId) {
+    if (!organization) {
         console.error('Genetic History : No authenticated user found');
         throw new Error('Authentication required');
       }
@@ -14,7 +14,7 @@ export async function getGeneticCalculations() : Promise<GeneticCalculation[]> {
     const { data: calculations, error } = await supabase
     .from('genetic_calculations')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .order('created_at', { ascending: false });
   
     if (error) throw error

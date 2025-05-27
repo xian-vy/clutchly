@@ -194,7 +194,7 @@ export function validateReptileRow(row: GenericObject): { valid: boolean; error?
     const { data: recentImports, error } = await supabase
       .from('import_logs')
       .select('count')
-      .eq('user_id', userId)
+      .eq('org_id', userId)
       .gte('created_at', oneHourAgo.toISOString())
     
     if (error) {
@@ -214,7 +214,7 @@ export function validateReptileRow(row: GenericObject): { valid: boolean; error?
     await supabase
       .from('import_logs')
       .insert([{
-        user_id: userId,
+        org_id: userId,
         file_name: fileName,
         row_count: rowCount
       }])

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { ExpenseRecord, ExpensesSummary, NewExpenseRecord } from '@/lib/types/expenses'
+import { getUserAndOrganizationInfo } from '../utils_client';
 
 const supabase = createClient()
 
@@ -13,12 +14,12 @@ export interface ExpensesFilterParams {
 }
 
 export async function getExpensesRecords(): Promise<ExpenseRecord[]> {
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
+
   const { data, error } = await supabase
     .from('expenses_records')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .order('expense_date', { ascending: false })
 
   if (error) throw error
@@ -37,11 +38,11 @@ export async function getExpenseRecord(id: string): Promise<ExpenseRecord> {
 }
 
 export async function createExpenseRecord(record: NewExpenseRecord): Promise<ExpenseRecord> {
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
+
   const newExpenseRecord = {
     ...record,
-    user_id: userId,
+    org_id: organization.id,
   }
   
   const { data, error } = await supabase
@@ -79,13 +80,11 @@ export async function deleteExpenseRecord(id: string): Promise<void> {
 }
 
 export async function getExpensesByDateRange(filters?: ExpensesFilterParams): Promise<ExpenseRecord[]> {
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
-  
+  const { organization } = await getUserAndOrganizationInfo()
   let query = supabase
     .from('expenses_records')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     
   // Apply filtering
   if (filters) {
@@ -126,13 +125,12 @@ export async function getExpensesByDateRange(filters?: ExpensesFilterParams): Pr
 }
 
 export async function getExpensesSummary(filters?: ExpensesFilterParams): Promise<ExpensesSummary> {
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
-  
+  const { organization } = await getUserAndOrganizationInfo()
+
   let query = supabase
     .from('expenses_records')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .order('expense_date', { ascending: false })
     
   // Apply filters if provided
@@ -191,16 +189,16 @@ export async function getExpensesSummary(filters?: ExpensesFilterParams): Promis
 
 export async function getExpensesByCategory(filters: ExpensesFilterParams) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { organization } = await getUserAndOrganizationInfo()
 
-  if (!user) {
+  if (!organization) {
     throw new Error('Not authenticated');
   }
 
   let query = supabase
     .from('expenses_records')
     .select('*')
-    .eq('user_id', user.id);
+    .eq('org_id', organization.id);
 
   if (filters.startDate) {
     query = query.gte('expense_date', filters.startDate);

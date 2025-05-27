@@ -7,6 +7,7 @@ import { NewSpecies } from "@/lib/types/species"
 import { generateReptileCode, getSpeciesCode } from "@/components/dashboard/reptiles/utils"
 import { NewReptile, Reptile, Sex, Status } from "@/lib/types/reptile"
 import { CreateGrowthEntryInput } from "@/lib/types/growth"
+import { getUserAndOrganizationInfo } from '@/app/api/utils_server'
 
 
 interface ImportRequestBody {
@@ -17,11 +18,9 @@ interface ImportRequestBody {
 // Handle import process
 export async function PUT(request: NextRequest) {
   try {
-    // Get current user ID
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { organization } = await getUserAndOrganizationInfo()
     
-    if (!user?.id) {
+    if (!organization) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -44,7 +43,7 @@ export async function PUT(request: NextRequest) {
     
     // Log the import if successful
     if (importResult.success) {
-      await logImport(user.id, fileName || 'reptile-import.csv', selectedRows.length)
+      await logImport(organization.id, fileName || 'reptile-import.csv', selectedRows.length)
     }
     
     return NextResponse.json(importResult)
@@ -62,10 +61,9 @@ async function processImport(
   rowsToImport: number[]
 ): Promise<ImportResponse> {
   const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
-  
-  if (!userId) {
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
     throw new Error('User authentication required')
   }
   
@@ -90,15 +88,15 @@ async function processImport(
       supabase
         .from('species')
         .select('id, name')
-        .or(`user_id.eq.${userId},is_global.eq.true`),
+        .or(`org_id.eq.${organization.id},is_global.eq.true`),
       supabase
         .from('morphs')
         .select('id, name, species_id')
-        .or(`user_id.eq.${userId},is_global.eq.true`),
+        .or(`org_id.eq.${organization.id},is_global.eq.true`),
       supabase
         .from('reptiles')
         .select('*')
-        .eq('user_id', userId)
+        .eq('org_id', organization.id)
     ])
     
     const existingSpecies = existingSpeciesResult.data
@@ -152,7 +150,7 @@ async function processImport(
     if (newSpecies.length > 0) {
       const { data: createdSpecies, error: speciesError } = await supabase
         .from('species')
-        .insert(newSpecies.map(species => ({ ...species, user_id: userId })))
+        .insert(newSpecies.map(species => ({ ...species, org_id: organization.id })))
         .select('id, name')
       
       if (speciesError) throw speciesError
@@ -161,7 +159,7 @@ async function processImport(
         createdSpecies.forEach(species => {
           speciesMap[species.name.toLowerCase()] = species.id
           response.speciesAdded.push({
-            user_id: userId,
+            org_id: organization.id,
             id: species.id,
             name: species.name,
             scientific_name: null,
@@ -197,7 +195,7 @@ async function processImport(
         
         const { data: createdMorph, error: morphError } = await supabase
           .from('morphs')
-          .insert([{ ...newMorph, user_id: userId }])
+          .insert([{ ...newMorph, org_id: organization.id }])
           .select('id, name')
           .single()
         
@@ -206,7 +204,7 @@ async function processImport(
         if (createdMorph) {
           morphMap[compoundKey] = createdMorph.id
           response.morphsAdded.push({
-            user_id: userId,
+            org_id: organization.id,
             id: createdMorph.id,
             name: createdMorph.name,
             species_id: speciesId,
@@ -233,7 +231,7 @@ async function processImport(
           .from('reptiles')
           .select('id')
           .eq('name', row.name)
-          .eq('user_id', userId)
+          .eq('org_id', organization.id)
           .maybeSingle()
         
         if (existingReptile) {
@@ -315,7 +313,7 @@ async function processImport(
         
         const { data: createdReptile, error: reptileError } = await supabase
           .from('reptiles')
-          .insert([{ ...newReptile, user_id: userId }])
+          .insert([{ ...newReptile, org_id: organization.id }])
           .select('*')
           .single()
         
@@ -328,7 +326,7 @@ async function processImport(
           if (row.weight || row.length) {
             const growthEntry: CreateGrowthEntryInput = {
               reptile_id: createdReptile.id,
-              user_id: userId,
+              org_id: organization.id,
               date: row.hatch_date || row.acquisition_date,
               weight: row.weight || 0,
               length: row.length || 0,

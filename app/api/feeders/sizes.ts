@@ -1,15 +1,16 @@
 import { createClient } from '@/lib/supabase/client';
 import { FeederSize, NewFeederSize } from '@/lib/types/feeders';
+import { getUserAndOrganizationInfo } from '../utils_client';
 
 export async function getFeederSizes(): Promise<FeederSize[]> {
   const supabase = await createClient();
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
+  const { organization } = await getUserAndOrganizationInfo()
+
   
   const { data: feederSizes, error } = await supabase
     .from('feeder_sizes')
     .select('*')
-    .or(`is_global.eq.true,user_id.eq.${userId}`)
+    .or(`is_global.eq.true,org_id.eq.${organization.id}`)
     .order('name');
 
   if (error) throw error;
@@ -18,14 +19,14 @@ export async function getFeederSizes(): Promise<FeederSize[]> {
 
 export async function getFeederSizesByType(feederTypeId: string): Promise<FeederSize[]> {
   const supabase = await createClient();
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
+  const { organization } = await getUserAndOrganizationInfo()
+
   
   const { data: feederSizes, error } = await supabase
     .from('feeder_sizes')
     .select('*')
     .eq('feeder_type_id', feederTypeId)
-    .or(`is_global.eq.true,user_id.eq.${userId}`)
+    .or(`is_global.eq.true,org_id.eq.${organization.id}`)
     .order('name');
 
   if (error) throw error;
@@ -47,12 +48,12 @@ export async function getFeederSizeById(id: string): Promise<FeederSize> {
 
 export async function createFeederSize(feederSize: NewFeederSize): Promise<FeederSize> {
   const supabase = await createClient();
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
+  const { organization } = await getUserAndOrganizationInfo()
+
   
   const newFeederSize = {
     ...feederSize,
-    user_id: userId,
+    org_id: organization.id,
   };
   
   const { data, error } = await supabase

@@ -20,7 +20,7 @@ export async function getSalesRecords(): Promise<SaleRecord[]> {
   const { data, error } = await supabase
     .from('sales_records')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', userId)
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -44,7 +44,7 @@ export async function createSalesRecord(record: NewSaleRecord): Promise<SaleReco
   const userId = currentUser.data.user?.id
   const newSaleRecord = {
     ...record,
-    user_id: userId,
+    org_id: userId,
   }
   
   // Create the sale record

@@ -1,16 +1,16 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getGrowthEntries() {
   const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
 
   const { data: growthEntries, error } = await supabase
     .from('growth_entries')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .order('date', { ascending: false })
 
   if (error) throw error
@@ -32,17 +32,16 @@ export async function getGrowthEntryById(id: string) {
 
 export async function createGrowthEntry(growthEntry: CreateGrowthEntryInput) {
   const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
-  
-  if (!userId) {
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
     console.error('No authenticated user found');
     throw new Error('Authentication required');
   }
   
   const newGrowthEntry = {
     ...growthEntry,
-    user_id: userId,
+    org_id: organization.id,
   }
   
   const { data, error } = await supabase

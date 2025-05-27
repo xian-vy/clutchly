@@ -3,7 +3,7 @@ export type PaymentMethod = 'cash' | 'bank_transfer' | 'credit_card' | 'paypal' 
 
 export interface SaleRecord {
   id: string
-  user_id: string
+  org_id: string
   reptile_id: string
   sale_date: string
   price: number
@@ -37,4 +37,4 @@ export interface SalesSummary {
   }[]
 }
 
-export type NewSaleRecord = Omit<SaleRecord, 'id' | 'user_id' | 'created_at' | 'updated_at'> 
+export type NewSaleRecord = Omit<SaleRecord, 'id' | 'org_id' | 'created_at' | 'updated_at'> 

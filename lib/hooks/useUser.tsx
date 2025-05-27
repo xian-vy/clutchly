@@ -28,7 +28,6 @@ export const useUser = () => {
     queryFn: async () => {
       try {
         const data = await getUsers();
-        console.log('Users query successful:', { count: data?.length });
         return data;
       } catch (error) {
         console.error('Users query error:', error);

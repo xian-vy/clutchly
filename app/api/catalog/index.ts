@@ -2,19 +2,19 @@
 import { CatalogEntry, CatalogImage, CatalogSettings, EnrichedCatalogEntry, NewCatalogEntry, NewCatalogImage, NewCatalogSettings } from '@/lib/types/catalog';
 import { createClient } from '@/lib/supabase/server'
 import { OGTYPE } from '@/lib/types/og';
+import { getUserAndOrganizationInfo } from '../utils_server';
 
 // Get all catalog entries for the current user
 export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
-  if (!currentUser || !userId) throw new Error('Unauthorized');
+  const { organization } = await getUserAndOrganizationInfo()
+  if (!organization) throw new Error('Unauthorized');
 
   // First get organization since it's required
   const orgResult = await supabase
     .from('organizations')
     .select('id, full_name, logo')
-    .eq('id', userId)
+    .eq('id', organization)
     .single();
 
   if (orgResult.error) throw orgResult.error;
@@ -30,20 +30,20 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
         reptiles!inner(*, morph_id, species_id),
         catalog_images(*)
       `)
-      .eq('user_id', userId)
+      .eq('org_id', organization.id)
       .order('display_order', { ascending: true }),
     
     supabase
       .from('catalog_settings')
       .select('*')
-      .eq('user_id', userId)
+      .eq('org_id', organization.id)
       .single(),
 
     // Get unique morph IDs from entries first
     supabase
       .from('catalog_entries')
       .select('reptiles!inner(morph_id)')
-      .eq('user_id', userId)
+      .eq('org_id', organization.id)
       .overrideTypes<{ reptiles: { morph_id: string } }[], { merge: false }>()
       .then(async (result) => {
         if (result.error) return { data: [] };
@@ -58,7 +58,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     supabase
       .from('catalog_entries')
       .select('reptiles!inner(species_id)')
-      .eq('user_id', userId)
+      .eq('org_id', organization)
       .overrideTypes<{ reptiles: { species_id: string } }[], { merge: false }>()
       .then(async (result) => {
         if (result.error) return { data: [] };
@@ -78,7 +78,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     const settingsData = settingsResult.data;
     return [{
       id: '',
-      user_id: userId,
+      org_id: organization.id,
       reptile_id: '',
       featured: false,
       display_order: 0,
@@ -94,7 +94,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const settingsData = settingsResult.data;
   if (!settingsData) {
     const defaultSettings: NewCatalogSettings = {
-      user_id: userId,
+      org_id: organization.id,
       bio: null,
       show_bio: false,
       layout_type: 'grid',
@@ -148,13 +148,13 @@ export async function getCatalogEntriesByorgName(orgName: string): Promise<Enric
         reptiles:view_public_catalog!inner(*),
         catalog_images(*)
       `)
-      .eq('user_id', orgData.id)
+      .eq('org_id', orgData.id)
       .order('display_order', { ascending: true }),
     
     supabase
       .from('catalog_settings')
       .select('*')
-      .eq('user_id', orgData.id)
+      .eq('org_id', orgData.id)
       .single()
   ]);
 
@@ -204,25 +204,18 @@ export async function getOpenGraphByEntryId(entryId: string): Promise<OGTYPE> {
 // Create a new catalog entry
 export async function createCatalogEntry(entry: NewCatalogEntry): Promise<CatalogEntry> {
   const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
-  if (!currentUser) throw new Error('Unauthorized');
+  const { organization } = await getUserAndOrganizationInfo()
+  if (!organization) throw new Error('Unauthorized');
 
-  // Check if user is at limit (30 for trial users)
-  const { data: organization } = await supabase
-    .from('organizations')
-    .select('subscription_tier')
-    .eq('id', userId)
-    .single();
   
   const { count } = await supabase
     .from('catalog_entries')
     .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId);
+    .eq('org_id', organization.id);
   
   // If trial user and at limit
-  if (organization?.subscription_tier === 'trial' && count && count >= 30) {
-    throw new Error('Trial users are limited to 30 reptiles in catalog. Please upgrade your account.');
+  if (count || 0 >= 30) {
+    throw new Error('Trial users are limited to 30 reptiles in catalog.');
   }
 
   // Count featured entries
@@ -230,7 +223,7 @@ export async function createCatalogEntry(entry: NewCatalogEntry): Promise<Catalo
     const { count: featuredCount } = await supabase
       .from('catalog_entries')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
+      .eq('org_id', organization.id)
       .eq('featured', true);
     
     // If already at 6 featured entries
@@ -243,7 +236,7 @@ export async function createCatalogEntry(entry: NewCatalogEntry): Promise<Catalo
     .from('catalog_entries')
     .insert({
       ...entry,
-      user_id: userId,
+      org_id: organization.id,
     })
     .select()
     .single();
@@ -256,9 +249,8 @@ export async function createCatalogEntry(entry: NewCatalogEntry): Promise<Catalo
 // Update a catalog entry
 export async function updateCatalogEntry(id: string, entry: Partial<NewCatalogEntry>): Promise<CatalogEntry> {
   const supabase =  await createClient()
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
-  if (!currentUser) throw new Error('Unauthorized');
+  const { organization } = await getUserAndOrganizationInfo()
+  if (!organization) throw new Error('Unauthorized');
 
   // Check featured limit if setting to featured
   if (entry.featured) {
@@ -273,7 +265,7 @@ export async function updateCatalogEntry(id: string, entry: Partial<NewCatalogEn
       const { count: featuredCount } = await supabase
         .from('catalog_entries')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
+        .eq('org_id', organization.id)
         .eq('featured', true);
       
       // If already at 6 featured entries
@@ -287,7 +279,7 @@ export async function updateCatalogEntry(id: string, entry: Partial<NewCatalogEn
     .from('catalog_entries')
     .update(entry)
     .eq('id', id)
-    .eq('user_id', userId) // Security: ensure user owns this entry
+    .eq('org_id', organization.id)
     .select()
     .single();
 
@@ -300,9 +292,8 @@ export async function updateCatalogEntry(id: string, entry: Partial<NewCatalogEn
 // Delete a catalog entry
 export async function deleteCatalogEntry(id: string): Promise<void> {
   const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
-  if (!currentUser) throw new Error('Unauthorized');
+  const { organization } = await getUserAndOrganizationInfo()
+  if (!organization) throw new Error('Unauthorized');
 
   // First delete associated images
   const { error: imageError } = await supabase
@@ -317,7 +308,7 @@ export async function deleteCatalogEntry(id: string): Promise<void> {
     .from('catalog_entries')
     .delete()
     .eq('id', id)
-    .eq('user_id', userId); // Security: ensure user owns this entry
+    .eq('org_id', organization.id); 
 
   if (error) throw error;
   
@@ -327,22 +318,20 @@ export async function deleteCatalogEntry(id: string): Promise<void> {
 // Add a catalog image
 export async function addCatalogImage(image: NewCatalogImage): Promise<CatalogImage> {
   const supabase =  await createClient()
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
-  if (!currentUser) throw new Error('Unauthorized');
+  const { organization } = await getUserAndOrganizationInfo()
+  if (!organization) throw new Error('Unauthorized');
 
   // Check if entry belongs to user
   const { data: entry } = await supabase
     .from('catalog_entries')
-    .select('user_id')
+    .select('org_id')
     .eq('id', image.catalog_entry_id)
     .single();
 
   if (!entry ) {
     throw new Error('No entry found for this image');
   }
-  if (entry.user_id.toString() !== userId?.toString()) {
-    console.log('currentUser:', currentUser);
+  if (entry.org_id.toString() !== organization.id?.toString()) {
     throw new Error('Failed to add image: Unauthorized');
   }
 
@@ -371,9 +360,8 @@ export async function addCatalogImage(image: NewCatalogImage): Promise<CatalogIm
 // Delete a catalog image
 export async function deleteCatalogImage(id: string): Promise<void> {
   const supabase =  await createClient()
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
-  if (!currentUser) throw new Error('Unauthorized');
+  const { organization } = await getUserAndOrganizationInfo()
+  if (!organization) throw new Error('Unauthorized');
 
   // Check if image belongs to user
   const { data: image } = await supabase
@@ -386,11 +374,11 @@ export async function deleteCatalogImage(id: string): Promise<void> {
 
   const { data: entry } = await supabase
     .from('catalog_entries')
-    .select('user_id')
+    .select('org_id')
     .eq('id', image.catalog_entry_id)
     .single();
 
-  if (!entry || entry.user_id !== userId) {
+  if (!entry || (entry.org_id !== organization.id)) {
     throw new Error('Unauthorized');
   }
 
@@ -423,14 +411,13 @@ export async function deleteCatalogImage(id: string): Promise<void> {
 // Get catalog settings
 export async function getCatalogSettings(): Promise<CatalogSettings> {
   const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
-  if (!currentUser || !userId) throw new Error('Unauthorized');
+  const { organization } = await getUserAndOrganizationInfo()
+  if (!organization) throw new Error('Unauthorized');
 
   const { data, error } = await supabase
     .from('catalog_settings')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .single();
 
   if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "no rows returned"
@@ -438,7 +425,7 @@ export async function getCatalogSettings(): Promise<CatalogSettings> {
   // If no settings exist, create default settings
   if (!data) {
     const defaultSettings: NewCatalogSettings = {
-      user_id: userId ,
+      org_id: organization.id,
       bio: null,
       show_bio: false,
       layout_type: 'grid',
@@ -463,21 +450,20 @@ export async function getCatalogSettings(): Promise<CatalogSettings> {
 // Update catalog settings
 export async function updateCatalogSettings(settings: Partial<NewCatalogSettings>): Promise<CatalogSettings> {
   const supabase =  await createClient()
-  const currentUser = await supabase.auth.getUser();
-  const userId = currentUser.data.user?.id;
-  if (!currentUser ||!userId) throw new Error('Unauthorized');
+  const { organization } = await getUserAndOrganizationInfo()
+  if (!organization) throw new Error('Unauthorized');
 
   // Check if settings exist
   const { data: existingSettings } = await supabase
     .from('catalog_settings')
     .select('id')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .single();
 
   if (!existingSettings) {
     // Create new settings
     const newSettings: NewCatalogSettings = {
-      user_id: userId,
+      org_id: organization.id,
       bio: settings.bio || null,
       show_bio: settings.show_bio || false,
       layout_type: settings.layout_type || 'grid',
@@ -500,7 +486,7 @@ export async function updateCatalogSettings(settings: Partial<NewCatalogSettings
     const { data, error } = await supabase
       .from('catalog_settings')
       .update(settings)
-      .eq('user_id', userId)
+      .eq('org_id', organization.id)
       .select()
       .single();
 

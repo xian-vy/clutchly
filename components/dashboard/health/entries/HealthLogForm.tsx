@@ -18,7 +18,7 @@ import { HealthCategorySelect } from './HealthCategorySelect';
 // Define the form schema to match the CreateHealthLogEntryInput type
 const formSchema = z.object({
   reptile_id: z.string().min(1, 'Reptile is required'),
-  user_id: z.string().optional(),
+  org_id: z.string().optional(),
   date: z.string().min(1, 'Date is required'),
   category_id: z.string().min(1, 'Category is required'),
   subcategory_id: z.string().min(1, 'Subcategory is required'),
@@ -57,7 +57,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     resolver: zodResolver(formSchema),
     defaultValues: {
       reptile_id: initialData?.reptile_id || '',
-      user_id: initialData?.user_id || '',
+      org_id: initialData?.org_id || '',
       date: initialData?.date || new Date().toISOString().split('T')[0],
       category_id: initialData?.category_id || '',
       subcategory_id: initialData?.subcategory_id || '',

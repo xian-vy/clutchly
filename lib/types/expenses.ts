@@ -23,7 +23,7 @@ export type ExpenseStatusType = typeof ExpenseStatus[keyof typeof ExpenseStatus]
 
 export interface ExpenseRecord {
   id: string
-  user_id: string
+  org_id: string
   expense_date: string
   amount: number
   category: ExpenseCategoryType

@@ -3,7 +3,7 @@ export type TargetType = 'room' | 'rack' | 'level' | 'location' | 'reptile';
 
 export interface FeedingSchedule {
   id: string;
-  user_id: string;
+  org_id: string;
   name: string;
   description: string | null;
   recurrence: RecurrenceType;
@@ -33,7 +33,7 @@ export interface FeedingEvent {
   notes: string | null;
 }
 
-export type NewFeedingSchedule = Omit<FeedingSchedule, 'id' | 'created_at' | 'updated_at' | 'user_id'>;
+export type NewFeedingSchedule = Omit<FeedingSchedule, 'id' | 'created_at' | 'updated_at' | 'org_id'>;
 export type NewFeedingTarget = Omit<FeedingTarget, 'id'>;
 export type NewFeedingEvent = Omit<FeedingEvent, 'id'>;
 
