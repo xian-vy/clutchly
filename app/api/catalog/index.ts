@@ -10,17 +10,6 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
   const { organization } = await getUserAndOrganizationInfo()
   if (!organization) throw new Error('Unauthorized');
 
-  // First get organization since it's required
-  const orgResult = await supabase
-    .from('organizations')
-    .select('id, full_name, logo')
-    .eq('id', organization)
-    .single();
-
-  if (orgResult.error) throw orgResult.error;
-  if (!orgResult.data) throw new Error('Organization not found');
-  const orgData = orgResult.data;
-
   // Execute all remaining queries in parallel
   const [entriesResult, settingsResult, morphResult, speciesResult] = await Promise.all([
     supabase
@@ -58,7 +47,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     supabase
       .from('catalog_entries')
       .select('reptiles!inner(species_id)')
-      .eq('org_id', organization)
+      .eq('org_id', organization.id)
       .overrideTypes<{ reptiles: { species_id: string } }[], { merge: false }>()
       .then(async (result) => {
         if (result.error) return { data: [] };
@@ -87,7 +76,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
       reptiles: null,
       catalog_images: [],
       catalog_settings: settingsData || null,
-      organization: orgData || null
+      organization: organization || null
     }];
   }
 
@@ -102,7 +91,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
       address: null,
       about: null
     };
-    return [{...data[0], catalog_settings: defaultSettings, organization: orgData}];
+    return [{...data[0], catalog_settings: defaultSettings, organization: organization}];
   }
 
   // Create maps from morph and species results
@@ -119,7 +108,7 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
     },
     catalog_images: entry.catalog_images || [],
     catalog_settings: settingsData,
-    organization: orgData
+    organization: organization
   }));
 
   return enrichedData || [];
