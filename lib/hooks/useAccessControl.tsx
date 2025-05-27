@@ -72,8 +72,16 @@ const useAccessControl = (user: User | null): UseAccessControlReturn => {
 
   // Filter navigation items based on access
   const filterNavItems = useCallback((items: NavItem[]): NavItem[] => {
-    // If still loading or no user, show nothing
-    if (profilesLoading || pagesLoading || !user) return [];
+    // If still loading, show nothing
+    if (profilesLoading || pagesLoading) return [];
+
+    // Admin users and organization owners see all items
+    if (user?.role === 'admin' || (user && user.id === user.org_id)) {
+      return items;
+    }
+
+    // If no user, show nothing
+    if (!user) return [];
 
     return items.filter(item => {
       // For items with sub-items, check access for each sub-item
