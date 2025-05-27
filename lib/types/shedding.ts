@@ -3,7 +3,7 @@ import { Reptile } from './reptile'
 export interface Shedding {
     id: string;
     reptile_id: string;
-    user_id: string;
+    org_id: string;
     shed_date: string; // ISO date
     completeness: 'full' | 'partial' | 'retained' | 'unknown';
     notes?: string | null;
@@ -47,8 +47,8 @@ export interface BatchSheddingFormData {
 }
 
 // API types
-export type CreateSheddingInput = Omit<Shedding, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
-export type UpdateSheddingInput = Partial<Omit<Shedding, 'id' | 'user_id' | 'created_at' | 'updated_at'>>;
+export type CreateSheddingInput = Omit<Shedding, 'id' | 'org_id' | 'created_at' | 'updated_at'>;
+export type UpdateSheddingInput = Partial<Omit<Shedding, 'id' | 'org_id' | 'created_at' | 'updated_at'>>;
 
 // Type assertion functions
 export function assertReptileWithLocation(data: unknown): Reptile {
