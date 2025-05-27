@@ -13,14 +13,42 @@ export async function getOrganization() {
   if (!user) throw new Error('Not authenticated')
   
   try {
-    const { data: organization, error } = await supabase
-      .from('organizations')
-      .select('*')
+    // First get the user's org_id
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('org_id')
       .eq('id', user.id)
       .single()
 
+    if (userError) {
+      console.error('Error getting user data:', userError)
+      throw userError
+    }
 
-    if (error) throw error
+    if (!userData?.org_id) {
+      throw new Error('User not associated with any organization')
+    }
+
+    // Then get the organization
+    const { data: organization, error } = await supabase
+      .from('organizations')
+      .select(`
+        *,
+        users!users_org_id_fkey(id)
+      `)
+      .eq('id', userData.org_id)
+      .single()
+
+    if (error) {
+      console.error('Supabase query error:', error)
+      throw error
+    }
+    
+    if (!organization) {
+      console.error('No organization found for user:', user.id)
+      throw new Error('Organization not found')
+    }
+
     return organization as Organization
   } catch (err) {
     console.error('Error in getOrganization:', err)
