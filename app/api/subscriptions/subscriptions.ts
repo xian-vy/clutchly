@@ -9,19 +9,52 @@ export async function getSubscription() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
   
-  const { data: subscription, error } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('org_id', user.id)
-    .single()
+  try {
+    // First get the user's org_id
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('org_id')
+      .eq('id', user.id)
+      .single()
 
-  // If subscription doesn't exist, create a free one
-  if (error && error.code === 'PGRST116') {
-    return createSubscription('Free')
+    if (userError) {
+      console.error('Error getting user data:', userError)
+      throw userError
+    }
+
+    if (!userData?.org_id) {
+      throw new Error('User not associated with any organization')
+    }
+
+    // Then get the subscription
+    const { data: subscription, error } = await supabase
+      .from('subscriptions')
+      .select(`
+        *,
+        organizations!inner (
+          id,
+          full_name,
+          created_at
+        )
+      `)
+      .eq('org_id', userData.org_id)
+      .single()
+
+    // If subscription doesn't exist, create a free one
+    if (error && error.code === 'PGRST116') {
+      return createSubscription('Free')
+    }
+
+    if (error) {
+      console.error('Error getting subscription:', error)
+      throw error
+    }
+
+    return subscription as Subscription
+  } catch (err) {
+    console.error('Error in getSubscription:', err)
+    throw err
   }
-
-  if (error) throw error
-  return subscription as Subscription
 }
 
 export async function createSubscription(plan: SubscriptionPlan) {
