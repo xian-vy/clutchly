@@ -34,17 +34,16 @@ export async function getAccessProfiles() {
 
     if (userError || !userData) throw new Error('User organization not found')
 
-
     const { data, error } = await supabase
         .from('access_profiles')
         .select(`
             *,
-            access_controls (*)
+            access_controls!inner (*),
+            users!inner (*)
         `)
         .eq('org_id', userData.org_id)
         .order('created_at', { ascending: false });
 
-    console.log('Access Profiles:', data);
     if (error) throw error;
     return data as AccessProfileWithControls[];
 }
