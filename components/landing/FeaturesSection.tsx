@@ -1,150 +1,171 @@
-import { Database, Dna, Heart, LineChart, Check, Zap, Package,  Bug, Network, Globe, Sprout } from 'lucide-react'
+import { Database, Dna, Heart, LineChart, Check, Zap, Package,  Bug, Network, Globe, Sprout, User2, MonitorSmartphone, ArrowRight } from 'lucide-react'
 import { FeatureCard } from './FeatureCard'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import PedigreeFeatureCard from './PedigreeFeatureCard'
 import { PiChartLineUp } from 'react-icons/pi'
+import Link from 'next/link'
+export const features = [
+  {
+    icon: Database,
+    title: 'Comprehensive Data Management',
+    features: [
+      'Reptile biological and genetic data management',
+      'Complete lineage and acquisition history',
+      'Data import and export'
+    ]
+  },
+  {
+    icon: Globe,
+    title: 'Free Website For your Store',
+    features: [
+      'Free URL link to your website',
+      'Clean, modern and cuztomizable website.',
+      'Minimal setup, list reptile to your website directly from your collection',
+    ]
+  },
+  {
+    icon: PiChartLineUp,
+    title: 'Sales and Expense Tracking',
+    features: [
+      'Sales and expense tracking record tracking',
+      'Interactive sales and expenses analytics dashboard',
+    ]
+  },
+  {
+    icon: Heart,
+    title: 'Health Management',
+    features: [
+      'Record and monitor health events',
+      'Display records in reptile pdf organization',
+      'Reports and analytics'
+    ]
+  },
+  {
+    icon: LineChart,
+    title: 'Growth Management',
+    features: [
+      'Detailed growth history tracking',
+      'Interactive growth trend visualization',
+      'Comparative species benchmarking'
+    ]
+  },
+  {
+    icon: Dna,
+    title: 'Breeding Management',
+    features: [
+      'AI-assisted breeding compatibility analysis',
+      'Brood management and tracking',
+      'Comprehensive breeding reports'
+    ]
+  },
+  {
+    icon: Package,
+    title: 'Enclosure Management',
+    features: [
+      'Enclosure setup and reptile assignment tracking',
+      'Rack system management',
+      'Room and shelf organization'
+    ]
+  },
+  {
+    icon: Network,
+    title: 'Pedigree Analysis',
+    features: [
+      'Interactive pedigree tree visualization',
+      'Detailed lineage and ancestry tracking',
+    ]
+  },
 
+  {
+    icon: Bug,
+    title: 'Feeding Management',
+    features: [
+      'Customizable feeding schedule',
+      'Feeding by selected reptiles, room or rack',
+      'Reports and feeding history',
+    ]
+  },
+  {
+    icon:Sprout,
+    title: 'Shedding Management',
+    features: [
+      'Create and manage shedding records',
+      'Batch shedding records',
+      'Reports and shedding history',
+    ]
+  },
+  {
+    icon:User2,
+    title: 'User Management',
+    features: [
+      'Add and manage multiple users',
+      'Customize access levels per user',
+    ]
+  },
+  {
+    icon:MonitorSmartphone,
+    title: 'Cross Platform',
+    features: [
+      'Installable on Windows, Mac, Linux and Android',
+      'Sync data across all devices',
+    ]
+  }
+]
+
+const subscriptionPlans = [
+  {
+    id: 'free',
+    name: 'Free',
+    description: 'Perfect for hobbyists managing a small collection',
+    price: 0,
+    badge: 'Get Started',
+    features: [
+      'Manage up to 50 reptiles',
+      'Basic health tracking',
+      'Breeding records',
+      'Growth Analytics',
+      'Pedigree analysis', 
+    ]
+  },
+  {
+    id: 'starter',
+    name: 'Starter',
+    price: 9.99,
+    badge: 'Most Popular',
+    recommended: true,
+    description: 'Enhanced tracking for serious keepers',
+    features: [
+      'Manage up to 999 reptiles',
+      'Advanced health tracking',
+      'Breeding records',
+      'Growth analytics',
+      'Pedigree analysis',
+      'Premium support'
+    ]
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: 19.99,
+    badge: 'Best Value',
+    description: 'Complete solution for breeders & facilities',
+    features: [
+      'Unlimited reptiles',
+      'Complete genetic tracking',
+      'Advanced breeding projects',
+      'Full analytics dashboard',
+      'User management',
+      'Pedigree analysis',
+      'Priority support'
+    ]
+  }
+]
 export function FeaturesSection() {
-  const features = [
-    {
-      icon: Database,
-      title: 'Data Management',
-      features: [
-        'Reptile biological and genetic data management',
-        'Complete lineage and acquisition history',
-        'Data import and export'
-      ]
-    },
-    {
-      icon: Globe,
-      title: 'Free Website',
-      features: [
-        'Free URL link to your website',
-        'Clean, modern and cuztomizable website.',
-        'Minimal setup, list reptile to your website directly from your collection',
-      ]
-    },
-    {
-      icon: Heart,
-      title: 'Health Management',
-      features: [
-        'Record and monitor health events',
-        'Display records in reptile pdf organization',
-        'Reports and analytics'
-      ]
-    },
-    {
-      icon: LineChart,
-      title: 'Growth Management',
-      features: [
-        'Detailed growth history tracking',
-        'Interactive growth trend visualization',
-        'Comparative species benchmarking'
-      ]
-    },
-    {
-      icon: Dna,
-      title: 'Breeding Management',
-      features: [
-        'AI-assisted breeding compatibility analysis',
-        'Brood management and tracking',
-        'Comprehensive breeding reports'
-      ]
-    },
-    {
-      icon: Package,
-      title: 'Enclosure Management',
-      features: [
-        'Enclosure setup and reptile assignment tracking',
-        'Rack system management',
-        'Room and shelf organization'
-      ]
-    },
-    {
-      icon: Network,
-      title: 'Pedigree Analysis',
-      features: [
-        'Interactive pedigree tree visualization',
-        'Detailed lineage and ancestry tracking',
-      ]
-    },
-    {
-      icon: PiChartLineUp,
-      title: 'Sales and Expense Tracking',
-      features: [
-        'Sales and expense tracking record tracking',
-        'Interactive sales and expenses analytics dashboard',
-      ]
-    },
-    {
-      icon: Bug,
-      title: 'Feeding Management',
-      features: [
-        'Customizable feeding schedule',
-        'Feeding by selected reptiles, room or rack',
-        'Reports and feeding history',
-      ]
-    },
-    {
-      icon:Sprout,
-      title: 'Shedding Management',
-      features: [
-        'Create and manage shedding records',
-        'Batch shedding records',
-        'Reports and shedding history',
-      ]
-    }
-  ]
+  
 
-  const subscriptionPlans = [
-    {
-      id: 'free',
-      name: 'Free',
-      description: 'Perfect for hobbyists managing a small collection',
-      price: 0,
-      badge: 'Get Started',
-      features: [
-        'Manage up to 50 reptiles',
-        'Basic health tracking',
-        'Breeding records',
-        'Growth Analytics',
-        'Pedigree analysis', 
-      ]
-    },
-    {
-      id: 'starter',
-      name: 'Starter',
-      price: 9.99,
-      badge: 'Most Popular',
-      recommended: true,
-      description: 'Enhanced tracking for serious keepers',
-      features: [
-        'Manage up to 999 reptiles',
-        'Advanced health tracking',
-        'Breeding records',
-        'Growth analytics',
-        'Pedigree analysis',
-        'Premium support'
-      ]
-    },
-    {
-      id: 'pro',
-      name: 'Pro',
-      price: 19.99,
-      badge: 'Best Value',
-      description: 'Complete solution for breeders & facilities',
-      features: [
-        'Unlimited reptiles',
-        'Complete genetic tracking',
-        'Advanced breeding projects',
-        'Full analytics dashboard',
-        'User management',
-        'Pedigree analysis',
-        'Priority support'
-      ]
-    }
-  ]
+  // Get only first 3 features for the landing page
+  const initialFeatures = features.slice(0, 3)
 
   return (
     <section className="container relative py-6 sm:py-16 xl:py-20">
@@ -161,10 +182,24 @@ export function FeaturesSection() {
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>
-        <div className="mt-16 grid gap-3 sm:gap-6 lg:gap-8 xl:gap-10 grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
-          {features.map((feature, index) => (
+        <div className="mt-16 grid gap-3 sm:gap-6 lg:gap-8 xl:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
+          {initialFeatures.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
+        </div>
+
+        {/* See All Features Button */}
+        <div className="mt-12 flex justify-center">
+          <Button 
+            asChild
+            variant="outline"
+            className="group relative px-8 py-6 text-lg font-medium transition-all hover:bg-primary hover:text-primary-foreground"
+          >
+            <Link href="/features">
+              See All Features
+              <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
         </div>
 
         {/* Pedigree Feature Showcase */}

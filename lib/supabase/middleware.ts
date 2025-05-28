@@ -49,6 +49,7 @@ export async function updateSession(request: NextRequest) {
   // redirect to landing page
   const isPublicRoute = 
   request.nextUrl.pathname === '/' ||
+  request.nextUrl.pathname === '/features' ||
   request.nextUrl.pathname.startsWith('/auth') ||
   request.nextUrl.pathname.startsWith('/c/') ||
   request.nextUrl.pathname.startsWith('/api/og');
