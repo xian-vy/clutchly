@@ -5,6 +5,17 @@ import { MinProfileInfo, Organization, ProfileFormData } from '@/lib/types/organ
 import { User } from '@/lib/types/users'
 import { createAccessProfile } from '@/app/api/users/access'
 import { getPages } from '@/app/api/users/access'
+import { getUserAndOrganizationInfo } from '../utils_server'
+
+export async function getCurrentUser() : Promise <User> {
+  try {
+    const { user } = await getUserAndOrganizationInfo()
+    return user as User
+  } catch (err) {
+    console.error('Error in getOrganization:', err)
+    throw err
+  }
+}
 
 export async function getOrganization() {
   const supabase = await createClient()

@@ -1,5 +1,5 @@
 'use client'
-import { getOrganization } from '@/app/api/organizations/organizations';
+import { getCurrentUser } from '@/app/api/organizations/organizations';
 import { logout } from '@/app/auth/logout/actions';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Organization } from '@/lib/types/organizations';
 import { useQuery } from '@tanstack/react-query';
 import {
     ChevronDown,
@@ -22,15 +21,16 @@ import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { TopLoader } from '../ui/TopLoader';
+import { User } from '@/lib/types/users';
 
 interface Props {
     isCollapsed : boolean
 }
 const AccountAvatar =   ({isCollapsed } : Props) => {
     const { theme, setTheme } = useTheme();
-    const { data, isLoading } = useQuery<Organization>({
-        queryKey: ['organization2'],
-        queryFn: getOrganization,
+    const { data, isLoading } = useQuery<User>({
+        queryKey: ['user'],
+        queryFn: getCurrentUser,
     }); 
     const queryClient = useQueryClient();
     const [isLoggingOut, setIsLoggingOut] = useState(false);

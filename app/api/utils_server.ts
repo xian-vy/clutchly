@@ -10,7 +10,7 @@ export async function getUserAndOrganizationInfo () : Promise<UserOrg> {
   const supabase =  await createClient()
   const currentUser = await supabase.auth.getUser()
   const userId = currentUser.data.user?.id
-
+  const email = currentUser.data.user?.email
   if (!userId) {
     throw new Error('User not authenticated')
   }
@@ -31,5 +31,10 @@ export async function getUserAndOrganizationInfo () : Promise<UserOrg> {
 
   if (orgError) throw orgError
 
-  return { user, organization }
+  const userWithEmail = {
+    ...user,
+    email
+  }
+
+  return { user : userWithEmail, organization }
 }
