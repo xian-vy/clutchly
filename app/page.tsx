@@ -1,10 +1,13 @@
 import { Footer } from '@/components/landing/Footer'
 import { HeroSection } from '@/components/landing/HeroSection'
 import { FeaturesSection } from '@/components/landing/FeaturesSection'
+import TopNavigation from '@/components/landing/TopNavigation'
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col  pt-16">
+    <TopNavigation />
+
       <div className="fixed inset-0 -z-10 h-full w-full bg-white dark:bg-[#030619]">
         <div className="absolute inset-0 
         bg-[linear-gradient(to_right,#fbfffc_1px,transparent_1px),linear-gradient(to_bottom,#fbfffc_1px,transparent_1px)] 

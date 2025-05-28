@@ -18,7 +18,7 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/15%_0%,transparent_65%)]" />
-      <div className="container relative z-10 py-24 md:py-32">
+      <div className="container relative z-10 py-24 md:py-20 xl:py-24 3xl:!py-36">
         <div className="mx-auto max-w-[800px] 3xl:max-w-[900px] text-center">
           <motion.div 
             className="relative mb-8"
@@ -26,9 +26,6 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            {/* <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-              <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-            </div> */}
             <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
               Welcome to {APP_NAME}
             </span>

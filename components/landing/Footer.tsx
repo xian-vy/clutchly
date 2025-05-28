@@ -32,39 +32,16 @@ export function Footer() {
         </div>
         
         {/* Links Section */}
-        <div className="flex flex-col items-start sm:flex-row md:items-center justify-between gap-12 md:gap-24 mb-12 w-full max-w-[500px] lg:max-w-screen-md" >
-          {/* Product Links */}
-          <div className="flex flex-col items-start sm:items-center">
-            <h3 className="font-semibold mb-4">Product</h3>
-            <ul className="space-y-2 text-sm text-start sm:text-center">
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Features</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Download</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">FAQ</Link></li>
-            </ul>
-          </div>
-          
-          {/* Resources Links */}
-          <div className="flex flex-col items-start sm:items-center">
-            <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm text-start sm:text-center">
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Documentation</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Community</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Support</Link></li>
-            </ul>
-          </div>
-          
-          {/* Company Links */}
-          <div className="flex flex-col items-start sm:items-center ">
-            <h3 className="font-semibold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm text-start sm:text-center">
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">About</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Careers</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacy</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Terms</Link></li>
-            </ul>
-          </div>
+        <div className="flex items-center justify-center gap-8 mb-12">
+          <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            About
+          </Link>
+          <Link href="/features" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            Features
+          </Link>
+          <Link href="/auth/signup" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            Sign Up
+          </Link>
         </div>
         
         {/* Social Links */}
@@ -101,7 +78,7 @@ export function Footer() {
             <ThemeToggle />
           </div>
         </div>
-        <hr className='bg-input/20 w-full max-w-screen-lg'/>
+        <hr className='bg-input/20 w-full'/>
         {/* Copyright */}
         <div className="pt-8  w-full max-w-sm text-center">
           <p className="text-sm text-muted-foreground">

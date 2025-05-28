@@ -118,7 +118,7 @@ const subscriptionPlans = [
     id: 'free',
     name: 'Free',
     description: 'Perfect for hobbyists managing a small collection',
-    price: 0,
+    price: 4.99,
     badge: 'Get Started',
     features: [
       'Manage up to 50 reptiles',
@@ -189,11 +189,11 @@ export function FeaturesSection() {
         </div>
 
         {/* See All Features Button */}
-        <div className="mt-12 flex justify-center">
+        <div className="mt-12 flex justify-center z-50">
           <Button 
             asChild
             variant="outline"
-            className="group relative px-8 py-6 text-lg font-medium transition-all hover:bg-primary hover:text-primary-foreground"
+            className="group relative px-8 py-6 text-lg !bg-background/90 font-medium transition-all hover:bg-primary hover:text-primary-foreground"
           >
             <Link href="/features">
               See All Features
