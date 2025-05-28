@@ -44,6 +44,10 @@ const useAccessControl = (user: User | null): UseAccessControlReturn => {
 
   // Check if user has specific permission for a page
   const hasAccess = useCallback((pageId: string, permission: 'view' | 'edit' | 'delete'): boolean => {
+    // Always allow access to Overview page
+    const page = pages.find(p => p.id === pageId);
+    if (page?.name.toLowerCase() === 'overview') return true;
+
     if (!user) return false;
     
     // Admin users have full access
@@ -68,7 +72,7 @@ const useAccessControl = (user: User | null): UseAccessControlReturn => {
       default:
         return false;
     }
-  }, [user, accessProfile]);
+  }, [user, accessProfile, pages]);
 
   // Filter navigation items based on access
   const filterNavItems = useCallback((items: NavItem[]): NavItem[] => {
