@@ -13,10 +13,11 @@ interface ReptileNode extends Reptile {
 
 export async function getReptileLineage(reptileId: string, cachedReptiles?: Reptile[]): Promise<ReptileNode> {
   let reptiles: Reptile[] = cachedReptiles || [];
-  const { organization } = await getUserAndOrganizationInfo()
 
   // Only fetch if no cached data provided
   if (!cachedReptiles) {
+    const { organization } = await getUserAndOrganizationInfo()
+
     const supabase = await createClient();
 
     const { data, error } = await supabase
