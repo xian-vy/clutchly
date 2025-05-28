@@ -28,10 +28,10 @@ const TopNavigation = () => {
           </div>
           
           <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-6 2xl:space-x-8"> 
-            <Link href="/features" className=" text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <Link href="/features" className=" text-xs md:text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
               Features
             </Link>
-            <Link href="/about" className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <Link href="/about" className="text-xs md:text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
               About
             </Link>
           <ThemeToggle/>
