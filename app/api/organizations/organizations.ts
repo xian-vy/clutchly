@@ -84,6 +84,28 @@ export async function getPublicOrganization(orgName: string) : Promise<MinProfil
   return orgData as Organization;
 }
 
+async function checkOrganizationNameExists(fullName: string, excludeId?: string) {
+  const supabase = await createClient()
+  
+  let query = supabase
+    .from('organizations')
+    .select('id')
+    .eq('full_name', fullName)
+    
+  if (excludeId) {
+    query = query.neq('id', excludeId)
+  }
+  
+  const { data, error } = await query.single()
+  
+  if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+    console.error('Error checking organization name:', error)
+    throw error
+  }
+  
+  return !!data
+}
+
 export async function createOrganization(orgData: ProfileFormData) {
   const supabase = await createClient()
   
@@ -91,6 +113,11 @@ export async function createOrganization(orgData: ProfileFormData) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Not authenticated')
     
+    // Check for duplicate organization name
+    const nameExists = await checkOrganizationNameExists(orgData.full_name)
+    if (nameExists) {
+      throw new Error('An organization with this name already exists')
+    }
     
     // First check if organization already exists
     const { data: existingProfile, error: checkError } = await supabase
@@ -207,6 +234,12 @@ export async function updateOrganization(orgData: ProfileFormData) {
   
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
+  
+  // Check for duplicate organization name, excluding current organization
+  const nameExists = await checkOrganizationNameExists(orgData.full_name, user.id)
+  if (nameExists) {
+    throw new Error('An organization with this name already exists')
+  }
   
   const { data, error } = await supabase
     .from('organizations')

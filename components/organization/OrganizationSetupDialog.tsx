@@ -185,7 +185,6 @@ export function OrganizationSetupDialog() {
       
       toast.success("Your organization has been successfully set up!");
       
-
       // Only close the dialog if organization setup succeeded
       setTimeout(() => {
         if (data.full_name && data.account_type && data.selected_species && data.selected_species.length > 0) {
@@ -196,10 +195,22 @@ export function OrganizationSetupDialog() {
       }, 500);
     } catch (error) {
       console.error("Organization update error:", error);
-      toast.error("There was a problem updating your organization. Please try again.");
+      if (error instanceof Error && error.message === 'An organization with this name already exists') {
+        toast.error("This organization name is already taken. Please choose a different name.");
+        // Set focus back to the name field
+        form.setError('full_name', { 
+          type: 'manual',
+          message: 'This organization name is already taken'
+        });
+      } else {
+        toast.error("There was a problem updating your organization. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
-     window.location.reload();
+      // Only reload if the operation was successful
+      if (!form.formState.errors.full_name) {
+        window.location.reload();
+      }
     }
   };
 
