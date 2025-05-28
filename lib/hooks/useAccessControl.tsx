@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { AccessProfileWithControls } from '@/lib/types/access';
 import { User } from '@/lib/types/users';
 import { NavItem } from '@/lib/constants/navigation';
-import { getAccessProfiles } from '@/app/api/users/access';
+import { getAccessProfiles, getPages } from '@/app/api/users/access';
 import { useQuery } from '@tanstack/react-query';
 
 interface UseAccessControlReturn {
@@ -13,13 +13,28 @@ interface UseAccessControlReturn {
 }
 
 const useAccessControl = (user: User | null): UseAccessControlReturn => {
-  // Fetch access profiles using React Query
-  const { data: accessProfiles, isLoading } = useQuery({
+  // Fetch access profiles and pages using React Query
+  const { data: accessProfiles, isLoading: profilesLoading } = useQuery({
     queryKey: ['accessProfiles'],
     queryFn: getAccessProfiles,
     enabled: !!user, // Only fetch if we have a user
     staleTime: 60 * 60 * 1000, // Cache for 1 hour
   });
+
+  const { data: pages = [], isLoading: pagesLoading } = useQuery({
+    queryKey: ['pages'],
+    queryFn: getPages,
+    enabled: !!user,
+    staleTime: 60 * 60 * 1000,
+  });
+
+  // Create a mapping of page names to IDs
+  const pageNameToId = useMemo(() => {
+    return pages.reduce((acc, page) => {
+      acc[page.name.toLowerCase()] = page.id;
+      return acc;
+    }, {} as Record<string, string>);
+  }, [pages]);
 
   // Find the user's access profile
   const accessProfile = useMemo(() => {
@@ -29,6 +44,10 @@ const useAccessControl = (user: User | null): UseAccessControlReturn => {
 
   // Check if user has specific permission for a page
   const hasAccess = useCallback((pageId: string, permission: 'view' | 'edit' | 'delete'): boolean => {
+    // Always allow access to Overview page
+    const page = pages.find(p => p.id === pageId);
+    if (page?.name.toLowerCase() === 'overview') return true;
+
     if (!user) return false;
     
     // Admin users have full access
@@ -53,14 +72,22 @@ const useAccessControl = (user: User | null): UseAccessControlReturn => {
       default:
         return false;
     }
-  }, [user, accessProfile]);
+  }, [user, accessProfile, pages]);
 
   // Filter navigation items based on access
   const filterNavItems = useCallback((items: NavItem[]): NavItem[] => {
-    return items.filter(item => {
-      // If no page name found, allow access (for system pages like settings)
-      if (!item.name) return true;
+    // If still loading, show nothing
+    if (profilesLoading || pagesLoading) return [];
 
+    // Admin users and organization owners see all items
+    if (user?.role === 'admin' || (user && user.id === user.org_id)) {
+      return items;
+    }
+
+    // If no user, show nothing
+    if (!user) return [];
+
+    return items.filter(item => {
       // For items with sub-items, check access for each sub-item
       if (item.items) {
         const filteredItems = filterNavItems(item.items);
@@ -68,19 +95,20 @@ const useAccessControl = (user: User | null): UseAccessControlReturn => {
         return filteredItems.length > 0;
       }
 
-      // For regular items, check if user has view access
-      // Note: You'll need to implement a way to map page names to IDs
-      // This is a simplified version that assumes page names match navigation item names
-      const pageId = item.name.toLowerCase();
+      // For regular items, require explicit view access
+      const pageId = pageNameToId[item.name?.toLowerCase()];
+      // If no name or no matching page found, deny access
+      if (!item.name || !pageId) return false;
+      
       return hasAccess(pageId, 'view');
     });
-  }, [hasAccess]);
+  }, [hasAccess, pageNameToId, profilesLoading, pagesLoading, user]);
 
   return {
     hasAccess,
     filterNavItems,
     accessProfile,
-    isLoading,
+    isLoading: profilesLoading || pagesLoading,
   };
 };
 

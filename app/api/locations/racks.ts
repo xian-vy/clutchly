@@ -51,7 +51,7 @@ export async function createRack(rack: NewRack) {
     .from('racks')
     .insert([{
       ...rack,
-      user_id: userId
+      org_id: userId
     }])
     .select()
     .single()

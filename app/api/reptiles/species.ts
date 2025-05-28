@@ -1,30 +1,23 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { Species, NewSpecies } from '@/lib/types/species'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getSpecies() {
   const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
-  
-  // get the user's organization to get selected_species
-  const { data: organization } = await supabase
-    .from('organizations')
-    .select('selected_species')
-    .eq('id', userId)
-    .single()
+  const { organization } = await getUserAndOrganizationInfo()
     
   const { data: species, error } = await supabase
     .from('species')
     .select(`
       id,
-      user_id,
+      org_id,
       name,
       scientific_name,
       care_level,
       is_global
     `)
-    .or(`is_global.eq.true,user_id.eq.${userId}`)
+    .or(`is_global.eq.true,org_id.eq.${organization.id}`)
     .order('name')
 
   if (error) throw error
@@ -48,7 +41,7 @@ export async function getSpeciesById(id: string) {
     .from('species')
     .select(`
       id,
-      user_id,
+      org_id,
       name,
       scientific_name,
       care_level,
@@ -63,18 +56,18 @@ export async function getSpeciesById(id: string) {
 
 export async function createSpecies(species: NewSpecies) {
   const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
+
   const NewSpecies = {
     ...species,
-    user_id : userId,
+    org_id : organization.id,
   }
   const { data, error } = await supabase
     .from('species')
     .insert([NewSpecies])
     .select(`
       id,
-      user_id,
+      org_id,
       name,
       scientific_name,
       care_level,
@@ -95,7 +88,7 @@ export async function updateSpecies(id: string, updates: Partial<NewSpecies>) {
     .eq('id', id)
     .select(`
       id,
-      user_id,
+      org_id,
       name,
       scientific_name,
       care_level,
@@ -125,7 +118,7 @@ export async function getGlobalSpecies() {
     .from('species')
     .select(`
       id,
-      user_id,
+      org_id,
       name,
       scientific_name,
       care_level,

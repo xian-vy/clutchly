@@ -1,0 +1,40 @@
+import { createClient } from '@/lib/supabase/server'
+import { Organization } from '@/lib/types/organizations'
+import { User } from '@/lib/types/users'
+
+type UserOrg = {
+  user : User,
+  organization: Organization
+}
+export async function getUserAndOrganizationInfo () : Promise<UserOrg> {
+  const supabase =  await createClient()
+  const currentUser = await supabase.auth.getUser()
+  const userId = currentUser.data.user?.id
+  const email = currentUser.data.user?.email
+  if (!userId) {
+    throw new Error('User not authenticated')
+  }
+
+  const { data: user, error: userError } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single()
+    
+  if (userError) throw userError
+
+  const { data: organization, error: orgError } = await supabase
+    .from('organizations')
+    .select('*')
+    .eq('id', user.org_id)
+    .single()
+
+  if (orgError) throw orgError
+
+  const userWithEmail = {
+    ...user,
+    email
+  }
+
+  return { user : userWithEmail, organization }
+}

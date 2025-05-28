@@ -19,8 +19,8 @@ interface CatalogEntryFormProps {
   featuredLimit: boolean;
 }
 
-// Create a schema that matches the NewCatalogEntry type but without user_id
-// user_id will be added on the server
+// Create a schema that matches the NewCatalogEntry type but without org_id
+// org_id will be added on the server
 const formSchema = z.object({
   reptile_id: z.string({ required_error: 'Please select a reptile' }),
   featured: z.boolean(),
@@ -60,12 +60,12 @@ export function CatalogEntryForm({
   }, [form, initialData]);
 
   function handleSubmit(values: FormValues) {
-    // The user_id will be added on the server side
+    // The org_id will be added on the server side
     onSubmit({
       reptile_id: values.reptile_id,
       featured: values.featured,
       display_order: values.display_order,
-      user_id: initialData?.user_id || '', // This will be overridden on the server
+      org_id: initialData?.org_id || '', // This will be overridden on the server
     });
   }
 

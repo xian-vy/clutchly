@@ -3,7 +3,7 @@ import { Species } from './species'
 
 export interface GeneticCalculation {
   id: string
-  user_id: string
+  org_id: string
   dam_id: string
   sire_id: string
   created_at: string
@@ -29,7 +29,7 @@ export interface PossibleHet {
   description: string
 }
 
-export type NewGeneticCalculation = Omit<GeneticCalculation, 'id' | 'user_id' | 'created_at'>
+export type NewGeneticCalculation = Omit<GeneticCalculation, 'id' | 'org_id' | 'created_at'>
 
 export interface GeneticCalculatorInput {
   dam: Reptile

@@ -20,6 +20,7 @@ import dynamic from 'next/dynamic'
 import { APP_NAME } from '@/lib/constants/app';
 import useAccessControl from '@/lib/hooks/useAccessControl';
 import { useUser } from '@/lib/hooks/useUser';
+import { Skeleton } from '../ui/skeleton';
 
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
@@ -49,12 +50,17 @@ export function Navigation() {
 
   // Filter navigation items based on access
   const accessibleNavItems = useMemo(() => {
-    if (userLoading || accessLoading) return NAV_ITEMS; // Show all items while loading
+    if (userLoading || accessLoading) return []; // Return empty array while loading
     return filterNavItems(NAV_ITEMS);
   }, [filterNavItems, userLoading, accessLoading]);
 
   // Group accessible items by section
   const groupedNavItems = useMemo(() => {
+    if (userLoading || accessLoading) {
+      return {
+        '': Array(10).fill(null) 
+      };
+    }
     return accessibleNavItems.reduce((acc: Record<string, NavItem[]>, item: NavItem) => {
       const section = item.section || '';
       if (!acc[section]) {
@@ -63,7 +69,7 @@ export function Navigation() {
       acc[section].push(item);
       return acc;
     }, {});
-  }, [accessibleNavItems]);
+  }, [accessibleNavItems, userLoading, accessLoading]);
 
   const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
   const pendingTodayFeedings = todayFeedings.filter(feeding => !feeding.isCompleted);
@@ -134,12 +140,27 @@ export function Navigation() {
           <nav className="px-3 2xl:px-4 space-y-2 md:space-y-3 xl:space-y-4 3xl:!space-y-6 pt-1 xl:pt-1.5 flex-1">
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
-                {!isCollapsed && (
+                {!isCollapsed && section && (
                   <h2 className="mb-2 px-3 text-xs lg:text-sm font-semibold text-sidebar-foreground/60">
                     {section}
                   </h2>
                 )}
-                {items.map((item) => {
+                {items.map((item, index) => {
+                  if (userLoading || accessLoading) {
+                    return (
+                      <div
+                        key={`skeleton-${section}-${index}`}
+                        className={cn(
+                          'relative flex items-center gap-3 rounded-lg py-2 3xl:py-2.5',
+                          isCollapsed ? 'justify-center px-2' : 'px-3'
+                        )}
+                      >
+                        <Skeleton className="h-6 w-6 rounded" />
+                        {!isCollapsed && <Skeleton className="h-5 flex-1" />}
+                      </div>
+                    );
+                  }
+
                   const Icon = item.icon;
                   if ('items' in item) {
                     return (
@@ -166,7 +187,7 @@ export function Navigation() {
                           
                         </CollapsibleTrigger>
                         <CollapsibleContent className={`space-y-1 ${isCollapsed ? "" : "border-l pl-5 ml-5"}`}>
-                          {item.items && item.items.map((subItem) => (
+                          {item.items && item.items.map((subItem: NavItem) => (
                             <p
                               key={subItem.href}
                               onClick={   

@@ -1,15 +1,15 @@
 import { createClient } from '@/lib/supabase/client'
 import { BreedingProject, NewBreedingProject } from '@/lib/types/breeding'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 const supabase = createClient()
 
 export async function getBreedingProjects(): Promise<BreedingProject[]> {
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
   const { data, error } = await supabase
     .from('breeding_projects')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -29,11 +29,10 @@ export async function getBreedingProject(id: string): Promise<BreedingProject> {
 
 export async function createBreedingProject(project: NewBreedingProject): Promise<BreedingProject> {
   const supabase =  createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
   const NewBreedingProject = {
     ...project,
-    user_id : userId,
+    org_id : organization.id,
   }
   const { data, error } = await supabase
     .from('breeding_projects')

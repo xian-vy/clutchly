@@ -11,7 +11,7 @@ export interface HetTrait {
 export interface Reptile {
   id: string
   created_at: string
-  user_id: string
+  org_id: string
   name: string
   price : number | null,
   reptile_code: string | null
@@ -42,7 +42,7 @@ export type ReptileWithMorpgAndSpecies = Reptile & {
   morph_name: string;
   species_name: string;
 }
-export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'user_id' | 'last_modified'>
+export type NewReptile = Omit<Reptile, 'id' | 'created_at' | 'org_id' | 'last_modified'>
 
 //for breeding
 export type ReptileGeneInfo = { name: string; morphName: string, hets : HetTrait[] | null, visuals : string[] | null,  reptile_code: string | null }

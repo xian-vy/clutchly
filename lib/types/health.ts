@@ -3,7 +3,7 @@ export type HealthLogSeverity = 'low' | 'moderate' | 'high';
 export interface HealthLogEntry {
   id: string;
   reptile_id: string;
-  user_id: string;
+  org_id: string;
   date: string;
   category_id: string;
   subcategory_id: string;
@@ -59,7 +59,7 @@ export interface HealthType {
 
 export interface CreateHealthLogEntryInput {
   reptile_id: string;
-  user_id: string;
+  org_id: string;
   date: string;
   category_id: string;
   subcategory_id: string;

@@ -15,7 +15,7 @@ import * as z from 'zod';
 // Define the form schema to match the CreateGrowthEntryInput type
 const formSchema = z.object({
   reptile_id: z.string().min(1, 'Reptile is required'),
-  user_id: z.string().optional(),
+  org_id: z.string().optional(),
   date: z.string().min(1, 'Date is required'),
   weight: z.coerce.number().min(0, 'Weight must be a positive number'),
   length: z.coerce.number().min(0, 'Length must be a positive number'),
@@ -46,7 +46,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
     resolver: zodResolver(formSchema),
     defaultValues: {
       reptile_id: initialData?.reptile_id || '',
-      user_id: initialData?.user_id || '',
+      org_id: initialData?.org_id || '',
       date: initialData?.date || new Date().toISOString().split('T')[0],
       weight: initialData?.weight || 0,
       length: initialData?.length || 0,

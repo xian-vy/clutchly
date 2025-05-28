@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/client'
 import { CreateSheddingInput, Shedding, UpdateSheddingInput, SheddingWithReptile } from '@/lib/types/shedding'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getSheddingRecords(): Promise<SheddingWithReptile[]> {
-  const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
 
   const { data: sheddingRecords, error } = await supabase
     .from('shedding')
@@ -26,7 +26,7 @@ export async function getSheddingRecords(): Promise<SheddingWithReptile[]> {
         )
       )
     `)
-    .eq('user_id', userId)
+    .eq('org_id', organization.id)
     .order('shed_date', { ascending: false })
 
   if (error) throw error
@@ -68,13 +68,13 @@ export async function getSheddingById(id: string) {
 }
 
 export async function createShedding(shedding: CreateSheddingInput): Promise<SheddingWithReptile> {
-  const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
 
   const newShedding = {
     ...shedding,
-    user_id: userId,
+    org_id: organization.id,
   }
 
   const { data, error } = await supabase
@@ -108,13 +108,13 @@ export async function createShedding(shedding: CreateSheddingInput): Promise<She
 }
 
 export async function createBatchShedding(sheddings: CreateSheddingInput[]): Promise<SheddingWithReptile[]> {
-  const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
 
   const newSheddings = sheddings.map(shedding => ({
     ...shedding,
-    user_id: userId,
+    org_id: organization.id,
   }))
 
   const { data, error } = await supabase
@@ -148,7 +148,7 @@ export async function createBatchShedding(sheddings: CreateSheddingInput[]): Pro
 }
 
 export async function updateShedding(id: string, updates: UpdateSheddingInput): Promise<SheddingWithReptile> {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { data, error } = await supabase
     .from('shedding')
@@ -182,7 +182,7 @@ export async function updateShedding(id: string, updates: UpdateSheddingInput): 
 }
 
 export async function deleteShedding(id: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { error } = await supabase
     .from('shedding')

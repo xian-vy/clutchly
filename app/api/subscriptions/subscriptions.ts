@@ -2,26 +2,45 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { Subscription, SubscriptionPlan } from '@/lib/types/subscription'
+import { getUserAndOrganizationInfo } from '../utils_server'
 
 export async function getSubscription() {
   const supabase = await createClient()
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-  
-  const { data: subscription, error } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('org_id', user.id)
-    .single()
+  const { organization } = await getUserAndOrganizationInfo()
 
-  // If subscription doesn't exist, create a free one
-  if (error && error.code === 'PGRST116') {
-    return createSubscription('Free')
+  if (!organization) throw new Error('Not authenticated')
+  
+  try {
+   
+
+    const { data: subscription, error } = await supabase
+      .from('subscriptions')
+      .select(`
+        *,
+        organizations!inner (
+          id,
+          full_name,
+          created_at
+        )
+      `)
+      .eq('org_id', organization.id)
+      .single()
+
+    // If subscription doesn't exist, create a free one
+    if (error && error.code === 'PGRST116') {
+      return createSubscription('Free')
+    }
+
+    if (error) {
+      console.error('Error getting subscription:', error)
+      throw error
+    }
+
+    return subscription as Subscription
+  } catch (err) {
+    console.error('Error in getSubscription:', err)
+    throw err
   }
-
-  if (error) throw error
-  return subscription as Subscription
 }
 
 export async function createSubscription(plan: SubscriptionPlan) {

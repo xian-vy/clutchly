@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     const { data: existingCalculation } = await supabase
       .from('genetic_calculations')
       .select('*')
-      .eq('user_id', userId)
+      .eq('org_id', userId)
       .eq('dam_id', input.dam.id)
       .eq('sire_id', input.sire.id)
       .single();
@@ -188,7 +188,7 @@ IMPORTANT: Respond ONLY with the JSON object, no additional text or markdown for
 
     // Save calculation to history
     await supabase.from('genetic_calculations').insert({
-      user_id: userId,
+      org_id: userId,
       dam_id: input.dam.id,
       sire_id: input.sire.id,
       result

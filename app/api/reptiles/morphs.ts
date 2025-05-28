@@ -1,23 +1,24 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { Morph, NewMorph } from '@/lib/types/morph'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getMorphs() {
   const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
+
   const { data: morphs, error } = await supabase
     .from('morphs')
     .select(`
       id,
-      user_id,
+      org_id,
       species_id,
       name,
       description,
       is_global,
       species:species(name)
     `)
-    .or(`is_global.eq.true,user_id.eq.${userId}`)
+    .or(`is_global.eq.true,org_id.eq.${organization.id}`)
     .order('name')
 
   if (error) throw error
@@ -31,7 +32,7 @@ export async function getMorphById(id: string) {
     .from('morphs')
     .select(`
       id,
-      user_id,
+      org_id,
       species_id,
       name,
       description,
@@ -52,7 +53,7 @@ export async function getMorphsBySpecies(speciesId: string) {
     .from('morphs')
     .select(`
       id,
-      user_id,
+      org_id,
       species_id,
       name,
       description,
@@ -67,18 +68,18 @@ export async function getMorphsBySpecies(speciesId: string) {
 
 export async function createMorph(morph: NewMorph) {
   const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
+
   const newMorph = {
     ...morph,
-    user_id : userId,
+    org_id : organization.id,
   }
   const { data, error } = await supabase
     .from('morphs')
     .insert([newMorph])
     .select(`
       id,
-      user_id,
+      org_id,
       species_id,
       name,
       description,
@@ -100,7 +101,7 @@ export async function updateMorph(id: string, updates: Partial<NewMorph>) {
     .eq('id', id)
     .select(`
       id,
-      user_id,
+      org_id,
       species_id,
       name,
       description,
@@ -131,7 +132,7 @@ export async function getGlobalMorphs() {
     .from('morphs')
     .select(`
       id,
-      user_id,
+      org_id,
       species_id,
       name,
       description,

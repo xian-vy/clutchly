@@ -29,7 +29,6 @@ export async function getUsers() {
       throw error;
     }
 
-    console.log('Users fetched successfully:', { count: data?.length });
     return data as User[];
   } catch (error) {
     console.error('Error in getUsers:', error);

@@ -9,7 +9,7 @@ export async function getRooms() {
   const { data: rooms, error } = await supabase
     .from('rooms')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', userId)
     .order('name', { ascending: true })
 
   if (error) throw error
@@ -38,7 +38,7 @@ export async function createRoom(room: NewRoom) {
     .from('rooms')
     .insert([{
       ...room,
-      user_id: userId
+      org_id: userId
     }])
     .select()
     .single()

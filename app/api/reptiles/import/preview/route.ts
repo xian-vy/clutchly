@@ -1,6 +1,6 @@
 'use server'
 import { checkRateLimit, GenericObject, ImportPreviewResponse,  ReptileImportRow, validateReptileRow } from '@/app/api/reptiles/import/utils'
-import { createClient } from '@/lib/supabase/server'
+import { getUserAndOrganizationInfo } from '@/app/api/utils_server'
 import { NextRequest, NextResponse } from 'next/server'
 import Papa from 'papaparse'
 import * as XLSX from 'xlsx-js-style'
@@ -9,11 +9,10 @@ import * as XLSX from 'xlsx-js-style'
 // Handle file upload for preview
 export async function POST(request: NextRequest) {
   try {
-    // Get current user ID
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { organization } = await getUserAndOrganizationInfo()
+
     
-    if (!user?.id) {
+    if (!organization) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
@@ -21,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check rate limit
-    const withinRateLimit = await checkRateLimit(user.id)
+    const withinRateLimit = await checkRateLimit(organization.id)
     if (!withinRateLimit) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please try again later.' },

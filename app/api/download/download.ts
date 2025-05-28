@@ -141,7 +141,7 @@ async function getReptileData(supabase: SupabaseClient, userId: string, filters:
   let query = supabase
     .from('reptiles')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', userId)
 
   if (dateRange) {
     query = query
@@ -206,7 +206,7 @@ async function getHealthData(supabase: SupabaseClient, userId: string, filters: 
   let query = supabase
     .from('health_log_entries')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', userId)
 
   if (dateRange) {
     query = query
@@ -274,7 +274,7 @@ async function getGrowthData(supabase: SupabaseClient, userId: string, filters: 
   let query = supabase
     .from('growth_entries')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', userId)
 
   if (dateRange) {
     query = query
@@ -313,7 +313,7 @@ async function getBreedingData(supabase: SupabaseClient, userId: string, filters
   let query = supabase
     .from('breeding_projects')
     .select('*')
-    .eq('user_id', userId)
+    .eq('org_id', userId)
 
   if (dateRange) {
     query = query
@@ -391,7 +391,7 @@ export async function createBackup(request: z.infer<typeof requestSchema>) {
   const { data: lastBackup } = await supabase
     .from('backup_logs')
     .select('created_at')
-    .eq('user_id', user.id)
+    .eq('org_id', user.id)
     .eq('backup_type', type)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -430,7 +430,7 @@ export async function createBackup(request: z.infer<typeof requestSchema>) {
 
   // Log the backup
   await supabase.from('backup_logs').insert({
-    user_id: user.id,
+    org_id: user.id,
     backup_type: type,
     data_size: csvData.length,
     status: 'success'
@@ -451,7 +451,7 @@ export async function getBackupLogs() {
   const { data: logs, error } = await supabase
     .from('backup_logs')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('org_id', user.id)
     .order('created_at', { ascending: false })
 
   if (error) {

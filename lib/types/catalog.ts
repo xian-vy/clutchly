@@ -3,7 +3,7 @@ import {  ReptileWithMorpgAndSpecies } from "./reptile";
 
 export interface CatalogEntry {
   id: string;
-  user_id: string;
+  org_id: string;
   reptile_id: string;
   featured: boolean;
   display_order: number;
@@ -22,7 +22,7 @@ export interface CatalogImage {
 
 export interface CatalogSettings {
   id: string;
-  user_id: string;
+  org_id: string;
   bio: string | null;
   show_bio: boolean;
   contacts: { [key: string]: string }[] | null;

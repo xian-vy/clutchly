@@ -3,7 +3,7 @@ export type IncubationStatus = 'not_started' | 'in_progress' | 'completed' | 'fa
 
 export interface BreedingProject {
   id: string
-  user_id: string
+  org_id: string
   name: string
   status: BreedingStatus
   male_id: string
@@ -34,5 +34,5 @@ export interface Clutch {
 }
 
 
-export type NewBreedingProject = Omit<BreedingProject, 'id' | 'user_id' | 'created_at' | 'updated_at'>
+export type NewBreedingProject = Omit<BreedingProject, 'id' | 'org_id' | 'created_at' | 'updated_at'>
 export type NewClutch = Omit<Clutch, 'id' | 'created_at' | 'updated_at'>

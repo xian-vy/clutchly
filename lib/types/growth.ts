@@ -1,7 +1,7 @@
 export interface GrowthEntry {
   id: string;
   reptile_id: string;
-  user_id: string;
+  org_id: string;
   date: string;
   weight: number;
   length: number;
@@ -13,7 +13,7 @@ export interface GrowthEntry {
 
 export interface CreateGrowthEntryInput {
   reptile_id: string;
-  user_id: string;
+  org_id: string;
   date: string;
   weight: number;
   length: number;

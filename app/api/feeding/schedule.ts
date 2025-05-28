@@ -1,19 +1,19 @@
 import { createClient } from '@/lib/supabase/client';
 import { FeedingTarget, NewFeedingSchedule, FeedingScheduleWithTargets, TargetType } from '@/lib/types/feeding';
+import { getUserAndOrganizationInfo } from '../utils_client';
 
 // Get all feeding schedules for the current user
 export async function getFeedingSchedules(): Promise<FeedingScheduleWithTargets[]> {
   const supabase = await createClient();
-  
-  // Get user ID
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) throw new Error('Not authenticated');
   
   // Get all feeding schedules
   const { data: schedules, error } = await supabase
     .from('feeding_schedules')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('org_id', organization.id)
     .order('created_at', { ascending: false });
   
   if (error) throw error;
@@ -223,10 +223,9 @@ async function checkExistingTargets(targets: { target_type: TargetType; target_i
 
 export async function createFeedingSchedule(data: NewFeedingSchedule & { targets: { target_type: TargetType; target_id: string }[] }): Promise<FeedingScheduleWithTargets> {
   const supabase = await createClient();
-  
-  // Get user ID
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) throw new Error('Not authenticated');
 
   // Check for existing targets first
   const existingTargets = await checkExistingTargets(data.targets);
@@ -245,7 +244,7 @@ export async function createFeedingSchedule(data: NewFeedingSchedule & { targets
     .insert([
       {
         ...scheduleData,
-        user_id: user.id
+        org_id: organization.id
       }
     ])
     .select()

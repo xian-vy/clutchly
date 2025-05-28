@@ -28,7 +28,6 @@ export const useUser = () => {
     queryFn: async () => {
       try {
         const data = await getUsers();
-        console.log('Users query successful:', { count: data?.length });
         return data;
       } catch (error) {
         console.error('Users query error:', error);
@@ -52,20 +51,9 @@ export const useUser = () => {
 
   const user = useMemo(() => {
     if (!session?.user?.id || !users) {
-      console.log('User lookup failed:', { 
-        hasSession: !!session, 
-        hasUserId: !!session?.user?.id, 
-        hasUsers: !!users 
-      });
       return null;
     }
     const foundUser = users.find(u => u.id === session.user.id);
-    console.log('User lookup:', { 
-      sessionUserId: session.user.id, 
-      foundUser,
-      usersCount: users.length,
-      allUserIds: users.map(u => u.id)
-    });
     return foundUser || null;
   }, [session?.user?.id, users]);
 
