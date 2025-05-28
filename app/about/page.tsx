@@ -24,7 +24,7 @@ const AboutPage = () => {
           <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight">
             Empowering Reptile Enthusiasts
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-[600px] mt-2">
+          <p className="text-muted-foreground text-base sm:text-lg px-4  max-w-[600px] mt-2">
             Revolutionizing how reptile enthusiasts manage and track their collections with innovative solutions
           </p>
         </div>

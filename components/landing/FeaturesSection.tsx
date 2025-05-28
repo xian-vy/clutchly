@@ -1,178 +1,25 @@
-import { Database, Dna, Heart, LineChart, Check, Zap, Package,  Bug, Network, Globe, Sprout, User2, MonitorSmartphone, ArrowRight } from 'lucide-react'
-import { FeatureCard } from './FeatureCard'
+'use client'
 import { Button } from '@/components/ui/button'
+import { useScreenSize } from '@/lib/hooks/useScreenSize'
 import { cn } from '@/lib/utils'
-import PedigreeFeatureCard from './PedigreeFeatureCard'
-import { PiChartLineUp } from 'react-icons/pi'
+import { ArrowRight, Check, Zap } from 'lucide-react'
 import Link from 'next/link'
-export const features = [
-  {
-    icon: Database,
-    title: 'Comprehensive Data Management',
-    features: [
-      'Reptile biological and genetic data management',
-      'Complete lineage and acquisition history',
-      'Data import and export'
-    ]
-  },
-  {
-    icon: Globe,
-    title: 'Free Website For your Store',
-    features: [
-      'Free URL link to your website',
-      'Clean, modern and cuztomizable website.',
-      'Minimal setup, list reptile to your website directly from your collection',
-    ]
-  },
-  {
-    icon: PiChartLineUp,
-    title: 'Sales and Expense Tracking',
-    features: [
-      'Sales and expense tracking record tracking',
-      'Interactive sales and expenses analytics dashboard',
-    ]
-  },
-  {
-    icon: Heart,
-    title: 'Health Management',
-    features: [
-      'Record and monitor health events',
-      'Display records in reptile pdf organization',
-      'Reports and analytics'
-    ]
-  },
-  {
-    icon: LineChart,
-    title: 'Growth Management',
-    features: [
-      'Detailed growth history tracking',
-      'Interactive growth trend visualization',
-      'Comparative species benchmarking'
-    ]
-  },
-  {
-    icon: Dna,
-    title: 'Breeding Management',
-    features: [
-      'AI-assisted breeding compatibility analysis',
-      'Brood management and tracking',
-      'Comprehensive breeding reports'
-    ]
-  },
-  {
-    icon: Package,
-    title: 'Enclosure Management',
-    features: [
-      'Enclosure setup and reptile assignment tracking',
-      'Rack system management',
-      'Room and shelf organization'
-    ]
-  },
-  {
-    icon: Network,
-    title: 'Pedigree Analysis',
-    features: [
-      'Interactive pedigree tree visualization',
-      'Detailed lineage and ancestry tracking',
-    ]
-  },
+import { FeatureCard } from './FeatureCard'
+import PedigreeFeatureCard from './PedigreeFeatureCard'
+import { FEATURE_LIST, PLANS_LIST } from '@/lib/constants/features'
 
-  {
-    icon: Bug,
-    title: 'Feeding Management',
-    features: [
-      'Customizable feeding schedule',
-      'Feeding by selected reptiles, room or rack',
-      'Reports and feeding history',
-    ]
-  },
-  {
-    icon:Sprout,
-    title: 'Shedding Management',
-    features: [
-      'Create and manage shedding records',
-      'Batch shedding records',
-      'Reports and shedding history',
-    ]
-  },
-  {
-    icon:User2,
-    title: 'User Management',
-    features: [
-      'Add and manage multiple users',
-      'Customize access levels per user',
-    ]
-  },
-  {
-    icon:MonitorSmartphone,
-    title: 'Cross Platform',
-    features: [
-      'Installable on Windows, Mac, Linux and Android',
-      'Sync data across all devices',
-    ]
-  }
-]
-
-const subscriptionPlans = [
-  {
-    id: 'free',
-    name: 'Free',
-    description: 'Perfect for hobbyists managing a small collection',
-    price: 4.99,
-    badge: 'Get Started',
-    features: [
-      'Manage up to 50 reptiles',
-      'Basic health tracking',
-      'Breeding records',
-      'Growth Analytics',
-      'Pedigree analysis', 
-    ]
-  },
-  {
-    id: 'starter',
-    name: 'Starter',
-    price: 9.99,
-    badge: 'Most Popular',
-    recommended: true,
-    description: 'Enhanced tracking for serious keepers',
-    features: [
-      'Manage up to 999 reptiles',
-      'Advanced health tracking',
-      'Breeding records',
-      'Growth analytics',
-      'Pedigree analysis',
-      'Premium support'
-    ]
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 19.99,
-    badge: 'Best Value',
-    description: 'Complete solution for breeders & facilities',
-    features: [
-      'Unlimited reptiles',
-      'Complete genetic tracking',
-      'Advanced breeding projects',
-      'Full analytics dashboard',
-      'User management',
-      'Pedigree analysis',
-      'Priority support'
-    ]
-  }
-]
 export function FeaturesSection() {
-  
+  const size = useScreenSize()
 
   // Get only first 3 features for the landing page
-  const initialFeatures = features.slice(0, 3)
+  const initialFeatures = FEATURE_LIST.slice(0, size === "mobile" || size === "tablet"  ? 4 : 3)
 
   return (
     <section className="container relative py-6 sm:py-16 xl:py-20">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/5%_0%,transparent_50%)]" />
       <div className="relative">
         <div className="flex flex-col items-center gap-4 text-center">
-          <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
             Features
           </span>
           <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl mb-4">
@@ -182,7 +29,7 @@ export function FeaturesSection() {
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>
-        <div className="mt-16 grid gap-3 sm:gap-6 lg:gap-8 xl:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
+        <div className="mt-10 sm:mt-16 grid gap-2 sm:gap-4 md:gap-5 xl:gap-8 lg:gap-10 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
           {initialFeatures.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
@@ -193,9 +40,9 @@ export function FeaturesSection() {
           <Button 
             asChild
             variant="outline"
-            className="group relative px-8 py-6 text-lg !bg-background/90 font-medium transition-all hover:bg-primary hover:text-primary-foreground"
+            className="group relative px-8 py-3 sm:py-4 lg:py-5 text-lg !bg-background/90 font-medium transition-all hover:bg-primary hover:text-primary-foreground"
           >
-            <Link href="/features">
+            <Link href="/features" className='text-xs md:text-sm'>
               See All Features
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
@@ -222,8 +69,8 @@ export function FeaturesSection() {
 
         {/* Subscription Plans */}
         <div className="mt-32 mb-8">
-          <div className="flex flex-col items-center gap-4 text-center mb-16">
-            <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
               Pricing
             </span>
             <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl mb-4">
@@ -234,8 +81,8 @@ export function FeaturesSection() {
             </p>
           </div>
 
-          <div className="grid gap-3 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {subscriptionPlans.map((plan) => (
+          <div className="mt-10 sm:mt-16 grid gap-3 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {PLANS_LIST.map((plan) => (
               <div 
                 key={plan.id} 
                 className={cn(

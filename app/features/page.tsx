@@ -1,8 +1,8 @@
 
 import { FeatureCard } from '@/components/landing/FeatureCard'
-import { features } from '@/components/landing/FeaturesSection'
 import { Footer } from '@/components/landing/Footer'
 import TopNavigation from '@/components/landing/TopNavigation'
+import { FEATURE_LIST } from '@/lib/constants/features'
 
 export default function FeaturesPage() {
   return (
@@ -27,14 +27,14 @@ export default function FeaturesPage() {
           <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight">
                 Everything you need to manage your collection
           </h1>
-          <p className="text-muted-foreground text-lg max-w-[600px] mt-2">
+          <p className="text-muted-foreground text-base sm:text-lg px-4 max-w-[600px] mt-2">
             Discover all the powerful tools and features designed to help you manage your reptile collection effectively
           </p>
         </div>
 
         {/* Features Grid */}
-        <div className="grid gap-6 sm:gap-8 lg:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-[1200px] mx-auto">
-          {features.map((feature, index) => (
+        <div className="grid gap-2 sm:gap-4 md:gap-5 xl:gap-8 lg:gap-10 grid-cols-2  lg:grid-cols-3 max-w-[1200px] mx-auto">
+          {FEATURE_LIST.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
         </div>
