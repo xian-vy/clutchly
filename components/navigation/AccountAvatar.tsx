@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { TopLoader } from '../ui/TopLoader';
 import { User } from '@/lib/types/users';
+import { Skeleton } from '../ui/skeleton';
 
 interface Props {
     isCollapsed : boolean
@@ -38,26 +39,24 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
     if (isLoading) {
         return (
             <div className='mb-3 2xl:mb-4 3xl:mb-5 w-full'>
-                 <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full">
+                <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full">
                     <div className="flex items-center w-full">
                         <div className="flex items-center gap-2 w-full flex-1">
-                                <Avatar className="cursor-pointer">
-                                    <AvatarFallback className='bg-primary dark:bg-slate-800/90 text-white dark:text-primary'>G</AvatarFallback>
-                                </Avatar>
-                                {!isCollapsed &&
-                                    <div className="flex flex-col items-start">
-                                        <span className='text-xs'>User X</span>
-                                        <span className='text-xs text-muted-foreground'>...</span>
-                                    </div>
-                                }
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            {!isCollapsed && (
+                                <div className="flex flex-col items-start gap-1">
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-3 w-32" />
+                                </div>
+                            )}
                         </div>
-                        {!isCollapsed &&
-                             <ChevronDown className="ml-4 text-muted-foreground" />
-                        }
+                        {!isCollapsed && (
+                            <Skeleton className="h-4 w-4 ml-4" />
+                        )}
                     </div>
                 </Button>
             </div>
-        )
+        );
     }
     const organization = Array.isArray(data) ? data[0] : data;
     const userEmail = organization?.email;
