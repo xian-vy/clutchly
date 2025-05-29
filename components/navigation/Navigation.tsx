@@ -21,6 +21,8 @@ import { APP_NAME } from '@/lib/constants/app';
 import useAccessControl from '@/lib/hooks/useAccessControl';
 import { useUser } from '@/lib/hooks/useUser';
 import { Skeleton } from '../ui/skeleton';
+import { logout } from '@/app/auth/logout/actions';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
@@ -43,6 +45,8 @@ export function Navigation() {
     upcomingFeedings, 
   } = useUpcomingFeedings();
   const [dialogToOpen, setDialogToOpen] = React.useState<"Reptile" | "Sale" | "Expense" | null>(null)
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const queryClient = useQueryClient();
 
   // Get user and access control data
   const { user, isLoading: userLoading } = useUser();
@@ -89,9 +93,24 @@ export function Navigation() {
   const handleAddNew =(type : "Reptile" | "Sale" | "Expense") => {
     setDialogToOpen(type)
   }
+
+  
+  const handleLogout = async () => {
+    try {
+        setIsLoggingOut(true);
+        await logout();
+        queryClient.clear();
+        window.location.reload();
+    } catch (error) {
+        console.error('Logout failed:', error);
+    } finally {
+        setIsLoggingOut(false);
+    }
+};
+
   return (
     <>
-    { isPending && <TopLoader />}
+    { isPending || isLoggingOut && <TopLoader />}
 
       {/* Mobile menu button */}
       <Button
@@ -137,7 +156,7 @@ export function Navigation() {
           )}
         </div>
         <ScrollArea className='h-full'>
-          <nav className="px-3 2xl:px-4 space-y-2 md:space-y-3 xl:space-y-4 3xl:!space-y-6 pt-1 xl:pt-1.5 flex-1">
+          <nav className="px-3 2xl:px-4 space-y-2 md:space-y-3  3xl:!space-y-6 pt-1 xl:pt-1.5 flex-1">
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && section && (
@@ -240,7 +259,7 @@ export function Navigation() {
           </nav>
         </ScrollArea>
 
-        <AccountAvatar isCollapsed={isCollapsed}/>
+        <AccountAvatar isCollapsed={isCollapsed} onLogout={handleLogout}/>
 
         {/* Collapse toggle button */}
         <Button

@@ -1,6 +1,5 @@
 'use client'
 import { getCurrentUser } from '@/app/api/organizations/organizations';
-import { logout } from '@/app/auth/logout/actions';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
 import {
@@ -18,23 +17,19 @@ import {
     Sun
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { TopLoader } from '../ui/TopLoader';
 import { User } from '@/lib/types/users';
 import { Skeleton } from '../ui/skeleton';
 
 interface Props {
     isCollapsed : boolean
+    onLogout: () => void;
 }
-const AccountAvatar =   ({isCollapsed } : Props) => {
+const AccountAvatar =   ({isCollapsed ,onLogout} : Props) => {
     const { theme, setTheme } = useTheme();
     const { data, isLoading } = useQuery<User>({
         queryKey: ['user'],
         queryFn: getCurrentUser,
     }); 
-    const queryClient = useQueryClient();
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     if (isLoading) {
         return (
@@ -62,23 +57,9 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
     const userEmail = organization?.email;
     const userFullname = organization?.full_name;
 
-    const handleLogout = async () => {
-        try {
-            setIsLoggingOut(true);
-            await logout();
-            queryClient.clear();
-            window.location.reload();
-        } catch (error) {
-            console.error('Logout failed:', error);
-        } finally {
-            setIsLoggingOut(false);
-        }
-    };
-
 
   return (
     <div className='mb-3 2xl:mb-4 3xl:mb-5 w-full'>
-        {isLoggingOut &&  <TopLoader />}
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full focus-visible:ring-0">
@@ -109,7 +90,7 @@ const AccountAvatar =   ({isCollapsed } : Props) => {
                         Theme
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem  onClick={handleLogout}
+                    <DropdownMenuItem  onClick={onLogout}
                     >
                         <LogOut className="mr-2 cursor-pointer" />
                         <span>Log out</span>
