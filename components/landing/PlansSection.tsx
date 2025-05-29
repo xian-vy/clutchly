@@ -35,14 +35,14 @@ const PlansSection = () => {
         {/* Navigation Arrows */}
         <button
           onClick={prevSlide}
-          className="absolute -left-10 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
+          className="absolute left-1 sm:-left-10 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
           aria-label="Previous plan"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
         <button
           onClick={nextSlide}
-          className="absolute -right-10 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
+          className="absolute right-1 sm:-right-10 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
           aria-label="Next plan"
         >
           <ChevronRight className="h-6 w-6" />
