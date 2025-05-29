@@ -108,6 +108,8 @@ export default function UsersTab() {
               const success = selectedUser
                 ? await handleUpdate(data)
                 : await handleCreate(data);
+
+                console.log("Submit",selectedUser )
               if (success) {
                 onDialogChange();
               }
