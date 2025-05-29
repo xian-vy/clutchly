@@ -1,6 +1,6 @@
 'use client';
 
-import { createUser, deleteUser, getUsers, updateUser } from '@/app/api/users/users';
+import { createUser, deleteUser, getUsers, updateUser, resendEmailConfirmation } from '@/app/api/users/users';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useResource } from '@/lib/hooks/useResource';
 import { CreateUser, User } from '@/lib/types/users';
@@ -49,6 +49,19 @@ export default function UsersTab() {
 
   const isLoading = usersLoading || profileLoading;
 
+  const handleResendConfirmation = async (email: string) => {
+    try {
+      await resendEmailConfirmation(email);
+      toast.success('Confirmation email resent successfully');
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error('Failed to resend confirmation email');
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
@@ -80,6 +93,7 @@ export default function UsersTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
+        onResendConfirmation={handleResendConfirmation}
         organizationId={organization?.id}
       />
 

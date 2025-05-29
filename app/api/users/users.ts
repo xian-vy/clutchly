@@ -109,3 +109,24 @@ export async function deleteUser(id: string): Promise<void> {
 
   if (error) throw error;
 }
+
+export async function resendEmailConfirmation(email: string) {
+  const supabase = createClient()
+
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: email,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    }
+  });
+
+  if (error) {
+    if (error.message.includes('already confirmed')) {
+      throw new Error('This email has already been confirmed');
+    }
+    throw error;
+  }
+
+  return { message: 'Confirmation email resent successfully' };
+}
