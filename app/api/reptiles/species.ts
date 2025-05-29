@@ -34,6 +34,28 @@ export async function getSpecies() {
   return (sortedSpecies as unknown) as Species[]
 }
 
+export async function getInitialSpecies() {
+  const supabase =  createClient()
+    
+  const { data: species, error } = await supabase
+    .from('species')
+    .select(`
+      id,
+      org_id,
+      name,
+      scientific_name,
+      care_level,
+      is_global
+    `)
+    .or(`is_global.eq.true`)
+    .order('name')
+
+  if (error) throw error
+  
+
+
+  return (species as unknown) as Species[]
+}
 export async function getSpeciesById(id: string) {
   const supabase = await createClient()
   

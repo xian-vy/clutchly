@@ -68,7 +68,7 @@ export function OrganizationSetupDialog() {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { fetchSpecies } = useSpeciesStore();
+  const { fetchInitialSpecies } = useSpeciesStore();
   const { fetchFeederSizes, fetchFeederTypes } = useFeedersStore();
   const { downloadCommonMorphs } = useMorphsStore();
   const { user, isLoading: userLoading } = useUser();
@@ -103,8 +103,8 @@ export function OrganizationSetupDialog() {
 
   // Fetch species on component mount
   useEffect(() => {
-    fetchSpecies();
-  }, [fetchSpecies]);
+    fetchInitialSpecies();
+  }, [fetchInitialSpecies]);
   useEffect(() => {
     fetchFeederTypes();
   }, [fetchFeederTypes]);

@@ -1,6 +1,6 @@
 'use client';
 
-import { User, Turtle, ArrowRight } from 'lucide-react';
+import { Building2, Turtle, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { UseFormReturn } from 'react-hook-form';
@@ -22,7 +22,7 @@ export function Step1({ form, onNext }: ProfileStep1Props) {
         render={({ field }) => (
           <FormItem className="space-y-0">
             <FormLabel className="text-sm font-medium flex items-center gap-2">
-              <User className="h-4 w-4 text-primary" />
+              <Building2 className="h-4 w-4 text-primary" />
               Organization Name
             </FormLabel>
             <FormControl>
