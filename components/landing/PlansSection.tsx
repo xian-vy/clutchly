@@ -1,10 +1,11 @@
+'use client'
 import { PLANS_LIST } from '@/lib/constants/features'
 import { cn } from '@/lib/utils'
 import { Check, ChevronLeft, ChevronRight, Zap } from 'lucide-react'
 import React, { useState } from 'react'
 import { Button } from '../ui/button'
 
-const Plans = () => {
+const PlansSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const nextSlide = () => {
@@ -16,20 +17,32 @@ const Plans = () => {
   }
 
   return (
-    <div className="relative max-w-[340px] md:max-w-full mx-auto mt-10 sm:mt-16">
+    <div className="mt-32 mb-8">
+    <div className="flex flex-col items-center gap-4 text-center">
+      <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
+        Pricing
+      </span>
+      <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl">
+        Choose the right plan for your needs
+      </h2>
+      <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">
+        Flexible options for every level of hobbyist, breeder, or professional
+      </p>
+    </div>
+    <div className="relative max-w-[340px] md:max-w-[400px] lg:max-w-full mx-auto mt-10 sm:mt-16">
       {/* Mobile Carousel (hidden on lg screens) */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         {/* Navigation Arrows */}
         <button
           onClick={prevSlide}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
+          className="absolute -left-10 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
           aria-label="Previous plan"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
         <button
           onClick={nextSlide}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
+          className="absolute -right-10 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
           aria-label="Next plan"
         >
           <ChevronRight className="h-6 w-6" />
@@ -53,7 +66,7 @@ const Plans = () => {
         </div>
 
         {/* Dots indicator */}
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-2 mt-10">
           {PLANS_LIST.map((_, index) => (
             <button
               key={index}
@@ -69,11 +82,12 @@ const Plans = () => {
       </div>
 
       {/* Desktop Grid (hidden on mobile) */}
-      <div className="hidden md:grid grid-cols-3 md:gap-3 lg:gap-5 xl:gap-7">
+      <div className="hidden lg:grid grid-cols-3 md:gap-3 lg:gap-5 xl:gap-7">
         {PLANS_LIST.map((plan) => (
           <PlanCard key={plan.id} plan={plan} />
         ))}
       </div>
+    </div>
     </div>
   )
 }
@@ -143,4 +157,4 @@ const PlanCard = ({ plan }: { plan: typeof PLANS_LIST[0] }) => (
   </div>
 )
 
-export default Plans
+export default PlansSection

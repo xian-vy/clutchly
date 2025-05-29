@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { Reptile } from '@/lib/types/reptile';
-import { generateMockReptiles, mockMorphs } from './mockLineageData';
+import { generateMockReptiles, mockMorphs } from '../../lib/constants/mockLineageData';
 import FlowChart from '../dashboard/breeding/lineage/components/FlowChart';
 import { Card, CardContent } from '@/components/ui/card';
 
-const PedigreeFeatureCard = () => {
+const PedigreeCard = () => {
   const [mockReptiles, setMockReptiles] = useState<Reptile[]>([]);
   
   useEffect(() => {
@@ -32,4 +32,4 @@ const PedigreeFeatureCard = () => {
   );
 };
 
-export default PedigreeFeatureCard;
+export default PedigreeCard;

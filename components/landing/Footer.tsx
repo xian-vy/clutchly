@@ -18,8 +18,8 @@ export function Footer() {
           <div className="flex flex-col items-center gap-2">
             <Image 
               src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'} 
-              width={45} 
-              height={45} 
+              width={36} 
+              height={36} 
               alt="clutchly" 
               className="rounded-full" 
             />

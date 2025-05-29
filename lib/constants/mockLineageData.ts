@@ -1,7 +1,7 @@
 import { HetTrait, Reptile } from '@/lib/types/reptile';
 import { Species } from '@/lib/types/species';
 import { Morph } from '@/lib/types/morph';
-import { ReptileNode } from '../dashboard/breeding/lineage/components/types';
+import { ReptileNode } from '../../components/dashboard/breeding/lineage/components/types';
 
 // Mock data for ball python species
 export const mockSpecies: Species = {
