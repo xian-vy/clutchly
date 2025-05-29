@@ -40,7 +40,7 @@ export async function getAccessProfiles() {
         .select(`
             *,
             access_controls!inner (*),
-            users!inner (*)
+            users!left (*)
         `)
         .eq('org_id', userData.org_id)
         .order('created_at', { ascending: false });
