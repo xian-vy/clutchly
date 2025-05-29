@@ -140,7 +140,7 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
 
   return (
     <div className="space-y-3">
-      <Card className=" shadow-sm pt-3 px-0 gap-3 border-0">
+      <Card className=" shadow-none pt-3 px-0 gap-3 border-0">
         <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
             <Dna className="h-4 w-4" />

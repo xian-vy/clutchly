@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckSquare2, Square } from 'lucide-react';
 import { Page } from '@/lib/types/pages';
 
 const formSchema = z.object({
@@ -33,6 +33,7 @@ interface AccessProfileFormProps {
 
 export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }: AccessProfileFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,6 +50,18 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
     },
   });
 
+  const toggleSelectAll = () => {
+    const newValue = !selectAll;
+    setSelectAll(newValue);
+    
+    const currentControls = form.getValues('access_controls');
+    const updatedControls = currentControls.map(control => ({
+      ...control,
+      is_enabled: newValue
+    }));
+    
+    form.setValue('access_controls', updatedControls);
+  };
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -80,14 +93,10 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
     }
   };
 
-
-  
-
-
   return (
     <Form {...form}>
       <form 
-        className="space-y-6"
+        className="space-y-3 sm:space-y-5 md:space-y-5"
         noValidate
         onSubmit={form.handleSubmit(handleSubmit)}
       >
@@ -120,9 +129,30 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
         />
 
         <div className="space-y-4">
-          <FormLabel>Access Controls</FormLabel>
-          <ScrollArea className="h-[300px] rounded-md border p-4">
-            <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <FormLabel>Access Controls</FormLabel>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2"
+            >
+              {selectAll ? (
+                <>
+                  <CheckSquare2 className="h-4 w-4" />
+                  Deselect All
+                </>
+              ) : (
+                <>
+                  <Square className="h-4 w-4" />
+                  Select All
+                </>
+              )}
+            </Button>
+          </div>
+          <ScrollArea className="h-[200px] xl:h-[300px] rounded-md border p-4">
+            <div className="space-y-3 xl:space-y-4">
               {pages.map((page) => (
                 <div key={page.id} className="space-y-2">
                   <FormField

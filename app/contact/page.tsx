@@ -1,7 +1,7 @@
 import { Footer } from '@/components/landing/Footer'
 import TopNavigation from '@/components/landing/TopNavigation'
-import { Mail, MapPin } from 'lucide-react'
-import { PiDiscordLogo } from 'react-icons/pi'
+import { Mail } from 'lucide-react'
+import { PiDiscordLogo, PiMessengerLogo } from "react-icons/pi";
 
 const ContactPage = () => {
   return (
@@ -30,46 +30,38 @@ const ContactPage = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1  gap-8 max-w-6xl mx-auto">
-          {/* Contact Information */}
-          <div className="space-y-8">
-            <div className="bg-card p-8 rounded-lg">
-              <h2 className="text-xl font-semibold mb-6">Contact Information</h2>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <Mail className="h-5 w-5 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-medium">Email</h3>
-                    <p className="text-muted-foreground">xianvy0000@gmail.com.com</p>
+        <div className="grid grid-cols-1 gap-8 max-w-4xl mx-auto md:mb-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4 group">
+                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                      <Mail className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-sm text-muted-foreground">Email</h3>
+                      <p className="text-foreground hover:text-primary transition-colors">xianvy0000@gmail.com</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 group">
+                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                      <PiDiscordLogo className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-sm text-muted-foreground">Discord</h3>
+                      <p className="text-foreground hover:text-primary transition-colors">discord.gg/crispysnowflake</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 group">
+                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                      <PiMessengerLogo className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-sm text-muted-foreground">Messenger</h3>
+                      <p className="text-foreground hover:text-primary transition-colors">facebook.com/xzyian.vy</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
-                  <PiDiscordLogo className="h-5 w-5 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-medium">Discord</h3>
-                    <p className="text-muted-foreground">discord.gg/crispysnowflake. </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <MapPin className="h-5 w-5 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-medium">Location</h3>
-                    <p className="text-muted-foreground">Laguna, Philippines</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-card p-8 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Business Hours</h2>
-              <div className="space-y-2 text-muted-foreground">
-                <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-                <p>Saturday: 10:00 AM - 4:00 PM</p>
-                <p>Sunday: 10:00 AM - 1:00 PM</p>
-              </div>
-            </div>
           </div>
-
         </div>
       </main>
 

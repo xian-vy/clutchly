@@ -190,11 +190,7 @@ export function ReptileList({
       header: "Code",
       cell: ({ row }) => {
         const reptile = row.original
-
-        return <div onClick={()=>{
-          setSelectedReptile(reptile);
-          setDetailsDialogOpen(true);
-        }} className="text-left">{reptile.reptile_code}</div>; 
+        return <div className="text-left">{reptile.reptile_code}</div>; 
       }
     },
     {
@@ -215,7 +211,7 @@ export function ReptileList({
                       <CircleHelp className="h-4 w-4 text-muted-foreground shrink-0"/>
                     )}
                 </div>
-                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[130px] xl:max-w-[140px] 3xl:max-w-[180px]">
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[130px] xl:max-w-[140px] 3xl:!max-w-[160px]">
                  {reptile.name || 'Unknown'}
                 </p>
             </TooltipTrigger>

@@ -94,7 +94,7 @@ export default function AccessControlTab() {
           if (!open) handleClose();
         }}
       >
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="sm:max-w-xl md:max-w-3xl">
           <DialogTitle>
             {selectedProfile ? 'Edit Access Profile' : 'Create Access Profile'}
           </DialogTitle>
