@@ -2,11 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { AccessControl, AccessProfileWithControls, CreateAccessControl, CreateAccessProfile } from '@/lib/types/access';
 import { getUserAndOrganizationInfo } from '../utils_server';
-
-export interface Page {
-  id: string;
-  name: string;
-}
+import { Page } from '@/lib/types/pages';
 
 export async function getPages() {
     const supabase = await createClient()
