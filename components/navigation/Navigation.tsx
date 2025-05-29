@@ -110,7 +110,8 @@ export function Navigation() {
 
   return (
     <>
-    { isPending || isLoggingOut && <TopLoader />}
+    { isPending  && <TopLoader />}
+    { isLoggingOut  && <TopLoader />}
 
       {/* Mobile menu button */}
       <Button
