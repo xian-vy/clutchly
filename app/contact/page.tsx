@@ -23,7 +23,7 @@ const ContactPage = () => {
             Get in Touch
           </span>
           <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight">
-            Contact Us
+            Connect With Us
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg px-4 max-w-[600px] mt-2">
             Have questions? We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.

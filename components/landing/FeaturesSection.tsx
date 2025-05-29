@@ -1,18 +1,16 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { useScreenSize } from '@/lib/hooks/useScreenSize'
-import { cn } from '@/lib/utils'
-import { ArrowRight, Check, Zap } from 'lucide-react'
+import { ArrowRight} from 'lucide-react'
 import Link from 'next/link'
 import { FeatureCard } from './FeatureCard'
 import PedigreeFeatureCard from './PedigreeFeatureCard'
-import { FEATURE_LIST, PLANS_LIST } from '@/lib/constants/features'
+import { FEATURE_LIST } from '@/lib/constants/features'
+import Plans from './Plans'
 
 export function FeaturesSection() {
-  const size = useScreenSize()
 
   // Get only first 3 features for the landing page
-  const initialFeatures = FEATURE_LIST.slice(0, size === "mobile" || size === "tablet"  ? 4 : 3)
+  const initialFeatures = FEATURE_LIST.slice(0,3)
 
   return (
     <section className="container relative py-6 sm:py-16 xl:py-20">
@@ -22,14 +20,14 @@ export function FeaturesSection() {
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
             Features
           </span>
-          <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl mb-4">
+          <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl">
             Everything you need to manage your collection
           </h2>
           <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>
-        <div className="mt-10 sm:mt-16 grid gap-2 sm:gap-4 md:gap-5 xl:gap-8 lg:gap-10 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 max-w-[1100px]">
+        <div className="px-6 md:px-0 mt-10 sm:mt-16 grid gap-3 sm:gap-4 lg:gap-5 xl:gap-7 grid-cols-1 md:grid-cols-3 max-w-[1100px]">
           {initialFeatures.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
@@ -73,7 +71,7 @@ export function FeaturesSection() {
             <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
               Pricing
             </span>
-            <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl mb-4">
+            <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl">
               Choose the right plan for your needs
             </h2>
             <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">
@@ -81,80 +79,12 @@ export function FeaturesSection() {
             </p>
           </div>
 
-          <div className="mt-10 sm:mt-16 grid gap-3 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {PLANS_LIST.map((plan) => (
-              <div 
-                key={plan.id} 
-                className={cn(
-                  "rounded-xl bg-background transition-all duration-200 hover:shadow-md overflow-hidden",
-                  plan.recommended ? 
-                    "border-2 border-primary shadow-sm" : 
-                    "border border-border"
-                )}
-              >
-                <div className="h-full flex flex-col">
-                  {/* Top accent strip */}
-                  <div className={cn(
-                    "h-1.5 w-full",
-                    plan.recommended ? "bg-primary" : "bg-muted"
-                  )} />
-                  
-                  <div className="p-6 flex-1">
-                    {plan.badge && (
-                      <span className={cn(
-                        "text-xs font-medium px-2.5 py-0.5 rounded-full w-fit mb-4 inline-block",
-                        plan.recommended ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                      )}>
-                        {plan.badge}
-                      </span>
-                    )}
-                    
-                    <h3 className="text-xl font-bold">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground mt-1 mb-5">
-                      {plan.description}
-                    </p>
-                    
-                    <div className="mb-6">
-                      <span className="text-3xl font-bold">${plan.price}</span>
-                      {plan.price > 0 && (
-                        <span className="text-muted-foreground ml-1">/month</span>
-                      )}
-                    </div>
-                    
-                    <div className="mb-8 flex-1">
-                      <ul className="space-y-3">
-                        {plan.features.map((feature, i) => (
-                          <li key={i} className="flex text-sm">
-                            <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <Button 
-                      className={cn(
-                        "w-full",
-                        plan.recommended 
-                          ? "bg-primary hover:bg-primary/90" 
-                          : plan.id === 'free'
-                            ? "bg-muted hover:bg-muted/80 text-foreground"
-                            : "bg-secondary hover:bg-secondary/90"
-                      )}
-                    >
-                      {plan.id === 'free' ? 'Get Started Free' : 'Choose Plan'}
-                      <Zap className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+            <Plans />
           
           <div className="mt-10 text-center">
             <p className="text-sm text-muted-foreground">
               All plans include a <span className="font-medium text-foreground">30-day free trial</span>. 
-              Need a custom solution? <a href="#" className="text-primary hover:underline">Contact us</a>.
+              Need a custom solution? <Link href="/contact" className="text-primary hover:underline">Contact us</Link>.
             </p>
           </div>
         </div>

@@ -21,7 +21,7 @@ export default function FeaturesPage() {
 
         {/* Header */}
         <div className="flex flex-col items-center gap-4 text-center mb-16">
-          <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
             All Features
           </span>
           <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight">
@@ -33,7 +33,7 @@ export default function FeaturesPage() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid gap-2 sm:gap-4 md:gap-5 xl:gap-8 lg:gap-10 grid-cols-2  lg:grid-cols-3 max-w-[1200px] mx-auto">
+        <div className="grid gap-3 sm:gap-4 md:gap-5 xl:gap-8 lg:gap-10 grid-cols-1 sm:grid-cols-2  lg:grid-cols-3 max-w-[1200px] mx-auto">
           {FEATURE_LIST.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
