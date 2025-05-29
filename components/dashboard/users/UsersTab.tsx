@@ -84,7 +84,7 @@ export default function UsersTab() {
       />
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogTitle>
             {selectedUser ? 'Edit User' : 'Add New User'}
           </DialogTitle>

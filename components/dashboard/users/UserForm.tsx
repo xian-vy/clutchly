@@ -16,10 +16,17 @@ import { AccessProfile } from '@/lib/types/access';
 const userFormSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6).optional(),
+  confirmPassword: z.string().optional(),
   full_name: z.string().min(2),
   role: z.enum(['admin', 'staff', 'owner'] as const),
   access_profile_id: z.string().uuid(),
   org_id: z.string().uuid(),
+}).refine((data) => {
+  if (!data.password) return true; // Skip validation if no password (for updates)
+  return data.password === data.confirmPassword;
+}, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -42,6 +49,7 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
     defaultValues: {
       email: '',
       password: '',
+      confirmPassword: '',
       full_name: initialData?.full_name || '',
       role: initialData?.role || 'staff',
       access_profile_id: initialData?.access_profile_id || '',
@@ -70,23 +78,7 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
           )}
         />
 
-        {!initialData && (
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input {...field} type="password" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        <FormField
+      <FormField
           control={form.control}
           name="full_name"
           render={({ field }) => (
@@ -99,54 +91,86 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
             </FormItem>
           )}
         />
+        {!initialData && (
+          <>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="role"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="staff">Staff</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
-        <FormField
-          control={form.control}
-          name="access_profile_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Access Profile</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an access profile" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {accessProfiles?.map((profile) => (
-                    <SelectItem key={profile.id} value={profile.id}>
-                      {profile.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className='w-full'>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="staff">Staff</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
+                <FormField
+                  control={form.control}
+                  name="access_profile_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Access Profile</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className='w-full'>
+                            <SelectValue placeholder="Select an access profile" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {accessProfiles?.map((profile) => (
+                            <SelectItem key={profile.id} value={profile.id}>
+                              {profile.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+        </div>
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
