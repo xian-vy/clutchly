@@ -7,7 +7,7 @@ export const FEATURE_LIST = [
       features: [
         'Reptile biological and genetic data management',
         'Complete lineage and acquisition history',
-        'Data import and export'
+        'Upload existing records with intuitive import and export feature'
       ]
     },
     {
@@ -21,11 +21,11 @@ export const FEATURE_LIST = [
     },
     {
       icon: Dna,
-      title: 'Breeding Management',
+      title: 'Breeding and Lineage Management',
       features: [
-        'AI-assisted breeding compatibility analysis',
-        'Brood management and tracking',
-        'Comprehensive breeding reports'
+        'AI-assisted breeding outcome predictions',
+        'Manage breeding, clutch and hatchling records',
+        'Comprehensive breeding, pair and offspring phenotype analysis'
       ]
     },
     {
@@ -110,17 +110,18 @@ export const FEATURE_LIST = [
   
   export const PLANS_LIST = [
     {
-      id: 'free',
-      name: 'Free',
+      id: 'basic',
+      name: 'Basic',
       description: 'Perfect for hobbyists managing a small collection',
       price: 4.99,
       badge: 'Get Started',
       features: [
-        'Manage up to 50 reptiles',
-        'Basic health tracking',
+        'Manage up to 99 reptiles',
+        'Advanced health tracking',
         'Breeding records',
-        'Growth Analytics',
-        'Pedigree analysis', 
+        'Growth analytics',
+        'Pedigree analysis',
+        'Premium support'
       ]
     },
     {
@@ -146,7 +147,7 @@ export const FEATURE_LIST = [
       badge: 'Best Value',
       description: 'Complete solution for breeders & facilities',
       features: [
-        'Unlimited reptiles',
+        'Manage up to 2499 reptiles',
         'Complete genetic tracking',
         'Advanced breeding projects',
         'Full analytics dashboard',

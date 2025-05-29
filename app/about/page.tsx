@@ -18,7 +18,7 @@ const AboutPage = () => {
       <main className="container py-12 sm:py-16 px-4 mx-auto">
         {/* Header */}
         <div className="flex flex-col items-center gap-4 text-center mb-8">
-          <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+          <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
             About Us
           </span>
           <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight">
@@ -33,15 +33,12 @@ const AboutPage = () => {
         <div className="max-w-[800px] mx-auto mb-8">
           <div className=" bg-card p-8">
             <div className="space-y-6">
-                <h2 className="text-2xl font-semibold tracking-tight text-center">
-                  Our Mission
-                </h2>
-              <p className="text-sm sm:text-base text-muted-foreground">
+              <p className="text-base text-muted-foreground text-center">
                 At Clutchly, we&apos;re dedicated to revolutionizing how reptile enthusiasts manage and track their collections. 
                 Our platform combines cutting-edge technology with user-friendly design to make reptile management 
                 more efficient and enjoyable than ever before.
               </p>
-              <p className="text-sm sm:text-base  text-muted-foreground">
+              <p className="text-base  text-muted-foreground text-center">
                 Whether you&apos;re a professional breeder or a passionate hobbyist, Clutchly provides the tools you need 
                 to maintain detailed records, track breeding programs, and ensure the well-being of your reptiles.
               </p>

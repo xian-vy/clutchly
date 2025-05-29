@@ -31,8 +31,8 @@ const TopNavigation = () => {
             <Link href="/features" className=" text-xs md:text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
               Features
             </Link>
-            <Link href="/about" className="text-xs md:text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-              About
+            <Link href="/contact" className="text-xs md:text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+              Contact
             </Link>
           <ThemeToggle/>
           </div>

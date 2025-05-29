@@ -791,9 +791,9 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
        <>
           <Background />
           <Legend />
+          <Controls />
        </> 
       }     
-      <Controls />
     </ReactFlow>
   );
 }
@@ -804,7 +804,7 @@ const FlowChart = ({ reptileId, reptiles, isFeature, morphs,onExpand,isFullscree
     if (onExpand) onExpand();
   };
   return (
-    <div className={`relative w-full h-[600px] lg:h-[1000px] 3xl:!h-[1200px]`}>
+    <div className={`relative w-full h-[600px] lg:h-[800px] 3xl:!h-[1000px]`}>
       <style jsx global>{`
         /* Override ReactFlow node styling for group nodes */
         .react-flow__node-group {
@@ -830,7 +830,7 @@ const FlowChart = ({ reptileId, reptiles, isFeature, morphs,onExpand,isFullscree
       `}</style>
       {isFullscreen ? 
           <Minimize onClick={handleExpand} className="h-4 w-4 hover:scale-125 text-muted-foreground absolute top-2 right-2 cursor-pointer z-20" /> : 
-          <Expand onClick={handleExpand} className="h-4 w-4 hover:scale-125 text-muted-foreground absolute top-2 right-2 cursor-pointer z-20" />
+          isFeature ?  <></> :  <Expand onClick={handleExpand} className="h-4 w-4 hover:scale-125 text-muted-foreground absolute top-2 right-2 cursor-pointer z-20" />
       }
       <ReactFlowProvider>
         <Flow isFullscreen={isFullscreen} onExpand={onExpand} reptileId={reptileId} reptiles={reptiles} isFeature={isFeature} morphs={morphs} />
