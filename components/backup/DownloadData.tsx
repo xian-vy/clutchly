@@ -3,15 +3,12 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Clock, Download, Filter } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Clock, Download } from 'lucide-react'
 import { addDays } from 'date-fns'
 import { createBackup } from '@/app/api/download/download'
 import { toast } from 'sonner'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { BackupConfig } from '@/lib/types/download'
-
-type FilterValue = string | number | boolean | null
 
 interface BackupClientProps {
   type: BackupConfig
@@ -19,7 +16,6 @@ interface BackupClientProps {
 }
 
 export function BackupClient({ type, lastBackup }: BackupClientProps) {
-  const [filters, setFilters] = useState<Record<string, FilterValue>>({})
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: addDays(new Date(), -30),
     to: new Date()
@@ -30,7 +26,6 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
     mutationFn: async () => {
       const csvData = await createBackup({ 
         type: type.id,
-        filters,
         dateRange: {
           from: dateRange.from.toISOString(),
           to: dateRange.to.toISOString()
@@ -100,44 +95,6 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
             </div>
           </div>
         </div>
-
-        {type.filters && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <label className="text-sm font-medium">Filters</label>
-            </div>
-            <div className="grid gap-2">
-              {type.filters.map((filter) => (
-                <div key={filter.field} className="space-y-1">
-                  <label className="text-sm text-muted-foreground">
-                    {filter.label}
-                  </label>
-                  {filter.type === 'select' && filter.options && (
-                    <Select
-                      value={filters[filter.field]?.toString() || ''}
-                      onValueChange={(value) => 
-                        setFilters(prev => ({ ...prev, [filter.field]: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={`Select ${filter.label}`} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filter.options.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
         <Button
           className="w-fit float-right"
           disabled={!canBackup || isPending}
