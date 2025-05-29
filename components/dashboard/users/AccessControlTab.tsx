@@ -28,7 +28,6 @@ export default function AccessControlTab() {
       const data = await getOrganization();
       return Array.isArray(data) ? data[0] : data;
     },
-
   });
 
   const {
@@ -37,6 +36,7 @@ export default function AccessControlTab() {
     handleCreate,
     handleUpdate,
     handleDelete,
+    setSelectedResource,
   } = useResource<AccessProfileWithControls, CreateAccessProfile>({
     resourceName: 'Access Profile',
     queryKey: ['access-profiles'],
@@ -48,21 +48,27 @@ export default function AccessControlTab() {
 
   const handleEdit = (profile: AccessProfileWithControls) => {
     setSelectedProfile(profile);
+    setSelectedResource(profile);
     setIsDialogOpen(true);
   };
 
   const handleClose = () => {
-    setSelectedProfile(null);
     setIsDialogOpen(false);
+    setSelectedProfile(null);
+    setSelectedResource(undefined);
   };
 
   const handleSubmit = async (data: CreateAccessProfile) => {
-    if (selectedProfile) {
-      await handleUpdate( data);
-    } else {
-      await handleCreate(data);
+    try {
+      if (selectedProfile) {
+        await handleUpdate(data);
+      } else {
+        await handleCreate(data);
+      }
+      handleClose();
+    } catch (error) {
+      console.error('Error submitting access profile:', error);
     }
-    handleClose();
   };
 
   if (profilesLoading) {
@@ -75,8 +81,6 @@ export default function AccessControlTab() {
 
   return (
     <div className="space-y-4">
-   
-
       <AccessProfileList
         profiles={profiles || []}
         onEdit={handleEdit}
@@ -84,7 +88,12 @@ export default function AccessControlTab() {
         onAddNew={() => setIsDialogOpen(true)}
       />
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog 
+        open={isDialogOpen} 
+        onOpenChange={(open) => {
+          if (!open) handleClose();
+        }}
+      >
         <DialogContent className="max-w-3xl">
           <DialogTitle>
             {selectedProfile ? 'Edit Access Profile' : 'Create Access Profile'}

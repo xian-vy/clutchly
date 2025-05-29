@@ -166,7 +166,7 @@ export async function updateAccessProfile(id: string, profile: CreateAccessProfi
         throw new Error('Access profile not found or unauthorized')
     }
 
-    // First update the profile
+    // Start a transaction
     const { error: updateError } = await supabase
         .from('access_profiles')
         .update({
@@ -177,7 +177,30 @@ export async function updateAccessProfile(id: string, profile: CreateAccessProfi
 
     if (updateError) throw updateError;
 
-    // Then fetch the updated profile with its controls
+    // Delete existing access controls
+    const { error: deleteError } = await supabase
+        .from('access_controls')
+        .delete()
+        .eq('access_profile_id', id);
+
+    if (deleteError) throw deleteError;
+
+    // Create new access controls
+    const accessControls = profile.access_controls.map(control => ({
+        access_profile_id: id,
+        page_id: control.page_id,
+        can_view: control.can_view,
+        can_edit: control.can_edit,
+        can_delete: control.can_delete
+    }));
+
+    const { error: controlsError } = await supabase
+        .from('access_controls')
+        .insert(accessControls);
+
+    if (controlsError) throw controlsError;
+
+    // Fetch and return the updated profile with its controls
     const { data, error: fetchError } = await supabase
         .from('access_profiles')
         .select(`

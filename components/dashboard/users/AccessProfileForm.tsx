@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Page } from '@/app/api/users/access';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -30,44 +32,65 @@ interface AccessProfileFormProps {
 }
 
 export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }: AccessProfileFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: profile?.name || '',
       description: profile?.description || '',
-      access_controls: profile?.access_controls 
-        ? profile.access_controls.map(control => ({
-            page_id: control.page_id,
-            is_enabled: control.can_view || control.can_edit || control.can_delete,
-          }))
-        : pages.map(page => ({
-            page_id: page.id,
-            is_enabled: false,
-          })),
+      access_controls: pages.map(page => {
+        const existingControl = profile?.access_controls?.find(control => control.page_id === page.id);
+        return {
+          page_id: page.id,
+          is_enabled: existingControl ? (existingControl.can_view || existingControl.can_edit || existingControl.can_delete) : false,
+        };
+      }),
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    // Only include enabled pages in the access controls
-    const fullAccessControls = values.access_controls
-      .filter(control => control.is_enabled)
-      .map(control => ({
-        page_id: control.page_id,
-        can_view: true,
-        can_edit: true,
-        can_delete: true,
-      }));
 
-    onSubmit({
-      ...values,
-      access_controls: fullAccessControls,
-      org_id: org_id || profile?.org_id || '',
-    });
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsSubmitting(true);
+      
+      const fullAccessControls = pages.map(page => {
+        const control = values.access_controls.find(c => c.page_id === page.id);
+        const isEnabled = control?.is_enabled || false;
+        console.log(`Page ${page.name}: isEnabled = ${isEnabled}`);
+        return {
+          page_id: page.id,
+          can_view: isEnabled,
+          can_edit: isEnabled,
+          can_delete: isEnabled,
+        };
+      });
+
+      const submitData = {
+        ...values,
+        access_controls: fullAccessControls,
+        org_id: org_id || profile?.org_id || '',
+      };
+
+       onSubmit(submitData);
+    } catch (error) {
+      console.error('Error in form submission:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+
+  
+
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form 
+        className="space-y-6"
+        noValidate
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
         <FormField
           control={form.control}
           name="name"
@@ -124,11 +147,26 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
-          <Button type="submit">
-            {profile ? 'Update' : 'Create'} Profile
+          <Button 
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {profile ? 'Updating...' : 'Creating...'}
+              </>
+            ) : (
+              profile ? 'Update Profile' : 'Create Profile'
+            )}
           </Button>
         </div>
       </form>
