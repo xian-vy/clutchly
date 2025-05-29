@@ -3,22 +3,26 @@
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { User,  } from '@/lib/types/users';
+import { User } from '@/lib/types/users';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash2, Mail } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getAccessProfiles } from '@/app/api/users/access';
 import { AccessProfile } from '@/lib/types/access';
+
+// Supabase email confirmation expiration is 24 hours
+const EMAIL_CONFIRMATION_EXPIRATION_MS = 24 * 60 * 60 * 1000;
 
 interface UserListProps {
   users: User[];
   onEdit: (user: User) => void;
   onDelete: (id: string) => Promise<void>;
   onAddNew: () => void;
+  onResendConfirmation: (email: string) => Promise<void>;
   organizationId?: string;
 }
 
-export function UserList({ users, onEdit, onDelete, onAddNew,organizationId }: UserListProps) {
+export function UserList({ users, onEdit, onDelete, onAddNew, onResendConfirmation, organizationId }: UserListProps) {
   const { data: accessProfiles } = useQuery<AccessProfile[]>({
     queryKey: ['access-profiles'],
     queryFn: getAccessProfiles,
@@ -26,6 +30,12 @@ export function UserList({ users, onEdit, onDelete, onAddNew,organizationId }: U
 
   const getAccessProfileName = (profileId: string) => {
     return accessProfiles?.find(profile => profile.id === profileId)?.name || 'Unknown';
+  };
+
+  const isConfirmationExpired = (createdAt: string) => {
+    const createdTime = new Date(createdAt).getTime();
+    const now = new Date().getTime();
+    return now - createdTime > EMAIL_CONFIRMATION_EXPIRATION_MS;
   };
 
   const columns: ColumnDef<User>[] = [
@@ -62,15 +72,36 @@ export function UserList({ users, onEdit, onDelete, onAddNew,organizationId }: U
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status;
-        return <div className={`capitalize ${status === 'active' ? 'text-green-500' : 'text-orange-500'}`}>{status === 'active'? 'Active' : "Pending Email Confirmation" }</div>;
+        const user = row.original;
+        const status = user.status;
+        const isExpired = status === 'pending' && isConfirmationExpired(user.created_at);
+        
+        return (
+          <div className="flex items-center gap-2">
+            <div className={`capitalize ${status === 'active' ? 'text-green-500' : 'text-orange-500'}`}>
+              {status === 'active' ? 'Active' : "Pending Email Confirmation"}
+            </div>
+            {isExpired && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2"
+                onClick={() => user.email && onResendConfirmation(user.email)}
+              >
+                <Mail className="h-4 w-4 mr-1" />
+                Resend
+              </Button>
+            )}
+          </div>
+        );
       },
-   },
+    },
     {
       id: "actions",
       cell: ({ row }) => {
         const user = row.original;
-        const isOwner = user.id === organizationId
+        const isOrganizationOwner = user.id === organizationId;
+        
         return (
           <div className="flex items-center">
             <DropdownMenu>
@@ -80,11 +111,11 @@ export function UserList({ users, onEdit, onDelete, onAddNew,organizationId }: U
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem disabled={isOwner} onClick={() => onEdit(user)}>
+                <DropdownMenuItem disabled={isOrganizationOwner} onClick={() => onEdit(user)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem  disabled={isOwner} onClick={() => onDelete(user.id)}>
+                <DropdownMenuItem disabled={isOrganizationOwner} onClick={() => onDelete(user.id)}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </DropdownMenuItem>

@@ -1,11 +1,8 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { AccessControl, AccessProfileWithControls, CreateAccessControl, CreateAccessProfile } from '@/lib/types/access';
-
-export interface Page {
-  id: string;
-  name: string;
-}
+import { getUserAndOrganizationInfo } from '../utils_server';
+import { Page } from '@/lib/types/pages';
 
 export async function getPages() {
     const supabase = await createClient()
@@ -39,7 +36,7 @@ export async function getAccessProfiles() {
         .select(`
             *,
             access_controls!inner (*),
-            users!inner (*)
+            users!left (*)
         `)
         .eq('org_id', userData.org_id)
         .order('created_at', { ascending: false });
@@ -83,20 +80,13 @@ export async function getAccessControls(profileId: string) {
 
 export async function createAccessProfile(profile: CreateAccessProfile) {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    const {user,organization} = await getUserAndOrganizationInfo()
 
-    const { data: userData } = await supabase
-        .from('users')
-        .select('org_id')
-        .eq('id', user.id)
-        .single()
+    if (!user) throw new Error('Access : not authenticated!')
 
-    if (!userData) throw new Error('User organization not found')
-
-    // Verify the user is creating for their own organization
-    if (profile.org_id !== userData.org_id) {
-        throw new Error('Cannot create access profile for another organization')
+    // Org owner only
+    if (user.id !== organization.id) {
+        throw new Error('Access : Failed to create access. Not org owner!')
     }
 
     // Start a transaction
@@ -172,7 +162,7 @@ export async function updateAccessProfile(id: string, profile: CreateAccessProfi
         throw new Error('Access profile not found or unauthorized')
     }
 
-    // First update the profile
+    // Start a transaction
     const { error: updateError } = await supabase
         .from('access_profiles')
         .update({
@@ -183,7 +173,30 @@ export async function updateAccessProfile(id: string, profile: CreateAccessProfi
 
     if (updateError) throw updateError;
 
-    // Then fetch the updated profile with its controls
+    // Delete existing access controls
+    const { error: deleteError } = await supabase
+        .from('access_controls')
+        .delete()
+        .eq('access_profile_id', id);
+
+    if (deleteError) throw deleteError;
+
+    // Create new access controls
+    const accessControls = profile.access_controls.map(control => ({
+        access_profile_id: id,
+        page_id: control.page_id,
+        can_view: control.can_view,
+        can_edit: control.can_edit,
+        can_delete: control.can_delete
+    }));
+
+    const { error: controlsError } = await supabase
+        .from('access_controls')
+        .insert(accessControls);
+
+    if (controlsError) throw controlsError;
+
+    // Fetch and return the updated profile with its controls
     const { data, error: fetchError } = await supabase
         .from('access_profiles')
         .select(`

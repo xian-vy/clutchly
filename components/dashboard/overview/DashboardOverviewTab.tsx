@@ -73,22 +73,24 @@ export function DashboardOverviewTab() {
 
   // In the event local storage has been cleared (Refetch morphs base on organization sp selection)
   useEffect(() => {
-    if (morphs.length === 0 && organization) {
+    if (morphs.length === 0) {
+      console.log("No Morphs found, trying to download...");
        async function fetchMorphs() {
         if (!organization) {
-          console.error('No organization found to download common morphs');
+          console.log('No organization found to download common morphs');
           return;
         }
         const speciesIds = organization.selected_species
         if (!speciesIds) {
-          console.error('No species IDs found in organization');
+          console.log('No species IDs found in organization');
           return;
         }
+        console.log("Downloading common morphs...");
        await downloadCommonMorphs(speciesIds);
       }
       fetchMorphs()
-    }
-  }, [organization, morphs,downloadCommonMorphs]);
+    } 
+  }, [organization]);
 
   // Create date filter params for API calls
   const dateFilterParams = useMemo(() => {

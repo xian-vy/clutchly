@@ -40,7 +40,10 @@ export function AccessProfileList({ profiles, onEdit, onDelete, onAddNew }: Acce
       header: "Access Controls",
       cell: ({ row }) => {
         const controls = row.getValue("access_controls") as AccessProfileWithControls['access_controls'];
-        return <div>{controls?.length ?? 0} controls</div>;
+        const enabledControls = controls?.filter(control => 
+          control.can_view || control.can_edit || control.can_delete
+        ) ?? [];
+        return <div>{enabledControls.length} enabled</div>;
       }
     },
     {

@@ -22,7 +22,7 @@ export const useMorphsStore = create<MorphsState>()(
   persist(
     (set, get) => ({
       morphs: [],
-      isLoading: false,
+      isLoading: true,
       error: null,
 
       fetchMorphs: async () => {
@@ -35,6 +35,8 @@ export const useMorphsStore = create<MorphsState>()(
             error: err instanceof Error ? err : new Error('Failed to fetch morphs'),
             isLoading: false 
           });
+        } finally {
+          set({ isLoading: false });
         }
       },
 
@@ -47,7 +49,7 @@ export const useMorphsStore = create<MorphsState>()(
           const species = speciesStore.species;
           
           if (species.length === 0) {
-            // If no species are available, download common species first
+            console.log("Download failed. No species available.");
             await speciesStore.downloadCommonSpecies();
           }
 

@@ -8,54 +8,98 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Page } from '@/app/api/users/access';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState } from 'react';
+import { Loader2, CheckSquare2, Square } from 'lucide-react';
+import { Page } from '@/lib/types/pages';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   access_controls: z.array(z.object({
     page_id: z.string(),
-    can_view: z.boolean(),
-    can_edit: z.boolean(),
-    can_delete: z.boolean(),
+    is_enabled: z.boolean(),
   })),
 });
 
 interface AccessProfileFormProps {
   profile?: AccessProfileWithControls | null;
-  org_id: string;  // Required for new profiles
-  onSubmit: (data: CreateAccessProfile) => void;
+  org_id: string | undefined;  
+  onSubmit:  (data: CreateAccessProfile) => void;
   onCancel: () => void;
   pages: Page[];
 }
 
 export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }: AccessProfileFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: profile?.name || '',
       description: profile?.description || '',
-      access_controls: profile?.access_controls || pages.map(page => ({
-        page_id: page.id,
-        can_view: false,
-        can_edit: false,
-        can_delete: false,
-      })),
+      access_controls: pages.map(page => {
+        const existingControl = profile?.access_controls?.find(control => control.page_id === page.id);
+        return {
+          page_id: page.id,
+          is_enabled: existingControl ? (existingControl.can_view || existingControl.can_edit || existingControl.can_delete) : false,
+        };
+      }),
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    onSubmit({
-      ...values,
-      org_id: profile?.org_id || org_id, // Use existing org_id if editing, or provided org_id for new profile
-    });
+  const toggleSelectAll = () => {
+    const newValue = !selectAll;
+    setSelectAll(newValue);
+    
+    const currentControls = form.getValues('access_controls');
+    const updatedControls = currentControls.map(control => ({
+      ...control,
+      is_enabled: newValue
+    }));
+    
+    form.setValue('access_controls', updatedControls);
+  };
+
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsSubmitting(true);
+      
+      const fullAccessControls = pages.map(page => {
+        const control = values.access_controls.find(c => c.page_id === page.id);
+        const isEnabled = control?.is_enabled || false;
+        console.log(`Page ${page.name}: isEnabled = ${isEnabled}`);
+        return {
+          page_id: page.id,
+          can_view: isEnabled,
+          can_edit: isEnabled,
+          can_delete: isEnabled,
+        };
+      });
+
+      const submitData = {
+        ...values,
+        access_controls: fullAccessControls,
+        org_id: org_id || profile?.org_id || '',
+      };
+
+       await onSubmit(submitData);
+    } catch (error) {
+      console.error('Error in form submission:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form 
+        className="space-y-3 sm:space-y-5 md:space-y-5"
+        noValidate
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
         <FormField
           control={form.control}
           name="name"
@@ -85,59 +129,47 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
         />
 
         <div className="space-y-4">
-          <FormLabel>Access Controls</FormLabel>
-          <ScrollArea className="h-[300px] rounded-md border p-4">
-            <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <FormLabel>Access Controls</FormLabel>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2"
+            >
+              {selectAll ? (
+                <>
+                  <CheckSquare2 className="h-4 w-4" />
+                  Deselect All
+                </>
+              ) : (
+                <>
+                  <Square className="h-4 w-4" />
+                  Select All
+                </>
+              )}
+            </Button>
+          </div>
+          <ScrollArea className="h-[200px] xl:h-[300px] rounded-md border p-4">
+            <div className="space-y-3 xl:space-y-4">
               {pages.map((page) => (
                 <div key={page.id} className="space-y-2">
-                  <div className="font-medium">{page.name}</div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name={`access_controls.${pages.findIndex(p => p.id === page.id)}.can_view`}
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm">View</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`access_controls.${pages.findIndex(p => p.id === page.id)}.can_edit`}
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm">Edit</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`access_controls.${pages.findIndex(p => p.id === page.id)}.can_delete`}
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm">Delete</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name={`access_controls.${pages.findIndex(p => p.id === page.id)}.is_enabled`}
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-medium">{page.name}</FormLabel>
+                      </FormItem>
+                    )}
+                  />
                 </div>
               ))}
             </div>
@@ -145,11 +177,26 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
-          <Button type="submit">
-            {profile ? 'Update' : 'Create'} Profile
+          <Button 
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {profile ? 'Updating...' : 'Creating...'}
+              </>
+            ) : (
+              profile ? 'Update Profile' : 'Create Profile'
+            )}
           </Button>
         </div>
       </form>

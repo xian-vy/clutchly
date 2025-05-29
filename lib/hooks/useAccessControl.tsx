@@ -28,14 +28,6 @@ const useAccessControl = (user: User | null): UseAccessControlReturn => {
     staleTime: 60 * 60 * 1000,
   });
 
-  // Create a mapping of page names to IDs
-  const pageNameToId = useMemo(() => {
-    return pages.reduce((acc, page) => {
-      acc[page.name.toLowerCase()] = page.id;
-      return acc;
-    }, {} as Record<string, string>);
-  }, [pages]);
-
   // Find the user's access profile
   const accessProfile = useMemo(() => {
     if (!user || !accessProfiles) return null;
@@ -88,21 +80,33 @@ const useAccessControl = (user: User | null): UseAccessControlReturn => {
     if (!user) return [];
 
     return items.filter(item => {
-      // For items with sub-items, check access for each sub-item
+      // Always show Overview page
+      if (item.name.toLowerCase() === 'overview') return true;
+
+      // Find the page corresponding to the current navigation item
+      const itemPage = pages.find(p => 
+        p.name.toLowerCase() === item.name?.toLowerCase() && 
+        p.section.toLowerCase() === (item.section || '').toLowerCase()
+      );
+
+      // For items with sub-items (like Reptiles, Finance)
       if (item.items) {
+        // Recursively filter sub-items
         const filteredItems = filterNavItems(item.items);
-        // Only include parent item if it has accessible children
-        return filteredItems.length > 0;
+
+        // Only include parent item if:
+        // 1. It has a corresponding page entry AND the user has view access to it
+        // 2. It has accessible children
+        return (itemPage && hasAccess(itemPage.id, 'view')) || filteredItems.length > 0;
       }
 
-      // For regular items, require explicit view access
-      const pageId = pageNameToId[item.name?.toLowerCase()];
-      // If no name or no matching page found, deny access
-      if (!item.name || !pageId) return false;
-      
-      return hasAccess(pageId, 'view');
+      // For regular items, check direct access
+      if (!itemPage) return false;
+
+      const accessControl = accessProfile?.access_controls.find(ac => ac.page_id === itemPage.id);
+      return accessControl?.can_view || false;
     });
-  }, [hasAccess, pageNameToId, profilesLoading, pagesLoading, user]);
+  }, [pages, accessProfile, profilesLoading, pagesLoading, user, hasAccess]);
 
   return {
     hasAccess,

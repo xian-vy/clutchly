@@ -9,16 +9,25 @@ import { Loader2 } from 'lucide-react';
 import { AccessProfileForm } from './AccessProfileForm';
 import { AccessProfileList } from './AccessProfileList';
 import { useQuery } from '@tanstack/react-query';
-import { Page } from '@/app/api/users/access';
+import { getOrganization } from '@/app/api/organizations/organizations';
+import { Organization } from '@/lib/types/organizations';
+import { Page } from '@/lib/types/pages';
 
 export default function AccessControlTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<AccessProfileWithControls | null>(null);
-  const org_id = 'your-org-id'; // TODO: Get this from your auth context or props
 
   const { data: pages = [] } = useQuery<Page[]>({
     queryKey: ['pages'],
     queryFn: getPages,
+  });
+
+  const { data: organization } = useQuery<Organization>({
+    queryKey: ['organization2'],
+    queryFn: async () => {
+      const data = await getOrganization();
+      return Array.isArray(data) ? data[0] : data;
+    },
   });
 
   const {
@@ -27,6 +36,7 @@ export default function AccessControlTab() {
     handleCreate,
     handleUpdate,
     handleDelete,
+    setSelectedResource,
   } = useResource<AccessProfileWithControls, CreateAccessProfile>({
     resourceName: 'Access Profile',
     queryKey: ['access-profiles'],
@@ -38,35 +48,39 @@ export default function AccessControlTab() {
 
   const handleEdit = (profile: AccessProfileWithControls) => {
     setSelectedProfile(profile);
+    setSelectedResource(profile);
     setIsDialogOpen(true);
   };
 
   const handleClose = () => {
-    setSelectedProfile(null);
     setIsDialogOpen(false);
+    setSelectedProfile(null);
+    setSelectedResource(undefined);
   };
 
   const handleSubmit = async (data: CreateAccessProfile) => {
-    if (selectedProfile) {
-      await handleUpdate( data);
-    } else {
-      await handleCreate(data);
+    try {
+      if (selectedProfile) {
+        await handleUpdate(data);
+      } else {
+        await handleCreate(data);
+      }
+      handleClose();
+    } catch (error) {
+      console.error('Error submitting access profile:', error);
     }
-    handleClose();
   };
 
   if (profilesLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-   
-
       <AccessProfileList
         profiles={profiles || []}
         onEdit={handleEdit}
@@ -74,14 +88,19 @@ export default function AccessControlTab() {
         onAddNew={() => setIsDialogOpen(true)}
       />
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl">
+      <Dialog 
+        open={isDialogOpen} 
+        onOpenChange={(open) => {
+          if (!open) handleClose();
+        }}
+      >
+        <DialogContent className="sm:max-w-xl md:max-w-3xl">
           <DialogTitle>
             {selectedProfile ? 'Edit Access Profile' : 'Create Access Profile'}
           </DialogTitle>
           <AccessProfileForm
             profile={selectedProfile}
-            org_id={org_id}
+            org_id={organization?.id}
             onSubmit={handleSubmit}
             onCancel={handleClose}
             pages={pages}

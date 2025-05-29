@@ -9,6 +9,7 @@ export interface User {
     role: UserRoles;
     status: UserStatus;
     email?: string; // Optional since it's stored in auth.users
+    created_at: string;
 }
 
 // Helper type for creating new users

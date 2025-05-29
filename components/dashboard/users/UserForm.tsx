@@ -12,17 +12,39 @@ import { Organization } from '@/lib/types/organizations';
 import { useQuery } from '@tanstack/react-query';
 import { getAccessProfiles } from '@/app/api/users/access';
 import { AccessProfile } from '@/lib/types/access';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
-const userFormSchema = z.object({
+const createUserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6).optional(),
+  password: z.string().min(6),
+  confirmPassword: z.string(),
   full_name: z.string().min(2),
   role: z.enum(['admin', 'staff', 'owner'] as const),
   access_profile_id: z.string().uuid(),
   org_id: z.string().uuid(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-type UserFormValues = z.infer<typeof userFormSchema>;
+const updateUserSchema = z.object({
+  email: z.string().email().optional().or(z.literal('')),
+  password: z.string().min(6).optional().or(z.literal('')),
+  confirmPassword: z.string().optional().or(z.literal('')),
+  full_name: z.string().min(2),
+  role: z.enum(['admin', 'staff', 'owner'] as const),
+  access_profile_id: z.string().uuid(),
+  org_id: z.string().uuid(),
+}).refine((data) => {
+  if (!data.password) return true;
+  return data.password === data.confirmPassword;
+}, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+type UserFormValues = z.infer<typeof createUserSchema> | z.infer<typeof updateUserSchema>;
 
 interface UserFormProps {
   initialData?: User;
@@ -32,53 +54,70 @@ interface UserFormProps {
 }
 
 export function UserForm({ initialData, onSubmit, onCancel, organization }: UserFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { data: accessProfiles } = useQuery<AccessProfile[]>({
     queryKey: ['access-profiles'],
     queryFn: getAccessProfiles,
   });
 
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(userFormSchema),
-    defaultValues: {
+    resolver: zodResolver(initialData ? updateUserSchema : createUserSchema),
+    defaultValues: initialData ? {
+      email: initialData.email,
+      password: undefined,
+      confirmPassword: undefined,
+      full_name: initialData.full_name,
+      role: initialData.role,
+      access_profile_id: initialData.access_profile_id,
+      org_id: organization?.id || '',
+    } : {
       email: '',
       password: '',
-      full_name: initialData?.full_name || '',
-      role: initialData?.role || 'staff',
-      access_profile_id: initialData?.access_profile_id || '',
+      confirmPassword: '',
+      full_name: '',
+      role: 'staff',
+      access_profile_id: '',
       org_id: organization?.id || '',
     },
   });
 
   const handleSubmit = async (data: UserFormValues) => {
-    await onSubmit(data as CreateUser);
+    try {
+      setIsSubmitting(true);
+
+      const submitData = initialData 
+        ? { ...data, email: data.email || undefined }
+        : data;
+        
+      await onSubmit(submitData as CreateUser);
+    } catch (error) {
+      console.error('Submit error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input {...field} type="email" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+      <form 
+        onSubmit={(e) => {
+          console.log('Form submission attempted');
+          console.log('Form errors:', form.formState.errors);
+          console.log('Form values:', form.getValues());
+          form.handleSubmit(handleSubmit)(e);
+        }} 
+        className="space-y-4"
+      >
         {!initialData && (
           <FormField
             control={form.control}
-            name="password"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input {...field} type="password" />
+                  <Input {...field} type="email" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -99,60 +138,99 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
             </FormItem>
           )}
         />
+        {!initialData && (
+          <>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="role"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="staff">Staff</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="password" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
-        <FormField
-          control={form.control}
-          name="access_profile_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Access Profile</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an access profile" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {accessProfiles?.map((profile) => (
-                    <SelectItem key={profile.id} value={profile.id}>
-                      {profile.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className='w-full'>
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="staff">Staff</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
+                <FormField
+                  control={form.control}
+                  name="access_profile_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Access Profile</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className='w-full'>
+                            <SelectValue placeholder="Select an access profile" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {accessProfiles?.map((profile) => (
+                            <SelectItem key={profile.id} value={profile.id}>
+                              {profile.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+        </div>
         <div className="flex justify-end space-x-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
           <Button type="submit">
-            {initialData ? 'Update' : 'Create'} User
+          {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {initialData ? 'Updating...' : 'Creating...'}
+              </>
+            ) : (
+              initialData ? 'Update User' : 'Create User'
+            )}
           </Button>
         </div>
       </form>

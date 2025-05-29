@@ -51,6 +51,7 @@ export const backupConfigs: Record<BackupType, BackupConfig> = {
             { key: 'notes', label: 'notes', type: 'string' },
             { key: 'mother.name', label: 'mother', type: 'string' },
             { key: 'father.name', label: 'father', type: 'string' },
+            { key: 'price', label: 'price', type: 'string' },
 
         ],
         relationships: [
