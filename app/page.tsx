@@ -2,6 +2,8 @@ import { Footer } from '@/components/landing/Footer'
 import { HeroSection } from '@/components/landing/HeroSection'
 import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import TopNavigation from '@/components/landing/TopNavigation'
+import PlansSection from '@/components/landing/PlansSection'
+import PedigreeSection from '@/components/landing/PedigreeSection'
 
 export default function LandingPage() {
   return (
@@ -19,6 +21,8 @@ export default function LandingPage() {
       <main className="flex-1 px-4 sm:px-8 mx-auto">
         <HeroSection />
         <FeaturesSection />
+        <PedigreeSection />
+        <PlansSection />
       </main>
 
       <Footer />

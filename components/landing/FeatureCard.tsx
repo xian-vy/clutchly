@@ -10,7 +10,7 @@ export function FeatureCard({ icon: Icon, title, features }: FeatureCardProps) {
     <div className="group relative">
       <div className="absolute -inset-px rounded-xl bg-gradient-to-r from-primary/50 to-primary/10 opacity-20 blur transition-all group-hover:opacity-30" />
       <div className="flex flex-col justify-start items-center relative h-full rounded-lg border bg-background/80 backdrop-blur-sm p-6 sm:p-6 md:p-8 transition-all hover:shadow-lg hover:scale-[1.01]">
-        <div className="mb-4 sm:mb-6 flex flex-col items-center gap-4 sm:gap-5">
+        <div className="mb-4 sm:mb-6 2xl:mb-8 flex flex-col items-center gap-4 sm:gap-5">
           <div className="flex h-9 sm:h-10 xl:h-14 w-9 sm:w-10 xl:w-14 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/25">
             <Icon className="h-4 sm:h-5 xl:h-7 w-4 sm:w-5 xl:w-7" />
           </div>
