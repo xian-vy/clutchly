@@ -170,12 +170,12 @@ export function Navigation() {
                       <div
                         key={`skeleton-${section}-${index}`}
                         className={cn(
-                          'relative flex items-center gap-3 rounded-lg py-2 3xl:py-2.5',
-                          isCollapsed ? 'justify-center px-2' : 'px-3'
+                          'relative flex items-center gap-3 rounded-lg py-3 3xl:py-4',
+                          isCollapsed ? 'justify-center px-1.5' : 'px-2.5'
                         )}
                       >
-                        <Skeleton className="h-6 w-6 rounded" />
-                        {!isCollapsed && <Skeleton className="h-5 flex-1" />}
+                        <Skeleton className="h-7 w-7 rounded-full" />
+                        {!isCollapsed && <Skeleton className="h-6 flex-1" />}
                       </div>
                     );
                   }
