@@ -17,15 +17,13 @@ const formSchema = z.object({
   description: z.string().optional(),
   access_controls: z.array(z.object({
     page_id: z.string(),
-    can_view: z.boolean(),
-    can_edit: z.boolean(),
-    can_delete: z.boolean(),
+    is_enabled: z.boolean(),
   })),
 });
 
 interface AccessProfileFormProps {
   profile?: AccessProfileWithControls | null;
-  org_id: string;  // Required for new profiles
+  org_id: string | undefined;  
   onSubmit: (data: CreateAccessProfile) => void;
   onCancel: () => void;
   pages: Page[];
@@ -37,19 +35,33 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
     defaultValues: {
       name: profile?.name || '',
       description: profile?.description || '',
-      access_controls: profile?.access_controls || pages.map(page => ({
-        page_id: page.id,
-        can_view: false,
-        can_edit: false,
-        can_delete: false,
-      })),
+      access_controls: profile?.access_controls 
+        ? profile.access_controls.map(control => ({
+            page_id: control.page_id,
+            is_enabled: control.can_view || control.can_edit || control.can_delete,
+          }))
+        : pages.map(page => ({
+            page_id: page.id,
+            is_enabled: false,
+          })),
     },
   });
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
+    // Only include enabled pages in the access controls
+    const fullAccessControls = values.access_controls
+      .filter(control => control.is_enabled)
+      .map(control => ({
+        page_id: control.page_id,
+        can_view: true,
+        can_edit: true,
+        can_delete: true,
+      }));
+
     onSubmit({
       ...values,
-      org_id: profile?.org_id || org_id, // Use existing org_id if editing, or provided org_id for new profile
+      access_controls: fullAccessControls,
+      org_id: org_id || profile?.org_id || '',
     });
   };
 
@@ -90,54 +102,21 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
             <div className="space-y-4">
               {pages.map((page) => (
                 <div key={page.id} className="space-y-2">
-                  <div className="font-medium">{page.name}</div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name={`access_controls.${pages.findIndex(p => p.id === page.id)}.can_view`}
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm">View</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`access_controls.${pages.findIndex(p => p.id === page.id)}.can_edit`}
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm">Edit</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`access_controls.${pages.findIndex(p => p.id === page.id)}.can_delete`}
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm">Delete</FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name={`access_controls.${pages.findIndex(p => p.id === page.id)}.is_enabled`}
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-medium">{page.name}</FormLabel>
+                      </FormItem>
+                    )}
+                  />
                 </div>
               ))}
             </div>

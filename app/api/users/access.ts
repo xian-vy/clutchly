@@ -1,6 +1,7 @@
 'use server'
 import { createClient } from '@/lib/supabase/server'
 import { AccessControl, AccessProfileWithControls, CreateAccessControl, CreateAccessProfile } from '@/lib/types/access';
+import { getUserAndOrganizationInfo } from '../utils_server';
 
 export interface Page {
   id: string;
@@ -83,20 +84,13 @@ export async function getAccessControls(profileId: string) {
 
 export async function createAccessProfile(profile: CreateAccessProfile) {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    const {user,organization} = await getUserAndOrganizationInfo()
 
-    const { data: userData } = await supabase
-        .from('users')
-        .select('org_id')
-        .eq('id', user.id)
-        .single()
+    if (!user) throw new Error('Access : not authenticated!')
 
-    if (!userData) throw new Error('User organization not found')
-
-    // Verify the user is creating for their own organization
-    if (profile.org_id !== userData.org_id) {
-        throw new Error('Cannot create access profile for another organization')
+    // Org owner only
+    if (user.id !== organization.id) {
+        throw new Error('Access : Failed to create access. Not org owner!')
     }
 
     // Start a transaction

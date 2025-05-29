@@ -10,15 +10,25 @@ import { AccessProfileForm } from './AccessProfileForm';
 import { AccessProfileList } from './AccessProfileList';
 import { useQuery } from '@tanstack/react-query';
 import { Page } from '@/app/api/users/access';
+import { getOrganization } from '@/app/api/organizations/organizations';
+import { Organization } from '@/lib/types/organizations';
 
 export default function AccessControlTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<AccessProfileWithControls | null>(null);
-  const org_id = 'your-org-id'; // TODO: Get this from your auth context or props
 
   const { data: pages = [] } = useQuery<Page[]>({
     queryKey: ['pages'],
     queryFn: getPages,
+  });
+
+  const { data: organization } = useQuery<Organization>({
+    queryKey: ['organization2'],
+    queryFn: async () => {
+      const data = await getOrganization();
+      return Array.isArray(data) ? data[0] : data;
+    },
+
   });
 
   const {
@@ -58,7 +68,7 @@ export default function AccessControlTab() {
   if (profilesLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
       </div>
     );
   }
@@ -81,7 +91,7 @@ export default function AccessControlTab() {
           </DialogTitle>
           <AccessProfileForm
             profile={selectedProfile}
-            org_id={org_id}
+            org_id={organization?.id}
             onSubmit={handleSubmit}
             onCancel={handleClose}
             pages={pages}
