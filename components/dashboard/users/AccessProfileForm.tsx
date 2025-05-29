@@ -8,11 +8,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Page } from '@/app/api/users/access';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { Page } from '@/lib/types/pages';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -26,7 +26,7 @@ const formSchema = z.object({
 interface AccessProfileFormProps {
   profile?: AccessProfileWithControls | null;
   org_id: string | undefined;  
-  onSubmit: (data: CreateAccessProfile) => void;
+  onSubmit:  (data: CreateAccessProfile) => void;
   onCancel: () => void;
   pages: Page[];
 }
@@ -72,7 +72,7 @@ export function AccessProfileForm({ profile, org_id, onSubmit, onCancel, pages }
         org_id: org_id || profile?.org_id || '',
       };
 
-       onSubmit(submitData);
+       await onSubmit(submitData);
     } catch (error) {
       console.error('Error in form submission:', error);
     } finally {

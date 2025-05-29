@@ -9,9 +9,9 @@ import { Loader2 } from 'lucide-react';
 import { AccessProfileForm } from './AccessProfileForm';
 import { AccessProfileList } from './AccessProfileList';
 import { useQuery } from '@tanstack/react-query';
-import { Page } from '@/app/api/users/access';
 import { getOrganization } from '@/app/api/organizations/organizations';
 import { Organization } from '@/lib/types/organizations';
+import { Page } from '@/lib/types/pages';
 
 export default function AccessControlTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
