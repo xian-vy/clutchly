@@ -6,6 +6,7 @@ import { NewSpecies, Species } from '@/lib/types/species';
 import {  useState } from 'react';
 import { SpeciesForm } from './SpeciesForm';
 import { SpeciesList } from './SpeciesList';
+import { Loader2 } from 'lucide-react';
 
 export function SpeciesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -50,7 +51,11 @@ export function SpeciesTab() {
   const isLoading = storeLoading
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
+          <Loader2 className='w-4 h-4 animate-spin text-primary' />
+      </div>
+    )
   }
 
   return (

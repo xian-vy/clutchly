@@ -105,7 +105,7 @@ export function SpeciesList({ species, onEdit, onDelete, onAddNew }: SpeciesList
               disabled={isglobal}
               onClick={() => onEdit?.(speciesItem)}
             >
-              <Edit strokeWidth={1.5} className="h-4 w-4 text-muted-foreground" />
+              <Edit strokeWidth={1.5} className="h-4 w-4" />
             </Button>
             <Button 
               variant="ghost" 
@@ -113,7 +113,7 @@ export function SpeciesList({ species, onEdit, onDelete, onAddNew }: SpeciesList
               disabled={isglobal}
               onClick={() => onDelete?.(speciesItem.id.toString())}
             >
-              <Trash strokeWidth={1.5} className="h-4 w-4 text-muted-foreground" />
+              <Trash strokeWidth={1.5} className="h-4 w-4" />
             </Button>
           </div>
         );

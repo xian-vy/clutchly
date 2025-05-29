@@ -21,6 +21,7 @@ import * as z from 'zod'
 import { HetTraitsForm } from './HetTraitsForm'
 import { VisualTraitsForm } from './VisualTraitsForm'
 import { Organization } from '@/lib/types/organizations'
+import { Loader2 } from 'lucide-react'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -62,7 +63,7 @@ interface ReptileFormProps {
 
 export function ReptileForm({ initialData, onSubmit, onCancel,organization }: ReptileFormProps) {
   const { species, fetchSpecies } = useSpeciesStore()
-
+  const [isLoading, setLoading] = useState(false)
   const { 
     resources: reptiles, 
     isLoading: isReptilesLoading 
@@ -114,6 +115,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   });
   // Handle form submission
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    setLoading(true)
     const formattedData = {
       ...data,
       hatch_date: data.hatch_date || null,
@@ -123,6 +125,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
       location_id: data.location_id || null,
     }
     await onSubmit(formattedData)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -493,8 +496,9 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
+          <Button disabled={isLoading} type="submit">
             {initialData ? 'Update' : 'Create'} Reptile
+            {isLoading && <Loader2 className='ml-2 w-4 h-4 animate-spin' />}
           </Button>
         </div>
       </form>
