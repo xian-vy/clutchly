@@ -316,7 +316,7 @@ export const updateFeedingEventWithCache = async (
 
 // Save multiple feeding events at once (replaces the Feed All functionality)
 export const saveMultipleEvents = async (
-  events: { id: string, notes: string | null, feeder_size_id: string | null }[],
+  events: { id: string, notes: string | null, feeder_size_id: string | null, fed: boolean }[],
   fed: boolean,
   scheduleId: string,
   queryClient: QueryClient,
@@ -327,7 +327,7 @@ export const saveMultipleEvents = async (
     const promises = events.map(event => 
       updateFeedingEventWithCache(
         event.id,
-        fed,
+        event.fed, // Use the event's fed status instead of the global fed parameter
         event.notes,
         event.feeder_size_id,
         scheduleId,

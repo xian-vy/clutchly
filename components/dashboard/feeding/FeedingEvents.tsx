@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
 import { saveMultipleEvents, shouldHaveFeedingToday, updateFeedingEventWithCache } from './utils';
+import { useGroupedFeederSelect } from '@/lib/hooks/useGroupedFeederSelect';
 
 export interface ScheduleStatus {
   totalEvents: number;
@@ -49,6 +50,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
   const [feedingAll, setFeedingAll] = useState<boolean>(false);
   const [creatingEvents, setCreatingEvents] = useState<boolean>(false);
+  const { FeederSelect } = useGroupedFeederSelect();
   const queryClient = useQueryClient();
 
   const { 
@@ -270,7 +272,8 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       const eventsToUpdate = dateEvents.map(event => ({
         id: event.id,
         notes: eventNotes[event.id] || null,
-        feeder_size_id: feederTypeSize[event.id] || null
+        feeder_size_id: feederTypeSize[event.id] || null,
+        fed : true 
       }));
       
       // Use the new utility function to save multiple events
@@ -280,6 +283,40 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     } catch (error) {
       console.error('Error feeding all reptiles:', error);
       toast.error('Failed to feed all reptiles');
+    } finally {
+      setFeedingAll(false);
+      queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
+    }
+  };
+
+  // Function to set feeder type for all reptiles
+  const handleSetFeederForAll = async (date: string, feederSizeId: string) => {
+    setFeedingAll(true);
+    try {
+      const dateEvents = eventsByDate[date];
+      
+      // Prepare events data with current notes, feeding status, and new feeder type
+      const eventsToUpdate = dateEvents.map(event => ({
+        id: event.id,
+        notes: eventNotes[event.id] || null,
+        feeder_size_id: feederSizeId,
+        fed: event.fed // Preserve the current feeding status
+      }));
+      
+      // Use the same utility function to save multiple events
+      await saveMultipleEvents(eventsToUpdate, false, scheduleId, queryClient, onEventsUpdated);
+      
+      // Update local state
+      const newFeederTypeSize = { ...feederTypeSize };
+      dateEvents.forEach(event => {
+        newFeederTypeSize[event.id] = feederSizeId;
+      });
+      setFeederTypeSize(newFeederTypeSize);
+      
+      toast.success('Feeder type set for all reptiles');
+    } catch (error) {
+      console.error('Error setting feeder type for all reptiles:', error);
+      toast.error('Failed to set feeder type');
     } finally {
       setFeedingAll(false);
       queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
@@ -348,8 +385,8 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       {sortedDates.map(date => (
         <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none  pt-0 gap-0">
           <CardHeader className="py-3 px-2 sm:px:4 ">
-            <CardTitle className="text-sm font-medium flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <CardTitle className="text-sm font-medium flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2 w-full">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -371,12 +408,12 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
                   )}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex justify-between sm:justify-end items-center gap-2 w-full">
                 <Select 
                   value={sortBy}
                   onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph' | 'all')}
                 >
-                  <SelectTrigger className="w-[120px] !h-8 !text-xs dark:!border-0 hidden sm:flex">
+                  <SelectTrigger className="w-[120px] !text-xs dark:!border-0 hidden sm:flex">
                     <SelectValue placeholder="Sort By" />
                   </SelectTrigger>
                   <SelectContent>
@@ -387,25 +424,33 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
                   </SelectContent>
                 </Select>
                 {expandedDates[date] && (
-                  <Button 
-                    size="sm" 
-                    variant="default" 
-                    className="h-7 sm:h-8 text-xs"
-                    onClick={() => handleFeedAll(date)}
-                    disabled={feedingAll}
-                  >
-                    {feedingAll ? (
-                      <>
-                        <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                        Feeding All...
-                      </>
-                    ) : (
-                      <>
-                        <Check className="h-3 w-3" />
-                        Feed All
-                      </>
-                    )}
-                  </Button>
+                  <>
+                    <div className="w-[150px]">
+                      <FeederSelect
+                        value=""
+                        onValueChange={(value) => handleSetFeederForAll(date, value)}
+                        placeholder="Set feeder for all"
+                      />
+                    </div>
+                    <Button 
+                      variant="default" 
+                      className=" text-xs"
+                      onClick={() => handleFeedAll(date)}
+                      disabled={feedingAll}
+                    >
+                      {feedingAll ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                          Feeding All...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-3 w-3" />
+                          Feed All
+                        </>
+                      )}
+                    </Button>
+                  </>
                 )}
               </div>
             </CardTitle>
