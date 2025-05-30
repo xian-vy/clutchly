@@ -1,5 +1,4 @@
 import {
-  Bug,
     Dna,
     DollarSign,
     Globe,
@@ -12,7 +11,10 @@ import {
     Settings,
     Sprout,
     Users2,
+    Worm,
 } from 'lucide-react';
+import { MdCurrencyExchange } from "react-icons/md";
+
 import { VscSnake } from "react-icons/vsc";
 
 export interface NavItem {
@@ -41,7 +43,7 @@ export interface NavItem {
       {
       section: 'Main',
       name: 'Finance',
-      icon: DollarSign,
+      icon: MdCurrencyExchange,
       items: [
         {
           name: 'New Sales',
@@ -146,7 +148,7 @@ export interface NavItem {
       section: 'Health & Growth',
       name: 'Feeding',
       href: '/feeding',
-      icon: Bug,
+      icon: Worm,
     },
    
     {

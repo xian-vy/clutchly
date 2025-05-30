@@ -1,28 +1,21 @@
 'use client';
 
-import {  createFeedingEventsForToday, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
+import {  createFeedingEventsForToday, getFeedingEvents } from '@/app/api/feeding/events';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, isToday } from 'date-fns';
-import { AlertCircle, Check, ChevronDown, ChevronRight, Loader2, PlusCircle } from 'lucide-react';
+import { AlertCircle, ChevronDown, ChevronRight, Loader2, PlusCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
-import { saveMultipleEvents, shouldHaveFeedingToday } from './utils';
+import { saveMultipleEvents, shouldHaveFeedingToday, updateFeedingEventWithCache } from './utils';
+import { FeedingEventFilters } from './FeedingEventFilters';
 
 export interface ScheduleStatus {
   totalEvents: number;
@@ -31,6 +24,7 @@ export interface ScheduleStatus {
   percentage: number;
   scheduledDate: string;
 }
+
 interface FeedingEventsListProps {
   scheduleId: string;
   schedule: FeedingScheduleWithTargets;
@@ -46,6 +40,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   const [isLoadingReptiles, setIsLoadingReptiles] = useState<boolean>(false);
   const [activeTarget, setActiveTarget] = useState<FeedingTargetWithDetails | null>(null);
   const [sortBy, setSortBy] = useState<'species' | 'name' | 'morph' | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
   const [feedingAll, setFeedingAll] = useState<boolean>(false);
   const [creatingEvents, setCreatingEvents] = useState<boolean>(false);
@@ -122,12 +117,6 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     }
   };
 
-  // Add a retry button functionality
-  // const handleRetryLoadReptiles = () => {
-  //   if (activeTarget) {
-  //     loadReptilesByTarget(activeTarget);
-  //   }
-  // };
 
   // Function to load reptiles based on target
   const loadReptilesByTarget = async (target: FeedingTargetWithDetails) => {
@@ -210,63 +199,21 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     try {
       const notes = eventNotes[eventId];
       const feederSizeId = feederTypeSize[eventId];
-      const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [];
-      const eventToUpdate = currentEvents.find(e => e.id === eventId);
       
-      if (eventToUpdate) {
-        // Optimistically update events cache
-        queryClient.setQueryData(['feeding-events', scheduleId], 
-          currentEvents.map(event => 
-            event.id === eventId 
-              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null, feeder_size_id: feederSizeId || null } 
-              : event
-          )
-        );
-        
-        // Optimistically update feeding status cache
-        queryClient.setQueryData(['feeding-status'], (oldData: Record<string, ScheduleStatus> | undefined) => {
-          if (!oldData || !oldData[scheduleId]) return oldData;
-          const statusChange = eventToUpdate.fed !== fed ? 1 : 0;
-          return {
-            ...oldData,
-            [scheduleId]: {
-              ...oldData[scheduleId],
-              completedEvents: oldData[scheduleId].completedEvents + (fed ? statusChange : -statusChange),
-              percentage: Math.round(((oldData[scheduleId].completedEvents + (fed ? statusChange : -statusChange)) / oldData[scheduleId].totalEvents) * 100)
-            }
-          };
-        });
-      }
-      
-      // Make the API call
-      const updatedEvent = await updateFeedingEvent(eventId, {
+      await updateFeedingEventWithCache(
+        eventId,
         fed,
-        fed_at: fed ? new Date().toISOString() : null,
-        notes: notes || null,
-        feeder_size_id: feederSizeId || null
-      });
-
-        // Update cache with server response
-        queryClient.setQueryData(['feeding-events', scheduleId], 
-          currentEvents.map(event => 
-            event.id === eventId ? { ...event, ...updatedEvent } : event
-          )
-        );
- 
-        queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
+        notes || null,
+        feederSizeId || null,
+        scheduleId,
+        queryClient,
+        onEventsUpdated
+      );
 
       toast.success(`Feeding ${fed ? 'completed' : 'unmarked'}`);
-      
-      if (onEventsUpdated) {
-        onEventsUpdated();
-      }
     } catch (error) {
       console.error('Error updating feeding event:', error);
       toast.error('Failed to update feeding status');
-      
-      // Revert both caches on error
-      queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
-      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
     } finally {
       setUpdatingEventId(null);
       queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
@@ -276,6 +223,17 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   // Group events by date
   const eventsByDate: Record<string, FeedingEventWithDetails[]> = {};
 
+  // Filter events based on search query
+  const filterEventsBySearch = (events: FeedingEventWithDetails[]) => {
+    if (!searchQuery.trim()) return events;
+    const query = searchQuery.toLowerCase();
+    return events.filter(event => 
+      event.reptile_name.toLowerCase().includes(query) ||
+      event.species_name.toLowerCase().includes(query) ||
+      (event.morph_name?.toLowerCase() || '').includes(query)
+    );
+  };
+
   // Group real events by date
   events.forEach(event => {
     const date = event.scheduled_date;
@@ -283,6 +241,11 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       eventsByDate[date] = [];
     }
     eventsByDate[date].push(event);
+  });
+
+  // Apply search filter to each date's events
+  Object.keys(eventsByDate).forEach(date => {
+    eventsByDate[date] = filterEventsBySearch(eventsByDate[date]);
   });
   
   // Sort dates
@@ -313,17 +276,13 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     setFeedingAll(true);
     try {
       const dateEvents = eventsByDate[date];
-      const unfedEvents = dateEvents.filter(event => !event.fed);
       
-      if (unfedEvents.length === 0) {
-        toast.info('All reptiles are already fed');
-        return;
-      }
-      
-      // Prepare events data with notes
-      const eventsToUpdate = unfedEvents.map(event => ({
+      // Prepare events data with notes AND feeder type for ALL events
+      const eventsToUpdate = dateEvents.map(event => ({
         id: event.id,
-        notes: eventNotes[event.id] || null
+        notes: eventNotes[event.id] || null,
+        feeder_size_id: feederTypeSize[event.id] || null,
+        fed : true 
       }));
       
       // Use the new utility function to save multiple events
@@ -333,6 +292,40 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     } catch (error) {
       console.error('Error feeding all reptiles:', error);
       toast.error('Failed to feed all reptiles');
+    } finally {
+      setFeedingAll(false);
+      queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
+    }
+  };
+
+  // Function to set feeder type for all reptiles
+  const handleSetFeederForAll = async (date: string, feederSizeId: string) => {
+    setFeedingAll(true);
+    try {
+      const dateEvents = eventsByDate[date];
+      
+      // Prepare events data with current notes, feeding status, and new feeder type
+      const eventsToUpdate = dateEvents.map(event => ({
+        id: event.id,
+        notes: eventNotes[event.id] || null,
+        feeder_size_id: feederSizeId,
+        fed: event.fed // Preserve the current feeding status
+      }));
+      
+      // Use the same utility function to save multiple events
+      await saveMultipleEvents(eventsToUpdate, false, scheduleId, queryClient, onEventsUpdated);
+      
+      // Update local state
+      const newFeederTypeSize = { ...feederTypeSize };
+      dateEvents.forEach(event => {
+        newFeederTypeSize[event.id] = feederSizeId;
+      });
+      setFeederTypeSize(newFeederTypeSize);
+      
+      toast.success('Feeder type set for all reptiles');
+    } catch (error) {
+      console.error('Error setting feeder type for all reptiles:', error);
+      toast.error('Failed to set feeder type');
     } finally {
       setFeedingAll(false);
       queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
@@ -399,10 +392,10 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   return (
     <div className="space-y-6">
       {sortedDates.map(date => (
-        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none  pt-0 gap-0">
-          <CardHeader className="py-3 px-2 sm:px:4 ">
-            <CardTitle className="text-sm font-medium flex items-center justify-between">
-              <div className="flex items-center gap-2">
+        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none pt-0 gap-0">
+          <CardHeader className="py-3 px-2 sm:px-4">
+            <CardTitle className="text-sm font-medium flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2 w-full">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -424,47 +417,21 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
                   )}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Select 
-                  value={sortBy}
-                  onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph' | 'all')}
-                >
-                  <SelectTrigger className="w-[120px] !h-8 !text-xs dark:!border-0 hidden sm:flex">
-                    <SelectValue placeholder="Sort By" />
-                  </SelectTrigger>
-                  <SelectContent>
-                   <SelectItem value="all">Sort By</SelectItem>
-                    <SelectItem value="name">Reptile Name</SelectItem>
-                    <SelectItem value="species">Species</SelectItem>
-                    <SelectItem value="morph">Morph</SelectItem>
-                  </SelectContent>
-                </Select>
-                {expandedDates[date] && (
-                  <Button 
-                    size="sm" 
-                    variant="default" 
-                    className="h-7 sm:h-8 text-xs"
-                    onClick={() => handleFeedAll(date)}
-                    disabled={feedingAll}
-                  >
-                    {feedingAll ? (
-                      <>
-                        <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                        Feeding All...
-                      </>
-                    ) : (
-                      <>
-                        <Check className="h-3 w-3" />
-                        Feed All
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
+              {expandedDates[date] && (
+                <FeedingEventFilters
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                  onSetFeederForAll={(feederSizeId) => handleSetFeederForAll(date, feederSizeId)}
+                  onFeedAll={() => handleFeedAll(date)}
+                  feedingAll={feedingAll}
+                />
+              )}
             </CardTitle>
           </CardHeader>
           {expandedDates[date] && (
-          <FeedingEventsList
+            <FeedingEventsList
               date={date}
               eventsByDate={{
                 [date]: eventsByDate[date].sort((a, b) => {
@@ -488,7 +455,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
               handleUpdateEvent={handleUpdateEvent}
               handleFeederTypeChange={handleFeederTypeChange}
               feederTypeSize={feederTypeSize}
-          />
+            />
           )}
         </Card>
       ))}

@@ -1,5 +1,6 @@
-import { Bug, Building2, Database, Dna, Globe, Heart, LineChart, MonitorSmartphone, Network, Package, Sprout } from 'lucide-react'
-import { PiChartLineUp } from 'react-icons/pi'
+import { Building2, Database, Dna, Globe, Heart, LineChart, MonitorSmartphone, Network, Package, Sprout, Worm } from 'lucide-react'
+import { MdCurrencyExchange } from "react-icons/md";
+
 export const FEATURE_LIST = [
     {
       icon: Database,
@@ -29,7 +30,7 @@ export const FEATURE_LIST = [
       ]
     },
     {
-      icon: PiChartLineUp,
+      icon: MdCurrencyExchange,
       title: 'Sales and Expense Tracking',
       features: [
         'Sales and expense tracking record tracking',
@@ -73,7 +74,7 @@ export const FEATURE_LIST = [
     },
   
     {
-      icon: Bug,
+      icon: Worm,
       title: 'Feeding Management',
       features: [
         'Customizable feeding schedule',
