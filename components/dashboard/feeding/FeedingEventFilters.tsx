@@ -43,7 +43,7 @@ export function FeedingEventFilters({
             placeholder="Search reptiles..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-8 text-xs"
+            className="pl-8 !text-xs"
           />
         </div>
         <Select 
