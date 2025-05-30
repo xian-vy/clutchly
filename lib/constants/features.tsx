@@ -1,4 +1,4 @@
-import { Bug, Database, Dna, Globe, Heart, LineChart, MonitorSmartphone, Network, Package, Sprout, User2 } from 'lucide-react'
+import { Bug, Building2, Database, Dna, Globe, Heart, LineChart, MonitorSmartphone, Network, Package, Sprout } from 'lucide-react'
 import { PiChartLineUp } from 'react-icons/pi'
 export const FEATURE_LIST = [
     {
@@ -14,8 +14,8 @@ export const FEATURE_LIST = [
       icon: Globe,
       title: 'Free Website For your Store',
       features: [
-        'Free URL link to your website',
-        'Clean, modern and cuztomizable website.',
+        'Free URL for your store.',
+        'Showcase your featured reptiles and share your website with the world.',
         'Minimal setup, list reptile to your website directly from your collection',
       ]
     },
@@ -67,8 +67,8 @@ export const FEATURE_LIST = [
       icon: Network,
       title: 'Pedigree Analysis',
       features: [
-        'Interactive pedigree tree visualization',
-        'Detailed lineage and ancestry tracking',
+        'Interactive pedigree tree visualization for ancestral tracking',
+        'Visualize lineage genetic traits at a glance',
       ]
     },
   
@@ -91,19 +91,19 @@ export const FEATURE_LIST = [
       ]
     },
     {
-      icon:User2,
-      title: 'User Management',
+      icon:Building2,
+      title: 'Organization Management',
       features: [
-        'Add and manage multiple users',
-        'Customize access levels per user',
+        'Manage multiple staffs, admins in your organization/facility.',
+        'Customize access levels and permission for each user',
       ]
     },
     {
       icon:MonitorSmartphone,
       title: 'Cross Platform',
       features: [
-        'Installable on Windows, Mac, Linux and Android',
-        'Sync data across all devices',
+        'Installable on any devices: Windows, Mac, and Android',
+        "Lightweight (< 1mb) for fast installation and minimal storage use."
       ]
     }
   ]

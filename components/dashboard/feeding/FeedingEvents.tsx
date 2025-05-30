@@ -253,7 +253,8 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
           )
         );
  
-      
+        queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
+
       toast.success(`Feeding ${fed ? 'completed' : 'unmarked'}`);
       
       if (onEventsUpdated) {

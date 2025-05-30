@@ -51,7 +51,7 @@ export async function createSubscription(plan: SubscriptionPlan) {
   
   // Calculate trial end date (14 days from now)
   const trialEnd = new Date()
-  trialEnd.setDate(trialEnd.getDate() + 14)
+  trialEnd.setDate(trialEnd.getDate() + 30)
   
   const newSubscription = {
     org_id: user.id,

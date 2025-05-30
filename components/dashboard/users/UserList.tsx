@@ -5,7 +5,7 @@ import { DataTable } from '@/components/ui/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { User } from '@/lib/types/users';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, MoreHorizontal, Trash2, Mail } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash2, Mail, Crown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getAccessProfiles } from '@/app/api/users/access';
 import { AccessProfile } from '@/lib/types/access';
@@ -48,6 +48,16 @@ export function UserList({ users, onEdit, onDelete, onAddNew, onResendConfirmati
     {
       accessorKey: "full_name",
       header: "Name",
+      cell: ({ row }) => {
+        const user = row.original
+        const isOrganizationOwner = user.id === organizationId;
+        return (
+        <div className="flex items-center gap-2 capitalize">
+          {isOrganizationOwner && <Crown className='w-4 h-4 text-yellow-600' />}
+          { user.full_name}
+          </div>
+        )
+      }
     },
     {
       accessorKey: "role",

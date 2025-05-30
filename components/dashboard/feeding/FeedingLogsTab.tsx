@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DateRange } from 'react-day-picker';
-import { createClient } from '@/lib/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { getFeedingEvents } from '@/app/api/feeding/events';
 import { format } from 'date-fns';
-
 import { SummaryCards } from './logs/SummaryCards';
 import { FeedingEventsTable } from './logs/FeedingEventsTable';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
+import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
+import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 
 export interface FeedingEventNormalized {
   id: string;
@@ -32,23 +32,21 @@ export function FeedingLogsTab() {
   });
   const {feederSizes, feederTypes} = useFeedersStore();
 
+  const { data: schedules = [], isLoading : schedulesLoading } = useQuery<FeedingScheduleWithTargets[]>({
+    queryKey: ['feeding-schedules'],
+    queryFn: getFeedingSchedules,
+  });
+
   const { 
     data: events = [], 
     isLoading, 
     error,
     refetch 
-  } = useQuery({
+  } = useQuery<FeedingEventNormalized[]>({
     queryKey: ['feeding-events-logs'],
     queryFn: async () => {
       try {
-
-        const supabase = createClient();
-        const { data: schedules } = await supabase
-          .from('feeding_schedules')
-          .select('id');
-          
         if (schedules && schedules.length > 0) {
-          // Fetch events for each schedule and combine them
           const allEventsPromises = schedules.map((s: { id: string }) => getFeedingEvents(s.id));
           const eventsArrays = await Promise.all(allEventsPromises);
           const eventsArrayWithFeeder = eventsArrays.map(events => {
@@ -70,13 +68,12 @@ export function FeedingLogsTab() {
         throw error;
       }
     },
-    staleTime: 50 * 60 * 1000, // 5 minutes
+    staleTime: 50 * 60 * 1000, 
     refetchOnWindowFocus: true,
+    enabled: !schedulesLoading,
   });
 
-  // Apply filters to events
-  // Update the date range filter logic
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = events.filter((event: FeedingEventNormalized) => {
     // Apply search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
@@ -115,24 +112,24 @@ export function FeedingLogsTab() {
 
   // Get summary stats
   const totalEvents = events.length;
-  const completedEvents = events.filter(e => e.fed).length;
+  const completedEvents = events.filter((e: FeedingEventNormalized) => e.fed).length;
   const completionRate = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
 
   // Get events in the last 7 days
-  const last7DaysEvents = events.filter(e => {
+  const last7DaysEvents = events.filter((e: FeedingEventNormalized) => {
     const eventDate = new Date(e.scheduled_date);
     const sevenDaysAgo = new Date(today);
     sevenDaysAgo.setDate(today.getDate() - 7);
     return eventDate >= sevenDaysAgo && eventDate <= today;
   });
 
-  const last7DaysCompleted = last7DaysEvents.filter(e => e.fed).length;
+  const last7DaysCompleted = last7DaysEvents.filter((e: FeedingEventNormalized) => e.fed).length;
   const last7DaysRate = last7DaysEvents.length > 0 
     ? Math.round((last7DaysCompleted / last7DaysEvents.length) * 100) 
     : 0;
 
   // Get today's events
-  const todayEvents = events.filter(e => 
+  const todayEvents = events.filter((e: FeedingEventNormalized) => 
     e.scheduled_date === format(today, 'yyyy-MM-dd')
   ).length;
 
