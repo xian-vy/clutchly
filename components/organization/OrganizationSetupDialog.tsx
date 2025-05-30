@@ -114,9 +114,9 @@ export function OrganizationSetupDialog() {
 
   // Set dialog state once organization data is loaded
   useEffect(() => {
-    if (isLoading || userLoading) return;
+    if (isLoading || userLoading || user) return;
 
-    const shouldOpen = !user && !isProfileComplete;
+    const shouldOpen = !isProfileComplete;
 
     setOpen(shouldOpen);
   }, [isLoading, isProfileComplete, user, userLoading]);
