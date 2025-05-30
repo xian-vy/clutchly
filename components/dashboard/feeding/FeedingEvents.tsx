@@ -1,6 +1,6 @@
 'use client';
 
-import {  createFeedingEventsForToday, getFeedingEvents, updateFeedingEvent } from '@/app/api/feeding/events';
+import {  createFeedingEventsForToday, getFeedingEvents } from '@/app/api/feeding/events';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -22,7 +22,7 @@ import { AlertCircle, Check, ChevronDown, ChevronRight, Loader2, PlusCircle } fr
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
-import { saveMultipleEvents, shouldHaveFeedingToday } from './utils';
+import { saveMultipleEvents, shouldHaveFeedingToday, updateFeedingEventWithCache } from './utils';
 
 export interface ScheduleStatus {
   totalEvents: number;
@@ -122,12 +122,6 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     }
   };
 
-  // Add a retry button functionality
-  // const handleRetryLoadReptiles = () => {
-  //   if (activeTarget) {
-  //     loadReptilesByTarget(activeTarget);
-  //   }
-  // };
 
   // Function to load reptiles based on target
   const loadReptilesByTarget = async (target: FeedingTargetWithDetails) => {
@@ -210,63 +204,21 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     try {
       const notes = eventNotes[eventId];
       const feederSizeId = feederTypeSize[eventId];
-      const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [];
-      const eventToUpdate = currentEvents.find(e => e.id === eventId);
       
-      if (eventToUpdate) {
-        // Optimistically update events cache
-        queryClient.setQueryData(['feeding-events', scheduleId], 
-          currentEvents.map(event => 
-            event.id === eventId 
-              ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null, feeder_size_id: feederSizeId || null } 
-              : event
-          )
-        );
-        
-        // Optimistically update feeding status cache
-        queryClient.setQueryData(['feeding-status'], (oldData: Record<string, ScheduleStatus> | undefined) => {
-          if (!oldData || !oldData[scheduleId]) return oldData;
-          const statusChange = eventToUpdate.fed !== fed ? 1 : 0;
-          return {
-            ...oldData,
-            [scheduleId]: {
-              ...oldData[scheduleId],
-              completedEvents: oldData[scheduleId].completedEvents + (fed ? statusChange : -statusChange),
-              percentage: Math.round(((oldData[scheduleId].completedEvents + (fed ? statusChange : -statusChange)) / oldData[scheduleId].totalEvents) * 100)
-            }
-          };
-        });
-      }
-      
-      // Make the API call
-      const updatedEvent = await updateFeedingEvent(eventId, {
+      await updateFeedingEventWithCache(
+        eventId,
         fed,
-        fed_at: fed ? new Date().toISOString() : null,
-        notes: notes || null,
-        feeder_size_id: feederSizeId || null
-      });
-
-        // Update cache with server response
-        queryClient.setQueryData(['feeding-events', scheduleId], 
-          currentEvents.map(event => 
-            event.id === eventId ? { ...event, ...updatedEvent } : event
-          )
-        );
- 
-        queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
+        notes || null,
+        feederSizeId || null,
+        scheduleId,
+        queryClient,
+        onEventsUpdated
+      );
 
       toast.success(`Feeding ${fed ? 'completed' : 'unmarked'}`);
-      
-      if (onEventsUpdated) {
-        onEventsUpdated();
-      }
     } catch (error) {
       console.error('Error updating feeding event:', error);
       toast.error('Failed to update feeding status');
-      
-      // Revert both caches on error
-      queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
-      queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
     } finally {
       setUpdatingEventId(null);
       queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
@@ -313,17 +265,12 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     setFeedingAll(true);
     try {
       const dateEvents = eventsByDate[date];
-      const unfedEvents = dateEvents.filter(event => !event.fed);
       
-      if (unfedEvents.length === 0) {
-        toast.info('All reptiles are already fed');
-        return;
-      }
-      
-      // Prepare events data with notes
-      const eventsToUpdate = unfedEvents.map(event => ({
+      // Prepare events data with notes AND feeder type for ALL events
+      const eventsToUpdate = dateEvents.map(event => ({
         id: event.id,
-        notes: eventNotes[event.id] || null
+        notes: eventNotes[event.id] || null,
+        feeder_size_id: feederTypeSize[event.id] || null
       }));
       
       // Use the new utility function to save multiple events
