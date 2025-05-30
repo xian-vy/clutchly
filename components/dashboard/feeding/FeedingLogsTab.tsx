@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getFeedingEvents } from '@/app/api/feeding/events';
 import { format } from 'date-fns';
 import { SummaryCards } from './logs/SummaryCards';
-import { FeedingEventsTable } from './logs/FeedingEventsTable';
+import { FeedingLogsList } from './logs/FeedingLogsList';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
 import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
@@ -21,10 +21,10 @@ export interface FeedingEventNormalized {
   morph_name?: string | null;
   fed: boolean;
   notes?: string | null;
-  feeder : string;
+  feeder: string;
 }
+
 export function FeedingLogsTab() {
-  const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'fed' | 'unfed'>('all');
   const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(),
@@ -74,18 +74,6 @@ export function FeedingLogsTab() {
   });
 
   const filteredEvents = events.filter((event: FeedingEventNormalized) => {
-    // Apply search filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch = 
-        event.reptile_name.toLowerCase().includes(searchLower) ||
-        event.species_name.toLowerCase().includes(searchLower) ||
-        (event.morph_name && event.morph_name.toLowerCase().includes(searchLower)) ||
-        (event.notes && event.notes.toLowerCase().includes(searchLower));
-      
-      if (!matchesSearch) return false;
-    }
-
     // Apply status filter
     if (filterStatus !== 'all') {
       if (filterStatus === 'fed' && !event.fed) return false;
@@ -105,7 +93,6 @@ export function FeedingLogsTab() {
 
     return true;
   });
-
 
   // Get the current date
   const today = new Date();
@@ -163,10 +150,8 @@ export function FeedingLogsTab() {
         todayEvents={todayEvents}
       />
 
-      <FeedingEventsTable 
+      <FeedingLogsList 
         events={filteredEvents}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}
         dateRange={dateRange}
