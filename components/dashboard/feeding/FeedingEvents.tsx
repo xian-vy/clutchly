@@ -6,26 +6,16 @@ import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Search } from 'lucide-react';
-
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, isToday } from 'date-fns';
-import { AlertCircle, Check, ChevronDown, ChevronRight, Loader2, PlusCircle } from 'lucide-react';
+import { AlertCircle, ChevronDown, ChevronRight, Loader2, PlusCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
 import { saveMultipleEvents, shouldHaveFeedingToday, updateFeedingEventWithCache } from './utils';
-import { useGroupedFeederSelect } from '@/lib/hooks/useGroupedFeederSelect';
+import { FeedingEventFilters } from './FeedingEventFilters';
 
 export interface ScheduleStatus {
   totalEvents: number;
@@ -34,6 +24,7 @@ export interface ScheduleStatus {
   percentage: number;
   scheduledDate: string;
 }
+
 interface FeedingEventsListProps {
   scheduleId: string;
   schedule: FeedingScheduleWithTargets;
@@ -53,7 +44,6 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
   const [feedingAll, setFeedingAll] = useState<boolean>(false);
   const [creatingEvents, setCreatingEvents] = useState<boolean>(false);
-  const { FeederSelect } = useGroupedFeederSelect();
   const queryClient = useQueryClient();
 
   const { 
@@ -233,6 +223,17 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   // Group events by date
   const eventsByDate: Record<string, FeedingEventWithDetails[]> = {};
 
+  // Filter events based on search query
+  const filterEventsBySearch = (events: FeedingEventWithDetails[]) => {
+    if (!searchQuery.trim()) return events;
+    const query = searchQuery.toLowerCase();
+    return events.filter(event => 
+      event.reptile_name.toLowerCase().includes(query) ||
+      event.species_name.toLowerCase().includes(query) ||
+      (event.morph_name?.toLowerCase() || '').includes(query)
+    );
+  };
+
   // Group real events by date
   events.forEach(event => {
     const date = event.scheduled_date;
@@ -240,6 +241,11 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       eventsByDate[date] = [];
     }
     eventsByDate[date].push(event);
+  });
+
+  // Apply search filter to each date's events
+  Object.keys(eventsByDate).forEach(date => {
+    eventsByDate[date] = filterEventsBySearch(eventsByDate[date]);
   });
   
   // Sort dates
@@ -324,17 +330,6 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       setFeedingAll(false);
       queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
     }
-  };
-
-  // Filter events based on search query
-  const filterEventsBySearch = (events: FeedingEventWithDetails[]) => {
-    if (!searchQuery.trim()) return events;
-    const query = searchQuery.toLowerCase();
-    return events.filter(event => 
-      event.reptile_name.toLowerCase().includes(query) ||
-      event.species_name.toLowerCase().includes(query) ||
-      (event.morph_name?.toLowerCase() || '').includes(query)
-    );
   };
 
   // Show loading state while any operation is in progress
@@ -423,60 +418,15 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
                 </span>
               </div>
               {expandedDates[date] && (
-                  <div className="flex flex-col sm:flex-row justify-between sm:justify-end items-stretch sm:items-center gap-2 w-full">
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
-                      <div className="relative flex-1 sm:flex-none sm:w-[200px]">
-                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Search reptiles..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-8 text-xs"
-                        />
-                      </div>
-                      <Select 
-                        value={sortBy}
-                        onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph' | 'all')}
-                      >
-                        <SelectTrigger className="w-[120px] !text-xs dark:!border-0">
-                          <SelectValue placeholder="Sort By" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Sort By</SelectItem>
-                          <SelectItem value="name">Reptile Name</SelectItem>
-                          <SelectItem value="species">Species</SelectItem>
-                          <SelectItem value="morph">Morph</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                      <div className="flex items-center gap-2 w-full sm:w-auto">
-                        <div className="w-full sm:w-[150px]">
-                          <FeederSelect
-                            value=""
-                            onValueChange={(value) => handleSetFeederForAll(date, value)}
-                            placeholder="Set feeder for all"
-                          />
-                        </div>
-                        <Button 
-                          variant="default" 
-                          className="text-xs w-[150px] sm:w-auto"
-                          onClick={() => handleFeedAll(date)}
-                          disabled={feedingAll}
-                        >
-                          {feedingAll ? (
-                            <>
-                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                              Feeding All...
-                            </>
-                          ) : (
-                            <>
-                              <Check className="h-3 w-3" />
-                              Feed All
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                  </div>
+                <FeedingEventFilters
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                  onSetFeederForAll={(feederSizeId) => handleSetFeederForAll(date, feederSizeId)}
+                  onFeedAll={() => handleFeedAll(date)}
+                  feedingAll={feedingAll}
+                />
               )}
             </CardTitle>
           </CardHeader>
@@ -484,14 +434,14 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
             <FeedingEventsList
               date={date}
               eventsByDate={{
-                [date]: filterEventsBySearch(eventsByDate[date].sort((a, b) => {
+                [date]: eventsByDate[date].sort((a, b) => {
                   // Sort by fed status first (unfed before fed)
                   if (a.fed !== b.fed) {
                     return a.fed ? 1 : -1;
                   }
                   // Then apply the selected sort criteria
                   return 0;
-                }))
+                })
               }}
               events={events}
               sortBy={sortBy}
