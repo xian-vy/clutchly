@@ -1,11 +1,9 @@
-'use server'
-
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { MinProfileInfo, Organization, ProfileFormData } from '@/lib/types/organizations'
 import { User } from '@/lib/types/users'
 import { createAccessProfile } from '@/app/api/users/access'
 import { getPages } from '@/app/api/users/access'
-import { getUserAndOrganizationInfo } from '../utils_server'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getCurrentUser() : Promise <User> {
   try {

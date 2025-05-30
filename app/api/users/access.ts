@@ -1,7 +1,6 @@
-'use server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/client'
 import { AccessControl, AccessProfileWithControls, CreateAccessControl, CreateAccessProfile } from '@/lib/types/access';
-import { getUserAndOrganizationInfo } from '../utils_server';
+import { getUserAndOrganizationInfo } from '../utils_client';
 import { Page } from '@/lib/types/pages';
 
 export async function getPages() {
