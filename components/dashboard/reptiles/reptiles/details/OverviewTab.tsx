@@ -37,7 +37,7 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
   const isBreeder = (reptile.project_ids?.length ?? 0) > 0 || reptile.is_breeder;
 
   return (
-    <div className="space-y-4 2xl:space-y-5 3xl:space-y-8 mt-2">
+    <div className="space-y-4 2xl:space-y-5 3xl:!space-y-10 mt-2">
       <Card className="px-0 gap-2 border-0 py-1 xl:py-2 ">
         <CardHeader className="px-0 ">
           <CardTitle className="text-base flex items-center gap-2">

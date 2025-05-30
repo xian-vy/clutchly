@@ -79,7 +79,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[620px] md:max-w-[700px] lg:max-w-screen-lg h-[90vh] 3xl:h-[85vh] overflow-hidden p-0">
+      <DialogContent className="sm:max-w-[620px] md:max-w-[700px] lg:max-w-screen-md xl:max-w-screen-lg h-[90vh] 2xl:h-[91vh] 3xl:!h-[85vh] overflow-hidden p-0">
         <DialogHeader className="px-6 py-2 flex flex-row items-center justify-between border-b">
           <DialogTitle className="text-base md:text-lg flex items-center gap-2">
             <div className="flex flex-col items-start">

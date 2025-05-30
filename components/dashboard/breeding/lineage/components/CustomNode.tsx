@@ -42,7 +42,7 @@ const CustomNode = ({ data }: Props) => (
                       <CircleHelp className="h-4 w-4 text-muted-foreground shrink-0"/>
                     )}
                   </>
-                  <div className="font-bold text-base lg:text-lg text-black dark:text-white !leading-[1.1]">{data.name || 'Unknown'}</div>  
+                  <div className="font-bold text-base lg:text-lg text-black dark:text-white !leading-[1.2]">{data.name || 'Unknown'}</div>  
               </div>
               <span className="text-[0.7rem] sm:text-[0.8rem] text-muted-foreground">
                     {data.code || '--'}
