@@ -150,7 +150,18 @@ export function FeedingLogsList({
       header: "Notes",
       cell: ({ row }) => {
         const notes = row.getValue("notes") as string;
-        return <div className="max-w-[250px] truncate">{notes || '-'}</div>;
+        return (
+          <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="truncate max-w-[100px]">
+              {notes || '-'}
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{notes || '-'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        )
       }
     }
   ];
