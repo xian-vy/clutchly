@@ -38,7 +38,7 @@ export function FeaturesSection() {
             variant="outline"
             className="group relative px-8 py-3 sm:py-4 lg:py-5 text-lg !bg-background/90 font-medium transition-all hover:bg-primary hover:text-primary-foreground"
           >
-            <Link href="/features" className='text-xs md:text-sm'>
+            <Link href="/features" className='text-xs md:text-sm hover:!text-foreground'>
               See All Features
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
