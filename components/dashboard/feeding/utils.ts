@@ -286,6 +286,7 @@ export const saveMultipleEvents = async (
         }
       };
     });
+    queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
 
     if (onEventsUpdated) {
       onEventsUpdated();
