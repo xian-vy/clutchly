@@ -13,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Search } from 'lucide-react';
 
 import { FeedingEventWithDetails, FeedingScheduleWithTargets, FeedingTargetWithDetails } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
@@ -47,6 +49,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   const [isLoadingReptiles, setIsLoadingReptiles] = useState<boolean>(false);
   const [activeTarget, setActiveTarget] = useState<FeedingTargetWithDetails | null>(null);
   const [sortBy, setSortBy] = useState<'species' | 'name' | 'morph' | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [expandedDates, setExpandedDates] = useState<Record<string, boolean>>({});
   const [feedingAll, setFeedingAll] = useState<boolean>(false);
   const [creatingEvents, setCreatingEvents] = useState<boolean>(false);
@@ -323,6 +326,17 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     }
   };
 
+  // Filter events based on search query
+  const filterEventsBySearch = (events: FeedingEventWithDetails[]) => {
+    if (!searchQuery.trim()) return events;
+    const query = searchQuery.toLowerCase();
+    return events.filter(event => 
+      event.reptile_name.toLowerCase().includes(query) ||
+      event.species_name.toLowerCase().includes(query) ||
+      (event.morph_name?.toLowerCase() || '').includes(query)
+    );
+  };
+
   // Show loading state while any operation is in progress
   if (isLoading || isLoadingReptiles || feedingAll || creatingEvents) {
     return (
@@ -383,9 +397,9 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
   return (
     <div className="space-y-6">
       {sortedDates.map(date => (
-        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none  pt-0 gap-0">
-          <CardHeader className="py-3 px-2 sm:px:4 ">
-            <CardTitle className="text-sm font-medium flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+        <Card key={date} className="overflow-hidden border-x-0 border-b-0 border-t rounded-none shadow-none pt-0 gap-0">
+          <CardHeader className="py-3 px-2 sm:px-4">
+            <CardTitle className="text-sm font-medium flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2.5">
               <div className="flex items-center gap-2 w-full">
                 <Button
                   variant="ghost"
@@ -408,65 +422,76 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
                   )}
                 </span>
               </div>
-              <div className="flex justify-between sm:justify-end items-center gap-2 w-full">
-                <Select 
-                  value={sortBy}
-                  onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph' | 'all')}
-                >
-                  <SelectTrigger className="w-[120px] !text-xs dark:!border-0 hidden sm:flex">
-                    <SelectValue placeholder="Sort By" />
-                  </SelectTrigger>
-                  <SelectContent>
-                   <SelectItem value="all">Sort By</SelectItem>
-                    <SelectItem value="name">Reptile Name</SelectItem>
-                    <SelectItem value="species">Species</SelectItem>
-                    <SelectItem value="morph">Morph</SelectItem>
-                  </SelectContent>
-                </Select>
-                {expandedDates[date] && (
-                  <>
-                    <div className="w-[150px]">
-                      <FeederSelect
-                        value=""
-                        onValueChange={(value) => handleSetFeederForAll(date, value)}
-                        placeholder="Set feeder for all"
-                      />
+              {expandedDates[date] && (
+                  <div className="flex flex-col sm:flex-row justify-between sm:justify-end items-stretch sm:items-center gap-2 w-full">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <div className="relative flex-1 sm:flex-none sm:w-[200px]">
+                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search reptiles..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-8 text-xs"
+                        />
+                      </div>
+                      <Select 
+                        value={sortBy}
+                        onValueChange={(value) => setSortBy(value as 'species' | 'name' | 'morph' | 'all')}
+                      >
+                        <SelectTrigger className="w-[120px] !text-xs dark:!border-0">
+                          <SelectValue placeholder="Sort By" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Sort By</SelectItem>
+                          <SelectItem value="name">Reptile Name</SelectItem>
+                          <SelectItem value="species">Species</SelectItem>
+                          <SelectItem value="morph">Morph</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Button 
-                      variant="default" 
-                      className=" text-xs"
-                      onClick={() => handleFeedAll(date)}
-                      disabled={feedingAll}
-                    >
-                      {feedingAll ? (
-                        <>
-                          <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                          Feeding All...
-                        </>
-                      ) : (
-                        <>
-                          <Check className="h-3 w-3" />
-                          Feed All
-                        </>
-                      )}
-                    </Button>
-                  </>
-                )}
-              </div>
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="w-full sm:w-[150px]">
+                          <FeederSelect
+                            value=""
+                            onValueChange={(value) => handleSetFeederForAll(date, value)}
+                            placeholder="Set feeder for all"
+                          />
+                        </div>
+                        <Button 
+                          variant="default" 
+                          className="text-xs w-[150px] sm:w-auto"
+                          onClick={() => handleFeedAll(date)}
+                          disabled={feedingAll}
+                        >
+                          {feedingAll ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                              Feeding All...
+                            </>
+                          ) : (
+                            <>
+                              <Check className="h-3 w-3" />
+                              Feed All
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                  </div>
+              )}
             </CardTitle>
           </CardHeader>
           {expandedDates[date] && (
-          <FeedingEventsList
+            <FeedingEventsList
               date={date}
               eventsByDate={{
-                [date]: eventsByDate[date].sort((a, b) => {
+                [date]: filterEventsBySearch(eventsByDate[date].sort((a, b) => {
                   // Sort by fed status first (unfed before fed)
                   if (a.fed !== b.fed) {
                     return a.fed ? 1 : -1;
                   }
                   // Then apply the selected sort criteria
                   return 0;
-                })
+                }))
               }}
               events={events}
               sortBy={sortBy}
@@ -480,7 +505,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
               handleUpdateEvent={handleUpdateEvent}
               handleFeederTypeChange={handleFeederTypeChange}
               feederTypeSize={feederTypeSize}
-          />
+            />
           )}
         </Card>
       ))}
