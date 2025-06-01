@@ -46,7 +46,7 @@ export function Footer() {
         {/* Social Links */}
         <div className="flex items-center gap-4 mb-8">
           <Link
-            href="#"
+            href="https://www.facebook.com/xzyian.vy"
             className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
             aria-label="Facebook"
           >
@@ -67,16 +67,16 @@ export function Footer() {
             <Instagram className="h-5 w-5" />
           </Link>
           <Link
-            href="#"
+            href="https://github.com/xian-vy"
             className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
             aria-label="GitHub"
           >
             <Github className="h-5 w-5" />
           </Link>
           <Link
-            href="#"
+            href="mailto:xianv0000@gmail.com"
             className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
-            aria-label="GitHub"
+            aria-label="Email"
           >
             <AtSign className="h-5 w-5" />
           </Link>
