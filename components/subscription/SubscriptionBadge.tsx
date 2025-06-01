@@ -19,8 +19,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Crown, Clock, Sparkles, Zap, ExternalLink } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 
-// Adapter functions to match useResource interface
 async function getSubscriptions(): Promise<Subscription[]> {
   try {
     const subscription = await getSubscription();
@@ -69,7 +69,7 @@ export function SubscriptionBadge() {
     : null;
 
   if (isLoading) {
-    return <Badge variant="outline" className="animate-pulse">Loading...</Badge>;
+    return  <Skeleton className='w-[120px] h-6' />
   }
 
   // If subscription data isn't available yet

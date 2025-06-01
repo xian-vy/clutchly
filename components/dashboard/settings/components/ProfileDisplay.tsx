@@ -2,7 +2,6 @@ import { Organization } from '@/lib/types/organizations';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Loader2, Pencil } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
