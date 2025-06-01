@@ -80,7 +80,7 @@ export const ProfileTab = () => {
 
   return (
     <div className="space-y-2 md:space-y-3 xl:space-y-5">
-      <ProfileDisplay organization={organization} />
+      <ProfileDisplay organization={organization} isAdmin={true} />
       {isEditing ? (
         <CatalogSettingsForm
           settings={settings}
