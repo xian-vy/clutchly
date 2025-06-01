@@ -157,7 +157,7 @@ export function Navigation() {
           )}
         </div>
         <ScrollArea className='h-full'>
-          <nav className="px-3 2xl:px-4 space-y-2 md:space-y-3  3xl:!space-y-6 pt-1 xl:pt-1.5 2xl:pt-2 3xl:!pt-4 flex-1">
+          <nav className="px-3 2xl:px-4 space-y-3  3xl:!space-y-6 pt-2 3xl:!pt-4 flex-1">
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && section && (
@@ -216,7 +216,7 @@ export function Navigation() {
                                 : handleNavigation(subItem.href!)
                               }
                               className={cn(
-                                'relative flex items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-1.5 md:py-2 3xl:py-2.5',
+                                'relative flex items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
                                 isCollapsed ? 'justify-center px-2' : 'pl-3 pr-3',
                                 pathname === subItem.href
                                   ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
