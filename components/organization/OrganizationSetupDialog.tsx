@@ -32,7 +32,7 @@ import { useUser } from '@/lib/hooks/useUser';
 
 // Validation schemas for each step
 export const profileStep1Schema = z.object({
-  full_name: z.string().min(6, "Please enter your name at least 6 characters"),
+  full_name: z.string().min(6, "Please enter your name at least 6 characters").max(25, "Name must be less than 30 characters"),
   collection_size: z.number().nullable().optional(),
 });
 

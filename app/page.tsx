@@ -4,6 +4,7 @@ import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import TopNavigation from '@/components/landing/TopNavigation'
 import PlansSection from '@/components/landing/PlansSection'
 import PedigreeSection from '@/components/landing/PedigreeSection'
+import { FAQSection } from '@/components/landing/FAQSection'
 
 export default function LandingPage() {
   return (
@@ -23,6 +24,7 @@ export default function LandingPage() {
         <FeaturesSection />
         <PedigreeSection />
         <PlansSection />
+        <FAQSection />
       </main>
 
       <Footer />

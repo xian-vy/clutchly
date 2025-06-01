@@ -15,9 +15,9 @@ export const FEATURE_LIST = [
       icon: Globe,
       title: 'Free Website For your Store',
       features: [
-        'Free URL for your store.',
-        'Showcase your featured reptiles and share your website with the world.',
-        'Minimal setup, list reptile to your website directly from your collection',
+        'Free URL link for your store/collections',
+        'Showcase your featured reptiles and share your website to socials',
+        'Customizable with minimal setup, list reptile directly from your collection',
       ]
     },
     {
