@@ -28,7 +28,7 @@ import { Step3 } from './Step3';
 import { useQuery } from '@tanstack/react-query';
 import { APP_NAME } from '@/lib/constants/app';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
-import { useUser } from '@/lib/hooks/useUser';
+import { User } from '@/lib/types/users';
 
 // Validation schemas for each step
 export const profileStep1Schema = z.object({
@@ -62,8 +62,12 @@ async function getOrganizations(): Promise<Organization[]> {
     return [];
   }
 }
-
-export function OrganizationSetupDialog() {
+interface Props {
+  isLoggingOut : boolean;
+  isUserLoading : boolean
+  user : User | undefined,
+}
+export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Props) {
   const [step, setStep] = useState(1);
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,7 +75,6 @@ export function OrganizationSetupDialog() {
   const { fetchInitialSpecies } = useSpeciesStore();
   const { fetchFeederSizes, fetchFeederTypes } = useFeedersStore();
   const { downloadCommonMorphs } = useMorphsStore();
-  const { user, isLoading: userLoading } = useUser();
 
   const { data: organizations, isLoading } = useQuery({
     queryKey: ['organization'],
@@ -114,12 +117,12 @@ export function OrganizationSetupDialog() {
 
   // Set dialog state once organization data is loaded
   useEffect(() => {
-    if (isLoading || userLoading || user) return;
+    if (isLoading || user || isLoggingOut || isUserLoading) return;
 
     const shouldOpen = !isProfileComplete;
 
     setOpen(shouldOpen);
-  }, [isLoading, isProfileComplete, user, userLoading]);
+  }, [isLoading, isProfileComplete, user,isLoggingOut,isUserLoading]);
 
   // Update form data when organization changes
   useEffect(() => {
@@ -215,7 +218,7 @@ export function OrganizationSetupDialog() {
   };
 
   // Simplified loading and user checks
-  if (isLoading || userLoading) return null;
+  if (isLoading || isUserLoading) return null;
   if (user) return null;
 
   return (

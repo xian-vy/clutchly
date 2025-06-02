@@ -1,5 +1,4 @@
 'use client'
-import { getCurrentUser } from '@/app/api/organizations/organizations';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
 import {
@@ -9,7 +8,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQuery } from '@tanstack/react-query';
 import {
     ChevronDown,
     LogOut,
@@ -23,13 +21,12 @@ import { Skeleton } from '../ui/skeleton';
 interface Props {
     isCollapsed : boolean
     onLogout: () => void;
+     user : User | undefined,
+     isLoading : boolean
 }
-const AccountAvatar =   ({isCollapsed ,onLogout} : Props) => {
+const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
     const { theme, setTheme } = useTheme();
-    const { data, isLoading } = useQuery<User>({
-        queryKey: ['user'],
-        queryFn: getCurrentUser,
-    }); 
+  
 
     if (isLoading) {
         return (
@@ -53,7 +50,7 @@ const AccountAvatar =   ({isCollapsed ,onLogout} : Props) => {
             </div>
         );
     }
-    const organization = Array.isArray(data) ? data[0] : data;
+    const organization = Array.isArray(user) ? user[0] : user;
     const userEmail = organization?.email;
     const userFullname = organization?.full_name;
 

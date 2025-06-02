@@ -19,10 +19,12 @@ import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Dot, Loader2, Menu }
 import dynamic from 'next/dynamic'
 import { APP_NAME } from '@/lib/constants/app';
 import useAccessControl from '@/lib/hooks/useAccessControl';
-import { useUser } from '@/lib/hooks/useUser';
 import { Skeleton } from '../ui/skeleton';
 import { logout } from '@/app/auth/logout/actions';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { OrganizationSetupDialog } from '../organization/OrganizationSetupDialog';
+import { User } from '@/lib/types/users';
+import { getCurrentUser } from '@/app/api/organizations/organizations';
 
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
@@ -48,19 +50,22 @@ export function Navigation() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const queryClient = useQueryClient();
 
-  // Get user and access control data
-  const { user, isLoading: userLoading } = useUser();
-  const { filterNavItems, isLoading: accessLoading } = useAccessControl(user);
+  const { data, isLoading } = useQuery<User>({
+    queryKey: ['user'],
+    queryFn: getCurrentUser,
+}); 
+
+  const { filterNavItems, isLoading: accessLoading } = useAccessControl(data);
 
   // Filter navigation items based on access
   const accessibleNavItems = useMemo(() => {
-    if (userLoading || accessLoading) return []; // Return empty array while loading
+    if (isLoading || accessLoading) return []; // Return empty array while loading
     return filterNavItems(NAV_ITEMS);
-  }, [filterNavItems, userLoading, accessLoading]);
+  }, [filterNavItems, isLoading, accessLoading]);
 
   // Group accessible items by section
   const groupedNavItems = useMemo(() => {
-    if (userLoading || accessLoading) {
+    if (isLoading || accessLoading) {
       return {
         '': Array(10).fill(null) 
       };
@@ -73,7 +78,7 @@ export function Navigation() {
       acc[section].push(item);
       return acc;
     }, {});
-  }, [accessibleNavItems, userLoading, accessLoading]);
+  }, [accessibleNavItems, isLoading, accessLoading]);
 
   const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
   const pendingTodayFeedings = todayFeedings.filter(feeding => !feeding.isCompleted);
@@ -98,14 +103,16 @@ export function Navigation() {
   const handleLogout = async () => {
     try {
         setIsLoggingOut(true);
-        await logout();
-        window.location.reload();
+        // Invalidate all queries first
+        await queryClient.invalidateQueries();
+        // Then clear the cache
         queryClient.clear();
+        await logout();
+        router.push('/');
+        setIsLoggingOut(false);
     } catch (error) {
         console.error('Logout failed:', error);
-    } finally {
-        setIsLoggingOut(false);
-    }
+    } 
 };
 
   return (
@@ -166,7 +173,7 @@ export function Navigation() {
                   </h2>
                 )}
                 {items.map((item, index) => {
-                  if (userLoading || accessLoading) {
+                  if (isLoading || accessLoading) {
                     return (
                       <div
                         key={`skeleton-${section}-${index}`}
@@ -260,7 +267,7 @@ export function Navigation() {
           </nav>
         </ScrollArea>
 
-        <AccountAvatar isCollapsed={isCollapsed} onLogout={handleLogout}/>
+        <AccountAvatar  isCollapsed={isCollapsed} onLogout={handleLogout} user={data} isLoading={isLoading}/>
 
         {/* Collapse toggle button */}
         <Button
@@ -276,6 +283,7 @@ export function Navigation() {
           )}
         </Button>
        {dialogToOpen && <AddNewShortcut type={dialogToOpen} />}
+       <OrganizationSetupDialog isLoggingOut={isLoggingOut}  isUserLoading={isLoading} user={data}/>
       </div>
     </>
   );

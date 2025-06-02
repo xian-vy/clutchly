@@ -12,7 +12,7 @@ interface UseAccessControlReturn {
   isLoading: boolean;
 }
 
-const useAccessControl = (user: User | null): UseAccessControlReturn => {
+const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
   // Fetch access profiles and pages using React Query
   const { data: accessProfiles, isLoading: profilesLoading } = useQuery({
     queryKey: ['accessProfiles'],
