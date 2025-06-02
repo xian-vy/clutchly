@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { NewSaleRecord, SaleRecord, SalesSummary } from '@/lib/types/sales'
+import { getUserAndOrganizationInfo } from '../utils_client';
 
 const supabase = createClient()
 
@@ -15,12 +16,17 @@ export interface SalesFilterParams {
 }
 
 export async function getSalesRecords(): Promise<SaleRecord[]> {
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
+
   const { data, error } = await supabase
     .from('sales_records')
     .select('*')
-    .eq('org_id', userId)
+    .eq('org_id', organization.id)
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -40,11 +46,15 @@ export async function getSalesRecord(id: string): Promise<SaleRecord> {
 
 export async function createSalesRecord(record: NewSaleRecord): Promise<SaleRecord> {
   const supabase = createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
   const newSaleRecord = {
     ...record,
-    org_id: userId,
+    org_id: organization.id,
   }
   
   // Create the sale record
@@ -144,10 +154,16 @@ export async function deleteSalesRecord(id: string): Promise<void> {
 
 export async function getSalesByDateRange(filters?: SalesFilterParams): Promise<SaleRecord[]> {
   const supabase = createClient()
-  
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
   let query = supabase
     .from('sales_records')
     .select('*, reptiles(*)')
+    .eq('org_id', organization.id)
     
   // Apply filtering
   if (filters) {
