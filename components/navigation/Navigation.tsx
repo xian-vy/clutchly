@@ -53,7 +53,11 @@ export function Navigation() {
   const { data, isLoading } = useQuery<User>({
     queryKey: ['user'],
     queryFn: getCurrentUser,
-}); 
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    retry: 1, // Only retry once on failure
+    retryDelay: 1000, // Wait 1 second before retrying
+  }); 
 
   const { filterNavItems, isLoading: accessLoading } = useAccessControl(data);
 
