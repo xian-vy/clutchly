@@ -33,7 +33,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { useGroupedReptileMultiSelect } from '@/lib/hooks/useGroupedReptileMultiSelect';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Location } from '@/lib/types/location';
 
 // Define form schema
@@ -199,8 +199,7 @@ export function FeedingScheduleForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 xl:space-y-4 2xl:space-y-6">
       <Alert variant="info">
-      <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Note</AlertTitle>
+        <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           Only rack and room with reptiles assigned are displayed.
         </AlertDescription>
@@ -262,131 +261,11 @@ export function FeedingScheduleForm({
           
          
         </div>
-        {/* Name and Description */}
-        <div className="grid grid-cols-1 gap-4">
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description (Optional)</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Notes about this feeding schedule" 
-                    {...field} 
-                    value={field.value || ''}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        {/* Recurrence */}
-        <FormField
-          control={form.control}
-          name="recurrence"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Recurrence</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  disabled={!!(initialData)}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex items-center space-x-1"
-                >
-                  <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="daily" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Daily</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="weekly" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Weekly</FormLabel>
-                  </FormItem>
-                  {/* <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="custom" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Custom Days</FormLabel>
-                  </FormItem> */}
-                  <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="interval" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Custom</FormLabel>
-                  </FormItem>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        {/* Custom Days Selection */}
-        {recurrence === 'custom' && (
-          <FormField
-            control={form.control}
-            name="custom_days"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Custom Days</FormLabel>
-                <FormControl>
-                  <div className="flex flex-wrap gap-2">
-                    {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-                      <Checkbox
-                        key={day}
-                        checked={field.value?.includes(day)}
-                        onCheckedChange={(checked) => {
-                          const newValue = checked
-                            ? [...(field.value || []), day]
-                            : (field.value || []).filter((d) => d !== day);
-                          field.onChange(newValue);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        
-        {/* Interval Days Selection */}
-        {recurrence === 'interval' && (
-          <FormField
-            control={form.control}
-            name="interval_days"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Interval (days)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="1"
-                    placeholder="Enter number of days"
-                    {...field}
-                    value={field.value ?? ''}
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        
-        {/* Target Selection */}
+
         <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <FormLabel className="block mb-2">Feeding Target Type</FormLabel>
+            <FormLabel className="block mb-2">Feeding Target</FormLabel>
             <Select
               disabled={!!(initialData)}
               value={targetType}
@@ -459,7 +338,6 @@ export function FeedingScheduleForm({
                     <>
                       {/* Room Filter for Racks */}
                       <div className="mb-4">
-                        <FormLabel className="text-sm text-muted-foreground">Filter by Room (Optional)</FormLabel>
                         <Select
                           value={selectedRoomId || "all"}
                           onValueChange={(value) => setSelectedRoomId(value === "all" ? null : value)}
@@ -681,6 +559,130 @@ export function FeedingScheduleForm({
           />
           </div>
         </div>
+
+
+        {/* Name and Description */}
+        <div className="grid grid-cols-1 gap-4">
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Notes about this feeding schedule" 
+                    {...field} 
+                    value={field.value || ''}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        {/* Recurrence */}
+        <FormField
+          control={form.control}
+          name="recurrence"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Recurrence</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  disabled={!!(initialData)}
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex items-center space-x-1"
+                >
+                  <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="daily" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Daily</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="weekly" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Weekly</FormLabel>
+                  </FormItem>
+                  {/* <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="custom" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Custom Days</FormLabel>
+                  </FormItem> */}
+                  <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="interval" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Custom</FormLabel>
+                  </FormItem>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        {/* Custom Days Selection */}
+        {recurrence === 'custom' && (
+          <FormField
+            control={form.control}
+            name="custom_days"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Custom Days</FormLabel>
+                <FormControl>
+                  <div className="flex flex-wrap gap-2">
+                    {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+                      <Checkbox
+                        key={day}
+                        checked={field.value?.includes(day)}
+                        onCheckedChange={(checked) => {
+                          const newValue = checked
+                            ? [...(field.value || []), day]
+                            : (field.value || []).filter((d) => d !== day);
+                          field.onChange(newValue);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        
+        {/* Interval Days Selection */}
+        {recurrence === 'interval' && (
+          <FormField
+            control={form.control}
+            name="interval_days"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Interval (days)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="1"
+                    placeholder="Enter number of days"
+                    {...field}
+                    value={field.value ?? ''}
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        
+        {/* Target Selection */}
+        
         
         {/* Form Buttons */}
         <div className="flex justify-end space-x-2">
