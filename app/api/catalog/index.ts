@@ -122,7 +122,7 @@ export async function getCatalogEntriesByorgName(orgName: string): Promise<Enric
   const { data: orgData, error: orgError } = await supabase
     .from('view_public_organizations')
     .select('id, full_name, logo')
-    .eq('full_name', orgName)
+    .ilike('full_name', orgName)
     .single();
 
   if (orgError) throw orgError;

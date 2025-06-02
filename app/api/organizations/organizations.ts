@@ -66,12 +66,12 @@ export async function getOrganization() {
 }
 
 export async function getPublicOrganization(orgName: string) : Promise<MinProfileInfo | null>  {
-  const supabase = await createClient()
+  const supabase =  createClient()
 
   const { data: orgData, error: orgError } = await supabase
   .from('view_public_organizations')
   .select('id, full_name, logo')
-  .eq('full_name', orgName)
+  .ilike('full_name', orgName)
   .single();
 
   if (orgError || !orgData) {
@@ -83,7 +83,7 @@ export async function getPublicOrganization(orgName: string) : Promise<MinProfil
 }
 
 async function checkOrganizationNameExists(fullName: string, excludeId?: string) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   let query = supabase
     .from('organizations')
