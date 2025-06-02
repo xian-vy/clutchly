@@ -15,6 +15,8 @@ import { getRacks } from '@/app/api/locations/racks';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useQuery } from '@tanstack/react-query';
+import { Reptile } from '@/lib/types/reptile';
+import { getReptiles } from '@/app/api/reptiles/reptiles';
 
 
 
@@ -54,12 +56,31 @@ export function FeedingSchedulesTab() {
     deleteResource: deleteFeedingSchedule,
   });
 
+  const { data: reptiles = [] } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  });
+
+  // Query for occupied locations (locations with reptiles)
+  const { data: occupiedLocations = [] } = useQuery({
+    queryKey: ['occupied-locations'],
+    queryFn: async () => {
+      const locations = await getLocations();
+      // Filter locations to only those that have reptiles assigned
+      const occupiedLocationIds = new Set(reptiles
+        .filter(r => r.location_id)
+        .map(r => r.location_id));
+      
+      const filteredLocations = locations.filter(l => occupiedLocationIds.has(l.id));
+      return filteredLocations;
+    },
+    enabled: isDialogOpen
+  });
 
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: async () => {
-      const data = await getLocations();
-      return data.map(l => ({ id: l.id, label: l.label }));
+      return occupiedLocations.map(l => ({ id: l.id, label: l.label }));
     },
     enabled: isDialogOpen
   });
@@ -68,35 +89,77 @@ export function FeedingSchedulesTab() {
     queryKey: ['rooms'],
     queryFn: async () => {
       const data = await getRooms();
-      return data.map(r => ({ id: r.id, name: r.name }));
+      
+      // Create a set of room IDs that have reptiles
+      const roomsWithReptiles = new Set<string>();
+      
+      // For each occupied location
+      occupiedLocations.forEach(location => {
+        if (location.room_id) {
+          roomsWithReptiles.add(location.room_id);
+        }
+      });
+      
+      // Filter rooms to only those that have reptiles
+      return data
+        .filter(room => roomsWithReptiles.has(room.id))
+        .map(r => ({ id: r.id, name: r.name }));
     },
-    enabled: isDialogOpen
+    enabled: isDialogOpen && occupiedLocations.length > 0
   });
 
   const { data: racks = [] } = useQuery({
     queryKey: ['racks'],
     queryFn: async () => {
       const data = await getRacks();
-      return data.map(r => ({ id: r.id, name: r.name, room_id: r.room_id }));
+      
+      // Create a set of rack IDs that have reptiles
+      const racksWithReptiles = new Set<string>();
+      
+      // For each occupied location
+      occupiedLocations.forEach(location => {
+        if (location.rack_id) {
+          racksWithReptiles.add(location.rack_id);
+        }
+      });
+      
+      // Filter racks to only those that have reptiles
+      const filteredRacks = data.filter(rack => racksWithReptiles.has(rack.id));
+      return filteredRacks.map(r => ({ id: r.id, name: r.name, room_id: r.room_id }));
     },
-    enabled: isDialogOpen
+    enabled: isDialogOpen && occupiedLocations.length > 0
   });
 
   const { data: levels = [] } = useQuery({
     queryKey: ['rack-levels'],
     queryFn: async () => {
       const rackData = await getRacks();
+      
+      // Create a set of rack-level combinations that have reptiles
+      const levelsWithReptiles = new Set<string>();
+      
+      // For each occupied location
+      occupiedLocations.forEach(location => {
+        if (location.rack_id && location.shelf_level) {
+          levelsWithReptiles.add(`${location.rack_id}-${location.shelf_level}`);
+        }
+      });
+      
+      // Create level data only for racks and levels that have reptiles
       const levelData: { rack_id: string; level: number | string }[] = [];
       rackData.forEach(rack => {
         if (rack.rows) {
           for (let i = 1; i <= rack.rows; i++) {
-            levelData.push({ rack_id: rack.id, level: i });
+            // Only add levels that have reptiles
+            if (levelsWithReptiles.has(`${rack.id}-${i}`)) {
+              levelData.push({ rack_id: rack.id, level: i });
+            }
           }
         }
       });
       return levelData;
     },
-    enabled: isDialogOpen
+    enabled: isDialogOpen && occupiedLocations.length > 0
   });
 
   const onDialogChange = (open: boolean) => {
@@ -173,9 +236,12 @@ export function FeedingSchedulesTab() {
             }}
             onCancel={() => onDialogChange(false)}
             locations={locations}
+            occupiedLocations={occupiedLocations}
             rooms={rooms}
             racks={racks}
             levels={levels}
+            reptiles={reptiles}
+            allSchedules={schedules}
           />
         </DialogContent>
       </Dialog>

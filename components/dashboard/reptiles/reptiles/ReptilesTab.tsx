@@ -15,6 +15,7 @@ import { Loader2 } from 'lucide-react';
 import { getOrganization } from '@/app/api/organizations/organizations';
 import { Organization } from '@/lib/types/organizations';
 import { toast } from 'sonner';
+import {  getSubscriptionLimitClient } from '@/app/api/utils_client';
 
 type EnrichedReptileWithLabel = EnrichedReptile & {
   label: string;
@@ -38,6 +39,11 @@ export function ReptilesTab() {
     createResource: createReptile,
     updateResource: updateReptile,
     deleteResource: deleteReptile,
+  })
+
+  const { data: reptileLimit, isLoading : limitLoading } = useQuery({
+    queryKey: ['limit'],
+    queryFn: getSubscriptionLimitClient
   })
 
   const { data: organization, isLoading : profileLoading } = useQuery<Organization>({
@@ -105,7 +111,7 @@ export function ReptilesTab() {
     });
   }, [reptiles, species, morphs, locationData]);
 
-  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations || profileLoading;
+  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations || profileLoading || limitLoading;
 
   if (isLoading) {
     return (
@@ -122,6 +128,26 @@ export function ReptilesTab() {
 
   const handleImportComplete = () => {
     refetchReptiles();
+  }
+
+  const handleSubmit  = async (data: NewReptile) => {
+
+    if (Number(reptiles.length) + 1 >= reptileLimit) {
+      toast.error(`You have reached your reptile limit of ${reptileLimit}. Please upgrade your plan to add more reptiles.`);
+      return;
+    }
+
+    const duplicate = reptiles.find(r => r.name.toLowerCase().trim() === data.name.toLowerCase().trim() && r.id !== selectedReptile?.id);
+    if (duplicate) {
+      toast.error('A reptile with that name already exists!');
+      return;
+    }
+    const success = selectedReptile
+      ? await handleUpdate(data)
+      : await handleCreate(data);
+    if (success) {
+      onDialogChange(); 
+    }
   }
 
   return (
@@ -146,20 +172,7 @@ export function ReptilesTab() {
           </DialogTitle>
           <ReptileForm
             initialData={selectedReptile}
-            onSubmit={async (data) => {
-              //check for duplicate name
-              const duplicate = reptiles.find(r => r.name.toLowerCase().trim() === data.name.toLowerCase().trim() && r.id !== selectedReptile?.id);
-              if (duplicate) {
-                toast.error('A reptile with that name already exists!');
-                return;
-              }
-              const success = selectedReptile
-                ? await handleUpdate(data)
-                : await handleCreate(data);
-              if (success) {
-                onDialogChange(); 
-              }
-            }}
+            onSubmit={handleSubmit}
             onCancel={onDialogChange}
             organization={organization}
           />

@@ -24,7 +24,8 @@ import {
 } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FeedingScheduleWithTargets, NewFeedingSchedule, TargetType } from '@/lib/types/feeding';
-import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Reptile } from '@/lib/types/reptile';
+import { AlertCircle, CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -32,6 +33,8 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { useGroupedReptileMultiSelect } from '@/lib/hooks/useGroupedReptileMultiSelect';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Location } from '@/lib/types/location';
 
 // Define form schema
 const feedingScheduleSchema = z.object({
@@ -57,9 +60,12 @@ interface FeedingScheduleFormProps {
   onSubmit: (data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => Promise<void>;
   onCancel: () => void;
   locations: { id: string; label: string }[];
+  occupiedLocations: Location[];
   rooms: { id: string; name: string }[];
   racks: { id: string; name: string; room_id: string }[];
   levels: { rack_id: string; level: number | string }[];
+  reptiles: Reptile[];
+  allSchedules: FeedingScheduleWithTargets[];
 }
 
 export function FeedingScheduleForm({
@@ -67,9 +73,12 @@ export function FeedingScheduleForm({
   onSubmit,
   onCancel,
   locations,
+  occupiedLocations,
   rooms,
   racks,
   levels,
+  reptiles,
+  allSchedules,
 }: FeedingScheduleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -124,7 +133,46 @@ export function FeedingScheduleForm({
     }
   }, [recurrence, form]);
   
-  const { MultiReptileSelect } = useGroupedReptileMultiSelect();
+  const reptilesWithoutSchedule = reptiles.filter(reptile => {
+    // If reptile has no location, it can't be part of any schedule
+    if (!reptile.location_id) return true;
+
+    // Get the reptile's location details
+    const reptileLocation = occupiedLocations.find(loc => loc.id === reptile.location_id);
+    if (!reptileLocation) return true;
+
+    // Check if reptile is already targeted in any schedule
+    return !allSchedules.some(schedule => {
+      // Skip the current schedule if we're editing it
+      if (initialData && schedule.id === initialData.id) return false;
+
+      return schedule.targets.some(target => {
+        switch (target.target_type) {
+          case 'reptile':
+            // Direct reptile target
+            return target.target_id === reptile.id;
+          case 'location':
+            // Direct location target
+            return target.target_id === reptile.location_id;
+          case 'room':
+            // Room target - check if reptile's location is in this room
+            return target.target_id === reptileLocation.room_id;
+          case 'rack':
+            // Rack target - check if reptile's location is in this rack
+            return target.target_id === reptileLocation.rack_id;
+          case 'level':
+            // Level target - check if reptile's location is at this level in the rack
+            const [rackId, levelNumber] = target.target_id.split('-');
+            return rackId === reptileLocation.rack_id && 
+                   levelNumber === reptileLocation.shelf_level.toString();
+          default:
+            return false;
+        }
+      });
+    });
+  });
+
+  const { MultiReptileSelect } = useGroupedReptileMultiSelect({reptiles: reptilesWithoutSchedule});
   
   // Handle form submission
   const handleSubmit = async (values: FeedingScheduleFormValues) => {
@@ -150,8 +198,13 @@ export function FeedingScheduleForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 xl:space-y-4 2xl:space-y-6">
-        {/* Start and End Dates */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Alert variant="info">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Only rack and room with reptiles assigned are displayed.
+        </AlertDescription>
+      </Alert>
+        <div className="grid grid-cols-2  gap-2 sm:gap-4">
            <FormField
             control={form.control}
             name="name"
@@ -208,131 +261,11 @@ export function FeedingScheduleForm({
           
          
         </div>
-        {/* Name and Description */}
-        <div className="grid grid-cols-1 gap-4">
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description (Optional)</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Notes about this feeding schedule" 
-                    {...field} 
-                    value={field.value || ''}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        {/* Recurrence */}
-        <FormField
-          control={form.control}
-          name="recurrence"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Recurrence</FormLabel>
-              <FormControl>
-                <RadioGroup
-                  disabled={!!(initialData)}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex items-center space-x-1"
-                >
-                  <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="daily" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Daily</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="weekly" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Weekly</FormLabel>
-                  </FormItem>
-                  {/* <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="custom" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Custom Days</FormLabel>
-                  </FormItem> */}
-                  <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="interval" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Custom</FormLabel>
-                  </FormItem>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        {/* Custom Days Selection */}
-        {recurrence === 'custom' && (
-          <FormField
-            control={form.control}
-            name="custom_days"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Custom Days</FormLabel>
-                <FormControl>
-                  <div className="flex flex-wrap gap-2">
-                    {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-                      <Checkbox
-                        key={day}
-                        checked={field.value?.includes(day)}
-                        onCheckedChange={(checked) => {
-                          const newValue = checked
-                            ? [...(field.value || []), day]
-                            : (field.value || []).filter((d) => d !== day);
-                          field.onChange(newValue);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        
-        {/* Interval Days Selection */}
-        {recurrence === 'interval' && (
-          <FormField
-            control={form.control}
-            name="interval_days"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Interval (days)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="1"
-                    placeholder="Enter number of days"
-                    {...field}
-                    value={field.value ?? ''}
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        
-        {/* Target Selection */}
+
         <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4">
           <div>
-            <FormLabel className="block mb-2">Feeding Target Type</FormLabel>
+            <FormLabel className="block mb-2">Feeding Target</FormLabel>
             <Select
               disabled={!!(initialData)}
               value={targetType}
@@ -405,7 +338,6 @@ export function FeedingScheduleForm({
                     <>
                       {/* Room Filter for Racks */}
                       <div className="mb-4">
-                        <FormLabel className="text-sm text-muted-foreground">Filter by Room (Optional)</FormLabel>
                         <Select
                           value={selectedRoomId || "all"}
                           onValueChange={(value) => setSelectedRoomId(value === "all" ? null : value)}
@@ -547,38 +479,51 @@ export function FeedingScheduleForm({
                           <CommandInput placeholder="Search enclosures..." />
                           <CommandEmpty>No enclosures found.</CommandEmpty>
                           <CommandGroup>
-                            {locations.map((location) => (
-                              <CommandItem
-                                key={location.id}
-                                value={location.id}
-                                onSelect={() => {
-                                  const currentValue = [...field.value];
-                                  const exists = currentValue.some(
-                                    target => target.target_type === 'location' && target.target_id === location.id
-                                  );
-                                  
-                                  if (exists) {
-                                    field.onChange(
-                                      currentValue.filter(
-                                        target => !(target.target_type === 'location' && target.target_id === location.id)
-                                      )
+                            {locations.map((location) => {
+                              // Find reptiles in this location
+                              const reptilesInLocation = reptiles.filter(r => r.location_id === location.id);
+                              const reptileCount = reptilesInLocation.length;
+                              
+                              return (
+                                <CommandItem
+                                  key={location.id}
+                                  value={location.id}
+                                  onSelect={() => {
+                                    const currentValue = [...field.value];
+                                    const exists = currentValue.some(
+                                      target => target.target_type === 'location' && target.target_id === location.id
                                     );
-                                  } else {
-                                    field.onChange([
-                                      ...currentValue,
-                                      { target_type: 'location', target_id: location.id }
-                                    ]);
-                                  }
-                                }}
-                              >
-                                <div className="flex items-center">
-                                  {field.value.some(
-                                    target => target.target_type === 'location' && target.target_id === location.id
-                                  ) && <Check className="mr-2 h-4 w-4" />}
-                                  {location.label}
-                                </div>
-                              </CommandItem>
-                            ))}
+                                    
+                                    if (exists) {
+                                      field.onChange(
+                                        currentValue.filter(
+                                          target => !(target.target_type === 'location' && target.target_id === location.id)
+                                        )
+                                      );
+                                    } else {
+                                      field.onChange([
+                                        ...currentValue,
+                                        { target_type: 'location', target_id: location.id }
+                                      ]);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between w-full">
+                                    <div className="flex items-center">
+                                      {field.value.some(
+                                        target => target.target_type === 'location' && target.target_id === location.id
+                                      ) && <Check className="mr-2 h-4 w-4" />}
+                                      <div>
+                                        <div className="font-medium">{location.label}</div>
+                                        <div className="text-sm text-muted-foreground">
+                                          {reptileCount} reptile{reptileCount !== 1 ? 's' : ''} assigned
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CommandItem>
+                              );
+                            })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
@@ -614,6 +559,130 @@ export function FeedingScheduleForm({
           />
           </div>
         </div>
+
+
+        {/* Name and Description */}
+        <div className="grid grid-cols-1 gap-4">
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Notes about this feeding schedule" 
+                    {...field} 
+                    value={field.value || ''}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        {/* Recurrence */}
+        <FormField
+          control={form.control}
+          name="recurrence"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Recurrence</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  disabled={!!(initialData)}
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex items-center space-x-1"
+                >
+                  <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="daily" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Daily</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="weekly" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Weekly</FormLabel>
+                  </FormItem>
+                  {/* <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="custom" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Custom Days</FormLabel>
+                  </FormItem> */}
+                  <FormItem className="flex items-center">
+                    <FormControl>
+                      <RadioGroupItem value="interval" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Custom</FormLabel>
+                  </FormItem>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        {/* Custom Days Selection */}
+        {recurrence === 'custom' && (
+          <FormField
+            control={form.control}
+            name="custom_days"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Custom Days</FormLabel>
+                <FormControl>
+                  <div className="flex flex-wrap gap-2">
+                    {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+                      <Checkbox
+                        key={day}
+                        checked={field.value?.includes(day)}
+                        onCheckedChange={(checked) => {
+                          const newValue = checked
+                            ? [...(field.value || []), day]
+                            : (field.value || []).filter((d) => d !== day);
+                          field.onChange(newValue);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        
+        {/* Interval Days Selection */}
+        {recurrence === 'interval' && (
+          <FormField
+            control={form.control}
+            name="interval_days"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Interval (days)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="1"
+                    placeholder="Enter number of days"
+                    {...field}
+                    value={field.value ?? ''}
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        
+        {/* Target Selection */}
+        
         
         {/* Form Buttons */}
         <div className="flex justify-end space-x-2">

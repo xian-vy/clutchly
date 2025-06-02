@@ -38,10 +38,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getOrganization } from "@/app/api/organizations/organizations";
 import { Organization } from "@/lib/types/organizations";
 import {toast} from 'sonner';
+import { getSubscriptionLimitClient } from "@/app/api/utils_client";
 
 
 const formSchema = z.object({
-  quantity: z.coerce.number().min(1, 'Must create at least 1 hatchling').max(20, 'Maximum 20 hatchlings at once'),
+  quantity: z.coerce.number().min(1, 'Must create at least 1 hatchling').max(50, 'Maximum 50 hatchlings at once'),
   name: z.string().min(1, 'Name is required'),
   reptile_code: z.string().nullable(),
   morph_id: z.string().min(1, 'Morph is required'),
@@ -69,12 +70,15 @@ export function HatchlingForm({
   const { getMorphsBySpecies } = useMorphsStore()
   const { species, fetchSpecies } = useSpeciesStore()
   const morphsForSpecies = getMorphsBySpecies(clutch.species_id.toString())
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: reptiles, isLoading : reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles
   })
-  
+  const { data: reptileLimit, isLoading : limitLoading } = useQuery({
+    queryKey: ['limit'],
+    queryFn: getSubscriptionLimitClient
+  })
   const { data: organization } = useQuery<Organization>({
     queryKey: ['organization2'],
     queryFn: getOrganization
@@ -107,7 +111,8 @@ export function HatchlingForm({
   // Get values from form for code generation
   const morphId = form.watch('morph_id');
   const sex = form.watch('sex');
-  
+  const hatchling_count = form.watch('quantity') || 1; 
+
   // Fetch species if not already loaded
   useEffect(() => {
     if (species.length === 0) {
@@ -124,7 +129,7 @@ export function HatchlingForm({
 
   // Generate reptile code when fields change
   useEffect(() => {
-    if (!morphId || reptilesLoading) return;
+    if (!morphId || reptilesLoading || limitLoading) return;
     
     // Find the selected morph
     const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
@@ -155,11 +160,22 @@ export function HatchlingForm({
         form.setValue('reptile_code', generatedCode);
       }
     }
-  }, [morphId, sex, form, reptiles, morphsForSpecies, clutch.species_id, species, reptilesLoading]);
+  }, [morphId, sex, form, reptiles, morphsForSpecies, clutch.species_id, species, reptilesLoading, limitLoading]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setIsSubmitting(true);
       const today = new Date().toISOString().split('T')[0];
+
+      if (!reptiles) {
+        toast.error('Reptiles data is not available. Please reload page then try again later.');
+        return;
+      }
+
+      if (Number(reptiles.length) + Number(hatchling_count) >= reptileLimit) {
+        toast.error(`You have reached your reptile limit of ${reptileLimit}. Please upgrade your plan to add more reptiles.`);
+        return;
+      }
 
       //check for duplicate name
       const duplicate = reptiles?.find(r => r.name.toLowerCase().trim() === values.name.toLowerCase().trim());
@@ -218,6 +234,8 @@ export function HatchlingForm({
       await Promise.all(createPromises);
     } catch (error) {
       console.error('Error submitting hatchlings:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -372,7 +390,7 @@ export function HatchlingForm({
                     <FormItem>
                       <FormLabel>Number of Hatchlings</FormLabel>
                       <FormControl>
-                        <Input type="number" min="1" max="20" {...field} />
+                        <Input type="number" min="1" max="50" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -403,7 +421,10 @@ export function HatchlingForm({
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">Add Hatchling</Button>
+          <Button disabled={isSubmitting} type="submit">{
+           isSubmitting ? 'Creating...' : `Create ${form.watch('quantity') || 1} Hatchling${form.watch('quantity') !== 1 ? 's' : ''}`
+           } 
+          </Button>
         </div>
       </form>
     </Form>

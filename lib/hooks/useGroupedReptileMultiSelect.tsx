@@ -1,4 +1,3 @@
-import { getReptiles } from "@/app/api/reptiles/reptiles"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -14,23 +13,21 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSpeciesStore } from "@/lib/stores/speciesStore"
 import { cn } from "@/lib/utils"
-import { useQuery } from "@tanstack/react-query"
 import { Check, ChevronsUpDown } from "lucide-react"
 import * as React from "react"
 import { useMemo } from "react"
+import { Reptile } from "../types/reptile"
 
 interface MultiReptileSelectProps {
   value: { target_type: string; target_id: string }[];
   onChange: (value: { target_type: string; target_id: string }[]) => void;
   placeholder?: string;
 }
+interface Props {
+  reptiles: Reptile[]
+}
+export function useGroupedReptileMultiSelect({ reptiles }: Props) {
 
-export function useGroupedReptileMultiSelect() {
-  // Get reptiles from React Query
-  const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  })
 
   // Get species from store
   const { species } = useSpeciesStore()
@@ -92,54 +89,56 @@ export function useGroupedReptileMultiSelect() {
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[400px] p-0">
+          <PopoverContent className="w-[300px] p-0" align="end" side="bottom" sideOffset={5}>
             <Command>
               <CommandInput placeholder="Search species or reptiles..." />
               <CommandEmpty>No results found.</CommandEmpty>
-              {groupedReptiles.map((group) => (
-                <div key={group.label}>
-                  <CommandItem
-                    value={group.label}
-                    onSelect={() => setExpandedSpecies(
-                      expandedSpecies === group.label ? null : group.label
-                    )}
-                    className="cursor-pointer font-medium"
-                  >
-                    <ChevronsUpDown className={cn(
-                      "mr-2 h-4 w-4 shrink-0 transition-transform",
-                      expandedSpecies === group.label ? "rotate-180" : ""
-                    )} />
-                    {group.label}
-                  </CommandItem>
-                  
-                  {expandedSpecies === group.label && (
-                  <ScrollArea className="h-[250px]">
-                    <div className="pl-6 border-l ml-2">
-                      {group.items.map((item) => (
+              <ScrollArea className="h-[250px]">
+                    {groupedReptiles.map((group) => (
+                      <div key={group.label}>
                         <CommandItem
-                          key={item.value}
-                          value={item.label}
-                          onSelect={() => {
-                            toggleReptileSelection(item.value)
-                          }}
-                          className="py-2"
+                          value={group.label}
+                          onSelect={() => setExpandedSpecies(
+                            expandedSpecies === group.label ? null : group.label
+                          )}
+                          className="cursor-pointer font-medium"
                         >
-                          <div className="flex items-center">
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                isReptileSelected(item.value) ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            {item.label}
-                          </div>
+                          <ChevronsUpDown className={cn(
+                            "mr-2 h-4 w-4 shrink-0 transition-transform",
+                            expandedSpecies === group.label ? "rotate-180" : ""
+                          )} />
+                          {group.label}
                         </CommandItem>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                  )}
-                </div>
-              ))}
+                        
+                        {expandedSpecies === group.label && (
+                        <ScrollArea className="h-[250px]">
+                          <div className="pl-6 border-l ml-2">
+                            {group.items.map((item) => (
+                              <CommandItem
+                                key={item.value}
+                                value={item.label}
+                                onSelect={() => {
+                                  toggleReptileSelection(item.value)
+                                }}
+                                className="py-2"
+                              >
+                                <div className="flex items-center">
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      isReptileSelected(item.value) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {item.label}
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                        )}
+                      </div>
+                    ))}
+              </ScrollArea>
             </Command>
           </PopoverContent>
         </Popover>

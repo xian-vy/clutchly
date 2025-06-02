@@ -56,9 +56,11 @@ export function useSelectList<T>({ data, getValue, getLabel, disabled }: UseSele
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-full justify-between truncate"
+              className="w-full overflow-hidden"
             >
-              {selectedLabel || placeholder}
+              <div className="truncate text-start flex-1">
+                 {selectedLabel || placeholder}
+              </div>
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>

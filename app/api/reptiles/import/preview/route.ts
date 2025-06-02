@@ -1,6 +1,6 @@
 'use server'
 import { checkRateLimit, GenericObject, ImportPreviewResponse,  ReptileImportRow, validateReptileRow } from '@/app/api/reptiles/import/utils'
-import { getUserAndOrganizationInfo } from '@/app/api/utils_server'
+import { getReptileCount, getSubscriptionLimit, getUserAndOrganizationInfo } from '@/app/api/utils_server'
 import { NextRequest, NextResponse } from 'next/server'
 import Papa from 'papaparse'
 import * as XLSX from 'xlsx-js-style'
@@ -28,6 +28,8 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    const limit = await getSubscriptionLimit()
+    const reptileCount = await getReptileCount(organization.id)
     // Parse multipart form data
     const formData = await request.formData()
     const file = formData.get('file') as File
@@ -79,6 +81,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unsupported file type. Please upload CSV or Excel file.' },
         { status: 400 }
+      )
+    }
+
+    // Check if importing would exceed the limit
+    const newReptilesCount = parsedData.length
+    if (reptileCount + newReptilesCount > limit) {
+      return NextResponse.json(
+        { error: `Importing ${newReptilesCount} reptiles would exceed your subscription limit of ${limit} reptiles. You currently have ${reptileCount} reptiles.` },
+        { status: 403 }
       )
     }
     

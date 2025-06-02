@@ -148,7 +148,6 @@ export async function getReptilesByLocation(
       morph_name: reptile.morph_id ? morphMap[reptile.morph_id] || 'Unknown' : 'Unknown'
     }));
     
-    console.log(`Server: Successfully processed reptile details`);
     return reptilesWithDetails;
   } catch (error) {
     console.error('Error in getReptilesByLocation:', error);
