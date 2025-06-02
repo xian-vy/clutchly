@@ -236,10 +236,12 @@ export function FeedingSchedulesTab() {
             }}
             onCancel={() => onDialogChange(false)}
             locations={locations}
+            occupiedLocations={occupiedLocations}
             rooms={rooms}
             racks={racks}
             levels={levels}
             reptiles={reptiles}
+            allSchedules={schedules}
           />
         </DialogContent>
       </Dialog>

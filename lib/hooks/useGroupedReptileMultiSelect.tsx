@@ -1,4 +1,3 @@
-import { getReptiles } from "@/app/api/reptiles/reptiles"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -14,23 +13,21 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSpeciesStore } from "@/lib/stores/speciesStore"
 import { cn } from "@/lib/utils"
-import { useQuery } from "@tanstack/react-query"
 import { Check, ChevronsUpDown } from "lucide-react"
 import * as React from "react"
 import { useMemo } from "react"
+import { Reptile } from "../types/reptile"
 
 interface MultiReptileSelectProps {
   value: { target_type: string; target_id: string }[];
   onChange: (value: { target_type: string; target_id: string }[]) => void;
   placeholder?: string;
 }
+interface Props {
+  reptiles: Reptile[]
+}
+export function useGroupedReptileMultiSelect({ reptiles }: Props) {
 
-export function useGroupedReptileMultiSelect() {
-  // Get reptiles from React Query
-  const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  })
 
   // Get species from store
   const { species } = useSpeciesStore()

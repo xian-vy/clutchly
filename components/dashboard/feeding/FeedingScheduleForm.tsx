@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { useGroupedReptileMultiSelect } from '@/lib/hooks/useGroupedReptileMultiSelect';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Location } from '@/lib/types/location';
 
 // Define form schema
 const feedingScheduleSchema = z.object({
@@ -59,10 +60,12 @@ interface FeedingScheduleFormProps {
   onSubmit: (data: NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }) => Promise<void>;
   onCancel: () => void;
   locations: { id: string; label: string }[];
+  occupiedLocations: Location[];
   rooms: { id: string; name: string }[];
   racks: { id: string; name: string; room_id: string }[];
   levels: { rack_id: string; level: number | string }[];
   reptiles: Reptile[];
+  allSchedules: FeedingScheduleWithTargets[];
 }
 
 export function FeedingScheduleForm({
@@ -70,10 +73,12 @@ export function FeedingScheduleForm({
   onSubmit,
   onCancel,
   locations,
+  occupiedLocations,
   rooms,
   racks,
   levels,
   reptiles,
+  allSchedules,
 }: FeedingScheduleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -128,7 +133,46 @@ export function FeedingScheduleForm({
     }
   }, [recurrence, form]);
   
-  const { MultiReptileSelect } = useGroupedReptileMultiSelect();
+  const reptilesWithoutSchedule = reptiles.filter(reptile => {
+    // If reptile has no location, it can't be part of any schedule
+    if (!reptile.location_id) return true;
+
+    // Get the reptile's location details
+    const reptileLocation = occupiedLocations.find(loc => loc.id === reptile.location_id);
+    if (!reptileLocation) return true;
+
+    // Check if reptile is already targeted in any schedule
+    return !allSchedules.some(schedule => {
+      // Skip the current schedule if we're editing it
+      if (initialData && schedule.id === initialData.id) return false;
+
+      return schedule.targets.some(target => {
+        switch (target.target_type) {
+          case 'reptile':
+            // Direct reptile target
+            return target.target_id === reptile.id;
+          case 'location':
+            // Direct location target
+            return target.target_id === reptile.location_id;
+          case 'room':
+            // Room target - check if reptile's location is in this room
+            return target.target_id === reptileLocation.room_id;
+          case 'rack':
+            // Rack target - check if reptile's location is in this rack
+            return target.target_id === reptileLocation.rack_id;
+          case 'level':
+            // Level target - check if reptile's location is at this level in the rack
+            const [rackId, levelNumber] = target.target_id.split('-');
+            return rackId === reptileLocation.rack_id && 
+                   levelNumber === reptileLocation.shelf_level.toString();
+          default:
+            return false;
+        }
+      });
+    });
+  });
+
+  const { MultiReptileSelect } = useGroupedReptileMultiSelect({reptiles: reptilesWithoutSchedule});
   
   // Handle form submission
   const handleSubmit = async (values: FeedingScheduleFormValues) => {
