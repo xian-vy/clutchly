@@ -132,7 +132,7 @@ export function ReptilesTab() {
 
   const handleSubmit  = async (data: NewReptile) => {
 
-    if (reptiles.length + 1 >= reptileLimit) {
+    if (Number(reptiles.length) + 1 >= reptileLimit) {
       toast.error(`You have reached your reptile limit of ${reptileLimit}. Please upgrade your plan to add more reptiles.`);
       return;
     }
