@@ -85,52 +85,54 @@ export function useGroupedFeederSelect() {
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[270px] p-0">
+          <PopoverContent className="w-[270px] p-0" align="end" side="top" sideOffset={5}>
             <Command>
               <CommandInput placeholder="Search species or reptiles..." />
               <CommandEmpty>No results found.</CommandEmpty>
-              {groupedFeeders.map((group) => (
-                <div key={group.label}>
-                  <CommandItem
-                    value={group.label}
-                    onSelect={() => setExpandedSpecies(
-                      expandedSpecies === group.label ? null : group.label
-                    )}
-                    className="cursor-pointer font-medium"
-                  >
-                    <ChevronsUpDown className={cn(
-                      "mr-2 h-4 w-4 shrink-0 transition-transform",
-                      expandedSpecies === group.label ? "rotate-180" : ""
-                    )} />
-                    {group.label}
-                  </CommandItem>
-                  {expandedSpecies === group.label && (
-                    <ScrollArea className="h-[150px]">
-                    <div className="pl-6 border-l ml-2">
-                      {group.items.map((item) => (
+                <ScrollArea className="h-[350px]">
+                    {groupedFeeders.map((group) => (
+                      <div key={group.label}>
                         <CommandItem
-                          key={item.value}
-                          value={item.label}
-                          onSelect={() => {
-                            onValueChange(item.value)
-                            setOpen(false)
-                          }}
-                          className="py-2"
+                          value={group.label}
+                          onSelect={() => setExpandedSpecies(
+                            expandedSpecies === group.label ? null : group.label
+                          )}
+                          className="cursor-pointer font-medium"
                         >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              value === item.value ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {item.label}
+                          <ChevronsUpDown className={cn(
+                            "mr-2 h-4 w-4 shrink-0 transition-transform",
+                            expandedSpecies === group.label ? "rotate-180" : ""
+                          )} />
+                          {group.label}
                         </CommandItem>
-                      ))}
-                    </div>
-                    </ScrollArea>
-                  )}
-                </div>
-              ))}
+                        {expandedSpecies === group.label && (
+                          <ScrollArea className="h-[150px]">
+                          <div className="pl-6 border-l ml-2">
+                            {group.items.map((item) => (
+                              <CommandItem
+                                key={item.value}
+                                value={item.label}
+                                onSelect={() => {
+                                  onValueChange(item.value)
+                                  setOpen(false)
+                                }}
+                                className="py-2"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    value === item.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {item.label}
+                              </CommandItem>
+                            ))}
+                          </div>
+                          </ScrollArea>
+                        )}
+                      </div>
+                    ))}
+                </ScrollArea>
             </Command>
           </PopoverContent>
         </Popover>
