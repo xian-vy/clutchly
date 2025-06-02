@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FeedingScheduleWithTargets, NewFeedingSchedule, TargetType } from '@/lib/types/feeding';
+import { Reptile } from '@/lib/types/reptile';
 import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -60,6 +61,7 @@ interface FeedingScheduleFormProps {
   rooms: { id: string; name: string }[];
   racks: { id: string; name: string; room_id: string }[];
   levels: { rack_id: string; level: number | string }[];
+  reptiles: Reptile[];
 }
 
 export function FeedingScheduleForm({
@@ -70,6 +72,7 @@ export function FeedingScheduleForm({
   rooms,
   racks,
   levels,
+  reptiles,
 }: FeedingScheduleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -547,38 +550,51 @@ export function FeedingScheduleForm({
                           <CommandInput placeholder="Search enclosures..." />
                           <CommandEmpty>No enclosures found.</CommandEmpty>
                           <CommandGroup>
-                            {locations.map((location) => (
-                              <CommandItem
-                                key={location.id}
-                                value={location.id}
-                                onSelect={() => {
-                                  const currentValue = [...field.value];
-                                  const exists = currentValue.some(
-                                    target => target.target_type === 'location' && target.target_id === location.id
-                                  );
-                                  
-                                  if (exists) {
-                                    field.onChange(
-                                      currentValue.filter(
-                                        target => !(target.target_type === 'location' && target.target_id === location.id)
-                                      )
+                            {locations.map((location) => {
+                              // Find reptiles in this location
+                              const reptilesInLocation = reptiles.filter(r => r.location_id === location.id);
+                              const reptileCount = reptilesInLocation.length;
+                              
+                              return (
+                                <CommandItem
+                                  key={location.id}
+                                  value={location.id}
+                                  onSelect={() => {
+                                    const currentValue = [...field.value];
+                                    const exists = currentValue.some(
+                                      target => target.target_type === 'location' && target.target_id === location.id
                                     );
-                                  } else {
-                                    field.onChange([
-                                      ...currentValue,
-                                      { target_type: 'location', target_id: location.id }
-                                    ]);
-                                  }
-                                }}
-                              >
-                                <div className="flex items-center">
-                                  {field.value.some(
-                                    target => target.target_type === 'location' && target.target_id === location.id
-                                  ) && <Check className="mr-2 h-4 w-4" />}
-                                  {location.label}
-                                </div>
-                              </CommandItem>
-                            ))}
+                                    
+                                    if (exists) {
+                                      field.onChange(
+                                        currentValue.filter(
+                                          target => !(target.target_type === 'location' && target.target_id === location.id)
+                                        )
+                                      );
+                                    } else {
+                                      field.onChange([
+                                        ...currentValue,
+                                        { target_type: 'location', target_id: location.id }
+                                      ]);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between w-full">
+                                    <div className="flex items-center">
+                                      {field.value.some(
+                                        target => target.target_type === 'location' && target.target_id === location.id
+                                      ) && <Check className="mr-2 h-4 w-4" />}
+                                      <div>
+                                        <div className="font-medium">{location.label}</div>
+                                        <div className="text-sm text-muted-foreground">
+                                          {reptileCount} reptile{reptileCount !== 1 ? 's' : ''} assigned
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </CommandItem>
+                              );
+                            })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
