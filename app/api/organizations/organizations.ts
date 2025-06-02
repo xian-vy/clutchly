@@ -71,7 +71,7 @@ export async function getPublicOrganization(orgName: string) : Promise<MinProfil
   const { data: orgData, error: orgError } = await supabase
   .from('view_public_organizations')
   .select('id, full_name, logo')
-  .ilike('full_name', orgName)
+  .ilike('full_name', `%${orgName}%`)
   .single();
 
   if (orgError || !orgData) {
