@@ -20,3 +20,8 @@ export interface SubscriptionWithProfile extends Subscription {
     email: string;
   };
 } 
+
+export interface SubscriptionLimits {
+  plan : Subscription,
+  reptile_limit: number,
+}
