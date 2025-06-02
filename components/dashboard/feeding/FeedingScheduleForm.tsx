@@ -25,7 +25,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FeedingScheduleWithTargets, NewFeedingSchedule, TargetType } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
-import { CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { AlertCircle, CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -33,6 +33,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { useGroupedReptileMultiSelect } from '@/lib/hooks/useGroupedReptileMultiSelect';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 // Define form schema
 const feedingScheduleSchema = z.object({
@@ -153,7 +154,13 @@ export function FeedingScheduleForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 xl:space-y-4 2xl:space-y-6">
-        {/* Start and End Dates */}
+      <Alert variant="info">
+      <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Note</AlertTitle>
+        <AlertDescription>
+          Only rack and room with reptiles assigned are displayed.
+        </AlertDescription>
+      </Alert>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
            <FormField
             control={form.control}

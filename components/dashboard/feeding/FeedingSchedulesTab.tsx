@@ -89,9 +89,23 @@ export function FeedingSchedulesTab() {
     queryKey: ['rooms'],
     queryFn: async () => {
       const data = await getRooms();
-      return data.map(r => ({ id: r.id, name: r.name }));
+      
+      // Create a set of room IDs that have reptiles
+      const roomsWithReptiles = new Set<string>();
+      
+      // For each occupied location
+      occupiedLocations.forEach(location => {
+        if (location.room_id) {
+          roomsWithReptiles.add(location.room_id);
+        }
+      });
+      
+      // Filter rooms to only those that have reptiles
+      return data
+        .filter(room => roomsWithReptiles.has(room.id))
+        .map(r => ({ id: r.id, name: r.name }));
     },
-    enabled: isDialogOpen
+    enabled: isDialogOpen && occupiedLocations.length > 0
   });
 
   const { data: racks = [] } = useQuery({
