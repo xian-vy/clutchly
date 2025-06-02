@@ -99,8 +99,8 @@ export function Navigation() {
     try {
         setIsLoggingOut(true);
         await logout();
-        queryClient.clear();
         window.location.reload();
+        queryClient.clear();
     } catch (error) {
         console.error('Logout failed:', error);
     } finally {
