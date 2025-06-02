@@ -58,7 +58,7 @@ export function HelpDialog() {
           </AccordionItem>
 
           <AccordionItem value="housing-management">
-            <AccordionTrigger>Housing Management</AccordionTrigger>
+            <AccordionTrigger>Enclosure Management Management</AccordionTrigger>
             <AccordionContent>
               <p className="mb-2">Create a hierarchical housing system:</p>
               <ul className="list-disc pl-5 space-y-2">

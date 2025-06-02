@@ -2,13 +2,21 @@
 import { createClient } from '@/lib/supabase/client'
 import { Location, NewLocation } from '@/lib/types/location'
 import { updateRackDimensions } from './racks'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getLocations() {
-  const supabase = await createClient()
-  
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
+
   const { data: locations, error } = await supabase
     .from('locations')
     .select('*')
+    .eq('org_id', organization.id)
     .order('label', { ascending: true })
 
   if (error) throw error
@@ -16,7 +24,7 @@ export async function getLocations() {
 }
 
 export async function getAvailableLocations() {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { data: locations, error } = await supabase
     .from('locations')
@@ -29,7 +37,7 @@ export async function getAvailableLocations() {
 }
 
 export async function getLocationById(id: string) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { data: location, error } = await supabase
     .from('locations')
@@ -42,7 +50,7 @@ export async function getLocationById(id: string) {
 }
 
 export async function getLocationsByRack(rackId: string) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { data: locations, error } = await supabase
     .from('locations')
@@ -56,16 +64,19 @@ export async function getLocationsByRack(rackId: string) {
 }
 
 export async function createLocation(location: NewLocation) {
-  const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
 
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
   // With RLS enabled, this will automatically be restricted to the current user
   const { data, error } = await supabase
     .from('locations')
     .insert([{
       ...location,
-      org_id: userId
+      org_id: organization.id
     }])
     .select()
     .single()
@@ -79,7 +90,7 @@ export async function createLocation(location: NewLocation) {
 }
 
 export async function updateLocation(id: string, updates: Partial<NewLocation>) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   // Get the current location to check if rack_id changed
   const { data: currentLocation, error: currentError } = await supabase
@@ -114,7 +125,7 @@ export async function updateLocation(id: string, updates: Partial<NewLocation>) 
 }
 
 export async function deleteLocation(id: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   // Get the location's rack_id before deleting
   const { data: location, error: locationError } = await supabase
@@ -140,7 +151,7 @@ export async function deleteLocation(id: string): Promise<void> {
 }
 
 export async function getLocationDetails(locationId: string) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { data, error } = await supabase
     .from('locations')
@@ -157,14 +168,18 @@ export async function getLocationDetails(locationId: string) {
 }
 
 export async function bulkCreateLocations(locations: NewLocation[]) {
-  const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
 
   // Add org_id to each location
   const locationsWithUserId = locations.map(location => ({
     ...location,
-    org_id: userId
+    org_id: organization.id
   }))
 
   // Insert all locations at once

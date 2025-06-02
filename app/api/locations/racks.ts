@@ -2,13 +2,20 @@
 import { createClient } from '@/lib/supabase/client'
 import { NewRack, Rack, NewLocation } from '@/lib/types/location'
 import { bulkCreateLocations } from './locations'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getRacks() {
-  const supabase = await createClient()
-  
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
   const { data: racks, error } = await supabase
     .from('racks')
     .select('*')
+    .eq('org_id', organization.id)
     .order('name', { ascending: true })
 
   if (error) throw error
@@ -42,16 +49,20 @@ export async function getRackById(id: string) {
 }
 
 export async function createRack(rack: NewRack) {
-  const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
   
   // Create the rack first
   const { data: newRack, error } = await supabase
     .from('racks')
     .insert([{
       ...rack,
-      org_id: userId
+      org_id: organization.id
     }])
     .select()
     .single()
@@ -90,7 +101,7 @@ export async function createRack(rack: NewRack) {
 }
 
 export async function updateRack(id: string, updates: Partial<NewRack>) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   // Get the current rack to check if dimensions changed
   const {  error: currentError } = await supabase
@@ -152,7 +163,7 @@ export async function updateRack(id: string, updates: Partial<NewRack>) {
 }
 
 export async function deleteRack(id: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   // Delete all locations for this rack first
   await supabase
@@ -171,7 +182,7 @@ export async function deleteRack(id: string): Promise<void> {
 
 // Helper function to get room by ID
 async function getRoomById(id: string) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { data: room, error } = await supabase
     .from('rooms')
@@ -184,7 +195,7 @@ async function getRoomById(id: string) {
 }
 
 export async function updateRackDimensions(rackId: string) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   // Get all locations for this rack
   const { data: locations, error: locationsError } = await supabase

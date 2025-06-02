@@ -201,9 +201,11 @@ export async function createCatalogEntry(entry: NewCatalogEntry): Promise<Catalo
     .from('catalog_entries')
     .select('*', { count: 'exact', head: true })
     .eq('org_id', organization.id);
-  
+
+
+    
   // If trial user and at limit
-  if (count || 0 >= 30) {
+  if ((count ?? 0) >= 30) {
     throw new Error('Trial users are limited to 30 reptiles in catalog.');
   }
 

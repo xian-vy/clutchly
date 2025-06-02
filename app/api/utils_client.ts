@@ -19,26 +19,24 @@ export async function getUserAndOrganizationInfo () : Promise<UserOrg> {
 
   const { data: user, error: userError } = await supabase
     .from('users')
-    .select('*')
+    .select(`
+      *,
+      organizations!inner (*)
+    `)
     .eq('id', userId)
     .single()
     
   if (userError) throw userError
-
-  const { data: organization, error: orgError } = await supabase
-    .from('organizations')
-    .select('*')
-    .eq('id', user.org_id)
-    .single()
-
-  if (orgError) throw orgError
 
   const userWithEmail = {
     ...user,
     email
   }
 
-  return { user : userWithEmail, organization }
+  return { 
+    user: userWithEmail, 
+    organization: user.organizations 
+  }
 }
 
 export async function getSubscriptionClient() {

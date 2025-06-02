@@ -1,15 +1,20 @@
 
 import { createClient } from '@/lib/supabase/client'
 import { NewRoom, Room } from '@/lib/types/location'
+import { getUserAndOrganizationInfo } from '../utils_client'
 
 export async function getRooms() {
-  const supabase = await createClient()
-  const currentUser= await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id  
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
   const { data: rooms, error } = await supabase
     .from('rooms')
     .select('*')
-    .eq('org_id', userId)
+    .eq('org_id', organization.id)
     .order('name', { ascending: true })
 
   if (error) throw error
@@ -17,7 +22,7 @@ export async function getRooms() {
 }
 
 export async function getRoomById(id: string) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { data: room, error } = await supabase
     .from('rooms')
@@ -30,25 +35,33 @@ export async function getRoomById(id: string) {
 }
 
 export async function createRoom(room: NewRoom) {
-  const supabase = await createClient()
-  const currentUser = await supabase.auth.getUser()
-  const userId = currentUser.data.user?.id
+  const supabase =  createClient()
+  const { organization } = await getUserAndOrganizationInfo()
+
+  if (!organization) {
+    console.error('No authenticated user found');
+    throw new Error('Authentication required');
+  }
   
+  const newRoom = {
+    ...room,
+    org_id: organization.id
+  }
+
   const { data, error } = await supabase
     .from('rooms')
-    .insert([{
-      ...room,
-      org_id: userId
-    }])
-    .select()
+    .insert([newRoom])
+    .select() 
     .single()
 
-  if (error) throw error
+  if (error)  {
+    console.error('Error creating room:', error)
+  }
   return data as Room
 }
 
 export async function updateRoom(id: string, updates: Partial<NewRoom>) {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { data, error } = await supabase
     .from('rooms')
@@ -62,7 +75,7 @@ export async function updateRoom(id: string, updates: Partial<NewRoom>) {
 }
 
 export async function deleteRoom(id: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase =  createClient()
   
   const { error } = await supabase
     .from('rooms')
