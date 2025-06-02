@@ -112,7 +112,7 @@ export function Navigation() {
         // Then clear the cache
         queryClient.clear();
         await logout();
-        router.push('/');
+        window.location.reload();
         setIsLoggingOut(false);
     } catch (error) {
         console.error('Logout failed:', error);
