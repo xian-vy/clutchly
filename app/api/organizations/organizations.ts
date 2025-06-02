@@ -71,7 +71,7 @@ export async function getPublicOrganization(orgName: string) : Promise<MinProfil
   const { data: orgData, error: orgError } = await supabase
   .from('view_public_organizations')
   .select('id, full_name, logo')
-  .ilike('full_name', `%${orgName}%`)
+  .eq('full_name', orgName)
   .single();
 
   if (orgError || !orgData) {
@@ -141,7 +141,7 @@ export async function createOrganization(orgData: ProfileFormData) {
     const newProfile: Partial<Organization> = {
       id: user.id,
       email: user.email || '',
-      full_name: orgData.full_name,
+      full_name: orgData.full_name.toLowerCase(),
       account_type: orgData.account_type,
       collection_size: orgData.collection_size,
       selected_species: orgData.selected_species,
