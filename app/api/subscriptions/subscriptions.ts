@@ -28,7 +28,7 @@ export async function getSubscription() {
 
     // If subscription doesn't exist, create a free one
     if (error && error.code === 'PGRST116') {
-      return createSubscription('Free')
+      return createSubscription('Basic')
     }
 
     if (error) {
@@ -56,11 +56,11 @@ export async function createSubscription(plan: SubscriptionPlan) {
   const newSubscription = {
     org_id: user.id,
     plan: plan,
-    status: plan === 'Free' ? 'active' : 'trialing',
+    status: plan === 'Basic' ? 'active' : 'trialing',
     stripe_customer_id: null,
     stripe_subscription_id: null,
     current_period_end: null,
-    trial_end: plan === 'Free' ? null : trialEnd.toISOString()
+    trial_end: plan === 'Basic' ? null : trialEnd.toISOString()
   }
   
   const { data, error } = await supabase
@@ -138,49 +138,3 @@ export async function cancelSubscription() {
   
   return data as Subscription
 }
-
-export async function getSubscriptionPlans() {
-  return [
-    {
-      id: 'free',
-      name: 'Free',
-      description: 'Basic reptile management for hobbyists',
-      price: 0,
-      features: [
-        'Manage up to 5 reptiles',
-        'Basic health tracking',
-        'Photo documentation',
-        'Mobile access'
-      ]
-    },
-    {
-      id: 'starter',
-      name: 'Starter',
-      description: 'Enhanced tracking for serious keepers',
-      price: 9.99,
-      features: [
-        'Manage up to 25 reptiles',
-        'Advanced health tracking',
-        'Breeding records',
-        'Growth analytics',
-        'Unlimited photos',
-        'Premium support'
-      ]
-    },
-    {
-      id: 'pro',
-      name: 'Pro',
-      description: 'Complete solution for breeders & facilities',
-      price: 19.99,
-      features: [
-        'Unlimited reptiles',
-        'Complete genetic tracking',
-        'Advanced breeding projects',
-        'Full analytics dashboard',
-        'Facility management',
-        'API access',
-        'Priority support'
-      ]
-    }
-  ]
-} 

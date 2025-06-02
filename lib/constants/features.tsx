@@ -133,7 +133,7 @@ export const FEATURE_LIST = [
       recommended: true,
       description: 'Enhanced tracking for serious keepers',
       features: [
-        'Manage up to 999 reptiles',
+        'Manage up to 499 reptiles',
         'Advanced health tracking',
         'Breeding records',
         'Growth analytics',
@@ -148,7 +148,7 @@ export const FEATURE_LIST = [
       badge: 'Best Value',
       description: 'Complete solution for breeders & facilities',
       features: [
-        'Manage up to 2499 reptiles',
+        'Manage up to 1499 reptiles',
         'Complete genetic tracking',
         'Advanced breeding projects',
         'Full analytics dashboard',
