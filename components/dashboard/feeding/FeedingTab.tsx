@@ -80,13 +80,16 @@ export function FeedingTab() {
       
       return stats;
     },
-    enabled: schedules.length > 0
+    enabled: schedules.length > 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   const isLoading = schedulesLoading || upcomingLoading;
 
   const refreshStatus = useCallback(() => {
+    // Only invalidate specific queries that need updating
     queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
+    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
     refreshUpcoming();
   }, [ queryClient,refreshUpcoming]);
 

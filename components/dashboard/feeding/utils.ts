@@ -273,24 +273,66 @@ export const saveMultipleEvents = async (
   onEventsUpdated?: () => void
 ) => {
   try {
-    // Update events in parallel using the new updateFeedingEventWithCache function
+    // Get current events from cache
+    const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [];
+    
+    // Optimistically update events cache
+    const updatedEvents = currentEvents.map(event => {
+      const update = events.find(e => e.id === event.id);
+      if (update) {
+        return {
+          ...event,
+          fed: update.fed,
+          fed_at: update.fed ? new Date().toISOString() : null,
+          notes: update.notes,
+          feeder_size_id: update.feeder_size_id
+        };
+      }
+      return event;
+    });
+    
+    queryClient.setQueryData(['feeding-events', scheduleId], updatedEvents);
+    
+    // Optimistically update feeding status cache
+    queryClient.setQueryData(['feeding-status'], (oldData: Record<string, ScheduleStatus> | undefined) => {
+      if (!oldData || !oldData[scheduleId]) return oldData;
+      
+      const status = oldData[scheduleId];
+      const completedEvents = updatedEvents.filter(e => e.fed).length;
+      
+      return {
+        ...oldData,
+        [scheduleId]: {
+          ...status,
+          completedEvents,
+          isCompleted: completedEvents === status.totalEvents,
+          percentage: Math.round((completedEvents / status.totalEvents) * 100)
+        }
+      };
+    });
+
+    // Make API calls in parallel
     const promises = events.map(event => 
-      updateFeedingEventWithCache(
-        event.id,
-        event.fed, // Use the event's fed status instead of the global fed parameter
-        event.notes,
-        event.feeder_size_id,
-        scheduleId,
-        queryClient,
-        onEventsUpdated
-      )
+      updateFeedingEvent(event.id, {
+        fed: event.fed,
+        fed_at: event.fed ? new Date().toISOString() : null,
+        notes: event.notes,
+        feeder_size_id: event.feeder_size_id
+      })
     );
     
     await Promise.all(promises);
-    queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
+
+    if (onEventsUpdated) {
+      onEventsUpdated();
+    }
   } catch (error) {
     console.error('Error updating multiple feeding events:', error);
     toast.error('Failed to update feeding status');
+    
+    // Revert caches on error
+    queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
+    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
     throw error;
   }
 };
