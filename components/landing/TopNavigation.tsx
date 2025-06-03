@@ -18,7 +18,7 @@ const TopNavigation = () => {
                 src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'} 
                 width={32} 
                 height={32} 
-                alt="Clutchly" 
+                alt="Clutchly Logo" 
                 className="rounded-full"
               />
               <span className="text-base md:text-lg font-semibold text-gray-900 dark:text-white">
