@@ -19,6 +19,8 @@ const ConnectorNode = ({ data }: NodeProps<CustomNodeData>) => (
         transform: 'translateX(-50%)',
         left: '50%'
       }} 
+      aria-describedby='connector-node-handle-top'
+      aria-label='Connector Node Top Handle'
     />
     <div className="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600"></div>
     <Handle 
@@ -30,6 +32,8 @@ const ConnectorNode = ({ data }: NodeProps<CustomNodeData>) => (
         transform: 'translateX(-50%)',
         left: '50%'
       }} 
+      aria-describedby='connector-node-handle-bottom'
+      aria-label='Connector Node Bottom Handle'
     />
   </div>
 );

@@ -1,4 +1,3 @@
-
 import { createClient } from '@/lib/supabase/client'
 import { NewRack, Rack, NewLocation } from '@/lib/types/location'
 import { bulkCreateLocations } from './locations'
@@ -104,7 +103,7 @@ export async function updateRack(id: string, updates: Partial<NewRack>) {
   const supabase =  createClient()
   
   // Get the current rack to check if dimensions changed
-  const {  error: currentError } = await supabase
+  const { data: currentRack, error: currentError } = await supabase
     .from('racks')
     .select('*')
     .eq('id', id)
@@ -122,8 +121,12 @@ export async function updateRack(id: string, updates: Partial<NewRack>) {
 
   if (error) throw error
 
-  // If dimensions changed, regenerate locations
-  if (updates.rows !== undefined || updates.columns !== undefined) {
+  // Only regenerate locations if dimensions actually changed
+  const dimensionsChanged = 
+    (updates.rows !== undefined && updates.rows !== currentRack.rows) ||
+    (updates.columns !== undefined && updates.columns !== currentRack.columns);
+
+  if (dimensionsChanged) {
     // Delete existing locations for this rack
     await supabase
       .from('locations')

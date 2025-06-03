@@ -63,7 +63,7 @@ export function LocationsVisualizer({
   }
 
   return (
-    <Card>
+    <Card className='!pb-0'>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -88,22 +88,22 @@ export function LocationsVisualizer({
         </div>
       </CardHeader>
       
-      <CardContent className='pl-0'>
+      <CardContent className='pl-0  max-w-[325px] sm:max-w-[700px]'>
         <div className="overflow-x-auto">
           <div className="min-w-max">
             <div className="grid grid-flow-col gap-4 mb-2">
               <div className="w-18 text-center font-medium"></div>
               {positions.map(position => (
-                <div key={`header-${position}`} className="text-center text-xs font-medium">
+                <div key={`header-${position}`} className="text-center text-xs  w-[100px] font-medium text-muted-foreground">
                   Position {position}
                 </div>
               ))}
             </div>
             
-            <div className="space-y-4 max-h-[350px] overflow-y-auto">
+            <div className="space-y-4 max-h-[200px] 2xl:max-h-[270px]  3xl:!max-h-[420px] overflow-y-auto">
               {levels
               .map(level => (
-                <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center">
+                <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center text-muted-foreground">
                   <div className="w-18 text-right font-medium text-xs">
                     Level {level}
                   </div>
@@ -112,17 +112,13 @@ export function LocationsVisualizer({
                     <div 
                       key={`cell-${level}-${position}`}
                       className={`
-                        h-12 rounded-md border-2 flex items-center justify-center 
-                        ${isShowingOccupied ? 'bg-red-50 border-red-200' : 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-950 '}
-                        ${isShowingOccupied ? 'text-red-800' : 'text-blue-800'} 
-                        transition-colors hover:bg-opacity-80
-                      `}
+                        h-16 w-[120px] 3xl:!w-[150px] rounded-md border-1 flex items-center justify-center  border-input bg-background hover:border-primary `}
                     >
                       <div className="flex flex-col items-center">
                         <span className="text-xs font-medium text-black dark:text-white">
                           L{level}-P{position}
                         </span>
-                        <Badge variant={isShowingOccupied ? "destructive" : "outline"} className={` ${!isShowingOccupied ? " text-blue-800 dark:text-white" : ""} `}>
+                        <Badge variant={isShowingOccupied ? "destructive" : "outline"} className={` ${!isShowingOccupied ? "text-muted-foreground" : ""} `}>
                           {isShowingOccupied ? "Occupied" : "Available"}
                         </Badge>
                       </div>
