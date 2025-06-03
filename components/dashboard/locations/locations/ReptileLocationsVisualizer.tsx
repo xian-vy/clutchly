@@ -189,7 +189,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
             <div className="grid grid-flow-col mb-2 content-start">
               <div className="w-18 text-center font-medium"></div>
               {positions.map(position => (
-                <div key={`header-${position}`} className="text-center text-xs font-medium w-[100px]">
+                <div key={`header-${position}`} className="text-center text-xs font-medium w-[100px] text-muted-foreground">
                   Position {position}
                 </div>
               ))}
@@ -198,7 +198,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
             <div className="space-y-4 max-h-[450px] overflow-y-auto">
               {levels.map(level => (
                 <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center">
-                  <div className="w-14 sm:w-16 lg:w-20 xl:w-24 text-right font-medium text-[0.7rem] sm:text-xs">
+                  <div className="w-14 sm:w-16 lg:w-20 xl:w-24 text-right font-medium text-[0.7rem] sm:text-xs  text-muted-foreground">
                     Level {level}
                   </div>
                   
@@ -215,21 +215,16 @@ const handleEnclosureClick = async (locationId: string | null) => {
                       <TooltipProvider key={`cell-${level}-${position}`}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div 
-                              className={`
-                                h-14 rounded-md w-[120px] 3xl:!w-[150px] border-1 flex items-center justify-center 
-                                ${isOccupied ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-950' : 'bg-green-50 dark:bg-primary/5 border-green-200 dark:border-green-950 '}
-                                ${isOccupied ? 'text-red-800' : 'text-green-800'} 
-                                transition-colors hover:bg-opacity-80
-                              `}
-                            >
+                            <div className={` h-16 mt-2 rounded-md w-[120px] 3xl:!w-[150px] border-1 flex items-center justify-center border-input bg-background hover:border-primary
+                              ${!isOccupied ? "" : "border-ring ring-ring/50 ring-[3px]"}
+                              `}>
                               <div onClick={() => handleEnclosureClick(location ? location.id : null)} className="cursor-pointer flex flex-col items-center ">
-                                <span className="text-[0.7rem] sm:text-xs font-medium text-black dark:text-white text-center  w-18 truncate">
+                                <span className={`text-[0.7rem] sm:text-xs font-medium text-center  w-18 truncate ${!isOccupied ? "text-muted-foreground" : ""}`}>
                                   {reptile ? reptile.name : `L${level}-P${position}`}
                                 </span>
                                 <Badge 
                                   variant="outline"
-                                  className={`${!isOccupied ? " text-green-800 dark:text-white" : ""}`}
+                                  className={`${!isOccupied ? "text-muted-foreground" : "text-primary"}`}
                                 >
                                   {isOccupied ? "Occupied" : "Available"}
                                 </Badge>
@@ -268,6 +263,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
           onValueChange={(value)=>{
             setSelectedReptile(reptiles.find(reptile => reptile.id === value))
           }}
+          value={selectedReptile?.id || ''}
         />
         <Button
           variant="outline"
