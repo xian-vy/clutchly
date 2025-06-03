@@ -191,7 +191,7 @@ export function FeedingTab() {
                           Next feeding: {format(stats.nextFeedingDate, 'EEEE, MMM d, yyyy')}  
                         </div>
                        <>
-                         {daysUntilNext > 0 ? `${daysUntilNext} days to go` : 'Today'}
+                         {daysUntilNext > 0 ? `${daysUntilNext} days to go` : 'Tomorrow'}
                         </>
                       </Badge>
                     </div>
