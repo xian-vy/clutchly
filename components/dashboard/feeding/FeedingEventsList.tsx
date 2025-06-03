@@ -56,7 +56,7 @@ const FeedingEventsList = ({
   return (
     <div>
       <CardContent className="py-0 px-4">
-        <div className="overflow-x-auto w-full">
+        <div className="max-w-[300px] sm:max-w-[600px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto  ">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
