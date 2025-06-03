@@ -15,8 +15,9 @@ export const config = {
      * - manifest.json (manifest file)
      * - sitemap.xml (sitemap file)
      * - robots.txt (robots file)
+     * - google52e4890feeed6753.html (Google verification file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sitemap.xml|robots.txt|google52e4890feeed6753.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
