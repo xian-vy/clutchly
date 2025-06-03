@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { LocationsVisualizer } from '../locations/LocationsVisualizer';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Define form schema
 const rackFormSchema = z.object({
@@ -41,6 +42,8 @@ interface RackFormProps {
 export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDelete }: RackFormProps) {
   const [activeTab, setActiveTab] = useState<string>("form");
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
   const form = useForm<RackFormValues>({
     resolver: zodResolver(rackFormSchema),
     defaultValues: {
@@ -96,16 +99,28 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
       columns: data.columns || null,
     };
     
-    const success = await onSubmit(rackData);
-    if (success) {
-      onClose();
+    setIsSubmitting(true);
+    try {
+      const success = await onSubmit(rackData);
+      if (success) {
+        // Invalidate locations query to refresh the locations list
+        await queryClient.invalidateQueries({ queryKey: ['locations'] });
+        onClose();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
     if (selectedRack && onDelete) {
-      await onDelete(selectedRack.id);
-      onClose();
+      setIsSubmitting(true);
+      try {
+        await onDelete(selectedRack.id);
+        onClose();
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -260,21 +275,33 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
                         type="button" 
                         variant="destructive"
                         onClick={handleDelete}
+                        disabled={isSubmitting}
                       >
+                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Delete
                       </Button>
                     )}
-                    <Button type="button" variant="outline" onClick={onClose}>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={onClose}
+                      disabled={isSubmitting}
+                    >
                       Cancel
                     </Button>
                     <Button 
                       type="button" 
                       variant="secondary" 
                       onClick={() => selectedRoom && setActiveTab("preview")}
-                      disabled={!selectedRoom}>
+                      disabled={!selectedRoom || isSubmitting}
+                    >
                       Preview
                     </Button>
-                    <Button type="submit">
+                    <Button 
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {selectedRack ? 'Update' : 'Create'}
                     </Button>
                   </div>

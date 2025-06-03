@@ -80,11 +80,18 @@ const updateReptileLocation = async () => {
     location_id: selectedEnclosure
   };
   try {
+    const toastId = toast.loading("Assigning reptile to enclosure...");
     const success = await handleUpdate(updatedReptile);
     if (success) {
       // Invalidate all reptile queries to ensure all components get updated data
       await queryClient.invalidateQueries({ queryKey: ['reptiles'] });
-      toast.success("Reptile assigned to enclosure.");
+      toast.success("Reptile assigned to enclosure.", {
+        id: toastId
+      });
+    } else {
+      toast.error("Failed to assign reptile to enclosure.", {
+        id: toastId
+      });
     }
   } catch (error) {
     console.error('Error updating reptile location:', error);
