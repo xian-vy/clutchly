@@ -186,10 +186,10 @@ const handleEnclosureClick = async (locationId: string | null) => {
       <CardContent className='pl-0'>
         <div className="overflow-x-auto">
           <div className="min-w-max">
-            <div className="grid grid-flow-col gap-4 mb-2">
+            <div className="grid grid-flow-col mb-2 content-start">
               <div className="w-18 text-center font-medium"></div>
               {positions.map(position => (
-                <div key={`header-${position}`} className="text-center text-xs font-medium">
+                <div key={`header-${position}`} className="text-center text-xs font-medium w-[100px]">
                   Position {position}
                 </div>
               ))}
@@ -198,7 +198,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
             <div className="space-y-4 max-h-[450px] overflow-y-auto">
               {levels.map(level => (
                 <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center">
-                  <div className="w-14 sm:w-16 lg:w-20 xl:w-24  text-right font-medium text-[0.7rem] sm:text-xs">
+                  <div className="w-14 sm:w-16 lg:w-20 xl:w-24 text-right font-medium text-[0.7rem] sm:text-xs">
                     Level {level}
                   </div>
                   
@@ -217,7 +217,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
                           <TooltipTrigger asChild>
                             <div 
                               className={`
-                                h-14 rounded-md border-1 flex items-center justify-center 
+                                h-14 rounded-md w-[120px] 3xl:!w-[150px] border-1 flex items-center justify-center 
                                 ${isOccupied ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-950' : 'bg-green-50 dark:bg-primary/5 border-green-200 dark:border-green-950 '}
                                 ${isOccupied ? 'text-red-800' : 'text-green-800'} 
                                 transition-colors hover:bg-opacity-80
