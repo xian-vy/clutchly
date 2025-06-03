@@ -337,56 +337,99 @@ export const getScheduleStats = async (schedule: FeedingScheduleWithTargets) => 
   };
 };
 
-
+// FIXED: Proper next feeding day calculation that handles all scenarios correctly
 const getNextFeedingDay = (schedule: FeedingScheduleWithTargets): Date => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  // Check if the schedule was created today or in the future
-  const scheduleCreatedAt = new Date(schedule.created_at);
-  scheduleCreatedAt.setHours(0, 0, 0, 0);
+  const startDate = new Date(schedule.start_date);
+  startDate.setHours(0, 0, 0, 0);
   
-  if (schedule.recurrence === 'daily') {
-    return today;
-  } else if (schedule.recurrence === 'weekly') {
-    const startDate = new Date(schedule.start_date);
-    const startDayOfWeek = startDate.getDay();
-    const currentDayOfWeek = today.getDay();
-    
-    if (startDayOfWeek === currentDayOfWeek) {
-      // Always return next week's date since we want the next feeding day
+  const endDate = schedule.end_date ? new Date(schedule.end_date) : null;
+  if (endDate) endDate.setHours(0, 0, 0, 0);
+  
+  switch (schedule.recurrence) {
+    case 'daily': {
+      // For daily schedules, next feeding is always tomorrow (or today if we haven't started yet)
+      if (today < startDate) {
+        return startDate;
+      }
+      
       const nextDate = new Date(today);
-      nextDate.setDate(nextDate.getDate() + 7);
+      nextDate.setDate(nextDate.getDate() + 1);
+      
+      // Check if next date exceeds end date
+      if (endDate && nextDate > endDate) {
+        return endDate; // Return end date if we've reached the end
+      }
+      
       return nextDate;
-    } else {
-      let daysToAdd = (startDayOfWeek - currentDayOfWeek + 7) % 7;
-      if (daysToAdd === 0) daysToAdd = 7; // If we'd get today, we want next week
+    }
+
+    case 'weekly': {
+      const startDayOfWeek = startDate.getDay();
+      const todayDayOfWeek = today.getDay();
+      
+      // If we haven't reached the start date yet
+      if (today < startDate) {
+        return startDate;
+      }
+      
+      // Calculate next occurrence of the start day of week
+      let daysToAdd = (startDayOfWeek - todayDayOfWeek + 7) % 7;
+      
+      // If today is the feeding day, next feeding is next week
+      if (daysToAdd === 0) {
+        daysToAdd = 7;
+      }
       
       const nextDate = new Date(today);
       nextDate.setDate(nextDate.getDate() + daysToAdd);
+      
+      // Check if next date exceeds end date
+      if (endDate && nextDate > endDate) {
+        return endDate;
+      }
+      
       return nextDate;
     }
-  } else if (schedule.recurrence === 'interval' && schedule.interval_days) {
-    const startDate = new Date(schedule.start_date);
-    startDate.setHours(0, 0, 0, 0);
-    
-    // Calculate days since start
-    const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    // If today is a feeding day, return today
-    if (daysSinceStart % schedule.interval_days === 0) {
-      return today;
+
+    case 'interval': {
+      if (!schedule.interval_days || schedule.interval_days <= 0) {
+        return today;
+      }
+      
+      // If we haven't reached the start date yet
+      if (today < startDate) {
+        return startDate;
+      }
+      
+      // Calculate days since start
+      const daysSinceStart = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Calculate days until next feeding
+      const daysUntilNext = schedule.interval_days - (daysSinceStart % schedule.interval_days);
+      
+      // If daysUntilNext is 0, it means today is a feeding day, so next feeding is after interval_days
+      const actualDaysUntilNext = daysUntilNext === 0 ? schedule.interval_days : daysUntilNext;
+      
+      const nextDate = new Date(today);
+      nextDate.setDate(today.getDate() + actualDaysUntilNext);
+      
+      // Check if next date exceeds end date
+      if (endDate && nextDate > endDate) {
+        return endDate;
+      }
+      
+      return nextDate;
     }
-    
-    // Calculate days until next feeding
-    const daysUntilNext = schedule.interval_days - (daysSinceStart % schedule.interval_days);
-    
-    // Calculate next feeding date
-    const nextDate = new Date(today);
-    nextDate.setDate(today.getDate() + daysUntilNext);
-    
-    return nextDate;
+
+    default:
+      return today;
   }
-  
-  return today;
+};
+
+// NEW: Helper function to check if today is a scheduled feeding day
+export const isTodayScheduledFeedingDay = (schedule: FeedingScheduleWithTargets): boolean => {
+  return shouldHaveFeedingToday(schedule);
 };

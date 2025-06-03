@@ -21,7 +21,7 @@ import { AlertCircle, Calendar, Check, CheckCircle, Loader2 } from 'lucide-react
 import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 import { FeedingEvents } from './FeedingEvents';
-import { getScheduleStats } from './utils';
+import { getScheduleStats, isTodayScheduledFeedingDay } from './utils';
 
 
 
@@ -157,12 +157,19 @@ export function FeedingTab() {
           scheduleCreatedAt.setHours(0, 0, 0, 0);
           const today = startOfDay(new Date());
           today.setHours(0, 0, 0, 0);
-          const isNewSchedule = scheduleCreatedAt > today 
+          const isNewSchedule = scheduleCreatedAt > today;
           
-          const isActiveToday = status?.date.toDateString() === format(new Date(), 'yyyy-MM-dd');
+          // FIXED: Check if today is actually a scheduled feeding day
+          const isTodayScheduled = isTodayScheduledFeedingDay(schedule);
+          const isActiveToday = status?.date.toDateString() === format(new Date(), 'yyyy-MM-dd') && isTodayScheduled;
+          
           const feedingDateString = status?.date 
             ? format(new Date(status.date), 'MMM d, yyyy')
             : null;
+            
+          // FIXED: Calculate days until next feeding properly
+          const daysUntilNext = differenceInDays(stats.nextFeedingDate, new Date());
+          
           return (
             <Collapsible
               key={schedule.id}
@@ -172,7 +179,8 @@ export function FeedingTab() {
             >
               <Card className="border-0 shadow-none gap-5 3xl:gap-6">
                 <CardHeader className="pb-0 px-6">
-                  {status && (status.isCompleted || isNewSchedule) && (
+                  {/* FIXED: Show next feeding date when schedule is completed OR not scheduled for today OR is new schedule */}
+                  {(status && status.isCompleted) || !isTodayScheduled || isNewSchedule ? (
                     <div className="mb-3">
                       <Badge variant="outline" className="flex justify-between !text-xs items-center  h-8 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
                        <div className='flex items-center gap-1.5'>
@@ -180,11 +188,12 @@ export function FeedingTab() {
                           Next feeding: {format(stats.nextFeedingDate, 'EEEE, MMM d, yyyy')}  
                         </div>
                        <>
-                         {differenceInDays(stats.nextFeedingDate, new Date())} days to go
+                         {daysUntilNext > 0 ? `${daysUntilNext} days to go` : 'Today'}
                         </>
                       </Badge>
                     </div>
-                  )}
+                  ) : null}
+                  
                   <div className="flex  items-center gap-5 2xl:gap-7">
                     <div>
                       <div className="flex items-center gap-2">
@@ -200,24 +209,26 @@ export function FeedingTab() {
 
                     </div>
                     <div className='flex-1'>
+                    {/* FIXED: Only show progress if today is actually a scheduled feeding day AND there are events AND not completed */}
                     {upcomingLoading ? (
                         <div className="h-8 flex items-center justify-center mb-3">
                           <Loader2 className="h-4 w-4 animate-spin text-primary" />
                         </div>
-                        ) : status && status.totalEvents > 0 && !status.isCompleted && !isNewSchedule && (
+                        ) : status && status.totalEvents > 0 && !status.isCompleted && isTodayScheduled && !isNewSchedule && (
                           <div className="mb-4">
                             <div className="flex justify-between text-xs text-muted-foreground mb-1">
                               <span>
                                 {isActiveToday ? 'Today\'s progress' : `Progress for ${feedingDateString}`}
                               </span>
-                              <span>{status.completedEvents}/{status.totalEvents}%</span>
+                              <span>{status.completedEvents}/{status.totalEvents}</span>
                             </div>
                             <Progress value={status.completedEvents * 100 / status.totalEvents} className="h-2" />
                           </div>
                         )}
                     </div>
                     <div>
-                      {status && status.totalEvents > 0 && !isNewSchedule && (
+                      {/* FIXED: Only show feeding status badge for scheduled feeding days */}
+                      {status && status.totalEvents > 0 && isTodayScheduled && !isNewSchedule && (
                           <Badge variant={status.isCompleted ? "secondary" : "default"} className={`${status.isCompleted ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-900 dark:text-green-300" : ""}`}>
                             {status.isCompleted ? (
                               <span className="flex items-center gap-1">
