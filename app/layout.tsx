@@ -37,9 +37,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  other: {
-    'google-site-verification': 'vVikk-GsXog3O1npUfmjcRoob951D1XWIJ4gOLsBjOQ',
-  },
   alternates: {
     canonical: APP_URL,
   },
