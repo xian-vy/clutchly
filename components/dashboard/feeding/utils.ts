@@ -44,56 +44,6 @@ export const shouldHaveFeedingToday = (schedule: FeedingScheduleWithTargets): bo
       return startDayOfWeek === todayDayOfWeek;
     }
 
-    case 'custom': {
-      if (!schedule.custom_days || schedule.custom_days.length === 0) return false;
-      
-      // Check if today's day of week is in the custom days array
-      const todayDayOfWeek = today.getDay();
-      if (!schedule.custom_days.includes(todayDayOfWeek)) {
-        return false;
-      }
-      
-      // For custom days, we need to check if this is a valid occurrence based on the start date
-      // Calculate the first occurrence of each custom day after the start date
-      const firstOccurrences = schedule.custom_days.map(day => {
-        // Find the first occurrence of this day after the start date
-        const firstDate = new Date(startDate);
-        const daysToAdd = (day - firstDate.getDay() + 7) % 7;
-        firstDate.setDate(firstDate.getDate() + daysToAdd);
-        return firstDate;
-      });
-      
-      // Sort the first occurrences by date
-      firstOccurrences.sort((a, b) => a.getTime() - b.getTime());
-      
-      // If today is before the first occurrence of any custom day, return false
-      if (today < firstOccurrences[0]) {
-        return false;
-      }
-      
-      // For each custom day, calculate all occurrences up to today
-      // and check if today is one of them
-      for (const day of schedule.custom_days) {
-        // Find the first occurrence of this day after the start date
-        const firstDate = new Date(startDate);
-        const daysToAdd = (day - firstDate.getDay() + 7) % 7;
-        firstDate.setDate(firstDate.getDate() + daysToAdd);
-        
-        // If today is the first occurrence, return true
-        if (firstDate.getTime() === today.getTime()) {
-          return true;
-        }
-        
-        // If today is after the first occurrence, check if it's a multiple of 7 days from the first occurrence
-        if (today > firstDate) {
-          const daysSinceFirst = Math.floor((today.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24));
-          if (daysSinceFirst % 7 === 0) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
     case 'interval': {
       if (!schedule.interval_days || schedule.interval_days <= 0) return false;
       
@@ -436,30 +386,6 @@ const getNextFeedingDay = (schedule: FeedingScheduleWithTargets): Date => {
     nextDate.setDate(today.getDate() + daysUntilNext);
     
     return nextDate;
-  } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
-    const currentDayOfWeek = today.getDay();
-    
-    if (schedule.custom_days.includes(currentDayOfWeek)) {
-      return today;
-    } else {
-      // Find the next day that matches the custom day pattern
-      let nearestDay = 7; // Max days to look ahead
-      
-      for (let i = 1; i <= 7; i++) {
-        const checkDate = new Date(today);
-        checkDate.setDate(checkDate.getDate() + i);
-        const checkDayOfWeek = checkDate.getDay();
-        
-        if (schedule.custom_days.includes(checkDayOfWeek)) {
-          nearestDay = i;
-          break;
-        }
-      }
-      
-      const nextDate = new Date(today);
-      nextDate.setDate(nextDate.getDate() + nearestDay);
-      return nextDate;
-    }
   }
   
   return today;

@@ -26,7 +26,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FeedingScheduleWithTargets, NewFeedingSchedule, TargetType } from '@/lib/types/feeding';
 import { Reptile } from '@/lib/types/reptile';
 import { AlertCircle, CalendarIcon, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { format } from 'date-fns';
@@ -40,8 +40,7 @@ import { Location } from '@/lib/types/location';
 const feedingScheduleSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  recurrence: z.enum(['daily', 'weekly', 'custom', 'interval']),
-  custom_days: z.array(z.number()).optional(),
+  recurrence: z.enum(['daily', 'weekly',  'interval']),
   interval_days: z.number().min(1).optional(),
   start_date: z.date(),
   end_date: z.date().optional().nullable(),
@@ -89,7 +88,6 @@ export function FeedingScheduleForm({
       name: initialData?.name || '',
       description: initialData?.description || '',
       recurrence: initialData?.recurrence || 'weekly',
-      custom_days: initialData?.custom_days || [],
       interval_days: initialData?.interval_days || undefined,
       start_date: initialData?.start_date ? new Date(initialData.start_date) : new Date(),
       end_date: initialData?.end_date ? new Date(initialData.end_date) : null,
@@ -124,14 +122,6 @@ export function FeedingScheduleForm({
   // Get recurrence value from form
   const recurrence = form.watch('recurrence');
   
-  // When recurrence changes, update custom days if needed
-  useEffect(() => {
-    if (recurrence !== 'custom') {
-      form.setValue('custom_days', []);
-    } else if (form.getValues('custom_days')?.length === 0) {
-      form.setValue('custom_days', [1, 3, 5]); // Default to Mon, Wed, Fri
-    }
-  }, [recurrence, form]);
   
   const reptilesWithoutSchedule = reptiles.filter(reptile => {
     // If reptile has no location, it can't be part of any schedule
@@ -182,7 +172,6 @@ export function FeedingScheduleForm({
         name: values.name,
         description: values.description || null,
         recurrence: values.recurrence,
-        custom_days: values.recurrence === 'custom' ? values.custom_days || [] : null,
         interval_days: values.recurrence === 'interval' ? values.interval_days || null : null,
         start_date: format(values.start_date, 'yyyy-MM-dd'),
         end_date: values.end_date ? format(values.end_date, 'yyyy-MM-dd') : null,
@@ -608,17 +597,11 @@ export function FeedingScheduleForm({
                     </FormControl>
                     <FormLabel className="font-normal">Weekly</FormLabel>
                   </FormItem>
-                  {/* <FormItem className="flex items-center">
-                    <FormControl>
-                      <RadioGroupItem value="custom" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Custom Days</FormLabel>
-                  </FormItem> */}
                   <FormItem className="flex items-center">
                     <FormControl>
                       <RadioGroupItem value="interval" />
                     </FormControl>
-                    <FormLabel className="font-normal">Custom</FormLabel>
+                    <FormLabel className="font-normal">Interval</FormLabel>
                   </FormItem>
                 </RadioGroup>
               </FormControl>
@@ -627,35 +610,6 @@ export function FeedingScheduleForm({
           )}
         />
         
-        {/* Custom Days Selection */}
-        {recurrence === 'custom' && (
-          <FormField
-            control={form.control}
-            name="custom_days"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Custom Days</FormLabel>
-                <FormControl>
-                  <div className="flex flex-wrap gap-2">
-                    {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-                      <Checkbox
-                        key={day}
-                        checked={field.value?.includes(day)}
-                        onCheckedChange={(checked) => {
-                          const newValue = checked
-                            ? [...(field.value || []), day]
-                            : (field.value || []).filter((d) => d !== day);
-                          field.onChange(newValue);
-                        }}
-                      />
-                    ))}
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
         
         {/* Interval Days Selection */}
         {recurrence === 'interval' && (

@@ -62,14 +62,6 @@ export function FeedingTab() {
         return 'Weekly';
       case 'interval':
         return `Every ${schedule.interval_days} days`;
-      case 'custom':
-        if (!schedule.custom_days || schedule.custom_days.length === 0) {
-          return 'Custom';
-        }
-        
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const days = schedule.custom_days.sort().map(day => dayNames[day]);
-        return `Custom (${days.join(', ')})`;
     }
   };
 
