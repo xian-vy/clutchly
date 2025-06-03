@@ -40,8 +40,6 @@ export function useUpcomingFeedings() {
         continue;
       }
       
-      const dayOfWeek = checkDate.getDay(); // 0 = Sunday, 6 = Saturday
-      
       // Check if this day is a feeding day
       let isFeedingDay = false;
       
@@ -60,9 +58,6 @@ export function useUpcomingFeedings() {
             const daysSinceStart = Math.floor((checkDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
             isFeedingDay = daysSinceStart >= 0 && daysSinceStart % schedule.interval_days === 0;
           }
-          break;
-        case 'custom':
-          isFeedingDay = schedule.custom_days?.includes(dayOfWeek) || false;
           break;
       }
       
@@ -151,10 +146,6 @@ export function useUpcomingFeedings() {
             } else if (feeding.schedule.recurrence === 'interval') {
               // For interval schedules, only check events for the specific feeding date
               relevantEvents = events.filter(event => event.scheduled_date === feedingDateString);
-            } else if (feeding.schedule.recurrence === 'custom') {
-              if (isToday(feeding.date)) {
-                relevantEvents = events.filter(event => event.scheduled_date === todayString);
-              }
             }
             
             const completedEvents = relevantEvents.filter(event => event.fed).length;

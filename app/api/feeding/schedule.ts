@@ -295,7 +295,6 @@ export async function updateFeedingSchedule(
       name: scheduleData.name,
       description: scheduleData.description,
       recurrence: scheduleData.recurrence,
-      custom_days: scheduleData.custom_days,
       interval_days: scheduleData.interval_days,
       start_date: scheduleData.start_date,
       end_date: scheduleData.end_date

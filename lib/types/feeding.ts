@@ -1,4 +1,4 @@
-export type RecurrenceType = 'daily' | 'weekly' | 'custom' | 'interval';
+export type RecurrenceType = 'daily' | 'weekly' | 'interval';
 export type TargetType = 'room' | 'rack' | 'level' | 'location' | 'reptile';
 
 export interface FeedingSchedule {
@@ -7,7 +7,6 @@ export interface FeedingSchedule {
   name: string;
   description: string | null;
   recurrence: RecurrenceType;
-  custom_days: number[] | null;
   interval_days: number | null;
   start_date: string;
   end_date: string | null;

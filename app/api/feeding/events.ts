@@ -156,7 +156,6 @@ export async function generateEventsFromSchedule(
   // Generate feeding dates based on recurrence pattern
   const feedingDates = generateFeedingDates(
     schedule.recurrence,
-    schedule.custom_days || [],
     schedule.interval_days,
     actualStartDate,
     actualEndDate
@@ -329,7 +328,6 @@ function generateDefaultEndDate(startDate: string): string {
 // Generate feeding dates based on recurrence pattern
 function generateFeedingDates(
   recurrence: string,
-  customDays: number[],
   intervalDays: number | null,
   startDate: string,
   endDate: string
@@ -358,30 +356,6 @@ function generateFeedingDates(
       current.setDate(current.getDate() + 7);
     }
   }
-  // Custom days recurrence
-  else if (recurrence === 'custom' && customDays.length > 0) {
-    // For each custom day, find all occurrences between start and end dates
-    for (const dayOfWeek of customDays) {
-      // Find the first occurrence of this day after the start date
-      const firstDate = new Date(start);
-      const daysToAdd = (dayOfWeek - firstDate.getDay() + 7) % 7;
-      firstDate.setDate(firstDate.getDate() + daysToAdd);
-      
-      // If the first occurrence is after the end date, skip this day
-      if (firstDate > end) continue;
-      
-      // Add all occurrences of this day between start and end dates
-      const current = new Date(firstDate);
-      while (current <= end) {
-        dates.push(current.toISOString().split('T')[0]);
-        current.setDate(current.getDate() + 7);
-      }
-    }
-    
-    // Sort dates to ensure they're in chronological order
-    dates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-  }
-  // Interval-based recurrence
   else if (recurrence === 'interval' && intervalDays && intervalDays > 0) {
     const current = new Date(start);
     while (current <= end) {
@@ -555,10 +529,7 @@ async function processTargets(
       isFeedingDay = daysSinceStart >= 0;
       
       console.log(`Weekly schedule check: startDay=${startDayOfWeek}, todayDay=${todayDayOfWeek}, daysSinceStart=${daysSinceStart}, isFeedingDay=${isFeedingDay}, startDate=${schedule.start_date}, today=${today.toISOString()}`);
-    } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
-      const todayDay = today.getDay();
-      isFeedingDay = schedule.custom_days.includes(todayDay) && today >= scheduleStart;
-    }
+    } 
 
     if (isFeedingDay) {
       console.log(`Server: Found feeding schedule for reptile ${reptileId} at ${locationId}`);
@@ -635,9 +606,6 @@ export async function createFeedingEventsForToday(
     const startDayOfWeek = startDate.getDay();
     const todayDayOfWeek = today.getDay();
     isFeedingDay = startDayOfWeek === todayDayOfWeek;
-  } else if (schedule.recurrence === 'custom' && schedule.custom_days) {
-    const todayDayOfWeek = today.getDay();
-    isFeedingDay = schedule.custom_days.includes(todayDayOfWeek);
   } else if (schedule.recurrence === 'interval' && schedule.interval_days) {
     const startDate = new Date(schedule.start_date);
     startDate.setHours(0, 0, 0, 0);

@@ -56,7 +56,7 @@ const FeedingEventsList = ({
   return (
     <div>
       <CardContent className="py-0 px-4">
-        <div className="overflow-x-auto w-full">
+        <div className="max-w-[300px] sm:max-w-[600px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto  ">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -87,7 +87,7 @@ const FeedingEventsList = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
-                              <p className="mt-1 truncate max-w-[80px] sm:max-w-[100px] lg:max-w-[120px] xl:max-w-[130px] 2xl:max-w-[150px]">{event.reptile_name}</p>
+                              <p className="mt-1 truncate max-w-[80px] sm:max-w-[100px] lg:max-w-[120px] xl:max-w-[130px] 3xl:!max-w-[150px]">{event.reptile_name}</p>
                           </TooltipTrigger>
                           <TooltipContent>
                               {event.reptile_name}
@@ -95,7 +95,18 @@ const FeedingEventsList = ({
                         </Tooltip>
                       </TooltipProvider>
                   </TableCell>
-                  <TableCell className="py-1 sm:py-2 xl:py-3">{event.morph_name}</TableCell>
+                  <TableCell className="py-1 sm:py-2 xl:py-3">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="truncate max-w-[80px]">
+                            {event.morph_name}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{event.morph_name}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                  </TableCell>
                   <TableCell className="py-1 sm:py-2 xl:py-3">
                       <TooltipProvider>
                         <Tooltip>

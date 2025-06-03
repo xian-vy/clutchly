@@ -40,14 +40,6 @@ export function FeedingScheduleList({
         return 'Daily';
       case 'weekly':
         return 'Weekly';
-      case 'custom':
-        if (!schedule.custom_days || schedule.custom_days.length === 0) {
-          return 'Custom';
-        }
-        
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        const days = schedule.custom_days.sort().map(day => dayNames[day]);
-        return `Custom (${days.join(', ')})`;
       case 'interval':
         if (!schedule.interval_days) {
           return 'Interval';

@@ -373,21 +373,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     );
   }
 
-  if (events.length === 0 && reptilesByLocation.length > 0) {
-    return (
-      <div className="space-y-6">
-        <Card className="border-0 shadow-none bg-transparent">
-          <CardContent className="flex flex-col items-center justify-center text-center py-12">
-            <PlusCircle className="h-8 w-8 text-muted-foreground mb-2 opacity-70" />
-            <div className="text-muted-foreground font-medium mb-2">No feeding events yet</div>
-            <div className="text-sm text-muted-foreground mb-4">
-              Found {reptilesByLocation.length} reptile{reptilesByLocation.length !== 1 ? 's' : ''}, but no feeding events have been generated yet.
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+
   
   return (
     <div className="space-y-6">
