@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
   onDownload?: () => void
   onImport?: () => void
   filterButton?: React.ReactNode
+  isOwner?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -43,6 +44,7 @@ export function DataTable<TData, TValue>({
   onDownload,
   onImport,
   filterButton,
+  isOwner = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -90,7 +92,7 @@ export function DataTable<TData, TValue>({
               Filter
             </Button>
           )}
-          {onImport && (
+          {onImport && isOwner && (
               <Button 
                 variant="outline" 
                 onClick={onImport}
