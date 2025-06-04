@@ -39,7 +39,7 @@ export function InstallDialog() {
           icon: Apple,
           steps: [
             { icon: null, text: "Open Safari browser on your iPhone or iPad" },
-            { icon: null, text: "Visit Clutchly website" },
+            { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
             { icon: Share2, text: "Tap the Share button at the bottom" },
             { icon: Plus, text: "Scroll and tap Add to Home Screen" },
             { icon: Smartphone, text: "Tap Add to install the app" }
@@ -51,7 +51,7 @@ export function InstallDialog() {
           icon: Chrome,
           steps: [
             { icon: null, text: "Open Chrome browser on your Android device" },
-            { icon: null, text: "Visit Clutchly website" },
+            { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
             { icon: Share2, text: "Tap the three dots menu (⋮) in the top-right" },
             { icon: Plus, text: "Select Install app from the menu" },
             { icon: Smartphone, text: "Tap Install in the prompt" }
@@ -63,7 +63,7 @@ export function InstallDialog() {
           icon: Apple,
           steps: [
             { icon: null, text: "Open Safari browser on your Mac" },
-            { icon: null, text: "Visit Clutchly website" },
+            { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
             { icon: Share2, text: "Click File in the menu bar" },
             { icon: Plus, text: "Select Add to Dock" },
             { icon: Laptop, text: "The app will appear in your Dock" }
@@ -75,7 +75,7 @@ export function InstallDialog() {
           icon: Laptop,
           steps: [
             { icon: null, text: "Open Chrome, Edge, Brave, or Firefox browser on your PC" },
-            { icon: null, text: "Visit Clutchly website" },
+            { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
             { icon: MonitorDown, text: "Look for the install icon in the URL bar" },
             { icon: Plus, text: "Click the install icon" },
             { icon: Laptop, text: "Click Install in the prompt" }
