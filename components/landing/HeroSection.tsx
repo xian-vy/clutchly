@@ -31,7 +31,7 @@ export function HeroSection() {
             </span>
           </motion.div>
           <motion.h1 
-            className="font-bold tracking-tighter text-4xl md:text-6xl 2xl:text-7xl 3xl:!text-[5rem]"
+            className="font-bold tracking-tighter text-4xl md:text-6xl 2xl:text-7xl 3xl:!text-[5rem] text-[#333] dark:text-foreground"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
