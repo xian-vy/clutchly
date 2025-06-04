@@ -29,6 +29,7 @@ interface ReptileListProps {
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
   onImportSuccess : () => void;
+  isOwner: boolean
 }
 
 export function ReptileList({ 
@@ -36,7 +37,8 @@ export function ReptileList({
   onEdit, 
   onDelete, 
   onAddNew,
-  onImportSuccess
+  onImportSuccess,
+  isOwner
 }: ReptileListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<ReptileFilters>({});
@@ -473,6 +475,7 @@ export function ReptileList({
         onAddNew={onAddNew} 
         filterButton={<CustomFilterButton />}
         onImport={() => setIsImportDialogOpen(true)}
+        isOwner={isOwner}
       />
       
       <ReptileFilterDialog

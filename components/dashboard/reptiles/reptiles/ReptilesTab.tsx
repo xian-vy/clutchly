@@ -16,6 +16,7 @@ import { getOrganization } from '@/app/api/organizations/organizations';
 import { Organization } from '@/lib/types/organizations';
 import { toast } from 'sonner';
 import {  getSubscriptionLimitClient } from '@/app/api/utils_client';
+import { User } from '@/lib/types/users';
 
 type EnrichedReptileWithLabel = EnrichedReptile & {
   label: string;
@@ -53,6 +54,19 @@ export function ReptilesTab() {
       return Array.isArray(data) ? data[0] : data;
     },
   })
+  const { data: user, isLoading : userLoading } = useQuery<User>({
+    queryKey: ['user'],
+    queryFn: async () => {
+      const data = await getOrganization();
+      return Array.isArray(data) ? data[0] : data;
+    },
+  })
+
+  const isOwner = useMemo(() => {
+     if (!user || !organization) return false;
+    return user.org_id === organization.id && user.role === 'owner';
+  }
+  , [user,organization]);
   // Get species and morphs from their respective stores
   const { species,  isLoading: speciesLoading } = useSpeciesStore()
   const { morphs, isLoading: morphsLoading } = useMorphsStore()
@@ -111,7 +125,7 @@ export function ReptilesTab() {
     });
   }, [reptiles, species, morphs, locationData]);
 
-  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations || profileLoading || limitLoading;
+  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations || profileLoading || limitLoading || userLoading
 
   if (isLoading) {
     return (
@@ -163,6 +177,7 @@ export function ReptilesTab() {
           onDelete={handleDelete}
           onAddNew={() => setIsDialogOpen(true)}
           onImportSuccess={handleImportComplete}
+          isOwner={isOwner}
        />
 
       <Dialog open={isDialogOpen} onOpenChange={onDialogChange}>
