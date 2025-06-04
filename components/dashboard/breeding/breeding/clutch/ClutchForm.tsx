@@ -65,6 +65,7 @@ export function ClutchForm({
       notes: '',
     },
   });
+  const isSubmitting = form.formState.isSubmitting;
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     // Convert empty strings to undefined
@@ -220,8 +221,8 @@ export function ClutchForm({
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
-            {initialData ? 'Update Clutch' : 'Add Clutch'}
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Saving...' : initialData ? 'Update Clutch' : 'Add Clutch'}
           </Button>
         </div>
       </form>

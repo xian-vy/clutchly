@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dna, Star, Venus, Mars, Info } from "lucide-react";
+import { Dna, Star, Venus, Mars, Info, Network } from "lucide-react";
 import { Reptile } from "@/lib/types/reptile";
 import { EnrichedReptile } from "../ReptileList";
 import { useMorphsStore } from "@/lib/stores/morphsStore";
@@ -88,7 +88,7 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
     
     return (
       <div className="h-full">
-        <div className="bg-card border rounded-lg p-4 h-full transition-all duration-200 hover:shadow-sm">
+        <div className="bg-card p-3 h-full">
           <div className="flex items-center gap-2 mb-3">
             <div className={`${iconBgClass} p-1.5 rounded-full`}>
               {icon}
@@ -99,7 +99,7 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
           {parentId ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-base">{parentData?.name || "Unknown"}</span>
+                <span className="font-semibold text-sm">{parentData?.name || "Unknown"}</span>
               </div>
               
               <div>
@@ -140,17 +140,17 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
 
   return (
     <div className="space-y-3">
-      <Card className=" shadow-none pt-3 px-0 gap-3 border-0">
+      <Card className=" shadow-none pt-3 px-0 gap-0 border-0">
         <CardHeader className="px-0">
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 ">
             <Dna className="h-4 w-4" />
-            Genetic Organization
+            Genetics
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3  px-0">
+        <CardContent className="space-y-2 px-0">
           <div className="grid grid-cols-1 gap-3">
-            <div className="space-y-3">
-              <div className="bg-card border rounded-lg p-4">
+            <div className="space-y-2">
+              <div className="bg-card p-3">
                 <div className="flex items-center gap-2 mb-3">
                   <p className="text-sm font-semibold">Morph</p>
                 </div>
@@ -165,7 +165,7 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
               </div>
 
               {(reptile.visual_traits && reptile.visual_traits.length > 0) && (
-                <div className="bg-card border rounded-lg p-3">
+                <div className="bg-card p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <p className="text-sm font-semibold">Visual Traits</p>
                     <TooltipProvider>
@@ -184,7 +184,7 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
               )}
 
               {(reptile.het_traits && reptile.het_traits.length > 0) && (
-                <div className="bg-card border rounded-lg p-3">
+                <div className="bg-card p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <p className="text-sm font-semibold">Het Traits</p>
                     <TooltipProvider>
@@ -203,7 +203,7 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
               )}
 
               {reptile.breeding_line && (
-                <div className="bg-card border rounded-lg p-3">
+                <div className="bg-card p-3">
                   <div className="flex items-center gap-2 mb-2">
                     <Star className="h-4 w-4 text-muted-foreground" />
                     <p className="text-sm font-semibold">Breeding Line</p>
@@ -216,10 +216,11 @@ export function GeneticsTab({ reptile, reptiles }: GeneticsTabProps) {
                 </div>
               )}
             </div>
-
-            <div className="space-y-4">
+             <hr />
+            <div className="space-y-2 ">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold">Lineage</p>
+                <Network className="h-4 w-4" />
+                <p className="text-sm sm:text-base font-semibold">Parents</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {renderParentInfo(damData, damMorph, 'dam', reptile.dam_id?.toString())}

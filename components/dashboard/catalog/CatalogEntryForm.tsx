@@ -47,6 +47,7 @@ export function CatalogEntryForm({
       display_order: initialData?.display_order || 0,
     },
   });
+  const isSubmitting = form.formState.isSubmitting;
 
   // Reset form when initialData changes
   useEffect(() => {
@@ -125,8 +126,8 @@ export function CatalogEntryForm({
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={!initialData && availableReptiles.length === 0}>
-            {initialData ? 'Update' : 'Add to Catalog'}
+          <Button type="submit" disabled={!initialData && availableReptiles.length === 0 || isSubmitting}>
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Add to Catalog'}
           </Button>
         </div>
       </form>

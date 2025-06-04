@@ -5,11 +5,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Bug } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import {  FeedingEventsWithFeederDetails } from "@/lib/types/feeding";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
 import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
+import { Worm } from "lucide-react";
 interface FeedingTabProps {
   reptileDetails: DetailedReptile | null;
 }
@@ -29,7 +29,7 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
         <Card className="px-0 py-3 gap-3 border-0">
           <CardHeader className="p-0">
             <CardTitle className="text-base flex items-center gap-2">
-              <Bug className="h-5 w-5" />
+              <Worm className="h-5 w-5" />
               Feeding History
             </CardTitle>
           </CardHeader>
@@ -48,22 +48,22 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="pt-4 px-0 gap-3 border-0">
+      <Card className="pt-3 px-0 gap-3 border-0">
         <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
-            <Bug className="h-5 w-5" />
+            <Worm className="h-5 w-5" />
             Feeding History
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 px-0 sm:px-2">
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Feeding Success Rate</h4>
-            <Progress value={fedPercentage} className="h-2" />
-            <p className="text-sm text-muted-foreground">{fedPercentage}% success rate ({fedEvents} out of {totalEvents} feeds)</p>
+          <div className="flex items-center gap-2 justify-between w-full">
+            <h4 className="text-sm font-medium">Recent Feeding</h4>
+            <div className="space-y-1">
+                <Progress value={fedPercentage} className="h-2" />
+                <p className="text-xs text-muted-foreground">{fedPercentage}% success rate ({fedEvents}/{totalEvents} feeds)</p>
+            </div>
           </div>
-
           <div>
-            <h4 className="text-sm font-medium mb-2">Recent Feeding History</h4>
             <Table>
               <TableHeader>
                 <TableRow>

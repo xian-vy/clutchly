@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { STATUS_COLORS } from "@/lib/constants/colors";
 import { Reptile } from "@/lib/types/reptile";
 import { format, parseISO } from "date-fns";
-import { Baby, CircleHelp, Mars, Venus } from "lucide-react";
+import {  CircleHelp, Dna, Egg, Mars, Venus } from "lucide-react";
 
 interface BreedingTabProps {
   reptiles: Reptile[];
@@ -30,7 +30,10 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium">Total Offspring: {offspring.length}</h4>
+          <h4 className="text-sm sm:text-base font-medium flex items-center gap-2">
+            <Egg className="h-4 w-4" />
+            Total Offspring: {offspring.length}
+          </h4>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
@@ -80,7 +83,7 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
         <Card className="px-0 py-3 gap-3 border-0">
           <CardHeader className="p-0">
             <CardTitle className="text-base flex items-center gap-2">
-              <Baby className="h-5 w-5" />
+              <Egg className="h-5 w-5" />
               No Breeding History
             </CardTitle>
           </CardHeader>
@@ -97,8 +100,8 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
       {hasBreedingProjects && (
         <Card className="px-0 pt-3 pb-0 gap-3 border-0">
           <CardHeader className="p-0">
-            <CardTitle className="text-base flex items-center gap-2 ">
-              <Baby className="h-5 w-5" />
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2 ">
+              <Dna className="h-4 w-4" />
               Breeding Projects
             </CardTitle>
           </CardHeader>
@@ -109,12 +112,12 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
                   <div>
                     <div className="space-y-2">
                       {reptileDetails.breeding_projects_as_sire.slice(0, 3).map((project) => (
-                        <Card key={project.id} className="overflow-hidden px-0 gap-2 border-0">
+                        <Card key={project.id} className="overflow-hidden px-0 py-1 gap-2 border-0">
                           <CardContent className="p-0">
                             <div className="flex justify-between items-start">
                               <div>
                                 <h4 className="font-medium text-xs sm:text-sm">{project.name}</h4>
-                                <p className="text-xs sm:text-sm text-muted-foreground">
+                                <p className="text-xs text-muted-foreground">
                                   {formatDate(project.start_date)}
                                   {project.end_date ? ` - ${formatDate(project.end_date)}` : " - Present"}
                                 </p>
@@ -123,7 +126,7 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
                                 {project.status}
                               </Badge>
                             </div>
-                            <p className="text-xs sm:text-sm">
+                            <p className="text-xs">
                                Partner: {reptiles.find(r => r.id === project.female_id)?.name || "Unknown Female"}
                             </p>
                           </CardContent>

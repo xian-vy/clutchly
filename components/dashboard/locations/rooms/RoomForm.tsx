@@ -36,7 +36,8 @@ export function RoomForm({ isOpen, onClose, selectedRoom, onSubmit, onDelete }: 
       notes: selectedRoom?.notes || null,
     },
   });
-  
+  const isSubmitting = form.formState.isSubmitting;
+
   // Reset form when selected room changes
   useEffect(() => {
     if (selectedRoom) {
@@ -121,8 +122,8 @@ export function RoomForm({ isOpen, onClose, selectedRoom, onSubmit, onDelete }: 
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {selectedRoom ? 'Update' : 'Create'}
+              <Button disabled={isSubmitting} type="submit">
+                {isSubmitting ? 'Saving...' : selectedRoom ? 'Update' : 'Create'}
               </Button>
             </div>
           </form>

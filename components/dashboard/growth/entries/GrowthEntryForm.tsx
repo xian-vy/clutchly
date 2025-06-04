@@ -54,6 +54,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
       attachments: initialData?.attachments || [],
     }
   });
+  const isSubmitting = form.formState.isSubmitting;
 
   const handleSubmit = async (data: FormValues) => {
     const { ...formData } = data;
@@ -71,7 +72,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
                   control={form.control}
                   name="reptile_id"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem>  
                       <FormLabel>Reptile</FormLabel>
                       <FormControl>
                         <ReptileSelect
@@ -150,8 +151,8 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Growth Entry
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'} Growth Entry
           </Button>
         </div>
       </form>

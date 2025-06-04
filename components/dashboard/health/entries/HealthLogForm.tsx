@@ -40,7 +40,7 @@ interface HealthLogFormProps {
 }
 
 export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogFormProps) {
-  
+
   const { 
 
     isLoading: healthStoreLoading
@@ -70,6 +70,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
     }
   });
 
+  const isSubmitting = form.formState.isSubmitting;
  
 
   // Handle form submission
@@ -193,8 +194,8 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Health Log
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'} Health Log
           </Button>
         </div>
       </form>

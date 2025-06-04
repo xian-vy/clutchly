@@ -12,7 +12,6 @@ import { Organization } from '@/lib/types/organizations';
 import { useQuery } from '@tanstack/react-query';
 import { getAccessProfiles } from '@/app/api/users/access';
 import { AccessProfile } from '@/lib/types/access';
-import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
 const createUserSchema = z.object({
@@ -54,7 +53,6 @@ interface UserFormProps {
 }
 
 export function UserForm({ initialData, onSubmit, onCancel, organization }: UserFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: accessProfiles } = useQuery<AccessProfile[]>({
     queryKey: ['access-profiles'],
@@ -81,11 +79,10 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
       org_id: organization?.id || '',
     },
   });
+  const isSubmitting = form.formState.isSubmitting;
 
   const handleSubmit = async (data: UserFormValues) => {
     try {
-      setIsSubmitting(true);
-
       const submitData = initialData 
         ? { ...data, email: data.email || undefined }
         : data;
@@ -93,10 +90,8 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
       await onSubmit(submitData as CreateUser);
     } catch (error) {
       console.error('Submit error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    };
+  }
 
   return (
     <Form {...form}>
@@ -222,7 +217,7 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
+          <Button disabled={isSubmitting} type="submit">
           {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

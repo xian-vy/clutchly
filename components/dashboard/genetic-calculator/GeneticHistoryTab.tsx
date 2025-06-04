@@ -141,7 +141,7 @@ const GeneticHistoryTab = () => {
                   <div>
                     <h4 className="text-sm font-medium mb-2">Detailed Results</h4>
                     <div className="space-y-4">
-                      <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
+                      <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:[900px] xl:max-w-[1100px] lg:w-full overflow-x-auto">
                         <h5 className="text-sm font-medium mb-2">Possible Morphs</h5>
                         <Table>
                           <TableHeader>
@@ -163,7 +163,7 @@ const GeneticHistoryTab = () => {
                         </Table>
                       </div>
 
-                      <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
+                      <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:[900px] xl:max-w-[1100px] lg:w-full overflow-x-auto">
                         <h5 className="text-sm font-medium mb-2">Possible Het Traits</h5>
                         <Table>
                           <TableHeader>

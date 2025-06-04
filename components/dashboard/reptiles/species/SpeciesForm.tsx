@@ -30,6 +30,7 @@ export function SpeciesForm({ initialData, onSubmit, onCancel }: SpeciesFormProp
       care_level: initialData?.care_level || 'beginner'
     }
   })
+  const isSubmitting = form.formState.isSubmitting;
 
   return (
     <Form {...form}>
@@ -89,8 +90,8 @@ export function SpeciesForm({ initialData, onSubmit, onCancel }: SpeciesFormProp
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Species
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'} Species
           </Button>
         </div>
       </form>

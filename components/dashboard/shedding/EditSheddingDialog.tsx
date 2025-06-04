@@ -23,6 +23,8 @@ interface Props {
 }
 
 export function EditSheddingDialog({ shedding, open, onOpenChange, onSubmit }: Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [formData, setFormData] = useState<UpdateSheddingInput>({
     shed_date: shedding?.shed_date,
     completeness: shedding?.completeness,
@@ -32,12 +34,12 @@ export function EditSheddingDialog({ shedding, open, onOpenChange, onSubmit }: P
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('EditSheddingDialog: Submitting form with data:', { id: shedding.id, ...formData })
+    setIsSubmitting(true)
     const success = await onSubmit({ id: shedding.id, ...formData })
-    console.log('EditSheddingDialog: Submit result:', success)
     if (success) {
       onOpenChange(false)
     }
+    setIsSubmitting(false)
   }
 
   // Ensure shed_date is a valid date string
@@ -92,7 +94,9 @@ export function EditSheddingDialog({ shedding, open, onOpenChange, onSubmit }: P
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Save Changes</Button>
+            <Button disabled={isSubmitting} type="submit">
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </Button>
           </div>
         </form>
       </DialogContent>
