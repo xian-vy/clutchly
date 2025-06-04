@@ -183,8 +183,8 @@ const handleEnclosureClick = async (locationId: string | null) => {
         </div>
       </CardHeader>
       
-      <CardContent className='pl-0'>
-        <div className="overflow-x-auto">
+      <CardContent className='pl-0 '>
+        <div className="max-w-[350px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-[900px] xl:max-w-[1000px] 2xl:max-w-[1100px] 3xl:!max-w-[1350px] overflow-x-auto">
           <div className="min-w-max">
             <div className="flex flex-row content-start">
               <div className="w-14 sm:w-16 lg:w-20 xl:w-24 text-center font-medium"></div>
@@ -195,7 +195,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
               ))}
             </div>
             
-            <div className="space-y-4 max-h-[450px] overflow-y-auto">
+            <div className="space-y-4 max-h-[450px] overflow-y-auto pb-2">
               {levels.map(level => (
                 <div key={`level-${level}`} className="flex flex-row items-center gap-x-4">
                   <div className="w-14 sm:w-16 lg:w-20 xl:w-24 text-right font-medium text-[0.7rem] sm:text-xs  text-muted-foreground">
