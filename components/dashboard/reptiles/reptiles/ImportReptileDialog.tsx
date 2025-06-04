@@ -13,6 +13,10 @@ import SelectFileContent from './import/SelectFileContent'
 import { getButtonText, ImportStep, isPrimaryButtonDisabled, reorderRowsForParentDependencies } from './import/utils'
 import StepsIndicator from './import/StepsIndicator'
 import { API_UPLOAD_PREVIEW, API_UPLOAD_PROCESS } from '@/lib/constants/api'
+import { useQuery } from '@tanstack/react-query'
+import { getReptiles } from '@/app/api/reptiles/reptiles'
+import { Reptile } from '@/lib/types/reptile'
+
 interface ImportReptileDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -30,6 +34,13 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { addMorphToState } = useMorphsStore()
   const { addSpeciesToState } = useSpeciesStore()
+
+  // Add query for existing reptiles
+  const { data: existingReptiles = [] } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  })
+
   // Reset state when dialog closes
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -104,14 +115,40 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
         throw new Error(errorData.error || 'Failed to preview file')
       }
       let data = await response.json() as ImportPreviewResponse
+
+      // Check for duplicate names
+      const existingNames = new Set(existingReptiles.map(r => r.name.toLowerCase()))
+      const duplicateRows: Record<number, string> = {}
+      
+      data.rows.forEach((row, index) => {
+        if (row.name && existingNames.has(row.name.toLowerCase())) {
+          duplicateRows[index] = `Name "${row.name}" already exists in your collection`
+        }
+      })
+
+      // Merge duplicate name errors with other validation errors
+      data.invalidRows = {
+        ...data.invalidRows,
+        ...duplicateRows
+      }
+
+      // Remove duplicate rows from valid rows
+      data.validRows = data.validRows.filter(index => !duplicateRows[index])
+
       // Reorder rows to ensure parents come before their offspring
-      data = reorderRowsForParentDependencies(data);
+      data = reorderRowsForParentDependencies(data)
+      
       setPreviewData(data)
       // Auto-select valid rows
       setSelectedRows(data.validRows)
       // Move to preview step
       setStep(ImportStep.PREVIEW)
       toast.dismiss()
+      
+      const duplicateCount = Object.keys(duplicateRows).length
+      if (duplicateCount > 0) {
+        toast.warning(`Found ${duplicateCount} duplicate names in your collection`)
+      }
       toast.success(`Found ${data.validRows.length} valid entries out of ${data.totalRows} total`)
     } catch (err: unknown) {
       console.error('Preview error:', err)

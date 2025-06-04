@@ -1,6 +1,7 @@
 'use client';
 
 import { getReptiles } from '@/app/api/reptiles/reptiles';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -19,13 +20,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { checkInbreeding } from '@/components/dashboard/breeding/utils';
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { BreedingProject, BreedingStatus, NewBreedingProject } from '@/lib/types/breeding';
 import { Reptile } from '@/lib/types/reptile';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { AlertCircle } from 'lucide-react';
 import * as z from 'zod';
 
 const breedingStatuses: BreedingStatus[] = ['planned', 'active', 'completed', 'failed'];
@@ -53,6 +57,12 @@ export function BreedingProjectForm({
   onSubmit,
   onCancel,
 }: BreedingProjectFormProps) {
+  const [inbreedingInfo, setInbreedingInfo] = useState<{
+    isInbreeding: boolean;
+    relationship: string;
+    commonAncestors: Reptile[];
+  }>({ isInbreeding: false, relationship: '', commonAncestors: [] });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues:{
@@ -75,10 +85,28 @@ export function BreedingProjectForm({
 
   const { species } = useSpeciesStore();
   const speciesId = form.watch('species_id');
+  const maleId = form.watch('male_id');
+  const femaleId = form.watch('female_id');
+  
   const { selectedSpeciesId, maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
     reptiles,
     speciesId : speciesId || '',
   });
+
+  // Check for inbreeding whenever male or female selection changes
+  useEffect(() => {
+    if (maleId && femaleId) {
+      const male = reptiles.find(r => r.id === maleId);
+      const female = reptiles.find(r => r.id === femaleId);
+      
+      if (male && female) {
+        const result = checkInbreeding(male, female, reptiles);
+        setInbreedingInfo(result);
+      }
+    } else {
+      setInbreedingInfo({ isInbreeding: false, relationship: '', commonAncestors: [] });
+    }
+  }, [maleId, femaleId, reptiles]);
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     // Convert empty date strings to undefined before submission
@@ -227,6 +255,27 @@ export function BreedingProjectForm({
             )}
           />
         </div>
+
+        {inbreedingInfo.isInbreeding && (
+          <Alert variant="destructive" className="my-2">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Inbreeding Warning</AlertTitle>
+            <AlertDescription>
+              <p>The selected reptiles are related ({inbreedingInfo.relationship}).</p>
+              {inbreedingInfo.commonAncestors.length > 0 && (
+                <div className="mt-1">
+                  <p>Common ancestors:</p>
+                  <ul className="list-disc pl-5">
+                    {inbreedingInfo.commonAncestors.map(ancestor => (
+                      <li key={ancestor.id}>{ancestor.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <p className="mt-2 text-sm">Breeding closely related reptiles may lead to genetic issues in offspring.</p>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <FormField

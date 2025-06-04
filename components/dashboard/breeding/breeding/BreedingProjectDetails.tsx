@@ -187,7 +187,7 @@ export function BreedingProjectDetails({
             {/* Clutches and Hatchlings */} 
             {clutches.length > 0 ? (
               <Tabs defaultValue={clutches[0]?.id} className="w-full">
-                <TabsList className="w-full justify-center">
+                <TabsList className="w-full justify-start">
                   {clutches.map((clutch) => (
                     <TabsTrigger key={clutch.id} value={clutch.id}>
                       {format(new Date(clutch.lay_date), 'MMM d, yyyy')}

@@ -43,7 +43,7 @@ import { getSubscriptionLimitClient } from "@/app/api/utils_client";
 
 const formSchema = z.object({
   quantity: z.coerce.number().min(1, 'Must create at least 1 hatchling').max(50, 'Maximum 50 hatchlings at once'),
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().optional(),
   reptile_code: z.string().nullable(),
   morph_id: z.string().min(1, 'Morph is required'),
   sex: z.enum(['male', 'female', 'unknown']),
@@ -143,14 +143,9 @@ export function HatchlingForm({
         const speciesCode = getSpeciesCode(speciesInfo.name);
         const today = new Date().toISOString().split('T')[0]; // Use today as hatch date
         
-        // Add a timestamp to sequence to avoid duplication in concurrent sessions
-        const uniqueReptiles = [
-          ...(reptiles || []),
-          { id: 'temp_' + Date.now().toString() } as unknown as Reptile // Add a temporary reptile to bump the sequence
-        ];
         
         const generatedCode = generateReptileCode(
-          uniqueReptiles,
+          reptiles || [],
           speciesCode,
           selectedMorph.name,
           today,
@@ -178,7 +173,7 @@ export function HatchlingForm({
       }
 
       //check for duplicate name
-      const duplicate = reptiles?.find(r => r.name.toLowerCase().trim() === values.name.toLowerCase().trim());
+      const duplicate = reptiles?.find(r => r.name.toLowerCase().trim() === values.name?.toLowerCase().trim());
       if (duplicate) {
         toast.error('A reptile with that name already exists!');
         return;
@@ -190,6 +185,7 @@ export function HatchlingForm({
       
       // Create array of promises for multiple hatchlings
       const createPromises = Array.from({ length: values.quantity }, async (_, index) => {
+        // Destructure quantity out and keep the rest
         const { quantity, ...hatchlingValues } = values;
         console.log(quantity);
         // Generate unique code for each hatchling
@@ -210,11 +206,16 @@ export function HatchlingForm({
             values.sex as Sex
           );
         }
+
+        // Use reptile_code as name if no name is provided
+        const hatchlingName = values.name?.trim() 
+          ? (values.quantity > 1 ? `${values.name} #${index + 1}` : values.name)
+          : uniqueCode;
         
         const hatchlingData: NewReptile = {
           ...hatchlingValues,
           reptile_code: uniqueCode,
-          name: values.quantity > 1 ? `${values.name} #${index + 1}` : values.name,
+          name: hatchlingName,
           parent_clutch_id: clutch.id,
           species_id: clutch.species_id,
           hatch_date: today,

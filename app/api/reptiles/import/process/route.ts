@@ -217,15 +217,16 @@ async function processImport(
       }
     }
     
-    // Step 4: Create reptiles in parallel
-    const reptilePromises = selectedRows.map(async (row) => {
+    // Step 4: Create reptiles sequentially to ensure proper code sequencing
+    const createdReptiles: Reptile[] = []
+    for (const row of selectedRows) {
       try {
         const speciesId = speciesMap[String(row.species).toLowerCase()]
         if (!speciesId) {
           response.errors.push(`Species not found for reptile ${row.name}`)
-          return null
+          continue
         }
-        
+        /*
         // Check if reptile with same name already exists
         const { data: existingReptile } = await supabase
           .from('reptiles')
@@ -236,9 +237,9 @@ async function processImport(
         
         if (existingReptile) {
           response.errors.push(`Reptile with name ${row.name} already exists, skipping`)
-          return null
+          continue
         }
-        
+        */
         // Get morph name for reptile code generation
         let morphName = ""
         if (row.morph) {
@@ -264,13 +265,10 @@ async function processImport(
             
           if (speciesObj) {
             const speciesCode = getSpeciesCode(speciesObj.name)
-            const allReptiles = [
-              ...(existingReptiles || []), 
-              ...response.reptiles
-            ]
-            
+            // Use both existing reptiles and already created reptiles for code generation
+            const allReptiles = [...(existingReptiles || []), ...createdReptiles]
             reptileCode = generateReptileCode(
-              allReptiles as Reptile[],
+              allReptiles,
               speciesCode,
               morphName,
               row.hatch_date || null,
@@ -321,6 +319,7 @@ async function processImport(
         
         if (createdReptile) {
           importedReptileMap.set(createdReptile.name.toLowerCase(), createdReptile.id)
+          createdReptiles.push(createdReptile)
           
           // Create growth entry if needed
           if (row.weight || row.length) {
@@ -338,19 +337,14 @@ async function processImport(
               .from('growth_entries')
               .insert([growthEntry])
           }
-          
-          return createdReptile
         }
-        return null
       } catch (error) {
         console.error('Error processing row:', error)
         const errorMessage = error instanceof Error ? error.message : String(error)
         response.errors.push(`Error processing ${row.name}: ${errorMessage}`)
-        return null
       }
-    })
+    }
     
-    const createdReptiles = (await Promise.all(reptilePromises)).filter((r): r is Reptile => r !== null)
     response.reptiles.push(...createdReptiles)
     
     // Step 5: Update parent references in parallel

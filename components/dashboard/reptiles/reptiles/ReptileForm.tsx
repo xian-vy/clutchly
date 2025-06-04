@@ -24,7 +24,7 @@ import { Organization } from '@/lib/types/organizations'
 import { Loader2 } from 'lucide-react'
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().nullable(),
   reptile_code: z.string().nullable(),
   species_id: z.string().min(1, 'Species is required'),
   morph_id: z.string().min(1, 'Morph is required'),
@@ -118,6 +118,8 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
     setLoading(true)
     const formattedData = {
       ...data,
+      // If name is empty, use reptile_code as name
+      name: data.name || data.reptile_code || '',
       hatch_date: data.hatch_date || null,
       notes: data.notes || null,
       visual_traits: visualTraits,
@@ -164,16 +166,9 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
       // Use utility function to get species code
       const speciesCode = getSpeciesCode(selectedSpecies.name);
       
-      // Add a temporary unique reptile to the list to ensure unique sequence numbers
-      // This helps when multiple forms are open at once
-      const uniqueReptiles = [
-        ...(reptiles || []),
-        { id: 'temp_' + Date.now().toString() } as unknown as Reptile // Add a temporary reptile to bump the sequence
-      ];
       
-      // Use utility function to generate the reptile code
       const generatedCode = generateReptileCode(
-        uniqueReptiles,
+        reptiles,
         speciesCode,
         selectedMorph.name,
         hatchDate,
@@ -227,7 +222,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

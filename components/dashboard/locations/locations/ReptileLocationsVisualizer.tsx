@@ -186,10 +186,10 @@ const handleEnclosureClick = async (locationId: string | null) => {
       <CardContent className='pl-0'>
         <div className="overflow-x-auto">
           <div className="min-w-max">
-            <div className="grid grid-flow-col mb-2 content-start">
-              <div className="w-18 text-center font-medium"></div>
+            <div className="flex flex-row content-start">
+              <div className="w-14 sm:w-16 lg:w-20 xl:w-24 text-center font-medium"></div>
               {positions.map(position => (
-                <div key={`header-${position}`} className="text-center text-xs font-medium w-[100px] text-muted-foreground">
+                <div key={`header-${position}`} className="text-center text-[0.7rem] sm:text-xs font-medium w-[150px] mx-1 text-muted-foreground ml-3">
                   Position {position}
                 </div>
               ))}
@@ -197,7 +197,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
             
             <div className="space-y-4 max-h-[450px] overflow-y-auto">
               {levels.map(level => (
-                <div key={`level-${level}`} className="grid grid-flow-col gap-2 md:gap-3 xl:gap-4 items-center">
+                <div key={`level-${level}`} className="flex flex-row items-center gap-x-4">
                   <div className="w-14 sm:w-16 lg:w-20 xl:w-24 text-right font-medium text-[0.7rem] sm:text-xs  text-muted-foreground">
                     Level {level}
                   </div>
@@ -215,7 +215,7 @@ const handleEnclosureClick = async (locationId: string | null) => {
                       <TooltipProvider key={`cell-${level}-${position}`}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className={` h-16 mt-2 rounded-md w-[120px] 3xl:!w-[150px] border-1 flex items-center justify-center border-input bg-background hover:border-primary
+                            <div className={` h-16 mt-2 w-[150px] rounded-md border-1 flex items-center justify-center border-input bg-background hover:border-primary
                               ${!isOccupied ? "" : "border-ring ring-ring/50 ring-[3px]"}
                               `}>
                               <div onClick={() => handleEnclosureClick(location ? location.id : null)} className="cursor-pointer flex flex-col items-center ">
