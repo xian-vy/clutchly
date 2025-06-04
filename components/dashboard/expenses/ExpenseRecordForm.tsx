@@ -74,6 +74,7 @@ export function ExpenseRecordForm({ initialData, onSubmit, onCancel }: ExpenseRe
       notes: initialData?.notes || ''
     }
   })
+  const isSubmitting = form.formState.isSubmitting;
 
   const handleFormSubmit = form.handleSubmit((data: ExpenseFormValues) => {
     const formattedData: NewExpenseRecord = {
@@ -280,8 +281,8 @@ export function ExpenseRecordForm({ initialData, onSubmit, onCancel }: ExpenseRe
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Expense
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'} Expense
           </Button>
         </div>
       </form>

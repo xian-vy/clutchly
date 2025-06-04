@@ -41,6 +41,7 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
       description: initialData?.description || "",
     }
   })
+  const isSubmitting = form.formState.isSubmitting;
 
   useEffect(() => {
     // Fetch species if not already loaded
@@ -117,8 +118,8 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Morph
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'} Morph
           </Button>
         </div>
       </form>

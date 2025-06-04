@@ -63,7 +63,6 @@ interface ReptileFormProps {
 
 export function ReptileForm({ initialData, onSubmit, onCancel,organization }: ReptileFormProps) {
   const { species, fetchSpecies } = useSpeciesStore()
-  const [isLoading, setLoading] = useState(false)
   const { 
     resources: reptiles, 
     isLoading: isReptilesLoading 
@@ -113,9 +112,10 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
       price : initialData?.price || 0,
     }
   });
+  const isSubmitting = form.formState.isSubmitting;
+
   // Handle form submission
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    setLoading(true)
     const formattedData = {
       ...data,
       // If name is empty, use reptile_code as name
@@ -127,7 +127,6 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
       location_id: data.location_id || null,
     }
     await onSubmit(formattedData)
-    setLoading(false)
   }
 
   useEffect(() => {
@@ -493,9 +492,9 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button disabled={isLoading} type="submit">
-            {initialData ? 'Update' : 'Create'} Reptile
-            {isLoading && <Loader2 className='ml-2 w-4 h-4 animate-spin' />}
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'} Reptile
+            {isSubmitting && <Loader2 className='ml-2 w-4 h-4 animate-spin' />}
           </Button>
         </div>
       </form>

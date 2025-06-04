@@ -58,7 +58,8 @@ export function LocationForm({
       is_available: true,
     },
   });
-  
+  const isSubmitting = form.formState.isSubmitting;
+
   // Get selected room_id
   const selectedRoomId = form.watch('room_id');
   
@@ -273,8 +274,8 @@ export function LocationForm({
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit">
-                {selectedLocation ? 'Update' : 'Create'}
+              <Button disabled={isSubmitting} type="submit">
+                {isSubmitting ? 'Saving...' : selectedLocation ? 'Update' : 'Create'}
               </Button>
             </div>
           </form>

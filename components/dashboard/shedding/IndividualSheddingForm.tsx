@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -46,7 +45,6 @@ interface Props {
 }
 
 export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],
@@ -65,17 +63,15 @@ export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
       photo_url: '',
     },
   })
+  const isSubmitting = form.formState.isSubmitting;
 
   const handleSubmit = async (data: FormData) => {
-    setIsSubmitting(true)
     try {
       await onSubmit(data)
       form.reset()
     } catch (error) {
       console.error('Failed to create shedding record:', error)
       toast.error('Failed to create shedding record')
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -184,8 +180,8 @@ export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Shedding Record'}
+              <Button disabled={isSubmitting} type="submit">
+                {isSubmitting ? 'Saving...' : 'Create Shedding Record'}
               </Button>
             </div>
           </form>

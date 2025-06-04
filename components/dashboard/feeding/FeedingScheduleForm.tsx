@@ -79,7 +79,6 @@ export function FeedingScheduleForm({
   reptiles,
   allSchedules,
 }: FeedingScheduleFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Set up form with default values
   const form = useForm<FeedingScheduleFormValues>({
@@ -97,7 +96,8 @@ export function FeedingScheduleForm({
       })) || [],
     },
   });
-  
+  const isSubmitting = form.formState.isSubmitting;
+
   // Handle target type change
   const [targetType, setTargetType] = useState<TargetType>(
     form.getValues().targets.length > 0 
@@ -167,7 +167,6 @@ export function FeedingScheduleForm({
   // Handle form submission
   const handleSubmit = async (values: FeedingScheduleFormValues) => {
     try {
-      setIsSubmitting(true);
       await onSubmit({
         name: values.name,
         description: values.description || null,
@@ -179,8 +178,6 @@ export function FeedingScheduleForm({
       });
     } catch (error) {
       console.error('Error submitting form:', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -645,7 +642,7 @@ export function FeedingScheduleForm({
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />}
-            {initialData ? 'Update' : 'Create'} Schedule
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'} Schedule
           </Button>
         </div>
       </form>

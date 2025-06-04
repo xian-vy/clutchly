@@ -91,6 +91,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
       includes_documents: initialData?.includes_documents || false,
     },
   });
+  const isSubmitting = form.formState.isSubmitting;
 
   const handleFormSubmit = form.handleSubmit(async (data: FormValues) => {
     const formattedData: NewSaleRecord = {
@@ -418,8 +419,8 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" className="gap-1">
-            {initialData ? 'Update' : 'Create'} Sale Record
+          <Button disabled={isSubmitting} type="submit" className="gap-1">
+            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'} Sale Record
           </Button>
         </div>
       </form>
