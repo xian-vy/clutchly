@@ -11,7 +11,7 @@ export default function LandingPage() {
     <div className="flex min-h-screen flex-col  pt-16">
     <TopNavigation />
 
-      <div className="fixed inset-0 -z-10 h-full w-full bg-white dark:bg-[#030619]">
+      <div className="fixed inset-0 -z-10 h-full w-full bg-[#f0fdf4]/30 dark:bg-[#030619]">
         <div className="absolute inset-0 
         bg-[linear-gradient(to_right,#fbfffc_1px,transparent_1px),linear-gradient(to_bottom,#fbfffc_1px,transparent_1px)] 
         dark:bg-[linear-gradient(to_right,#0A0E22_1px,transparent_1px),linear-gradient(to_bottom,#0A0E22_1px,transparent_1px)]

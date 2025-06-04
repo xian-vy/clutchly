@@ -21,7 +21,7 @@ const AboutPage = () => {
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
             About Us
           </span>
-          <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight">
+          <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight text-[#333] dark:text-foreground">
             Empowering Reptile Enthusiasts
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg px-4  max-w-[600px] mt-2">
@@ -51,7 +51,7 @@ const AboutPage = () => {
         {/* CTA Section */}
         <div className="max-w-[800px] mx-auto text-center">
           <div className=" bg-card p-8">
-            <h2 className="text-2xl font-semibold tracking-tight mb-4">
+            <h2 className="text-2xl font-semibold tracking-tight mb-4 text-[#333] dark:text-foreground">
               Ready to Get Started?
             </h2>
             <p className="text-muted-foreground mb-8">

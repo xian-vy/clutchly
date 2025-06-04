@@ -26,13 +26,13 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <section className="container relative py-6 sm:py-16 xl:py-20 bg-background">
+    <section className="container relative py-6 sm:py-16 xl:py-20 ">
       <div className="relative">
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
             FAQ
           </span>
-          <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl">
+          <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl text-[#333] dark:text-foreground">
             Frequently Asked Questions
           </h2>
           <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">
@@ -50,7 +50,7 @@ export function FAQSection() {
                 className="flex w-full items-center justify-between py-4 text-left"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
-                <span className="text-sm md:text-base font-medium">{faq.question}</span>
+                <span className="text-sm md:text-base font-medium text-[#333] dark:text-foreground">{faq.question}</span>
                 <ChevronDown
                   className={cn(
                     "h-5 w-5 text-muted-foreground transition-transform",
