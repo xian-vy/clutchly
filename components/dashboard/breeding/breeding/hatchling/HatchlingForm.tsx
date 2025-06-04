@@ -143,14 +143,9 @@ export function HatchlingForm({
         const speciesCode = getSpeciesCode(speciesInfo.name);
         const today = new Date().toISOString().split('T')[0]; // Use today as hatch date
         
-        // Add a timestamp to sequence to avoid duplication in concurrent sessions
-        const uniqueReptiles = [
-          ...(reptiles || []),
-          { id: 'temp_' + Date.now().toString() } as unknown as Reptile // Add a temporary reptile to bump the sequence
-        ];
         
         const generatedCode = generateReptileCode(
-          uniqueReptiles,
+          reptiles || [],
           speciesCode,
           selectedMorph.name,
           today,

@@ -166,16 +166,9 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
       // Use utility function to get species code
       const speciesCode = getSpeciesCode(selectedSpecies.name);
       
-      // Add a temporary unique reptile to the list to ensure unique sequence numbers
-      // This helps when multiple forms are open at once
-      const uniqueReptiles = [
-        ...(reptiles || []),
-        { id: 'temp_' + Date.now().toString() } as unknown as Reptile // Add a temporary reptile to bump the sequence
-      ];
       
-      // Use utility function to generate the reptile code
       const generatedCode = generateReptileCode(
-        uniqueReptiles,
+        reptiles,
         speciesCode,
         selectedMorph.name,
         hatchDate,

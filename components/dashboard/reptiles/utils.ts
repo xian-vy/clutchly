@@ -24,7 +24,7 @@ export const generateReptileCode = (
   sex: Sex
 ): string => {
   // 1 billion
-  const sequenceNumber = (reptiles.length).toString().padStart(5, '0');
+  const sequenceNumber = (reptiles.length + 1).toString().padStart(5, '0');
   
   // Extract year from hatch date or use current year if not available
   const year = hatchDate 
