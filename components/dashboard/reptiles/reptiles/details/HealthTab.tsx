@@ -9,6 +9,7 @@ import { format, parseISO } from "date-fns";
 import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
 import { HealthLogEntryWithCategory } from "@/lib/types/health";
 import { SEVERITY_COLORS } from "@/lib/constants/colors";
+import { LiaPoopSolid } from "react-icons/lia";
 
 interface ReptileTabProps {
   reptileDetails: DetailedReptile | null;
@@ -53,7 +54,10 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="px-0 py-3 gap-3 border-0">
           <CardHeader className="px-0">
-            <CardTitle className="text-base">Last Defecation</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <LiaPoopSolid className="h-5 w-5 stroke-[0.013rem]" />
+              Last Defecation
+            </CardTitle>
           </CardHeader>
           <CardContent className="px-0">
             {lastDefecation ? (
