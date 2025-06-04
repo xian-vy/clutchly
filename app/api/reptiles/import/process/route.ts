@@ -226,7 +226,7 @@ async function processImport(
           response.errors.push(`Species not found for reptile ${row.name}`)
           continue
         }
-        
+        /*
         // Check if reptile with same name already exists
         const { data: existingReptile } = await supabase
           .from('reptiles')
@@ -239,7 +239,7 @@ async function processImport(
           response.errors.push(`Reptile with name ${row.name} already exists, skipping`)
           continue
         }
-        
+        */
         // Get morph name for reptile code generation
         let morphName = ""
         if (row.morph) {
