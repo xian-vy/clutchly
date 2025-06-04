@@ -9,7 +9,7 @@ export function Footer() {
   const { theme } = useTheme()
   
   return (
-    <footer className="w-full mx-auto border-t border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-10 py-16 relative">
+    <footer className="w-full mx-auto border-t border-border/50 bg-[#f0fdf4]/40 dark:bg-background/95  px-4 lg:px-10 py-16 relative">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,var(--color-primary)/15%_0%,transparent_70%)]" />
       
       <div className="container mx-auto relative flex flex-col items-center">
