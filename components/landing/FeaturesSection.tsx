@@ -18,7 +18,7 @@ export function FeaturesSection() {
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
             Features
           </span>
-          <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl">
+          <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl text-[#333] dark:text-foreground">
             Everything you need to manage your collection
           </h2>
           <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">

@@ -23,7 +23,7 @@ export function Footer() {
               alt="clutchly" 
               className="rounded-full" 
             />
-            <span className="font-bold text-xl md:text-2xl xl:text-3xl">{APP_NAME}</span>
+            <span className="font-bold text-xl md:text-2xl xl:text-3xl text-[#333] dark:text-foreground">{APP_NAME}</span>
           </div>
           <p className="text-sm xl:text-base 3xl:text-lg text-muted-foreground">
             {APP_DESCRIPTION}

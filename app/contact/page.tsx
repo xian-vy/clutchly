@@ -47,7 +47,7 @@ const ContactPage = () => {
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
             Get in Touch
           </span>
-          <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight">
+          <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight text-[#333] dark:text-foreground">
             Connect With Us
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg px-4 max-w-[600px] mt-2">

@@ -22,7 +22,7 @@ const PlansSection = () => {
       <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
         Pricing
       </span>
-      <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl">
+      <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl text-[#333] dark:text-foreground">
         Choose the right plan for your needs
       </h2>
       <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">
@@ -117,13 +117,13 @@ const PlanCard = ({ plan }: { plan: typeof PLANS_LIST[0] }) => (
           </span>
         )}
         
-        <h3 className="text-xl font-bold">{plan.name}</h3>
+        <h3 className="text-xl font-bold text-[#333] dark:text-foreground">{plan.name}</h3>
         <p className="text-sm text-muted-foreground mt-1 mb-5">
           {plan.description}
         </p>
         
         <div className="mb-6">
-          <span className="text-3xl font-bold">${plan.price}</span>
+          <span className="text-3xl font-bold text-[#333] dark:text-foreground">${plan.price}</span>
           {plan.price > 0 && (
             <span className="text-muted-foreground ml-1">/month</span>
           )}
