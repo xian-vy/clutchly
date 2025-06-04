@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { APP_NAME } from "@/lib/constants/app";
+import { Eye } from "lucide-react";
 
 export function HelpDialog() {
   return (
@@ -44,6 +45,25 @@ export function HelpDialog() {
             </AccordionContent>
           </AccordionItem>
 
+          <AccordionItem value="reptile-management">
+            <AccordionTrigger>Reptile Management</AccordionTrigger>
+            <AccordionContent>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>Manage reptiles, morphs and species</li>
+                <li>Import existing reptile data in csv or excel format, follow import instructions.</li>
+                <li>
+                  <div className="flex items-center flex-wrap">
+                    Select view icon 
+                    <span className="inline-flex items-center gap-1 ml-1">
+                      <Eye className="w-4 h-4" /> 
+                      to view detailed records
+                    </span>
+                  </div>
+                </li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+
           <AccordionItem value="website-management">
             <AccordionTrigger>Website Management</AccordionTrigger>
             <AccordionContent>
@@ -58,13 +78,12 @@ export function HelpDialog() {
           </AccordionItem>
 
           <AccordionItem value="housing-management">
-            <AccordionTrigger>Enclosure Management Management</AccordionTrigger>
+            <AccordionTrigger>Enclosure Management</AccordionTrigger>
             <AccordionContent>
               <p className="mb-2">Create a hierarchical housing system:</p>
               <ul className="list-disc pl-5 space-y-2">
                 <li>Rooms: Create and name different rooms</li>
                 <li>Racks: Add racks within rooms</li>
-                <li>Rack Levels: Organize levels within racks</li>
                 <li>Enclosures: Individual housing units</li>
                 <li>Assign reptiles to their respective housings</li>
               </ul>
@@ -79,7 +98,6 @@ export function HelpDialog() {
                 <li>Room: Schedule entire rooms at once</li>
                 <li>Rack: Manage feeding for specific racks</li>
                 <li>Specific Reptiles: Schedule by selected reptiles</li>
-                <li>Track feeding response and refusals</li>
               </ul>
             </AccordionContent>
           </AccordionItem>
@@ -89,9 +107,18 @@ export function HelpDialog() {
             <AccordionContent>
               <ul className="list-disc pl-5 space-y-2">
                 <li>Log weight and length measurements</li>
-                <li>Track shedding cycles</li>
                 <li>Monitor feeding responses</li>
                 <li>View growth charts and progress</li>
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="shedding-management">
+            <AccordionTrigger>Shedding Management</AccordionTrigger>
+            <AccordionContent>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>Record shedding dates</li>
+                <li>Create single or multiple shedding records</li>
               </ul>
             </AccordionContent>
           </AccordionItem>
@@ -101,9 +128,16 @@ export function HelpDialog() {
             <AccordionContent>
               <ul className="list-disc pl-5 space-y-2">
                 <li>Record breeding pairs and dates</li>
-                <li>Track clutch information</li>
-                <li>Add hatchlings</li>
-                <li>Manage lineage records</li>
+                <li>
+                  <div className="flex items-center flex-wrap">
+                    Select view icon 
+                    <span className="inline-flex items-center gap-1 ml-1">
+                      <Eye className="w-4 h-4" /> 
+                      to manage <strong>Clutch</strong> and <strong>Hatchlings</strong>
+                    </span>
+                  </div>
+                </li>
+                <li>View ancestry and lineage using the pedigree analysis</li>
               </ul>
             </AccordionContent>
           </AccordionItem>
