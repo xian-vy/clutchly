@@ -250,7 +250,7 @@ const GeneticCalculatorTab = () => {
                 </CardContent>
               </Card>
             </div>
-            <div  className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
+            <div  className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:[900px] xl:max-w-[1100px] lg:w-full overflow-x-auto">
               <h4 className="text-sm font-medium mb-2">Possible Morphs</h4>
               <Table>
                 <TableHeader>
@@ -272,7 +272,7 @@ const GeneticCalculatorTab = () => {
               </Table>
             </div>
 
-            <div  className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
+            <div  className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:[900px] xl:max-w-[1100px] lg:w-full overflow-x-auto">
               <h4 className="text-sm font-medium mb-2">Possible Het Traits</h4>
               <Table>
                 <TableHeader>
