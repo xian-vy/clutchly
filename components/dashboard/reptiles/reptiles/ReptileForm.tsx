@@ -24,7 +24,7 @@ import { Organization } from '@/lib/types/organizations'
 import { Loader2 } from 'lucide-react'
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().nullable(),
   reptile_code: z.string().nullable(),
   species_id: z.string().min(1, 'Species is required'),
   morph_id: z.string().min(1, 'Morph is required'),
@@ -118,6 +118,8 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
     setLoading(true)
     const formattedData = {
       ...data,
+      // If name is empty, use reptile_code as name
+      name: data.name || data.reptile_code || '',
       hatch_date: data.hatch_date || null,
       notes: data.notes || null,
       visual_traits: visualTraits,
@@ -227,7 +229,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
