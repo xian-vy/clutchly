@@ -3,6 +3,7 @@ import autoTable from 'jspdf-autotable';
 import { DetailedReptile } from '@/app/api/reptiles/reptileDetails';
 import { format } from 'date-fns';
 import { EnrichedReptile } from '../ReptileList';
+import { Organization } from '@/lib/types/organizations';
 
 interface JsPDFWithAutoTable extends jsPDF {
   lastAutoTable: {
@@ -66,7 +67,7 @@ const loadImage = (url: string): Promise<string> => {
   });
 };
 
-export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: EnrichedReptile, damDetails: EnrichedReptile) => {
+export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: EnrichedReptile, damDetails: EnrichedReptile, organization : Organization | undefined) => {
   const doc = new jsPDF() as JsPDFWithAutoTable;
   
   // Set default text color
@@ -94,7 +95,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
-  doc.text('Clutchly', 30, 15);
+  doc.text(capitalize(organization?.full_name?.toUpperCase() || "Clutchly"), 30, 15);
   
   // Add subtitle
   doc.setFontSize(10);
@@ -116,14 +117,12 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   // Basic info for left column
   leftColumn.push(['Name', reptile.name || 'Unknown']);
   leftColumn.push(['Species', reptile.species_name || 'Unknown']);
-  leftColumn.push(['Morph', reptile.morph_name || 'Unknown']);
   leftColumn.push(['Sex', reptile.sex ? capitalize(reptile.sex) : 'Unknown']);
   leftColumn.push(['Weight', reptile.weight ? `${reptile.weight} g` : 'Unknown']);
   leftColumn.push(['Length', reptile.length ? `${reptile.length} cm` : 'Unknown']);
   
   // Basic info for right column
   rightColumn.push(['Code', reptile.reptile_code || '']);
-  rightColumn.push(['Status', reptile.status ? capitalize(reptile.status) : 'Unknown']);
   rightColumn.push(['Breeder', reptile.is_breeder ? 'Yes' + " (" + reptile.project_ids?.length + "x)" : 'No']);
   rightColumn.push(['Hatched', reptile.hatch_date ? format(new Date(reptile.hatch_date), 'MMM dd, yyyy') : 'Unknown']);
   rightColumn.push(['Acquired', reptile.acquisition_date ? format(new Date(reptile.acquisition_date), 'MMM dd, yyyy') : 'Unknown']);
@@ -182,7 +181,8 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   
   // Visual traits
   const geneticData = [];
-  
+  geneticData.push(['Morph', reptile.morph_name || 'Unknown']);
+
   if (reptile.visual_traits && reptile.visual_traits.length > 0) {
     geneticData.push(['Visual Traits', reptile.visual_traits.join(', ')]);
   } else {
@@ -402,7 +402,7 @@ export const generateReptilePDF = async (reptile: DetailedReptile, sireDetails: 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(COLORS.text[0], COLORS.text[1], COLORS.text[2]);
-  doc.text(`Generated on ${format(new Date(), 'MMM dd, yyyy')} • Clutchly Reptile Management System`, 
+  doc.text(`Generated on ${format(new Date(), 'MMM dd, yyyy')} • Clutchly Reptile Husbandry Management`, 
     doc.internal.pageSize.getWidth() / 2, pageHeight - 7, { align: 'center' });
   
   // Save the PDF with the reptile's name
@@ -429,6 +429,6 @@ function drawSectionTitle(doc: JsPDFWithAutoTable, title: string, x: number, y: 
 }
 
 // Helper function to capitalize first letter of a string
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+function capitalize(str : string) : string {
+  return str?.charAt(0).toUpperCase() + str?.slice(1).toLowerCase();
 }

@@ -177,6 +177,7 @@ export function ReptilesTab() {
           onDelete={handleDelete}
           onAddNew={() => setIsDialogOpen(true)}
           onImportSuccess={handleImportComplete}
+          organization={organization}
           isOwner={isOwner}
        />
 
