@@ -135,14 +135,14 @@ export function SignUpForm() {
       {isLoading && <TopLoader />}
       <div className="w-full max-w-md space-y-3 sm:space-y-5 md:space-y-8">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold">Create Account</h2>
-          <p className="mt-2 text-muted-foreground">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#333] dark:text-foreground">Create Account</h2>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-muted-foreground">
             Join {APP_NAME} today and start managing your collection.
           </p>
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5 3xl:!space-y-6">
             <FormField
               control={form.control}
               name="email"
