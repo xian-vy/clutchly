@@ -10,7 +10,7 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, mode }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen w-full flex overflow-hidden">
+    <div className="min-h-[100dvh] w-full flex overflow-hidden">
       {/* Left Hero Section */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
@@ -23,7 +23,7 @@ export function AuthLayout({ children, mode }: AuthLayoutProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-5xl font-bold mb-6"
+            className="text-5xl font-bold mb-6 text-[#333] dark:text-foreground"
           >
             Welcome to{' '}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">

@@ -96,14 +96,14 @@ export function SignInForm() {
       {isLoading && <TopLoader />}
       <div className="w-full max-w-md space-y-3 sm:space-y-5 md:space-y-8">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold">Sign In</h2>
-          <p className="mt-2 text-muted-foreground">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#333] dark:text-foreground">Sign In</h2>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-muted-foreground">
             Welcome back! Please enter your details.
           </p>
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5 3xl:!space-y-6">
             <FormField
               control={form.control}
               name="email"

@@ -16,6 +16,7 @@ import { ReptileDetailsDialog } from "./ReptileDetailsDialog";
 import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/details/pdfGenerator";
 import { getReptileDetails } from "@/app/api/reptiles/reptileDetails";
 import { formatChartAmount, getSpeciesAbbreviation } from "@/lib/utils";
+import { Organization } from "@/lib/types/organizations";
 
 export interface EnrichedReptile extends Reptile {
   species_name: string;
@@ -29,7 +30,8 @@ interface ReptileListProps {
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
   onImportSuccess : () => void;
-  isOwner: boolean
+  isOwner: boolean;
+  organization: Organization | undefined
 }
 
 export function ReptileList({ 
@@ -38,7 +40,8 @@ export function ReptileList({
   onDelete, 
   onAddNew,
   onImportSuccess,
-  isOwner
+  isOwner,
+  organization
 }: ReptileListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [filters, setFilters] = useState<ReptileFilters>({});
@@ -418,7 +421,7 @@ export function ReptileList({
                       const sireDetails = reptiles.find(r => r.id === reptile.sire_id);
                       const damDetails = reptiles.find(r => r.id === reptile.dam_id);
                       // Generate and download PDF
-                      await generateReptilePDF(detailedReptile, sireDetails as EnrichedReptile, damDetails as EnrichedReptile);
+                      await generateReptilePDF(detailedReptile, sireDetails as EnrichedReptile, damDetails as EnrichedReptile,organization);
                     } catch (error) {
                       console.error("Error generating PDF:", error);
                     } finally {

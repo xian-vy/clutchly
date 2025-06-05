@@ -18,6 +18,9 @@ import { BreedingTab } from "./BreedingTab";
 import { SheddingTab } from "./SheddingTab";
 import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/details/pdfGenerator";
 import { useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { Organization } from "@/lib/types/organizations";
+import { getOrganization } from "@/app/api/organizations/organizations";
 
 interface ReptileDetailsProps {
   reptile: EnrichedReptile | null;
@@ -34,6 +37,14 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
     refetch
   } = useReptileDetails(reptile?.id || null);
   const [isPrinting, setIsPrinting] = useState(false);
+
+  const { data: organization} = useQuery<Organization>({
+    queryKey: ['organization2'],
+    queryFn: async () => {
+      const data = await getOrganization();
+      return Array.isArray(data) ? data[0] : data;
+    },
+  })
 
   if (!reptile) return null;
 
@@ -69,7 +80,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
       setIsPrinting(true);
       const sireDetails = reptiles.find(r => r.id === reptile.sire_id);
       const damDetails = reptiles.find(r => r.id === reptile.dam_id);
-      await generateReptilePDF(reptileDetails, sireDetails as EnrichedReptile, damDetails as EnrichedReptile);
+      await generateReptilePDF(reptileDetails, sireDetails as EnrichedReptile, damDetails as EnrichedReptile,organization);
     } catch (error) {
       console.error("Error generating PDF:", error);
     } finally {
