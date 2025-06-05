@@ -43,6 +43,8 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
         .map(reptile => ({
           value: reptile.id,
           label: reptile.name,
+          code: reptile.reptile_code,
+          searchValue: `${reptile.name} ${reptile.reptile_code}`, // For search functionality
         }))
     })).filter(group => group.items.length > 0)
   }, [species, filteredReptiles])
@@ -56,7 +58,12 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
       const selectedLabel = React.useMemo(() => {
         for (const group of groupedReptiles) {
           const item = group.items.find(item => item.value === value)
-          if (item) return item.label
+          if (item) return (
+            <div className="flex flex-col items-start">
+              <span>{item.label}</span>
+              <span className="text-xs text-muted-foreground">{item.code}</span>
+            </div>
+          )
         }
         return ""
       }, [value])
@@ -78,7 +85,7 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
           </PopoverTrigger>
           <PopoverContent className="w-[270px] p-0">
             <Command>
-              <CommandInput placeholder="Search species or reptiles..." />
+              <CommandInput placeholder="Search by name or code..." />
               <CommandEmpty>No results found.</CommandEmpty>
               {groupedReptiles.map((group) => (
                 <div key={group.label}>
@@ -101,7 +108,7 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
                       {group.items.map((item) => (
                         <CommandItem
                           key={item.value}
-                          value={item.label}
+                          value={item.searchValue} // Use combined value for search
                           onSelect={() => {
                             onValueChange(item.value)
                             setOpen(false)
@@ -114,7 +121,10 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
                               value === item.value ? "opacity-100" : "opacity-0"
                             )}
                           />
-                          {item.label}
+                          <div className="flex flex-col">
+                            <span>{item.label}</span>
+                            <span className="text-xs text-muted-foreground">{item.code}</span>
+                          </div>
                         </CommandItem>
                       ))}
                     </div>
