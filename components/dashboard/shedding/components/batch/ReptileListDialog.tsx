@@ -117,11 +117,11 @@ export function ReptileListDialog({
           </div>
 
           <ScrollArea className="h-[50vh] rounded-md border p-4">
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 space-y-2">
               {searchFilteredReptiles?.map((reptile) => (
                 <div
                   key={reptile.id}
-                  className="flex items-center space-x-2"
+                  className="flex items-start space-x-2"
                 >
                   <Checkbox
                     id={`dialog-${reptile.id}`}
@@ -137,16 +137,19 @@ export function ReptileListDialog({
                         )
                       }
                     }}
+                    className='mt-1'
                   />
                   <label
                     htmlFor={`dialog-${reptile.id}`}
-                    className="text-xs sm:text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="flex flex-col items-start   leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    {reptile.name}
-                    {reptile.reptile_code ? ` (${reptile.reptile_code})` : ''}
-                    {reptile.location
-                      ? ` - ${reptile.location.rack.room.name} > ${reptile.location.rack.name}`
-                      : ''}
+                      <span className='text-sm'>{reptile.name}</span>
+                      <span className='text-muted-foreground text-xs'>{reptile.reptile_code ? ` (${reptile.reptile_code})` : ''} </span>
+                      <span className='text-muted-foreground text-xs'>
+                      {reptile.location
+                        ? `${reptile.location.rack.room.name} > ${reptile.location.rack.name}`
+                        : ''}
+                        </span>
                   </label>
                 </div>
               ))}

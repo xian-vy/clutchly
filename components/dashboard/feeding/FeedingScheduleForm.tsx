@@ -32,9 +32,9 @@ import { z } from 'zod';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { useGroupedReptileMultiSelect } from '@/lib/hooks/useGroupedReptileMultiSelect';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Location } from '@/lib/types/location';
+import { ReptileSelectionDialog } from './ReptileSelectionDialog';
 
 // Define form schema
 const feedingScheduleSchema = z.object({
@@ -162,8 +162,6 @@ export function FeedingScheduleForm({
     });
   });
 
-  const { MultiReptileSelect } = useGroupedReptileMultiSelect({reptiles: reptilesWithoutSchedule});
-  
   // Handle form submission
   const handleSubmit = async (values: FeedingScheduleFormValues) => {
     try {
@@ -523,14 +521,14 @@ export function FeedingScheduleForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <MultiReptileSelect
-                              value={field.value.filter(target => target.target_type === 'reptile')}
-                              onChange={(newValue) => {
+                            <ReptileSelectionDialog
+                              reptiles={reptilesWithoutSchedule}
+                              selectedReptiles={field.value.filter(target => target.target_type === 'reptile')}
+                              onSelectionChange={(newValue) => {
                                 // Keep other target types (room, rack, level, location)
                                 const otherTargets = field.value.filter(target => target.target_type !== 'reptile');
                                 field.onChange([...otherTargets, ...newValue]);
                               }}
-                              placeholder="Select reptiles..."
                             />
                           </FormControl>
                           <FormMessage />

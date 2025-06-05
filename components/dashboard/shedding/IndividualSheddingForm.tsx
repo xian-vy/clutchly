@@ -79,6 +79,7 @@ export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
               name="reptile_id"
@@ -110,7 +111,7 @@ export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
                 </FormItem>
               )}
             />
-
+            </div>
             <FormField
               control={form.control}
               name="completeness"
@@ -159,7 +160,7 @@ export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
               control={form.control}
               name="photo_url"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className='hidden'>
                   <FormLabel>Photo URL</FormLabel>
                   <FormControl>
                     <Input
