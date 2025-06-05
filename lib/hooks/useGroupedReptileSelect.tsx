@@ -61,7 +61,6 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
           if (item) return (
             <div className="flex flex-col items-start">
               <span>{item.label}</span>
-              <span className="text-xs text-muted-foreground">{item.code}</span>
             </div>
           )
         }
@@ -113,7 +112,7 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
                             onValueChange(item.value)
                             setOpen(false)
                           }}
-                          className="py-2"
+                          className="py-2 group"
                         >
                           <Check
                             className={cn(
@@ -123,7 +122,7 @@ export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
                           />
                           <div className="flex flex-col">
                             <span>{item.label}</span>
-                            <span className="text-xs text-muted-foreground">{item.code}</span>
+                            <span className="text-xs text-muted-foreground group-hover:text-white">{item.code}</span>
                           </div>
                         </CommandItem>
                       ))}
