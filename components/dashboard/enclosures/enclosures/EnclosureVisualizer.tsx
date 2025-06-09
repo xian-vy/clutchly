@@ -15,7 +15,7 @@ interface LocationsVisualizerProps {
   isShowingOccupied?: boolean;
 }
 
-export function LocationsVisualizer({
+export function EnclosureVisualizer({
   selectedRoom,
   selectedRack,
   startLevel,

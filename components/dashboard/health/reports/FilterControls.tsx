@@ -4,7 +4,7 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 import { HealthCategory } from '@/lib/types/health';
 import { useQuery } from '@tanstack/react-query';
 import {  Filter } from 'lucide-react';
@@ -45,7 +45,7 @@ export function FilterControls({
     queryFn: getReptiles,
   })
  
-  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptiles});
 
 
   return (

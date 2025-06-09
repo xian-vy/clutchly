@@ -129,7 +129,7 @@ export interface NavItem {
     {
       section: 'Health & Growth',
       name: 'Enclosures',
-      href: '/housing',
+      href: '/enclosures',
       icon: Package
     },
     {

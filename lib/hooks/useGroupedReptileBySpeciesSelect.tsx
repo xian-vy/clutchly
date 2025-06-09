@@ -28,7 +28,7 @@ interface Props {
   filteredReptiles : Reptile[]
 }
 
-export function useGroupedReptileSelect({ filteredReptiles }: Props ) {
+export function useGroupedReptileBySpeciesSelect({ filteredReptiles }: Props ) {
 
 
   // Get species from store

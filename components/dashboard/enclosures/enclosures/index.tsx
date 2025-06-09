@@ -5,12 +5,12 @@ import { Location, NewLocation } from '@/lib/types/location';
 import { getRooms } from '@/app/api/locations/rooms';
 import { getRacks } from '@/app/api/locations/racks';
 import { getLocations, createLocation, updateLocation, deleteLocation } from '@/app/api/locations/locations';
-import { LocationsList } from './LocationsList';
-import { LocationForm } from './LocationForm';
+import { EnclosureList } from './EnclosureList';
+import { EnclosureForm } from './EnclosureForm';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 
-export function LocationsManagement() {
+export function EnclosureManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | undefined>(undefined);
 
@@ -86,7 +86,7 @@ export function LocationsManagement() {
 
   return (
     <>
-      <LocationsList 
+      <EnclosureList 
         locations={locations}
         rooms={rooms}
         racks={racks}
@@ -94,7 +94,7 @@ export function LocationsManagement() {
         // onAddLocation={onAddLocation}
       />
       
-      <LocationForm
+      <EnclosureForm
         isOpen={isDialogOpen}
         onClose={() => onDialogChange(false)}
         selectedLocation={selectedLocation}

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -39,7 +39,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
     queryFn: getReptiles,
   })
  
-  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptiles});
   const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({

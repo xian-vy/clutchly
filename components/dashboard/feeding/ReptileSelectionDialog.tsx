@@ -17,11 +17,23 @@ import {
 } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { useSpeciesStore } from "@/lib/stores/speciesStore"
 import { Reptile } from "@/lib/types/reptile"
 import { useMemo, useState } from "react"
 import { differenceInMonths } from "date-fns"
 
+type items = {
+  value: string;
+  label: string;
+  ageGroup: string;
+  reptile: Reptile;
+}
 interface ReptileSelectionDialogProps {
   reptiles: Reptile[]
   selectedReptiles: { target_type: string; target_id: string }[]
@@ -72,6 +84,7 @@ export function ReptileSelectionDialog({
   const groupedReptiles = useMemo(() => {
     return species.map(speciesItem => ({
       label: speciesItem.name,
+      id: speciesItem.id.toString(),
       items: filteredReptiles
         .filter(reptile => reptile.species_id.toString() === speciesItem.id.toString())
         .map(reptile => ({
@@ -106,6 +119,11 @@ export function ReptileSelectionDialog({
         { target_type: 'reptile', target_id: reptileId }
       ])
     }
+  }
+
+  // Helper function to count selected reptiles in a species group
+  const getSelectedCountForGroup = (groupItems: items[]) => {
+    return groupItems.filter(item => isReptileSelected(item.value)).length
   }
 
   return (
@@ -175,38 +193,57 @@ export function ReptileSelectionDialog({
         </div>
 
         <ScrollArea className="h-[400px] pr-4">
-          {groupedReptiles.map((group) => (
-            <div key={group.label} className="mb-4">
-              <h3 className="font-medium mb-2">{group.label}</h3>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-0 sm:gap-2">
-                {group.items.map((item) => (
-                  <div
-                    key={item.value}
-                    className="flex group items-center space-x-2 p-2 rounded-md cursor-pointer"
-                  >
-                    <Checkbox
-                      id={`reptile-${item.value}`}
-                      checked={isReptileSelected(item.value)}
-                      onCheckedChange={() => toggleReptileSelection(item.value)}
-                    />
-                    <label
-                      htmlFor={`reptile-${item.value}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      <div className="flex flex-col">
-                        <span>{item.label}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {item.reptile.reptile_code && `Code: ${item.reptile.reptile_code}`}
-                          {item.reptile.reptile_code && " • "}
-                          {item.ageGroup.charAt(0).toUpperCase() + item.ageGroup.slice(1)}
-                        </span>
+        <Accordion type="multiple" className="w-full" defaultValue={[groupedReptiles[0]?.id]}>
+        {groupedReptiles.map((group) => {
+              const selectedCount = getSelectedCountForGroup(group.items)
+              return (
+                <AccordionItem key={group.id} value={group.id}>
+                  <AccordionTrigger className="text-left">
+                    <div className="flex justify-between items-center w-full">
+                      <span className="font-medium">{group.label}</span>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        {selectedCount > 0 && (
+                          <span className="bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs">
+                            {selectedCount} selected
+                          </span>
+                        )}
+                        <span>({group.items.length} total)</span>
                       </div>
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-0 sm:gap-2 pt-2">
+                      {group.items.map((item) => (
+                        <div
+                          key={item.value}
+                          className="flex group items-center space-x-2 p-2 rounded-md cursor-pointer hover:bg-muted/50"
+                        >
+                          <Checkbox
+                            id={`reptile-${item.value}`}
+                            checked={isReptileSelected(item.value)}
+                            onCheckedChange={() => toggleReptileSelection(item.value)}
+                          />
+                          <label
+                            htmlFor={`reptile-${item.value}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                          >
+                            <div className="flex flex-col">
+                              <span>{item.label}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {item.reptile.reptile_code && `Code: ${item.reptile.reptile_code}`}
+                                {item.reptile.reptile_code && " • "}
+                                {item.ageGroup.charAt(0).toUpperCase() + item.ageGroup.slice(1)}
+                              </span>
+                            </div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            })}
+          </Accordion>
         </ScrollArea>
 
         <div className="flex justify-end space-x-2 mt-4">
@@ -220,4 +257,4 @@ export function ReptileSelectionDialog({
       </DialogContent>
     </Dialog>
   )
-} 
+}

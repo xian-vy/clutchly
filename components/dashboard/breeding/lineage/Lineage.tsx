@@ -1,5 +1,5 @@
 'use client'
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
@@ -12,7 +12,7 @@ const Lineage = () => {
     queryFn: getReptiles,
   })
  
-  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptiles});
   const [selectedReptileId, setSelectedReptileId] = useState<string>('');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const {morphs} = useMorphsStore();

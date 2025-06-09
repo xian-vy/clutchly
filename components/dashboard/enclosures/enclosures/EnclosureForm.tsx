@@ -36,7 +36,7 @@ interface LocationFormProps {
   onDelete?: (id: string) => Promise<void>;
 }
 
-export function LocationForm({
+export function EnclosureForm({
   isOpen,
   onClose,
   selectedLocation,

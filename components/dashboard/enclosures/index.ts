@@ -1,6 +1,6 @@
 // Main entry point
 
 // Reexport from modular components
-export { LocationsManagement } from './locations';
+export { EnclosureManagement } from './enclosures';
 export { RacksManagement } from './racks';
 export { RoomsManagement } from './rooms'; 

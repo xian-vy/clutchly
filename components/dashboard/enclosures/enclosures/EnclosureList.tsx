@@ -22,7 +22,7 @@ interface LocationsListProps {
   // onAddLocation: () => void;
 }
 
-export function LocationsList({ 
+export function EnclosureList({ 
   locations, 
   rooms, 
   racks, 

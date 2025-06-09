@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Badge } from '@/components/ui/badge';
@@ -72,7 +72,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
     queryFn: getReptiles,
   });
   const unSoldReptiles = reptiles.filter((reptile) => reptile.status === 'active');
-  const { ReptileSelect } = useGroupedReptileSelect({ filteredReptiles: unSoldReptiles });
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({ filteredReptiles: unSoldReptiles });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as Resolver<FormValues>,

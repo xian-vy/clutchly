@@ -10,7 +10,7 @@ import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 import { useResource } from '@/lib/hooks/useResource';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -58,7 +58,7 @@ export function ReptileLocationsVisualizer({
   })
 
   const reptileWithNoEnclosure = reptiles.filter(reptile => !reptile.location_id);
-  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptileWithNoEnclosure});
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptileWithNoEnclosure});
   // Filter locations for current room and rack
   const filteredLocations = locations.filter(
     loc => loc.room_id === selectedRoom?.id && loc.rack_id === selectedRack?.id

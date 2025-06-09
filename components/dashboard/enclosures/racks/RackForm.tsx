@@ -15,7 +15,7 @@ import { Rack, Room } from '@/lib/types/location';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { LocationsVisualizer } from '../locations/LocationsVisualizer';
+import { EnclosureVisualizer } from '../enclosures/EnclosureVisualizer';
 import { useQueryClient } from '@tanstack/react-query';
 
 // Define form schema
@@ -311,7 +311,7 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
           </TabsContent>
           
           <TabsContent value="preview" className="space-y-4 pt-4 max-w-[360px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto">
-            <LocationsVisualizer
+            <EnclosureVisualizer
               selectedRoom={selectedRoom}
               selectedRack={{
                 id: selectedRack?.id || 'preview',

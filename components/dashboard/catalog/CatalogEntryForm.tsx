@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Switch } from '@/components/ui/switch';
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 
 interface CatalogEntryFormProps {
   initialData?: CatalogEntry;
@@ -37,7 +37,7 @@ export function CatalogEntryForm({
   featuredLimit,
 }: CatalogEntryFormProps) {
 
-  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: availableReptiles});
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: availableReptiles});
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
