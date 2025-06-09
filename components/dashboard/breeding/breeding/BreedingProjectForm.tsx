@@ -77,7 +77,7 @@ export function BreedingProjectForm({
       female_id: initialData?.female_id || '',
     },
   });
-
+  const isSubmitting = form.formState.isSubmitting;
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
@@ -328,8 +328,8 @@ export function BreedingProjectForm({
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
-            {initialData ? 'Update Project' : 'Create Project'}
+          <Button disabled={isSubmitting} type="submit">
+            {isSubmitting ? "Saving..." : initialData ? 'Update Project' : 'Create Project'}
           </Button>
         </div>
       </form>

@@ -70,7 +70,6 @@ export function HatchlingForm({
   const { getMorphsBySpecies } = useMorphsStore()
   const { species, fetchSpecies } = useSpeciesStore()
   const morphsForSpecies = getMorphsBySpecies(clutch.species_id.toString())
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: reptiles, isLoading : reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles
@@ -99,6 +98,7 @@ export function HatchlingForm({
       original_breeder : userProfile?.full_name || ''
     },
   });
+  const isSubmitting = form.formState.isSubmitting;
 
   const [visualTraits, setVisualTraits] = useState<string[]>( []);
   const [hetTraits, setHetTraits] = useState<Array<{
@@ -159,7 +159,6 @@ export function HatchlingForm({
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setIsSubmitting(true);
       const today = new Date().toISOString().split('T')[0];
 
       if (!reptiles) {
@@ -235,9 +234,7 @@ export function HatchlingForm({
       await Promise.all(createPromises);
     } catch (error) {
       console.error('Error submitting hatchlings:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    } 
   };
 
   return (
