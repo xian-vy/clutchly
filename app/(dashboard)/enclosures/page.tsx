@@ -1,5 +1,5 @@
 
-import { LocationsManagement, RacksManagement, RoomsManagement } from "@/components/dashboard/locations";
+import { EnclosureManagement, RacksManagement, RoomsManagement } from "@/components/dashboard/enclosures";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -60,7 +60,7 @@ export default async function HousingPage() {
           
           <TabsContent value="locations">
             <div className="space-y-4">
-              <LocationsManagement />
+              <EnclosureManagement />
             </div>
           </TabsContent>
         </Tabs>
