@@ -5,6 +5,7 @@ import { LayoutGrid, Building2, Edit, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface RacksListProps {
   racks: Rack[];
@@ -35,17 +36,13 @@ export function RacksList({ racks, rooms, isLoading, onEditRack, onAddRack }: Ra
       </div>
       
       {rooms.length === 0 && (
-        <Card className="bg-yellow-50 border-yellow-200">
-          <CardContent className="pt-6">
-            <div className="flex gap-2 items-center text-yellow-800">
-              <Building2 className="h-5 w-5" />
-              <CardTitle className="text-yellow-800 text-base">Room Required</CardTitle>
-            </div>
-            <CardDescription className="text-yellow-700 mt-2">
-              Please create at least one room before adding racks.
-            </CardDescription>
-          </CardContent>
-        </Card>
+      <Alert variant="amber">
+          <Building2 className="h-4 w-4" />
+          <AlertTitle>No Rooms Found</AlertTitle>
+          <AlertDescription>
+            Please add rooms to the system before adding racks.
+          </AlertDescription>
+      </Alert>
       )}
       
       {!isLoading && racks.length === 0 && rooms.length > 0 ? (
