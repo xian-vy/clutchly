@@ -1,6 +1,6 @@
 'use client'
 
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect'
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect'
 import { Reptile } from '@/lib/types/reptile'
 
 interface SheddingFiltersProps {
@@ -18,7 +18,7 @@ export function SheddingFilters({
   onReptileChange,
   onTimeRangeChange,
 }: SheddingFiltersProps) {
-  const { ReptileSelect } = useGroupedReptileSelect({ filteredReptiles: reptiles })
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({ filteredReptiles: reptiles })
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">

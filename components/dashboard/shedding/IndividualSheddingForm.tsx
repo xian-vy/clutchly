@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { CreateSheddingInput } from '@/lib/types/shedding'
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect'
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect'
 import { useQuery } from '@tanstack/react-query'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import {
@@ -52,7 +52,7 @@ export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
   })
 
   const activeReptiles = reptiles.filter((reptile) => reptile.status === 'active')
-  const { ReptileSelect } = useGroupedReptileSelect({ filteredReptiles: activeReptiles })
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({ filteredReptiles: activeReptiles })
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),

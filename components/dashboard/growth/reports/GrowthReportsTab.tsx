@@ -4,7 +4,7 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useGroupedReptileSelect } from '@/lib/hooks/useGroupedReptileSelect';
+import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
 import { useGrowthStore } from '@/lib/stores/growthStore';
 import { Reptile } from '@/lib/types/reptile';
@@ -28,7 +28,7 @@ export function GrowthReportsTab() {
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-  const { ReptileSelect } = useGroupedReptileSelect({filteredReptiles: reptiles});
+  const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptiles});
 
   // Fetch growth entries if not already loaded
   useEffect(() => {
