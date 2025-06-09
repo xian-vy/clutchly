@@ -67,7 +67,7 @@ const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
                                 </Avatar>
                                 {!isCollapsed &&
                                     <div className="flex flex-col items-start">
-                                        <span className='text-xs'>{userFullname}</span>
+                                        <span className='text-xs capitalize'>{userFullname}</span>
                                         <span className='text-xs text-muted-foreground'>{userEmail}</span>
                                     </div>
                                 }
