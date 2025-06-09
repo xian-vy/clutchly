@@ -31,6 +31,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AlertCircle } from 'lucide-react';
 import * as z from 'zod';
+import { useGroupedReptileByMorphSelect } from '@/lib/hooks/useGroupedReptileByMorphSelect';
 
 const breedingStatuses: BreedingStatus[] = ['planned', 'active', 'completed', 'failed'];
 
@@ -88,7 +89,7 @@ export function BreedingProjectForm({
   const maleId = form.watch('male_id');
   const femaleId = form.watch('female_id');
   
-  const { selectedSpeciesId, maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
+  const { maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
     reptiles,
     speciesId : speciesId || '',
   });
@@ -118,6 +119,8 @@ export function BreedingProjectForm({
     
     await onSubmit(formattedData);
   };
+  const { ReptileSelect : FemaleSelect } = useGroupedReptileByMorphSelect({filteredReptiles: femaleReptiles, disabled : !speciesId});
+  const { ReptileSelect : MaleSelect } = useGroupedReptileByMorphSelect({filteredReptiles: maleReptiles, disabled : !speciesId});
 
   // Remove the old filter declarations
   return (
@@ -196,60 +199,32 @@ export function BreedingProjectForm({
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="male_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Male Reptile</FormLabel>
-                <Select
+                <MaleSelect
+                  value={field.value || ""}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={!selectedSpeciesId}
-                >
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select male" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {maleReptiles.map((reptile) => (
-                      <SelectItem key={reptile.id} value={reptile.id}>
-                        {reptile.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Select a reptile"
+                  />
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="female_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Female Reptile</FormLabel>
-                <Select
+                <FemaleSelect
+                  value={field.value || ""}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={!selectedSpeciesId}
-                >
-                  <FormControl>
-                    <SelectTrigger className='w-full'>
-                      <SelectValue placeholder="Select female" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {femaleReptiles.map((reptile) => (
-                      <SelectItem key={reptile.id} value={reptile.id}>
-                        {reptile.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Select a reptile"
+                  />
                 <FormMessage />
               </FormItem>
             )}
@@ -260,7 +235,7 @@ export function BreedingProjectForm({
           <Alert variant="destructive" className="my-2">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Inbreeding Warning</AlertTitle>
-            <AlertDescription>
+            <AlertDescription className='max-h-[120px] xl:max-h-[140px] 3xl:!max-h-full overflow-auto'>
               <p>The selected reptiles are related ({inbreedingInfo.relationship}).</p>
               {inbreedingInfo.commonAncestors.length > 0 && (
                 <div className="mt-1">
