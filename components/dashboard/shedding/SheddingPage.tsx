@@ -1,18 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SheddingList } from './SheddingList'
-import { SheddingReports } from './SheddingReports'
 import { useResource } from '@/lib/hooks/useResource'
 import { getSheddingRecords, updateShedding, deleteShedding, createShedding, createBatchShedding } from '@/app/api/shedding/shedding'
 import { SheddingWithReptile, CreateSheddingInput, UpdateSheddingInput } from '@/lib/types/shedding'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { NewSheddingDialog } from './NewSheddingDialog'
-import { Button } from '@/components/ui/button'
-import { Settings } from 'lucide-react'
 import { EditSheddingDialog } from './EditSheddingDialog'
+import { SheddingList } from './SheddingList'
 
 export function SheddingPage() {
   const queryClient = useQueryClient()
@@ -64,35 +60,13 @@ export function SheddingPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
-          <h1 className="text-lg sm:text-xl 2xl:text-2xl 3xl:!text-3xl font-bold">Shed Management</h1>
-          <Button size="sm" variant="outline">
-            <Settings className="h-4 w-4" />
-            Options
-          </Button>
-      </div>
-
-      <Tabs defaultValue="list" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="list">Shed List</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="list" className="space-y-4">
-          <SheddingList
-            sheddingRecords={sheddingRecords}
-            isLoading={isLoading}
-            onEdit={setSelectedResource}
-            onDelete={handleDelete}
-            onAddNew={() => setIsNewDialogOpen(true)}
-          />
-        </TabsContent>
-
-        <TabsContent value="reports" className="space-y-4">
-          <SheddingReports />
-        </TabsContent>
-      </Tabs>
-
+      <SheddingList
+          sheddingRecords={sheddingRecords}
+          isLoading={isLoading}
+          onEdit={setSelectedResource}
+          onDelete={handleDelete}
+          onAddNew={() => setIsNewDialogOpen(true)}
+       />
       <NewSheddingDialog
         open={isNewDialogOpen}
         onOpenChange={setIsNewDialogOpen}

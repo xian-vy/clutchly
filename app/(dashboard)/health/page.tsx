@@ -19,7 +19,7 @@ export default async function HealthPage() {
       <Tabs defaultValue="entries" className="space-y-2 md:space-y-3 xl:space-y-6">
         <div className="flex flex-col w-full">
           <TabsList>
-            <TabsTrigger value="entries">Health Entries</TabsTrigger>
+            <TabsTrigger value="entries">Entries</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
           </TabsList>
           <hr className='mt-[1px]'/>
