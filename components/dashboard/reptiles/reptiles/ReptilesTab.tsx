@@ -12,7 +12,7 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { ReptileForm } from './ReptileForm';
 import { EnrichedReptile, ReptileList } from './ReptileList';
 import { Loader2 } from 'lucide-react';
-import { getOrganization } from '@/app/api/organizations/organizations';
+import { getCurrentUser, getOrganization } from '@/app/api/organizations/organizations';
 import { Organization } from '@/lib/types/organizations';
 import { toast } from 'sonner';
 import {  getSubscriptionLimitClient } from '@/app/api/utils_client';
@@ -49,22 +49,16 @@ export function ReptilesTab() {
 
   const { data: organization, isLoading : profileLoading } = useQuery<Organization>({
     queryKey: ['organization2'],
-    queryFn: async () => {
-      const data = await getOrganization();
-      return Array.isArray(data) ? data[0] : data;
-    },
+    queryFn: getOrganization,
   })
   const { data: user, isLoading : userLoading } = useQuery<User>({
-    queryKey: ['user'],
-    queryFn: async () => {
-      const data = await getOrganization();
-      return Array.isArray(data) ? data[0] : data;
-    },
+    queryKey: ['user2'],
+    queryFn: getCurrentUser,
   })
 
   const isOwner = useMemo(() => {
      if (!user || !organization) return false;
-    return user.org_id === organization.id && user.role === 'owner';
+     return user.id === organization.id ;
   }
   , [user,organization]);
   // Get species and morphs from their respective stores

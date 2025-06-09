@@ -1,7 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +8,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Location, Rack, Room } from '@/lib/types/location';
-import { Filter, Loader2 } from 'lucide-react';
+import { Filter, Loader2, Package } from 'lucide-react';
 import { useState } from 'react';
 import { ReptileLocationsVisualizer } from './ReptileLocationsVisualizer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface LocationsListProps {
   locations: Location[];
@@ -48,9 +48,13 @@ export function LocationsList({
   return (
     <div className="space-y-4">
       {rooms.length === 0 || racks.length === 0 ? (
-        <Card className="p-4 bg-yellow-50 text-yellow-800 rounded-md text-xs lg:text-sm">
-          Please create at least one room and rack before adding locations.
-        </Card>
+      <Alert variant="amber">
+        <Package className="h-4 w-4" />
+        <AlertTitle>No Rooms or Racks Found</AlertTitle>
+        <AlertDescription>
+          Please add rooms and racks to the system before adding locations.
+        </AlertDescription>
+      </Alert>
       ) : (
         <Tabs defaultValue={rooms[0]?.id} value={selectedRoom || undefined} onValueChange={setSelectedRoom}>
           <div className="flex justify-between items-center mb-2">

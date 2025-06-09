@@ -4,6 +4,7 @@ import { Room } from '@/lib/types/location';
 import { Building2, Edit, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface RoomsListProps {
   rooms: Room[];
@@ -26,21 +27,13 @@ export function RoomsList({ rooms, isLoading, onEditRoom, onAddRoom }: RoomsList
       </div>
       
       {!isLoading && rooms.length === 0 ? (
-        <Card className="bg-muted/40">
-          <CardContent className="pt-6 text-center">
-            <div className="mx-auto rounded-full w-12 h-12 flex items-center justify-center bg-primary/10 mb-4">
-              <Building2 className="h-6 w-6 text-primary" />
-            </div>
-            <CardTitle className="text-xl mb-2">No Rooms Yet</CardTitle>
-            <p className="max-w-md mx-auto mb-4 text-muted-foreground">
-              Create your first room to start organizing your reptile housing setup.
-            </p>
-            <Button onClick={onAddRoom}>
-              <Building2 className="h-4 w-4 mr-2" />
-              Add Room
-            </Button>
-          </CardContent>
-        </Card>
+       <Alert variant="amber">
+          <Building2 className="h-4 w-4" />
+          <AlertTitle>No Rooms Found</AlertTitle>
+          <AlertDescription>
+            Create your first room to start organizing your reptile housing setup.
+          </AlertDescription>
+       </Alert>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {rooms.map((room) => (

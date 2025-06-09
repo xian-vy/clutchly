@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useState, useMemo } from "react";
 import { HealthFilterDialog, HealthFilters } from "./HealthFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getSpeciesAbbreviation } from "@/lib/utils";
 
 interface HealthLogListProps {
   healthLogs: HealthLogEntry[];
@@ -132,6 +133,12 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
 
   const columns: ColumnDef<HealthLogEntry>[] = [
     {
+      header: "#",
+      cell: ({ row }) => {
+        return <div className="text-left">{row.index + 1}</div>;
+      }
+    },
+    {
       accessorKey: "reptile",
       header: "Reptile",
       cell: ({ row }) => {
@@ -151,12 +158,42 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
       },
     },
     {
-      accessorKey:'morph',
-      header: 'Morph', 
+      accessorKey: "morph",
+      header: "Morph",
+      cell: ({ row }) => {
+        const morphName = row.getValue("morph") as string;
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="truncate max-w-[85px]">
+                {morphName}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{morphName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
     {
-      accessorKey:'species',
-      header: 'Species', 
+      accessorKey: "species",
+      header: "Species",
+      cell: ({ row }) => {
+        const speciesName = row.getValue("species") as string;
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                {getSpeciesAbbreviation(speciesName)}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{speciesName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
     {
       accessorKey: 'category_id',

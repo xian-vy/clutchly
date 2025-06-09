@@ -11,6 +11,7 @@ import { useState, useMemo } from "react";
 import { GrowthFilterDialog, GrowthFilters } from "./GrowthFilterDialog";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getSpeciesAbbreviation } from "@/lib/utils";
 
 interface GrowthEntryListProps {
   growthEntries: GrowthEntry[];
@@ -101,6 +102,12 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
 
   const columns: ColumnDef<GrowthEntry>[] = [
     {
+      header: "#",
+      cell: ({ row }) => {
+        return <div className="text-left">{row.index + 1}</div>;
+      }
+    },
+    {
       accessorKey: "reptile",
       header: "Reptile",
       cell: ({ row }) => {
@@ -120,13 +127,46 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
       },
     },
     {
-      accessorKey:'morph',
-      header: 'Morph', 
+      accessorKey: "morph",
+      header: "Morph",
+      cell: ({ row }) => {
+        const morphName = row.getValue("morph") as string;
+ 
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="truncate max-w-[85px]">
+                {morphName}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{morphName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
     {
-      accessorKey:'species',
-      header: 'Species', 
+      accessorKey: "species",
+      header: "Species",
+      cell: ({ row }) => {
+        const speciesName = row.getValue("species") as string;
+        // Convert species name to abbreviation
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                {getSpeciesAbbreviation(speciesName)}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{speciesName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      }
     },
+
     {
       accessorKey: 'date',
       header: 'Date',
