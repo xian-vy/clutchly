@@ -8,7 +8,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { NewReptile, Reptile } from '@/lib/types/reptile';
 import { useMemo, useState } from 'react';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReptileForm } from './ReptileForm';
 import { EnrichedReptile, ReptileList } from './ReptileList';
 import { Loader2 } from 'lucide-react';
@@ -23,7 +23,8 @@ type EnrichedReptileWithLabel = EnrichedReptile & {
 };
 export function ReptilesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  
+  const queryClient = useQueryClient();
+
   const {
     resources: reptiles,
     isLoading: reptilesLoading,
@@ -158,6 +159,10 @@ export function ReptilesTab() {
     }
   }
 
+  const handleDeleteReptile = async ( id: string) => {
+   await handleDelete(id)
+   queryClient.invalidateQueries({ queryKey: ['sales-records'] });
+  }
   return (
     <div className="space-y-6">
 
@@ -168,7 +173,7 @@ export function ReptilesTab() {
             setSelectedReptile(reptile);
             setIsDialogOpen(true);
           }}
-          onDelete={handleDelete}
+          onDelete={handleDeleteReptile}
           onAddNew={() => setIsDialogOpen(true)}
           onImportSuccess={handleImportComplete}
           organization={organization}
