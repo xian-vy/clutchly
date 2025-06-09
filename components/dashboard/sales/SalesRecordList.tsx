@@ -11,6 +11,8 @@ import { Edit, Eye, Filter, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { SalesFilterDialog, SalesFiltersState } from './SalesFilterDialog';
 import { PAYMENT_COLORS, SALES_STATUS_COLORS, YES_NO_COLORS } from '@/lib/constants/colors';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getSpeciesAbbreviation } from '@/lib/utils';
 
 
 // Payment method colors
@@ -138,24 +140,40 @@ export function SalesRecordList({
       }
     },
     {
-      header: "Species",
+      header: "Morph",
       cell: ({ row }) => {
         const record = row.original;
+        const morphName = record.morph_name as string;
         return (
-          <div className="text-xs">
-            <p>{record.species_name || "Unknown"}</p>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className='truncate max-w-[85px]'>
+                {morphName}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{morphName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       }
     },
     {
-      header: "Morph",
+      header: "Species",
       cell: ({ row }) => {
         const record = row.original;
+        const speciesName = record.species_name as string;
         return (
-          <div className="text-xs">
-            <p>{record.morph_name || "Unknown"}</p>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                {getSpeciesAbbreviation(speciesName)}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{speciesName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       }
     },

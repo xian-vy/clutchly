@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { SHEDDING_COLORS, YES_NO_COLORS } from '@/lib/constants/colors'
 import { getSpeciesAbbreviation } from '@/lib/utils'
+import { useMorphsStore } from '@/lib/stores/morphsStore'
 
 interface Props {
   sheddingRecords: SheddingWithReptile[]
@@ -34,6 +35,7 @@ export function SheddingList({
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState<SheddingFilters | null>(null)
   const {species} = useSpeciesStore()
+  const {morphs} = useMorphsStore()
 
   const filteredRecords = useMemo(() => {
     if (!filters) return sheddingRecords;
@@ -105,12 +107,23 @@ export function SheddingList({
       }
     },
     {
-      accessorKey: "shed_date",
-      header: "Date",
+      accessorKey: "reptile.name",
+      header: "Reptile",
       cell: ({ row }) => {
-        const date = row.getValue("shed_date") as string;
-        return format(new Date(date), 'MMM d, yyyy');
-      }
+        const reptile = row.original.reptile;
+        return (
+          <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[140px] xl:max-w-[150px] 2xl:max-w-[180px]">{reptile.name}</p>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>{reptile.name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        );
+      },
     },
     {
       accessorKey: "reptile.species_id",
@@ -133,23 +146,24 @@ export function SheddingList({
       }
     },
     {
-      accessorKey: "reptile.name",
-      header: "Reptile",
+      accessorKey: "reptile.morph_id",
+      header: "Morph",
       cell: ({ row }) => {
         const reptile = row.original.reptile;
+        const morphName = morphs.find(morph => morph.id.toString() === reptile.morph_id.toString())?.name || 'Unknown';
         return (
           <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-                <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[140px] xl:max-w-[150px] 2xl:max-w-[180px]">{reptile.name}</p>
-            </TooltipTrigger>
-            <TooltipContent>
-                <p>{reptile.name}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="truncate max-w-[85px]">
+                {morphName}
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{morphName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
-      },
+      }
     },
     {
       accessorKey: "reptile.reptile_code",
@@ -157,6 +171,14 @@ export function SheddingList({
       cell: ({ row }) => {
         const reptile = row.original.reptile;
         return <div className="text-left">{reptile.reptile_code}</div>;
+      }
+    },
+    {
+      accessorKey: "shed_date",
+      header: "Date",
+      cell: ({ row }) => {
+        const date = row.getValue("shed_date") as string;
+        return format(new Date(date), 'MMM d, yyyy');
       }
     },
     {
