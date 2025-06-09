@@ -55,7 +55,7 @@ export function ReptilesTab() {
     },
   })
   const { data: user, isLoading : userLoading } = useQuery<User>({
-    queryKey: ['user'],
+    queryKey: ['user2'],
     queryFn: async () => {
       const data = await getOrganization();
       return Array.isArray(data) ? data[0] : data;
