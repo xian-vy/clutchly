@@ -64,7 +64,7 @@ export function SheddingList({
       }
 
       // Filter by notes
-      if (filters.hasNotes !== null) {
+      if (filters.hasNotes === true || filters.hasNotes === false) {
         const hasNotes = Boolean(record.notes && record.notes.length > 0);
         if (filters.hasNotes !== hasNotes) {
           return false;
@@ -79,10 +79,10 @@ export function SheddingList({
   const activeFilters = useMemo(() => {
     let count = 0
     if (filters.completeness?.length) count++
-    if (filters.dateRange) count++
+    if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) count++
     if (filters.species?.length) count++
     if (filters.morphs?.length) count++
-    if (filters.hasNotes !== null) count++
+    if (filters.hasNotes === true || filters.hasNotes === false) count++
     return count
   }, [filters])
 

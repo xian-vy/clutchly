@@ -67,6 +67,7 @@ export function SheddingFilterDialog({
       morphs: currentFilters.morphs || [],
       completeness: currentFilters.completeness || [],
       hasNotes: currentFilters.hasNotes || null,
+      dateRange: currentFilters.dateRange || null,
     },
   });
 
@@ -109,7 +110,19 @@ export function SheddingFilterDialog({
       value !== undefined && 
       (Array.isArray(value) ? value.length > 0 : true)
     );
-    onApplyFilters(hasFilters ? values : {});
+    
+    if (!hasFilters) {
+      // If no filters are set, apply default date range only
+      onApplyFilters({
+        completeness: undefined,
+        dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
+        species: undefined,
+        morphs: undefined,
+        hasNotes: null,
+      });
+    } else {
+      onApplyFilters(values);
+    }
     onOpenChange(false);
   };
 
@@ -123,7 +136,11 @@ export function SheddingFilterDialog({
     });
     setDateRange({ from: defaultFromDate, to: defaultToDate });
     onApplyFilters({
+      completeness: undefined,
       dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
+      species: undefined,
+      morphs: undefined,
+      hasNotes: null,
     });
     onOpenChange(false);
   };
