@@ -36,10 +36,8 @@ import { Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
-import { DateRange } from 'react-day-picker';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 export interface SalesFiltersState {
   status?: string | 'all';
@@ -47,7 +45,8 @@ export interface SalesFiltersState {
   speciesId?: string;
   morphId?: string;
   priceRange?: [number, number];
-  dateRange?: DateRange;
+  dateFrom?: string;
+  dateTo?: string;
   includesDocuments?: boolean;
 }
 
@@ -64,15 +63,20 @@ export function SalesFilterDialog({
   onApplyFilters,
   currentFilters = {},
 }: SalesFilterDialogProps) {
+
+  console.log('Current Filters:', currentFilters);
   // Initialize filters state with current filters
-  const [filters, setFilters] = useState<SalesFiltersState>(currentFilters);
+  const [filters, setFilters] = useState<SalesFiltersState>({
+    ...currentFilters,
+    dateFrom: currentFilters.dateFrom || getCurrentMonthDateRange().dateFrom,
+    dateTo: currentFilters.dateTo || getCurrentMonthDateRange().dateTo,
+  });
   const { species } = useSpeciesStore();
   const { morphs } = useMorphsStore();
   
   // Dropdown states
   const [speciesOpen, setSpeciesOpen] = useState(false);
   const [morphOpen, setMorphOpen] = useState(false);
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   // Update local state when currentFilters changes
   useEffect(() => {
@@ -310,6 +314,7 @@ export function SalesFilterDialog({
               </PopoverContent>
             </Popover>
           </div>
+          </div>
 
           {/* Price Range Filter */}
           <div className="grid gap-2">
@@ -330,65 +335,24 @@ export function SalesFilterDialog({
             />
           </div>
 
-          {/* Date Range Filter */}
-          <div className="grid gap-2">
-            <Label>Sale Date Range</Label>
-            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !filters.dateRange && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {filters.dateRange?.from ? (
-                    filters.dateRange.to ? (
-                      <>
-                        {format(filters.dateRange.from, "PPP")} -{" "}
-                        {format(filters.dateRange.to, "PPP")}
-                      </>
-                    ) : (
-                      format(filters.dateRange.from, "PPP")
-                    )
-                  ) : (
-                    <span>Select date range</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={filters.dateRange?.from}
-                  selected={filters.dateRange}
-                  onSelect={(range) => {
-                    setFilters(prev => ({ ...prev, dateRange: range }));
-                  }}
-                  numberOfMonths={2}
-                />
-                <div className="p-2 border-t border-border">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setFilters(prev => ({ ...prev, dateRange: undefined }));
-                      setDatePickerOpen(false);
-                    }}
-                    className="mr-2"
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => setDatePickerOpen(false)}
-                  >
-                    Apply
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+          {/* Date From/To Filter */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Date From</Label>
+              <Input
+                type="date"
+                value={filters.dateFrom}
+                onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Date To</Label>
+              <Input
+                type="date"
+                value={filters.dateTo}
+                onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
+              />
+            </div>
           </div>
 
           {/* Includes Documents Filter */}
@@ -405,7 +369,6 @@ export function SalesFilterDialog({
             />
             <Label htmlFor="includesDocuments">Includes documentation</Label>
           </div>
-        </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleReset}>
             Reset

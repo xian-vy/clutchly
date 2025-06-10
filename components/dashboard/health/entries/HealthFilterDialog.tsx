@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { SEVERITY_COLORS } from "@/lib/constants/colors";
@@ -12,6 +13,7 @@ import { HealthLogSeverity } from "@/lib/types/health";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { getCurrentMonthDateRange } from "@/lib/utils";
 
 const severities: HealthLogSeverity[] = ['low', 'moderate', 'high'];
 
@@ -22,7 +24,8 @@ export interface HealthFilters {
   severity?: HealthLogSeverity[];
   resolved?: boolean | null;
   hasNotes?: boolean | null;
-  dateRange?: [string, string] | null;
+  dateFrom?: string;
+  dateTo?: string;
   hasAttachments?: boolean | null;
 }
 
@@ -33,7 +36,8 @@ const filterSchema = z.object({
   severity: z.array(z.string() as z.ZodType<HealthLogSeverity>).optional(),
   resolved: z.boolean().nullable().optional(),
   hasNotes: z.boolean().nullable().optional(),
-  dateRange: z.tuple([z.string(), z.string()]).nullable().optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
   hasAttachments: z.boolean().nullable().optional(),
 });
 
@@ -64,6 +68,8 @@ export function HealthFilterDialog({
       subcategory: currentFilters.subcategory || [],
       type: currentFilters.type || [],
       severity: currentFilters.severity || [],
+      dateFrom: currentFilters.dateFrom || getCurrentMonthDateRange().dateFrom,
+      dateTo: currentFilters.dateTo || getCurrentMonthDateRange().dateTo,
     },
   });
 
@@ -93,7 +99,8 @@ export function HealthFilterDialog({
       severity: [],
       resolved: null,
       hasNotes: null,
-      dateRange: null,
+      dateFrom: undefined,
+      dateTo: undefined,
       hasAttachments: null,
     });
   }
@@ -367,6 +374,42 @@ export function HealthFilterDialog({
                         Has Attachments
                       </FormLabel>
                     </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="dateFrom"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date From</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dateTo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date To</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                      />
+                    </FormControl>
                   </FormItem>
                 )}
               />

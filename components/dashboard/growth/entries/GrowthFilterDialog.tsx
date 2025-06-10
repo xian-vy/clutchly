@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { getCurrentMonthDateRange } from "@/lib/utils";
 
 export interface GrowthFilters {
   weightRange?: [number, number] | null;
@@ -42,11 +43,11 @@ export function GrowthFilterDialog({
   currentFilters,
 }: GrowthFilterDialogProps) {
   const [weightRange, setWeightRange] = useState<[number, number]>(
-    currentFilters.weightRange || [0, 1000]
+    currentFilters.weightRange || [0, 50000]
   );
   
   const [lengthRange, setLengthRange] = useState<[number, number]>(
-    currentFilters.lengthRange || [0, 200]
+    currentFilters.lengthRange || [0, 1200]
   );
 
   const form = useForm<GrowthFilters>({
@@ -55,18 +56,41 @@ export function GrowthFilterDialog({
       ...currentFilters,
       weightRange: currentFilters.weightRange || null,
       lengthRange: currentFilters.lengthRange || null,
+      dateRange: currentFilters.dateRange || [getCurrentMonthDateRange().dateFrom, getCurrentMonthDateRange().dateTo],
+      hasNotes: currentFilters.hasNotes || null,
+      hasAttachments: currentFilters.hasAttachments || null,
     },
   });
 
   function onSubmit(values: GrowthFilters) {
-    // Add the slider values
-    const formValues = {
-      ...values,
-      weightRange: values.weightRange || weightRange,
-      lengthRange: values.lengthRange || lengthRange,
-    };
-    
-    onApplyFilters(formValues);
+    // If all values are null/undefined/empty, treat it as a reset
+    const isReset = !values.weightRange && 
+                   !values.lengthRange && 
+                   !values.dateRange && 
+                   values.hasNotes === null && 
+                   values.hasAttachments === null;
+
+    if (isReset) {
+      // Apply empty filters
+      onApplyFilters({
+        weightRange: null,
+        lengthRange: null,
+        dateRange: null,
+        hasNotes: null,
+        hasAttachments: null,
+      });
+    } else {
+      // Add the slider values, but only include dateRange if it's explicitly set
+      const formValues = {
+        ...values,
+        weightRange: values.weightRange || weightRange,
+        lengthRange: values.lengthRange || lengthRange,
+        // Only include dateRange if it's explicitly set in the form
+        dateRange: values.dateRange || null,
+      };
+      
+      onApplyFilters(formValues);
+    }
     onOpenChange(false);
   }
 
@@ -78,8 +102,8 @@ export function GrowthFilterDialog({
       hasNotes: null,
       hasAttachments: null,
     });
-    setWeightRange([0, 1000]);
-    setLengthRange([0, 200]);
+    setWeightRange([0, 50000]);
+    setLengthRange([0, 1200]);
     
     // Ensure filters are immediately applied after reset
     onApplyFilters({
@@ -112,8 +136,8 @@ export function GrowthFilterDialog({
                       <Slider
                         value={weightRange}
                         min={0}
-                        max={1000}
-                        step={1}
+                        max={50000}
+                        step={100}
                         onValueChange={(value) => {
                           setWeightRange(value as [number, number]);
                           form.setValue("weightRange", value as [number, number]);
@@ -140,8 +164,8 @@ export function GrowthFilterDialog({
                       <Slider
                         value={lengthRange}
                         min={0}
-                        max={200}
-                        step={1}
+                        max={1200}
+                        step={100}
                         onValueChange={(value) => {
                           setLengthRange(value as [number, number]);
                           form.setValue("lengthRange", value as [number, number]);

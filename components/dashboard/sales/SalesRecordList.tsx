@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react';
 import { SalesFilterDialog, SalesFiltersState } from './SalesFilterDialog';
 import { PAYMENT_COLORS, SALES_STATUS_COLORS, YES_NO_COLORS } from '@/lib/constants/colors';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { getSpeciesAbbreviation } from '@/lib/utils';
+import { getSpeciesAbbreviation, getCurrentMonthDateRange } from '@/lib/utils';
 
 
 // Payment method colors
@@ -40,7 +40,10 @@ export function SalesRecordList({
   onAddNew,
   onViewDetails,
 }: SalesRecordListProps) {
-  const [filters, setFilters] = useState<SalesFiltersState>({});
+  const [filters, setFilters] = useState<SalesFiltersState>({
+    dateFrom: getCurrentMonthDateRange().dateFrom,
+    dateTo: getCurrentMonthDateRange().dateTo,
+  });
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
 
   // Apply filters to the sales records
@@ -79,13 +82,16 @@ export function SalesRecordList({
       }
       
       // Date range filter
-      if (filters.dateRange) {
+      if (filters.dateFrom || filters.dateTo) {
         const recordDate = new Date(record.sale_date);
-        if (filters.dateRange.from && recordDate < filters.dateRange.from) {
-          return false;
+        if (filters.dateFrom) {
+          const startDate = new Date(filters.dateFrom);
+          if (recordDate < startDate) {
+            return false;
+          }
         }
-        if (filters.dateRange.to) {
-          const endDate = new Date(filters.dateRange.to);
+        if (filters.dateTo) {
+          const endDate = new Date(filters.dateTo);
           endDate.setHours(23, 59, 59, 999); // End of day
           if (recordDate > endDate) {
             return false;
@@ -111,7 +117,7 @@ export function SalesRecordList({
     if (filters.speciesId && filters.speciesId !== 'all') count++;
     if (filters.morphId && filters.morphId !== 'all') count++;
     if (filters.priceRange) count++;
-    if (filters.dateRange) count++;
+    if (filters.dateFrom || filters.dateTo) count++;
     if (filters.includesDocuments !== undefined) count++;
     return count;
   }, [filters]);

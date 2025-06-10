@@ -11,7 +11,7 @@ import { useState, useMemo } from "react";
 import { GrowthFilterDialog, GrowthFilters } from "./GrowthFilterDialog";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getSpeciesAbbreviation } from "@/lib/utils";
+import { getSpeciesAbbreviation, getCurrentMonthDateRange } from "@/lib/utils";
 
 interface GrowthEntryListProps {
   growthEntries: GrowthEntry[];
@@ -22,7 +22,10 @@ interface GrowthEntryListProps {
 
 export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: GrowthEntryListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
-  const [filters, setFilters] = useState<GrowthFilters>({});
+  const currentMonthRange = getCurrentMonthDateRange();
+  const [filters, setFilters] = useState<GrowthFilters>({
+    dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
+  });
 
   // Apply filters to the growth entries list
   const filteredGrowthEntries = useMemo(() => {
@@ -44,12 +47,15 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
       }
 
       // Date range filter
-      if (filters.dateRange) {
+      if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) {
         const [startDate, endDate] = filters.dateRange;
-        if (startDate && entry.date < startDate) {
+        const entryDate = new Date(entry.date);
+        if (entryDate < new Date(startDate)) {
           return false;
         }
-        if (endDate && entry.date > endDate) {
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999); // End of day
+        if (entryDate > endDateTime) {
           return false;
         }
       }
@@ -91,7 +97,7 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
     }
     
     // Date range checks both start and end dates
-    if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1])) count++;
+    if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) count++;
     
     // Boolean filters
     if (filters.hasNotes !== null && filters.hasNotes !== undefined) count++;

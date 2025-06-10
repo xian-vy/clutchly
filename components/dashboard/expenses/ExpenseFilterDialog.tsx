@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Separator } from '@/components/ui/separator';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 export interface ExpenseFilterDialogProps {
   open: boolean;
@@ -50,8 +51,8 @@ export function ExpenseFilterDialog({
     resolver: zodResolver(filterSchema),
     defaultValues: {
       status: currentFilters.status,
-      dateFrom: currentFilters.dateFrom,
-      dateTo: currentFilters.dateTo,
+      dateFrom: currentFilters.dateFrom || getCurrentMonthDateRange().dateFrom,
+      dateTo: currentFilters.dateTo || getCurrentMonthDateRange().dateTo,
       amountRange: currentFilters.amountFrom && currentFilters.amountTo 
         ? [currentFilters.amountFrom, currentFilters.amountTo]
         : [0, 20000],

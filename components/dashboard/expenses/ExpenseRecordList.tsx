@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { Edit, Eye, Filter, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { ExpenseFilterDialog, ExpenseFilters } from './ExpenseFilterDialog';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 interface ExpenseRecordListProps {
   expenses: ExpenseRecord[];
@@ -37,42 +38,49 @@ export function ExpenseRecordList({
   onCloseFilterDialog,
   onApplyFilters,
 }: ExpenseRecordListProps) {
+  // Initialize with current month date range if no filters are provided
+  const initialFilters: ExpenseFilters = {
+    dateFrom: getCurrentMonthDateRange().dateFrom,
+    dateTo: getCurrentMonthDateRange().dateTo,
+    ...filters
+  };
+
   // Apply filters to expenses
   const filteredExpenses = useMemo(() => {
     return expenses.filter((expense) => {
       // Status filter
-      if (filters.status && expense.status !== filters.status) return false;
+      if (initialFilters.status && expense.status !== initialFilters.status) return false;
       
       // Date range filter
-      if (filters.dateFrom && new Date(expense.expense_date) < new Date(filters.dateFrom)) return false;
-      if (filters.dateTo && new Date(expense.expense_date) > new Date(filters.dateTo)) return false;
+      if (initialFilters.dateFrom && new Date(expense.expense_date) < new Date(initialFilters.dateFrom)) return false;
+      if (initialFilters.dateTo && new Date(expense.expense_date) > new Date(initialFilters.dateTo)) return false;
       
       // Amount range filter
-      if (filters.amountFrom && expense.amount < filters.amountFrom) return false;
-      if (filters.amountTo && expense.amount > filters.amountTo) return false;
+      if (initialFilters.amountFrom && expense.amount < initialFilters.amountFrom) return false;
+      if (initialFilters.amountTo && expense.amount > initialFilters.amountTo) return false;
       
       // Category filter
-      if (filters.category && expense.category !== filters.category) return false;
+      if (initialFilters.category && expense.category !== initialFilters.category) return false;
       
       // Vendor filter
-      if (filters.vendor && !expense.vendor_name.toLowerCase().includes(filters.vendor.toLowerCase())) return false;
+      if (initialFilters.vendor && !expense.vendor_name.toLowerCase().includes(initialFilters.vendor.toLowerCase())) return false;
       
       return true;
     });
-  }, [expenses, filters]);
+  }, [expenses, initialFilters]);
 
   // Get active filter count for the badge
   const activeFilterCount = useMemo(() => {
     let count = 0;
-    if (filters.status) count++;
-    if (filters.dateFrom) count++;
-    if (filters.dateTo) count++;
-    if (filters.amountFrom !== undefined && filters.amountFrom > 0) count++;
-    if (filters.amountTo !== undefined && filters.amountTo < 20000) count++;
-    if (filters.category) count++;
-    if (filters.vendor) count++;
+    if (initialFilters.status) count++;
+    if (initialFilters.dateFrom) count++;
+    if (initialFilters.dateTo) count++;
+    if (initialFilters.amountFrom !== undefined && initialFilters.amountFrom > 0) count++;
+    if (initialFilters.amountTo !== undefined && initialFilters.amountTo < 20000) count++;
+    if (initialFilters.category) count++;
+    if (initialFilters.vendor) count++;
     return count;
-  }, [filters]);
+  }, [initialFilters]);
 
   const columns: ColumnDef<ExpenseRecord>[] = [
     {
@@ -190,7 +198,7 @@ export function ExpenseRecordList({
         open={isFilterDialogOpen}
         onOpenChange={onCloseFilterDialog}
         onApplyFilters={onApplyFilters}
-        currentFilters={filters}
+        currentFilters={initialFilters}
       />
     </>
   );
