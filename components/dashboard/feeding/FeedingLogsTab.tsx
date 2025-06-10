@@ -6,8 +6,6 @@ import { Button } from '@/components/ui/button';
 import { DateRange } from 'react-day-picker';
 import { useQuery } from '@tanstack/react-query';
 import { getFeedingEvents } from '@/app/api/feeding/events';
-import { format } from 'date-fns';
-import { SummaryCards } from './logs/SummaryCards';
 import { FeedingLogsList } from './logs/FeedingLogsList';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
 import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
@@ -94,31 +92,6 @@ export function FeedingLogsTab() {
     return true;
   });
 
-  // Get the current date
-  const today = new Date();
-
-  // Get summary stats
-  const totalEvents = events.length;
-  const completedEvents = events.filter((e: FeedingEventNormalized) => e.fed).length;
-  const completionRate = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 0;
-
-  // Get events in the last 7 days
-  const last7DaysEvents = events.filter((e: FeedingEventNormalized) => {
-    const eventDate = new Date(e.scheduled_date);
-    const sevenDaysAgo = new Date(today);
-    sevenDaysAgo.setDate(today.getDate() - 7);
-    return eventDate >= sevenDaysAgo && eventDate <= today;
-  });
-
-  const last7DaysCompleted = last7DaysEvents.filter((e: FeedingEventNormalized) => e.fed).length;
-  const last7DaysRate = last7DaysEvents.length > 0 
-    ? Math.round((last7DaysCompleted / last7DaysEvents.length) * 100) 
-    : 0;
-
-  // Get today's events
-  const todayEvents = events.filter((e: FeedingEventNormalized) => 
-    e.scheduled_date === format(today, 'yyyy-MM-dd')
-  ).length;
 
   if (isLoading) {
     return (
@@ -139,16 +112,7 @@ export function FeedingLogsTab() {
 
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
-      <SummaryCards 
-        totalEvents={totalEvents}
-        completedEvents={completedEvents}
-        completionRate={completionRate}
-        last7DaysEvents={last7DaysEvents.length}
-        last7DaysCompleted={last7DaysCompleted}
-        last7DaysRate={last7DaysRate}
-        todayEvents={todayEvents}
-      />
+  
 
       <FeedingLogsList 
         events={filteredEvents}
