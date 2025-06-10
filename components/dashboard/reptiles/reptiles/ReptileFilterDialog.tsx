@@ -146,7 +146,7 @@ export function ReptileFilterDialog({
                       }}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full sm:w-[200px]">
+                        <SelectTrigger className="w-full ">
                           <SelectValue placeholder="Select species" />
                         </SelectTrigger>
                       </FormControl>

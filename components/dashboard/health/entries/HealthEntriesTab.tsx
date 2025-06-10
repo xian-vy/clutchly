@@ -13,13 +13,21 @@ import {
 import { HealthLogList } from './HealthLogList';
 import { HealthLogForm } from './HealthLogForm';
 import { Loader2 } from 'lucide-react';
-import { NewReptile, Reptile } from '@/lib/types/reptile';
+import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useQuery } from '@tanstack/react-query';
+import { HealthFilters } from './HealthFilterDialog';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 export function HealthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const currentMonthRange = getCurrentMonthDateRange();
+  const [filters, setFilters] = useState<HealthFilters>({
+    dateFrom: currentMonthRange.dateFrom,
+    dateTo: currentMonthRange.dateTo,
+  });
   
   const {
     resources: healthLogs,
@@ -31,23 +39,19 @@ export function HealthEntriesTab() {
     handleDelete,
   } = useResource<HealthLogEntry, CreateHealthLogEntryInput>({
     resourceName: 'Health Log',
-    queryKey: ['healthLogs'],
-    getResources: getHealthLogs,
+    queryKey: ['healthLogs', filters.dateFrom, filters.dateTo],
+    getResources: () => getHealthLogs({
+      startDate: filters.dateFrom,
+      endDate: filters.dateTo
+    }),
     createResource: createHealthLog,
     updateResource: updateHealthLog,
     deleteResource: deleteHealthLog,
   });
 
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
+  const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
+    queryFn: getReptiles,
   });
 
   const { species,  isLoading: speciesLoading } = useSpeciesStore()
@@ -67,7 +71,6 @@ export function HealthEntriesTab() {
     });
   }, [ healthLogs, reptiles, species, morphs ]);
 
-
   if (isLoading || isReptilesLoading || speciesLoading  || morphsLoading) {
     return (
       <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
@@ -86,6 +89,8 @@ export function HealthEntriesTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
+        filters={filters}
+        onFiltersChange={setFilters}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -96,12 +101,10 @@ export function HealthEntriesTab() {
           <HealthLogForm
             initialData={selectedHealthLog}
             onSubmit={async (data) => {
-              console.log('Submitting health log data:', data);
               try {
                 const success = selectedHealthLog
                   ? await handleUpdate(data)
                   : await handleCreate(data);
-                console.log('Health log submission result:', success);
                 if (success) {
                   setIsDialogOpen(false);
                   setSelectedHealthLog(undefined);

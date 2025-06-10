@@ -21,11 +21,19 @@ interface HealthLogListProps {
   onEdit?: (healthLog: HealthLogEntry) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
+  filters: HealthFilters;
+  onFiltersChange: (filters: HealthFilters) => void;
 }
 
-export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: HealthLogListProps) {
+export function HealthLogList({ 
+  healthLogs, 
+  onEdit, 
+  onDelete, 
+  onAddNew,
+  filters,
+  onFiltersChange
+}: HealthLogListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
-  const [filters, setFilters] = useState<HealthFilters>({});
 
   const { 
     categories, 
@@ -95,13 +103,20 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
       }
 
       // Date range filter
-      if (filters.dateRange) {
-        const [startDate, endDate] = filters.dateRange;
-        if (startDate && log.date < startDate) {
-          return false;
+      if (filters.dateFrom || filters.dateTo) {
+        const logDate = new Date(log.date);
+        if (filters.dateFrom) {
+          const startDate = new Date(filters.dateFrom);
+          if (logDate < startDate) {
+            return false;
+          }
         }
-        if (endDate && log.date > endDate) {
-          return false;
+        if (filters.dateTo) {
+          const endDate = new Date(filters.dateTo);
+          endDate.setHours(23, 59, 59, 999); // End of day
+          if (logDate > endDate) {
+            return false;
+          }
         }
       }
 
@@ -126,7 +141,7 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
     if (filters.severity?.length) count++;
     if (filters.resolved !== null && filters.resolved !== undefined) count++;
     if (filters.hasNotes !== null && filters.hasNotes !== undefined) count++;
-    if (filters.dateRange) count++;
+    if (filters.dateFrom || filters.dateTo) count++;
     if (filters.hasAttachments !== null && filters.hasAttachments !== undefined) count++;
     return count;
   }, [filters]);
@@ -335,7 +350,7 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
       <HealthFilterDialog
         open={isFilterDialogOpen}
         onOpenChange={setIsFilterDialogOpen}
-        onApplyFilters={setFilters}
+        onApplyFilters={onFiltersChange}
         currentFilters={filters}
         categories={categories}
         subcategories={subcategories}

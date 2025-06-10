@@ -15,7 +15,7 @@ export interface SalesFilterParams {
   priceMax?: number;
 }
 
-export async function getSalesRecords(): Promise<SaleRecord[]> {
+export async function getSalesRecords(dateRange?: { startDate?: string; endDate?: string }): Promise<SaleRecord[]> {
   const { organization } = await getUserAndOrganizationInfo()
 
   if (!organization) {
@@ -23,11 +23,28 @@ export async function getSalesRecords(): Promise<SaleRecord[]> {
     throw new Error('Authentication required');
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('sales_records')
     .select('*')
     .eq('org_id', organization.id)
-    .order('created_at', { ascending: false })
+
+  // Apply date filtering if range is provided
+  if (dateRange) {
+    if (dateRange.startDate) {
+      query = query.gte('sale_date', dateRange.startDate)
+    }
+    if (dateRange.endDate) {
+      // Set end date to end of day
+      const endDate = new Date(dateRange.endDate)
+      endDate.setHours(23, 59, 59, 999)
+      query = query.lte('sale_date', endDate.toISOString())
+    }
+  }
+
+  // Order by sale date by default
+  query = query.order('sale_date', { ascending: false })
+
+  const { data, error } = await query
 
   if (error) throw error
   return data

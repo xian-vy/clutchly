@@ -9,10 +9,16 @@ import { useQueryClient } from '@tanstack/react-query'
 import { NewSheddingDialog } from './NewSheddingDialog'
 import { EditSheddingDialog } from './EditSheddingDialog'
 import { SheddingList } from './SheddingList'
+import { getCurrentMonthDateRange } from '@/lib/utils'
+import { SheddingFilters } from './SheddingFilterDialog'
 
 export function SheddingPage() {
   const queryClient = useQueryClient()
   const [isNewDialogOpen, setIsNewDialogOpen] = useState(false)
+  const currentMonthRange = getCurrentMonthDateRange()
+  const [filters, setFilters] = useState<SheddingFilters>({
+    dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
+  })
 
   const {
     resources: sheddingRecords,
@@ -24,8 +30,11 @@ export function SheddingPage() {
     selectedResource
   } = useResource<SheddingWithReptile, UpdateSheddingInput>({
     resourceName: 'Shedding',
-    queryKey: ['shedding'],
-    getResources: getSheddingRecords,
+    queryKey: ['shedding', filters.dateRange],
+    getResources: () => getSheddingRecords({
+      startDate: filters.dateRange?.[0] || currentMonthRange.dateFrom,
+      endDate: filters.dateRange?.[1] || currentMonthRange.dateTo
+    }),
     createResource: async (data) => {
       if (!data.reptile_id) {
         throw new Error('Reptile ID is required')
@@ -66,6 +75,8 @@ export function SheddingPage() {
           onEdit={setSelectedResource}
           onDelete={handleDelete}
           onAddNew={() => setIsNewDialogOpen(true)}
+          filters={filters}
+          onFiltersChange={setFilters}
        />
       <NewSheddingDialog
         open={isNewDialogOpen}

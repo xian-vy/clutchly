@@ -18,11 +18,19 @@ interface GrowthEntryListProps {
   onEdit?: (growthEntry: GrowthEntry) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
+  filters: GrowthFilters;
+  onFiltersChange: (filters: GrowthFilters) => void;
 }
 
-export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: GrowthEntryListProps) {
+export function GrowthEntryList({ 
+  growthEntries, 
+  onEdit, 
+  onDelete, 
+  onAddNew,
+  filters,
+  onFiltersChange
+}: GrowthEntryListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
-  const [filters, setFilters] = useState<GrowthFilters>({});
 
   // Apply filters to the growth entries list
   const filteredGrowthEntries = useMemo(() => {
@@ -44,12 +52,15 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
       }
 
       // Date range filter
-      if (filters.dateRange) {
+      if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) {
         const [startDate, endDate] = filters.dateRange;
-        if (startDate && entry.date < startDate) {
+        const entryDate = new Date(entry.date);
+        if (entryDate < new Date(startDate)) {
           return false;
         }
-        if (endDate && entry.date > endDate) {
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999); // End of day
+        if (entryDate > endDateTime) {
           return false;
         }
       }
@@ -91,7 +102,7 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
     }
     
     // Date range checks both start and end dates
-    if (filters.dateRange && (filters.dateRange[0] || filters.dateRange[1])) count++;
+    if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) count++;
     
     // Boolean filters
     if (filters.hasNotes !== null && filters.hasNotes !== undefined) count++;
@@ -266,7 +277,7 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
       <GrowthFilterDialog
         open={isFilterDialogOpen}
         onOpenChange={setIsFilterDialogOpen}
-        onApplyFilters={setFilters}
+        onApplyFilters={onFiltersChange}
         currentFilters={filters}
       />
     </>

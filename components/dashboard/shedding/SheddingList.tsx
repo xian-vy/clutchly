@@ -22,7 +22,9 @@ interface Props {
   isLoading: boolean
   onDelete: (id: string) => Promise<void>
   onAddNew: () => void
-  onEdit : (shedding: SheddingWithReptile) => void
+  onEdit: (shedding: SheddingWithReptile) => void
+  filters: SheddingFilters
+  onFiltersChange: (filters: SheddingFilters) => void
 }
 
 export function SheddingList({
@@ -31,31 +33,18 @@ export function SheddingList({
   onDelete,
   onAddNew,
   onEdit,
+  filters,
+  onFiltersChange,
 }: Props) {
   const [showFilters, setShowFilters] = useState(false)
-  const [filters, setFilters] = useState<SheddingFilters | null>(null)
   const {species} = useSpeciesStore()
   const {morphs} = useMorphsStore()
 
   const filteredRecords = useMemo(() => {
-    if (!filters) return sheddingRecords;
-    
     return sheddingRecords.filter((record) => {
       // Filter by completeness
       if (filters.completeness?.length && !filters.completeness.includes(record.completeness)) {
         return false
-      }
-
-      // Filter by date range
-      if (filters.dateRange) {
-        const [startDate, endDate] = filters.dateRange
-        const shedDate = new Date(record.shed_date)
-        if (startDate && new Date(startDate) > shedDate) {
-          return false
-        }
-        if (endDate && new Date(endDate) < shedDate) {
-          return false
-        }
       }
 
       // Filter by species
@@ -75,7 +64,7 @@ export function SheddingList({
       }
 
       // Filter by notes
-      if (filters.hasNotes !== null) {
+      if (filters.hasNotes === true || filters.hasNotes === false) {
         const hasNotes = Boolean(record.notes && record.notes.length > 0);
         if (filters.hasNotes !== hasNotes) {
           return false;
@@ -88,14 +77,12 @@ export function SheddingList({
 
   // Get active filter count for the badge
   const activeFilters = useMemo(() => {
-    if (!filters) return 0;
-    
     let count = 0
     if (filters.completeness?.length) count++
-    if (filters.dateRange) count++
+    if (filters.dateRange && filters.dateRange[0] && filters.dateRange[1]) count++
     if (filters.species?.length) count++
     if (filters.morphs?.length) count++
-    if (filters.hasNotes !== null) count++
+    if (filters.hasNotes === true || filters.hasNotes === false) count++
     return count
   }, [filters])
 
@@ -104,6 +91,14 @@ export function SheddingList({
       header: "#",
       cell: ({ row }) => {
         return <div className="text-left">{row.index + 1}</div>;
+      }
+    },
+    {
+      accessorKey: "reptile.reptile_code",
+      header: "Code",
+      cell: ({ row }) => {
+        const reptile = row.original.reptile;
+        return <div className="text-left">{reptile.reptile_code}</div>;
       }
     },
     {
@@ -163,14 +158,6 @@ export function SheddingList({
             </Tooltip>
           </TooltipProvider>
         );
-      }
-    },
-    {
-      accessorKey: "reptile.reptile_code",
-      header: "Code",
-      cell: ({ row }) => {
-        const reptile = row.original.reptile;
-        return <div className="text-left">{reptile.reptile_code}</div>;
       }
     },
     {
@@ -246,23 +233,27 @@ export function SheddingList({
     }
   ];
 
-  // Custom filter button for the DataTable
-  const CustomFilterButton = () => (
-    <Button
-      variant="outline"
-      size="sm"
-      className="h-8 gap-1"
-      onClick={() => setShowFilters(true)}
-    >
-      <Filter className="h-4 w-4" />
-      Filters
-      {activeFilters > 0 && (
-        <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-          {activeFilters}
-        </Badge>
-      )}
-    </Button>
-  )
+
+    // Custom filter button for the DataTable
+    const CustomFilterButton = () => (
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={() => setShowFilters(true)}
+        className="relative"
+      >
+        <Filter className="h-4 w-4 mr-1" />
+        Filter
+        {activeFilters > 0 && (
+          <Badge 
+            variant="destructive" 
+            className="absolute text-white rounded-sm -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 font-normal text-[0.65rem]"
+          >
+            {activeFilters}
+          </Badge>
+        )}
+      </Button>
+    );
 
   if (isLoading) {
     return (
@@ -284,8 +275,8 @@ export function SheddingList({
       <SheddingFilterDialog
         open={showFilters}
         onOpenChange={setShowFilters}
-        onApplyFilters={(newFilters) => setFilters(Object.keys(newFilters).length ? newFilters : null)}
-        currentFilters={filters || {}}
+        onApplyFilters={onFiltersChange}
+        currentFilters={filters}
       />
 
 

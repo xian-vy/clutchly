@@ -13,14 +13,20 @@ import {
 import { GrowthEntryList } from './GrowthEntryList';
 import { GrowthEntryForm } from './GrowthEntryForm';
 import { Loader2 } from 'lucide-react';
-import { NewReptile, Reptile } from '@/lib/types/reptile';
+import {  Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
-
+import { useQuery } from '@tanstack/react-query';
+import { GrowthFilters } from './GrowthFilterDialog';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 export function GrowthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const currentMonthRange = getCurrentMonthDateRange();
+  const [filters, setFilters] = useState<GrowthFilters>({
+    dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
+  });
   
   const {
     resources: growthEntries,
@@ -32,23 +38,19 @@ export function GrowthEntriesTab() {
     handleDelete,
   } = useResource<GrowthEntry, CreateGrowthEntryInput>({
     resourceName: 'Growth Entry',
-    queryKey: ['growthEntries'],
-    getResources: getGrowthEntries,
+    queryKey: ['growthEntries', filters.dateRange],
+    getResources: () => getGrowthEntries({
+      startDate: filters.dateRange?.[0] || currentMonthRange.dateFrom,
+      endDate: filters.dateRange?.[1] || currentMonthRange.dateTo
+    }),
     createResource: createGrowthEntry,
     updateResource: updateGrowthEntry,
     deleteResource: deleteGrowthEntry,
   });
 
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
+  const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
+    queryFn: getReptiles,
   });
 
   const { species,  isLoading: speciesLoading } = useSpeciesStore()
@@ -86,6 +88,8 @@ export function GrowthEntriesTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
+        filters={filters}
+        onFiltersChange={setFilters}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

@@ -4,63 +4,47 @@ import { getHealthCategories } from '@/app/api/health/categories';
 import { getHealthLogs } from '@/app/api/health/entries';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useResource } from '@/lib/hooks/useResource';
-import { CreateHealthLogEntryInput, HealthLogCategory, HealthLogEntry } from '@/lib/types/health';
-import { NewReptile, Reptile } from '@/lib/types/reptile';
+import { HealthLogCategory, HealthLogEntry } from '@/lib/types/health';
+import { Reptile } from '@/lib/types/reptile';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { AnalysisTab } from './AnalysisTab';
 import { FilterControls } from './FilterControls';
 import { OverviewTab } from './OverviewTab';
 import { RecommendationsTab } from './RecommendationsTab';
+import { useQuery } from '@tanstack/react-query';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 export function HealthReportsTab() {
-  // Use the useResource hook for data fetching
-  const { 
-    resources: healthLogs, 
-    isLoading: isHealthLogsLoading 
-  } = useResource<HealthLogEntry, CreateHealthLogEntryInput>({
-    resourceName: 'Health Log',
-    queryKey: ['healthLogs'],
-    getResources: getHealthLogs,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
-  });
-
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
-    queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
-  });
-
-  const { 
-    resources: categories, 
-    isLoading: isCategoriesLoading 
-  } = useResource<HealthLogCategory, CreateHealthLogEntryInput >({
-    resourceName: 'Category',
-    queryKey: ['categories'],
-    getResources: getHealthCategories,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
-  });
-  
-  // Filter states
   const [selectedReptile, setSelectedReptile] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-    start: '',
-    end: ''
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
+    const { dateFrom, dateTo } = getCurrentMonthDateRange();
+    return {
+      start: dateFrom,
+      end: dateTo
+    };
   });
   const [severityFilter, setSeverityFilter] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+
+  const { data: healthLogs = [], isLoading : isHealthLogsLoading } = useQuery<HealthLogEntry[]>({
+    queryKey: ['healthLogs', dateRange],
+    queryFn: () => getHealthLogs({ 
+      startDate: dateRange.start || undefined, 
+      endDate: dateRange.end || undefined 
+    }),
+  });
+
+  const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  });
+
+  const { data: categories = [], isLoading : isCategoriesLoading } = useQuery<HealthLogCategory[]>({
+    queryKey: ['categories'],
+    queryFn: getHealthCategories,
+  });
   
   // Apply filters
   const filteredLogs = healthLogs.filter(log => {

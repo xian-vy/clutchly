@@ -9,11 +9,16 @@ import { ExpenseFilters } from './ExpenseFilterDialog'
 import { ExpenseRecordDetails } from './ExpenseRecordDetails'
 import { ExpenseRecordForm } from './ExpenseRecordForm'
 import { ExpenseRecordList } from './ExpenseRecordList'
+import { getCurrentMonthDateRange } from '@/lib/utils'
 
 export function ExpensesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedExpenseForDetails, setSelectedExpenseForDetails] = useState<ExpenseRecord | null>(null)
-  const [filters, setFilters] = useState<ExpenseFilters>({})
+  const currentMonthRange = getCurrentMonthDateRange();
+  const [filters, setFilters] = useState<ExpenseFilters>({
+    dateFrom: currentMonthRange.dateFrom,
+    dateTo: currentMonthRange.dateTo,
+  })
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false)
 
   const {
@@ -26,8 +31,11 @@ export function ExpensesTab() {
     handleDelete,
   } = useResource<ExpenseRecord, NewExpenseRecord>({
     resourceName: 'Expense Record',
-    queryKey: ['expenses'],
-    getResources: getExpensesRecords,
+    queryKey: ['expenses', filters.dateFrom, filters.dateTo],
+    getResources: () => getExpensesRecords({
+      startDate: filters.dateFrom,
+      endDate: filters.dateTo
+    }),
     createResource: createExpenseRecord,
     updateResource: updateExpenseRecord,
     deleteResource: deleteExpenseRecord,

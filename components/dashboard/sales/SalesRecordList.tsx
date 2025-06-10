@@ -9,7 +9,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { Edit, Eye, Filter, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { SalesFilterDialog, SalesFiltersState } from './SalesFilterDialog';
+import { SalesFilterDialog, SalesFilters } from './SalesFilterDialog';
 import { PAYMENT_COLORS, SALES_STATUS_COLORS, YES_NO_COLORS } from '@/lib/constants/colors';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getSpeciesAbbreviation } from '@/lib/utils';
@@ -31,6 +31,8 @@ interface SalesRecordListProps {
   onDelete: (id: string) => void;
   onAddNew: () => void;
   onViewDetails: (salesRecord: EnrichedSaleRecord) => void;
+  filters: SalesFilters;
+  onFiltersChange: (filters: SalesFilters) => void;
 }
 
 export function SalesRecordList({
@@ -39,8 +41,9 @@ export function SalesRecordList({
   onDelete,
   onAddNew,
   onViewDetails,
+  filters,
+  onFiltersChange,
 }: SalesRecordListProps) {
-  const [filters, setFilters] = useState<SalesFiltersState>({});
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
 
   // Apply filters to the sales records
@@ -78,21 +81,6 @@ export function SalesRecordList({
         }
       }
       
-      // Date range filter
-      if (filters.dateRange) {
-        const recordDate = new Date(record.sale_date);
-        if (filters.dateRange.from && recordDate < filters.dateRange.from) {
-          return false;
-        }
-        if (filters.dateRange.to) {
-          const endDate = new Date(filters.dateRange.to);
-          endDate.setHours(23, 59, 59, 999); // End of day
-          if (recordDate > endDate) {
-            return false;
-          }
-        }
-      }
-      
       // Documentation filter
       if (filters.includesDocuments !== undefined && 
           record.includes_documents !== filters.includesDocuments) {
@@ -111,8 +99,9 @@ export function SalesRecordList({
     if (filters.speciesId && filters.speciesId !== 'all') count++;
     if (filters.morphId && filters.morphId !== 'all') count++;
     if (filters.priceRange) count++;
-    if (filters.dateRange) count++;
     if (filters.includesDocuments !== undefined) count++;
+    // Add date filter count
+    if (filters.dateFrom || filters.dateTo) count++;
     return count;
   }, [filters]);
 
@@ -315,7 +304,7 @@ export function SalesRecordList({
       <SalesFilterDialog
         open={isFilterDialogOpen}
         onOpenChange={setIsFilterDialogOpen}
-        onApplyFilters={setFilters}
+        onApplyFilters={onFiltersChange}
         currentFilters={filters}
       />
     </>
