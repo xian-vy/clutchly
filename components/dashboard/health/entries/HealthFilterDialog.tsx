@@ -164,7 +164,7 @@ export function HealthFilterDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 2xl:space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 sm:space-y-5 2xl:space-y-6">
                        {/* Date Range Filter */}
                        <FormField
               control={form.control}
@@ -249,7 +249,7 @@ export function HealthFilterDialog({
               )}
             />
             <Separator />
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 sm:gap-4">
               {/* Category Filter */}
               <FormField
                 control={form.control}
@@ -441,7 +441,7 @@ export function HealthFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-1 sm:gap-3">
               {/* Resolved Filter */}
               <FormField
                 control={form.control}
