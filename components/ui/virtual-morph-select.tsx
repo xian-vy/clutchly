@@ -92,7 +92,7 @@ export function VirtualizedMorphSelect({ field }: Props) {
               variant="outline"
               role="combobox"
               aria-expanded={morphCommandOpen}
-              className="justify-between w-full sm:w-[200px]"    
+              className="justify-between w-full"    
             >
               {field.value?.length 
                 ? `${field.value.length} morph${field.value.length > 1 ? 's' : ''} selected` 

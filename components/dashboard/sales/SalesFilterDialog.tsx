@@ -220,6 +220,92 @@ export function SalesFilterDialog({
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+              <FormField
+                control={form.control}
+                name="dateFrom"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Date Range</FormLabel>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-xs text-muted-foreground">From</label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !dateRange?.from && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {dateRange?.from ? (
+                                format(dateRange.from, "LLL dd, y")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              initialFocus
+                              mode="single"
+                              selected={dateRange?.from}
+                              onSelect={(date) => handleDateSelect(date, true)}
+                              disabled={(date) => {
+                                // Only disable future dates
+                                return date > new Date();
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs text-muted-foreground">To</label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !dateRange?.to && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {dateRange?.to ? (
+                                format(dateRange.to, "LLL dd, y")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              initialFocus
+                              mode="single"
+                              selected={dateRange?.to}
+                              onSelect={(date) => handleDateSelect(date, false)}
+                              disabled={(date) => {
+                                if (dateRange?.from) {
+                                  const maxDate = addMonths(dateRange.from, 1);
+                                  return date < dateRange.from || date > maxDate;
+                                }
+                                // Only disable future dates if no from date is selected
+                                return date > new Date();
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Separator />
+
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -232,7 +318,7 @@ export function SalesFilterDialog({
                       onValueChange={field.onChange}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='w-full'>
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                       </FormControl>
@@ -260,7 +346,7 @@ export function SalesFilterDialog({
                       onValueChange={field.onChange}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='w-full'>
                           <SelectValue placeholder="Select payment method" />
                         </SelectTrigger>
                       </FormControl>
@@ -449,90 +535,7 @@ export function SalesFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="dateFrom"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Date Range</FormLabel>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-2">
-                        <label className="text-xs text-muted-foreground">From</label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !dateRange?.from && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {dateRange?.from ? (
-                                format(dateRange.from, "LLL dd, y")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              initialFocus
-                              mode="single"
-                              selected={dateRange?.from}
-                              onSelect={(date) => handleDateSelect(date, true)}
-                              disabled={(date) => {
-                                // Only disable future dates
-                                return date > new Date();
-                              }}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
 
-                      <div className="space-y-2">
-                        <label className="text-xs text-muted-foreground">To</label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !dateRange?.to && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {dateRange?.to ? (
-                                format(dateRange.to, "LLL dd, y")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              initialFocus
-                              mode="single"
-                              selected={dateRange?.to}
-                              onSelect={(date) => handleDateSelect(date, false)}
-                              disabled={(date) => {
-                                if (dateRange?.from) {
-                                  const maxDate = addMonths(dateRange.from, 1);
-                                  return date < dateRange.from || date > maxDate;
-                                }
-                                // Only disable future dates if no from date is selected
-                                return date > new Date();
-                              }}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <FormField
               control={form.control}

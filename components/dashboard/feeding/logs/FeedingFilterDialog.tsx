@@ -76,22 +76,7 @@ export function FeedingFilterDialog({
         <DialogHeader>
           <DialogTitle>Filter Feeding Events</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Status</h4>
-            <Select value={filterStatus} onValueChange={(value: 'all' | 'fed' | 'unfed') => setFilterStatus(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="fed">Fed</SelectItem>
-                <SelectItem value="unfed">Not Fed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
+        <div className="space-y-2">
             <h4 className="text-sm font-medium">Date Range</h4>
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
@@ -160,9 +145,25 @@ export function FeedingFilterDialog({
                     />
                   </PopoverContent>
                 </Popover>
-              </div>
             </div>
           </div>
+
+
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">Status</h4>
+            <Select value={filterStatus} onValueChange={(value: 'all' | 'fed' | 'unfed') => setFilterStatus(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="fed">Fed</SelectItem>
+                <SelectItem value="unfed">Not Fed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={handleReset}>

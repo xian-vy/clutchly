@@ -159,102 +159,14 @@ export function ExpenseFilterDialog({
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      value={field.value ?? "all"}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        {Object.values(ExpenseStatus).map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status.charAt(0).toUpperCase() + status.slice(1)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select
-                      value={field.value ?? "all"}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        {Object.values(ExpenseCategory).map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="amountRange"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Amount Range</FormLabel>
-                    <div className="pt-2">
-                      <Slider
-                        min={0}
-                        max={20000}
-                        step={10}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                        <span>${field.value?.[0] ?? 0}</span>
-                        <span>${field.value?.[1] ?? 20000}</span>
-                      </div>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="dateFrom"
                 render={() => (
                   <FormItem>
                     <FormLabel>Date Range</FormLabel>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs text-muted-foreground">From</label>
                         <Popover>
@@ -331,6 +243,93 @@ export function ExpenseFilterDialog({
                 )}
               />
             </div>
+            <Separator />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      value={field.value ?? "all"}
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger className='w-full'>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        {Object.values(ExpenseStatus).map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status.charAt(0).toUpperCase() + status.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      value={field.value ?? "all"}
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger  className='w-full'>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {Object.values(ExpenseCategory).map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="amountRange"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount Range</FormLabel>
+                    <div className="pt-2">
+                      <Slider
+                        min={0}
+                        max={20000}
+                        step={10}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between mt-2 text-sm text-muted-foreground">
+                        <span>${field.value?.[0] ?? 0}</span>
+                        <span>${field.value?.[1] ?? 20000}</span>
+                      </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+ 
 
             <FormField
               control={form.control}

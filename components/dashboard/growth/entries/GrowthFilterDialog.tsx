@@ -181,67 +181,7 @@ export function GrowthFilterDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 2xl:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-3 lg:gap-5">
-              {/* Weight Range Filter */}
-              <FormField
-                control={form.control}
-                name="weightRange"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Weight Range (g)</FormLabel>
-                    <div className="space-y-4">
-                      <Slider
-                        value={weightRange}
-                        min={0}
-                        max={50000}
-                        step={100}
-                        onValueChange={(value) => {
-                          setWeightRange(value as [number, number]);
-                          form.setValue("weightRange", value as [number, number]);
-                        }}
-                        className="py-4"
-                      />
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs">Min: {weightRange[0]}g</div>
-                        <div className="text-xs">Max: {weightRange[1]}g</div>
-                      </div>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              {/* Length Range Filter */}
-              <FormField
-                control={form.control}
-                name="lengthRange"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Length Range (cm)</FormLabel>
-                    <div className="space-y-4">
-                      <Slider
-                        value={lengthRange}
-                        min={0}
-                        max={1200}
-                        step={100}
-                        onValueChange={(value) => {
-                          setLengthRange(value as [number, number]);
-                          form.setValue("lengthRange", value as [number, number]);
-                        }}
-                        className="py-4"
-                      />
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs">Min: {lengthRange[0]}cm</div>
-                        <div className="text-xs">Max: {lengthRange[1]}cm</div>
-                      </div>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
+          <div className="space-y-4">
               {/* Date Range Filter */}
               <FormField
                 control={form.control}
@@ -249,7 +189,7 @@ export function GrowthFilterDialog({
                 render={() => (
                   <FormItem>
                     <FormLabel>Date Range</FormLabel>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-xs text-muted-foreground">From</label>
                         <Popover>
@@ -328,6 +268,67 @@ export function GrowthFilterDialog({
             </div>
 
             <Separator />
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-3 lg:gap-5">
+              {/* Weight Range Filter */}
+              <FormField
+                control={form.control}
+                name="weightRange"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Weight Range (g)</FormLabel>
+                    <div className="space-y-4">
+                      <Slider
+                        value={weightRange}
+                        min={0}
+                        max={50000}
+                        step={100}
+                        onValueChange={(value) => {
+                          setWeightRange(value as [number, number]);
+                          form.setValue("weightRange", value as [number, number]);
+                        }}
+                        className="py-4"
+                      />
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs">Min: {weightRange[0]}g</div>
+                        <div className="text-xs">Max: {weightRange[1]}g</div>
+                      </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              {/* Length Range Filter */}
+              <FormField
+                control={form.control}
+                name="lengthRange"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Length Range (cm)</FormLabel>
+                    <div className="space-y-4">
+                      <Slider
+                        value={lengthRange}
+                        min={0}
+                        max={1200}
+                        step={100}
+                        onValueChange={(value) => {
+                          setLengthRange(value as [number, number]);
+                          form.setValue("lengthRange", value as [number, number]);
+                        }}
+                        className="py-4"
+                      />
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs">Min: {lengthRange[0]}cm</div>
+                        <div className="text-xs">Max: {lengthRange[1]}cm</div>
+                      </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Separator />
+
+ 
 
             <div className="grid grid-cols-1 gap-4">
               {/* Has Notes Filter */}

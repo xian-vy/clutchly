@@ -94,6 +94,14 @@ export function SheddingList({
       }
     },
     {
+      accessorKey: "reptile.reptile_code",
+      header: "Code",
+      cell: ({ row }) => {
+        const reptile = row.original.reptile;
+        return <div className="text-left">{reptile.reptile_code}</div>;
+      }
+    },
+    {
       accessorKey: "reptile.name",
       header: "Reptile",
       cell: ({ row }) => {
@@ -150,14 +158,6 @@ export function SheddingList({
             </Tooltip>
           </TooltipProvider>
         );
-      }
-    },
-    {
-      accessorKey: "reptile.reptile_code",
-      header: "Code",
-      cell: ({ row }) => {
-        const reptile = row.original.reptile;
-        return <div className="text-left">{reptile.reptile_code}</div>;
       }
     },
     {
