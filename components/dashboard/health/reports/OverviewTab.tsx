@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, CheckCircle2, Clock, Activity, AlertTriangle, Info } from 'lucide-react';
 
 interface OverviewTabProps {
   stats: {
@@ -29,37 +30,49 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Health Issues</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Activity className="h-4 w-4 text-muted-foreground" />
+              Total Health Issues
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalIssues}</div>
+            <div className="text-xl font-bold">{stats.totalIssues}</div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Issues</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-muted-foreground" />
+              Active Issues
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">{stats.activeIssues}</div>
+            <div className="text-xl font-bold text-destructive">{stats.activeIssues}</div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Resolution Rate</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+              Resolution Rate
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.resolutionRate.toFixed(2)}%</div>
+            <div className="text-xl font-bold text-primary">{stats.resolutionRate.toFixed(2)}%</div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Resolution Time</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              Avg. Resolution Time
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.avgResolutionDays} days</div>
+            <div className="text-xl font-bold">{stats.avgResolutionDays} days</div>
           </CardContent>
         </Card>
       </div>
@@ -67,7 +80,10 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
       {reptileHealthSummary && (
         <Card className="mt-4">
           <CardHeader>
-            <CardTitle>Reptile Health Summary</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Info className="h-5 w-5 text-muted-foreground" />
+              Reptile Health Summary
+            </CardTitle>
             <CardDescription>
               Health overview for {reptileHealthSummary.name} ({reptileHealthSummary.species})
             </CardDescription>
@@ -75,19 +91,31 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Total Issues</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <Activity className="h-4 w-4" />
+                  Total Issues
+                </p>
                 <p className="text-xl font-semibold">{reptileHealthSummary.totalIssues}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Active Issues</p>
-                <p className="text-xl font-semibold text-red-500">{reptileHealthSummary.activeIssues}</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  Active Issues
+                </p>
+                <p className="text-xl font-semibold text-destructive">{reptileHealthSummary.activeIssues}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">High Severity Issues</p>
-                <p className="text-xl font-semibold text-orange-500">{reptileHealthSummary.highSeverityIssues}</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  High Severity Issues
+                </p>
+                <p className="text-xl font-semibold text-destructive">{reptileHealthSummary.highSeverityIssues}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Last Issue</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Last Issue
+                </p>
                 <p className="text-xl font-semibold">{reptileHealthSummary.lastIssueDate}</p>
               </div>
             </div>
@@ -97,33 +125,36 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
       
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>Severity Distribution</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+            Severity Distribution
+          </CardTitle>
           <CardDescription>Distribution of health issues by severity</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-80 flex items-center justify-center">
+          <div className="h-60 flex items-center justify-center">
             <div className="grid grid-cols-3 gap-4 w-full">
               <div className="space-y-2">
-                <div className="h-40 bg-red-100 dark:bg-red-950 rounded-md flex items-center justify-center">
+                <div className="h-40 bg-card border rounded-md flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-red-600">{stats.highSeverityIssues}</div>
-                    <div className="text-sm text-red-600">High</div>
+                    <div className="text-3xl font-bold text-destructive">{stats.highSeverityIssues}</div>
+                    <div className="text-sm text-muted-foreground">High</div>
                   </div>
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="h-40 bg-yellow-100 dark:bg-yellow-950 rounded-md flex items-center justify-center">
+                <div className="h-40 bg-card border rounded-md flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-yellow-600">{stats.moderateSeverityIssues}</div>
-                    <div className="text-sm text-yellow-600">Moderate</div>
+                    <div className="text-3xl font-bold text-warning">{stats.moderateSeverityIssues}</div>
+                    <div className="text-sm text-muted-foreground">Moderate</div>
                   </div>
                 </div>
               </div>
               <div className="space-y-2">
-                <div className="h-40 bg-green-100 dark:bg-green-950 rounded-md flex items-center justify-center">
+                <div className="h-40 bg-card border rounded-md flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600">{stats.lowSeverityIssues}</div>
-                    <div className="text-sm text-green-600">Low</div>
+                    <div className="text-3xl font-bold text-primary">{stats.lowSeverityIssues}</div>
+                    <div className="text-sm text-muted-foreground">Low</div>
                   </div>
                 </div>
               </div>

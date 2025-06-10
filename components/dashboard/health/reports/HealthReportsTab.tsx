@@ -6,33 +6,29 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HealthLogCategory, HealthLogEntry } from '@/lib/types/health';
 import { Reptile } from '@/lib/types/reptile';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Filter } from 'lucide-react';
 import { useState } from 'react';
 import { AnalysisTab } from './AnalysisTab';
-import { FilterControls } from './FilterControls';
 import { OverviewTab } from './OverviewTab';
 import { RecommendationsTab } from './RecommendationsTab';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentMonthDateRange } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { HealthFilterDialog, HealthFilters } from './HealthFilterDialog';
 
 export function HealthReportsTab() {
-  const [selectedReptile, setSelectedReptile] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
-    const { dateFrom, dateTo } = getCurrentMonthDateRange();
-    return {
-      start: dateFrom,
-      end: dateTo
-    };
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const currentMonthRange = getCurrentMonthDateRange();
+  const [filters, setFilters] = useState<HealthFilters>({
+    dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
   });
-  const [severityFilter, setSeverityFilter] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const { data: healthLogs = [], isLoading : isHealthLogsLoading } = useQuery<HealthLogEntry[]>({
-    queryKey: ['healthLogs', dateRange],
+    queryKey: ['healthLogs', filters.dateRange],
     queryFn: () => getHealthLogs({ 
-      startDate: dateRange.start || undefined, 
-      endDate: dateRange.end || undefined 
+      startDate: filters.dateRange?.[0] || undefined, 
+      endDate: filters.dateRange?.[1] || undefined 
     }),
   });
 
@@ -48,15 +44,15 @@ export function HealthReportsTab() {
   
   // Apply filters
   const filteredLogs = healthLogs.filter(log => {
-    if (selectedReptile && log.reptile_id !== selectedReptile) return false;
-    if (severityFilter && log.severity !== severityFilter) return false;
-    if (statusFilter && (log.resolved ? 'resolved' : 'active') !== statusFilter) return false;
-    if (categoryFilter && log.category_id !== categoryFilter) return false;
+    if (filters.reptileId && log.reptile_id !== filters.reptileId) return false;
+    if (filters.severity && log.severity !== filters.severity) return false;
+    if (filters.status && (log.resolved ? 'resolved' : 'active') !== filters.status) return false;
+    if (filters.categoryId && log.category_id !== filters.categoryId) return false;
     
-    if (dateRange.start && dateRange.end) {
+    if (filters.dateRange?.[0] && filters.dateRange?.[1]) {
       const logDate = new Date(log.date);
-      const startDate = new Date(dateRange.start);
-      const endDate = new Date(dateRange.end);
+      const startDate = new Date(filters.dateRange[0]);
+      const endDate = new Date(filters.dateRange[1]);
       if (logDate < startDate || logDate > endDate) return false;
     }
     
@@ -77,8 +73,6 @@ export function HealthReportsTab() {
     avgResolutionDays: filteredLogs
       .filter(log => log.resolved)
       .reduce((acc, log) => {
-        // Since resolved_date doesn't exist in the type, we'll use created_at as a fallback
-        // This is a workaround until the type is updated
         const resolvedDate = new Date(log.updated_at || log.created_at);
         const createdDate = new Date(log.date);
         const diffTime = Math.abs(resolvedDate.getTime() - createdDate.getTime());
@@ -115,8 +109,8 @@ export function HealthReportsTab() {
   }).reverse();
   
   // Get reptile health summary if a reptile is selected
-  const reptileHealthSummary = selectedReptile ? (() => {
-    const reptile = reptiles.find(r => r.id === selectedReptile);
+  const reptileHealthSummary = filters.reptileId ? (() => {
+    const reptile = reptiles.find(r => r.id === filters.reptileId);
     if (!reptile) return null;
     
     return {
@@ -131,24 +125,13 @@ export function HealthReportsTab() {
         : 'No issues recorded'
     };
   })() : null;
-  
-  // Reset filters
-  const resetFilters = () => {
-    setSelectedReptile(null);
-    setDateRange({ start: '', end: '' });
-    setSeverityFilter(null);
-    setStatusFilter(null);
-    setCategoryFilter(null);
-  };
-  
-  // Export functions
-  // const exportToCSV = () => {
-  //   console.log('Export to CSV functionality will be implemented');
-  // };
-  
-  // const exportToPDF = () => {
-  //   console.log('Export to PDF functionality will be implemented');
-  // };
+
+  // Get active filter count for the badge
+  const activeFilterCount = Object.values(filters).filter(value => 
+    value !== null && 
+    value !== undefined && 
+    (Array.isArray(value) ? value.length > 0 : true)
+  ).length;
   
   // Check if any data is still loading
   const isLoading = isHealthLogsLoading || isReptilesLoading || isCategoriesLoading;
@@ -169,34 +152,25 @@ export function HealthReportsTab() {
           <p className="text-xs sm:text-sm text-muted-foreground">
             Comprehensive analysis of your health and events.
           </p>
-          </div>
-        {/* <div className="flex gap-2">
-          <Button variant="outline" onClick={exportToCSV}>
-            <FileSpreadsheet className="h-4 w-4 mr-1" />
-            Export CSV
+        </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setIsFilterDialogOpen(true)}
+            className="relative"
+          >
+            <Filter className="h-4 w-4 mr-1" />
+            Filter
+            {activeFilterCount > 0 && (
+              <Badge 
+                variant="destructive" 
+                className="absolute text-white rounded-sm -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 font-normal text-[0.65rem]"
+              >
+                {activeFilterCount}
+              </Badge>
+            )}
           </Button>
-          <Button variant="outline" onClick={exportToPDF}>
-            <FileText className="h-4 w-4 mr-1" />
-            Export PDF
-          </Button>
-        </div> */}
       </div>
-      
-      <FilterControls
-        categories={categories}
-        selectedReptile={selectedReptile}
-        setSelectedReptile={setSelectedReptile}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        severityFilter={severityFilter}
-        setSeverityFilter={setSeverityFilter}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        resetFilters={resetFilters}
-        filteredLogsCount={filteredLogs.length}
-      />
       
       <Tabs defaultValue="overview" className="w-full space-y-5">
         <TabsList>
@@ -232,6 +206,15 @@ export function HealthReportsTab() {
           />
         </TabsContent>
       </Tabs>
+
+      <HealthFilterDialog
+        open={isFilterDialogOpen}
+        onOpenChange={setIsFilterDialogOpen}
+        onApplyFilters={setFilters}
+        currentFilters={filters}
+        categories={categories}
+        reptiles={reptiles}
+      />
     </div>
   );
 } 
