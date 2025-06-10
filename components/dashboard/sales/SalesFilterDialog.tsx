@@ -30,11 +30,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
 import { getCurrentMonthDateRange } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -42,6 +41,9 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
+import { Calendar } from '@/components/ui/calendar';
+import { format, addMonths } from 'date-fns';
+import { toast } from 'sonner';
 
 export interface SalesFilters {
   dateFrom?: string;
@@ -87,12 +89,21 @@ export function SalesFilterDialog({
   const [speciesOpen, setSpeciesOpen] = useState(false);
   const [morphOpen, setMorphOpen] = useState(false);
 
+  const currentMonthRange = getCurrentMonthDateRange();
+  const defaultFromDate = new Date(currentMonthRange.dateFrom);
+  const defaultToDate = new Date(currentMonthRange.dateTo);
+
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: currentFilters.dateFrom ? new Date(currentFilters.dateFrom) : defaultFromDate,
+    to: currentFilters.dateTo ? new Date(currentFilters.dateTo) : defaultToDate,
+  });
+
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(filterSchema),
     defaultValues: {
       status: currentFilters.status || 'all',
-      dateFrom: currentFilters.dateFrom || getCurrentMonthDateRange().dateFrom,
-      dateTo: currentFilters.dateTo || getCurrentMonthDateRange().dateTo,
+      dateFrom: currentFilters.dateFrom || currentMonthRange.dateFrom,
+      dateTo: currentFilters.dateTo || currentMonthRange.dateTo,
       paymentMethod: currentFilters.paymentMethod || 'all',
       speciesId: currentFilters.speciesId,
       morphId: currentFilters.morphId,
@@ -100,6 +111,41 @@ export function SalesFilterDialog({
       includesDocuments: currentFilters.includesDocuments,
     },
   });
+
+  const handleDateSelect = (date: Date | undefined, isFrom: boolean) => {
+    if (!date) return;
+
+    const newDateRange = {
+      ...dateRange,
+      [isFrom ? 'from' : 'to']: date
+    };
+
+    // If selecting "from" date, ensure "to" date is within 30 days
+    if (isFrom && newDateRange.to) {
+      const maxDate = addMonths(date, 1);
+      if (newDateRange.to > maxDate) {
+        newDateRange.to = maxDate;
+      }
+    }
+
+    // If selecting "to" date, ensure it's not before "from" date
+    if (!isFrom && newDateRange.from && date < newDateRange.from) {
+      toast.error('End date cannot be before start date');
+      return;
+    }
+
+    // If selecting "to" date and it's more than 30 days from "from" date, adjust it
+    if (!isFrom && newDateRange.from) {
+      const maxDate = addMonths(newDateRange.from, 1);
+      if (date > maxDate) {
+        newDateRange.to = maxDate;
+      }
+    }
+
+    setDateRange(newDateRange);
+    form.setValue('dateFrom', newDateRange.from?.toISOString().split('T')[0] || '');
+    form.setValue('dateTo', newDateRange.to?.toISOString().split('T')[0] || '');
+  };
 
   function onSubmit(values: FilterFormValues) {
     const filters = {
@@ -120,20 +166,21 @@ export function SalesFilterDialog({
   function handleReset() {
     form.reset({
       status: "all",
-      dateFrom: undefined,
-      dateTo: undefined,
+      dateFrom: currentMonthRange.dateFrom,
+      dateTo: currentMonthRange.dateTo,
       paymentMethod: "all",
       speciesId: undefined,
       morphId: undefined,
       priceRange: undefined,
       includesDocuments: undefined,
     });
+    setDateRange({ from: defaultFromDate, to: defaultToDate });
     
     // Immediately apply the reset filters
     onApplyFilters({
       status: undefined,
-      dateFrom: undefined,
-      dateTo: undefined,
+      dateFrom: currentMonthRange.dateFrom,
+      dateTo: currentMonthRange.dateTo,
       paymentMethod: undefined,
       speciesId: undefined,
       morphId: undefined,
@@ -166,7 +213,7 @@ export function SalesFilterDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] xl:max-w-[700px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Filter Sales Records</DialogTitle>
         </DialogHeader>
@@ -402,35 +449,86 @@ export function SalesFilterDialog({
 
             <Separator />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="dateFrom"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
-                    <FormLabel>Date From</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                    <FormLabel>Date Range</FormLabel>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-xs text-muted-foreground">From</label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !dateRange?.from && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {dateRange?.from ? (
+                                format(dateRange.from, "LLL dd, y")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              initialFocus
+                              mode="single"
+                              selected={dateRange?.from}
+                              onSelect={(date) => handleDateSelect(date, true)}
+                              disabled={(date) => {
+                                // Only disable future dates
+                                return date > new Date();
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
 
-              <FormField
-                control={form.control}
-                name="dateTo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Date To</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                      />
-                    </FormControl>
+                      <div className="space-y-2">
+                        <label className="text-xs text-muted-foreground">To</label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !dateRange?.to && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {dateRange?.to ? (
+                                format(dateRange.to, "LLL dd, y")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              initialFocus
+                              mode="single"
+                              selected={dateRange?.to}
+                              onSelect={(date) => handleDateSelect(date, false)}
+                              disabled={(date) => {
+                                if (dateRange?.from) {
+                                  const maxDate = addMonths(dateRange.from, 1);
+                                  return date < dateRange.from || date > maxDate;
+                                }
+                                // Only disable future dates if no from date is selected
+                                return date > new Date();
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
                   </FormItem>
                 )}
               />

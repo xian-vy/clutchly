@@ -51,6 +51,20 @@ export function FeedingFilterDialog({
       [isFrom ? 'from' : 'to']: date
     };
 
+    // If selecting "from" date, ensure "to" date is within 30 days
+    if (isFrom && newDateRange.to) {
+      const maxDate = addMonths(date, 1);
+      if (newDateRange.to > maxDate) {
+        newDateRange.to = maxDate;
+      }
+    }
+
+    // If selecting "to" date, ensure it's not before "from" date
+    if (!isFrom && newDateRange.from && date < newDateRange.from) {
+      toast.error('End date cannot be before start date');
+      return;
+    }
+
     if (validateDateRange(newDateRange.from, newDateRange.to)) {
       setDateRange(newDateRange);
     }
@@ -105,7 +119,7 @@ export function FeedingFilterDialog({
                       mode="single"
                       selected={dateRange?.from}
                       onSelect={(date) => handleDateSelect(date, true)}
-                      disabled={(date) => dateRange?.to ? date > dateRange.to : false}
+                      disabled={(date) => date > new Date()}
                     />
                   </PopoverContent>
                 </Popover>
@@ -141,7 +155,7 @@ export function FeedingFilterDialog({
                           const maxDate = addMonths(dateRange.from, 1);
                           return date < dateRange.from || date > maxDate;
                         }
-                        return false;
+                        return date > new Date();
                       }}
                     />
                   </PopoverContent>

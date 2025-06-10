@@ -40,8 +40,8 @@ export function GrowthEntriesTab() {
     resourceName: 'Growth Entry',
     queryKey: ['growthEntries', filters.dateRange],
     getResources: () => getGrowthEntries({
-      startDate: filters.dateRange?.[0],
-      endDate: filters.dateRange?.[1]
+      startDate: filters.dateRange?.[0] || currentMonthRange.dateFrom,
+      endDate: filters.dateRange?.[1] || currentMonthRange.dateTo
     }),
     createResource: createGrowthEntry,
     updateResource: updateGrowthEntry,
