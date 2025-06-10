@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
@@ -12,6 +11,14 @@ import * as z from "zod";
 import { useSpeciesStore } from "@/lib/stores/speciesStore";
 import { VirtualizedMorphSelect } from "../../ui/virtual-morph-select";
 import { Separator } from "@/components/ui/separator";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format, addMonths } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { getCurrentMonthDateRange } from "@/lib/utils";
+import { useState } from "react";
 
 export interface SheddingFilters {
   completeness?: string[];
@@ -43,6 +50,14 @@ export function SheddingFilterDialog({
   currentFilters,
 }: SheddingFilterDialogProps) {
   const { species: availableSpecies } = useSpeciesStore();
+  const currentMonthRange = getCurrentMonthDateRange();
+  const defaultFromDate = new Date(currentMonthRange.dateFrom);
+  const defaultToDate = new Date(currentMonthRange.dateTo);
+
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: currentFilters.dateRange ? new Date(currentFilters.dateRange[0]) : defaultFromDate,
+    to: currentFilters.dateRange ? new Date(currentFilters.dateRange[1]) : defaultToDate,
+  });
 
   const form = useForm<SheddingFilters>({
     resolver: zodResolver(filterSchema),
@@ -54,6 +69,37 @@ export function SheddingFilterDialog({
       hasNotes: currentFilters.hasNotes || null,
     },
   });
+
+
+  const handleDateSelect = (date: Date | undefined, isFrom: boolean) => {
+    if (!date) return;
+
+    const newDateRange = {
+      ...dateRange,
+      [isFrom ? 'from' : 'to']: date
+    };
+
+    // If selecting "from" date, ensure "to" date is within 30 days
+    if (isFrom && newDateRange.to) {
+      const maxDate = addMonths(date, 1);
+      if (newDateRange.to > maxDate) {
+        newDateRange.to = maxDate;
+      }
+    }
+
+    // If selecting "to" date, ensure it's not before "from" date
+    if (!isFrom && newDateRange.from && date < newDateRange.from) {
+      toast.error('End date cannot be before start date');
+      return;
+    }
+
+    // Always update the state and form value
+    setDateRange(newDateRange);
+    form.setValue('dateRange', [
+      newDateRange.from?.toISOString().split('T')[0] || '',
+      newDateRange.to?.toISOString().split('T')[0] || ''
+    ]);
+  };
 
   const handleApply = () => {
     const values = form.getValues();
@@ -70,12 +116,15 @@ export function SheddingFilterDialog({
   const handleReset = () => {
     form.reset({
       completeness: undefined,
-      dateRange: null,
+      dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
       species: undefined,
       morphs: undefined,
       hasNotes: null,
     });
-    onApplyFilters({});
+    setDateRange({ from: defaultFromDate, to: defaultToDate });
+    onApplyFilters({
+      dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
+    });
     onOpenChange(false);
   };
 
@@ -200,26 +249,90 @@ export function SheddingFilterDialog({
               />
             </div>
 
-            <div className="grid gap-2">
-              <Label>Date Range</Label>
-              <div className="flex space-x-2">
-                <Input
-                  type="date"
-                  value={form.watch("dateRange")?.[0] || ""}
-                  onChange={(e) => {
-                    const endDate = form.watch("dateRange")?.[1] || "";
-                    form.setValue("dateRange", [e.target.value, endDate]);
-                  }}
-                />
-                <Input
-                  type="date"
-                  value={form.watch("dateRange")?.[1] || ""}
-                  onChange={(e) => {
-                    const startDate = form.watch("dateRange")?.[0] || "";
-                    form.setValue("dateRange", [startDate, e.target.value]);
-                  }}
-                />
-              </div>
+            <div className="space-y-4">
+              {/* Date Range Filter */}
+              <FormField
+                control={form.control}
+                name="dateRange"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Date Range</FormLabel>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <label className="text-xs text-muted-foreground">From</label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !dateRange?.from && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {dateRange?.from ? (
+                                format(dateRange.from, "LLL dd, y")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              initialFocus
+                              mode="single"
+                              selected={dateRange?.from}
+                              onSelect={(date) => handleDateSelect(date, true)}
+                              disabled={(date) => {
+                                // Only disable future dates
+                                return date > new Date();
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs text-muted-foreground">To</label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !dateRange?.to && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {dateRange?.to ? (
+                                format(dateRange.to, "LLL dd, y")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              initialFocus
+                              mode="single"
+                              selected={dateRange?.to}
+                              onSelect={(date) => handleDateSelect(date, false)}
+                              disabled={(date) => {
+                                if (dateRange?.from) {
+                                  const maxDate = addMonths(dateRange.from, 1);
+                                  return date < dateRange.from || date > maxDate;
+                                }
+                                // Only disable future dates if no from date is selected
+                                return date > new Date();
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex justify-end gap-2">

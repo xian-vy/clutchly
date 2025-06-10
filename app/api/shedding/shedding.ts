@@ -2,11 +2,11 @@ import { createClient } from '@/lib/supabase/client'
 import { CreateSheddingInput, Shedding, UpdateSheddingInput, SheddingWithReptile } from '@/lib/types/shedding'
 import { getUserAndOrganizationInfo } from '../utils_client'
 
-export async function getSheddingRecords(): Promise<SheddingWithReptile[]> {
+export async function getSheddingRecords(dateRange?: { startDate?: string; endDate?: string }): Promise<SheddingWithReptile[]> {
   const supabase =  createClient()
   const { organization } = await getUserAndOrganizationInfo()
 
-  const { data: sheddingRecords, error } = await supabase
+  let query = supabase
     .from('shedding')
     .select(`
       *,
@@ -27,7 +27,24 @@ export async function getSheddingRecords(): Promise<SheddingWithReptile[]> {
       )
     `)
     .eq('org_id', organization.id)
-    .order('shed_date', { ascending: false })
+
+  // Apply date filtering if range is provided
+  if (dateRange) {
+    if (dateRange.startDate) {
+      query = query.gte('shed_date', dateRange.startDate)
+    }
+    if (dateRange.endDate) {
+      // Set end date to end of day
+      const endDate = new Date(dateRange.endDate)
+      endDate.setHours(23, 59, 59, 999)
+      query = query.lte('shed_date', endDate.toISOString())
+    }
+  }
+
+  // Order by date
+  query = query.order('shed_date', { ascending: false })
+
+  const { data: sheddingRecords, error } = await query
 
   if (error) throw error
   const records = sheddingRecords as SheddingWithReptile[]
