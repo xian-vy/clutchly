@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
-import { useResource } from '@/lib/hooks/useResource'
 import { useSelectList } from '@/lib/hooks/useSelectList'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { NewReptile, Reptile, Sex } from '@/lib/types/reptile'
@@ -22,6 +21,7 @@ import { HetTraitsForm } from './HetTraitsForm'
 import { VisualTraitsForm } from './VisualTraitsForm'
 import { Organization } from '@/lib/types/organizations'
 import { Loader2 } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 
 const formSchema = z.object({
   name: z.string().nullable(),
@@ -63,18 +63,12 @@ interface ReptileFormProps {
 
 export function ReptileForm({ initialData, onSubmit, onCancel,organization }: ReptileFormProps) {
   const { species, fetchSpecies } = useSpeciesStore()
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
-    queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
-  });
 
+  const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
+    queryKey: ['reptiles'],
+    queryFn: getReptiles,
+  });
+  
   // State for managing visual traits and het traits
   const [visualTraits, setVisualTraits] = useState<string[]>(initialData?.visual_traits || []);
   const [hetTraits, setHetTraits] = useState<Array<{

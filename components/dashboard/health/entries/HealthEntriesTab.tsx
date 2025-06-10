@@ -13,10 +13,11 @@ import {
 import { HealthLogList } from './HealthLogList';
 import { HealthLogForm } from './HealthLogForm';
 import { Loader2 } from 'lucide-react';
-import { NewReptile, Reptile } from '@/lib/types/reptile';
+import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useQuery } from '@tanstack/react-query';
 
 export function HealthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,17 +39,11 @@ export function HealthEntriesTab() {
     deleteResource: deleteHealthLog,
   });
 
-  const { 
-    resources: reptiles, 
-    isLoading: isReptilesLoading 
-  } = useResource<Reptile, NewReptile>({
-    resourceName: 'Reptile',
+  const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: async () => { throw new Error('Not implemented'); },
-    updateResource: async () => { throw new Error('Not implemented'); },
-    deleteResource: async () => { throw new Error('Not implemented'); },
+    queryFn: getReptiles,
   });
+
 
   const { species,  isLoading: speciesLoading } = useSpeciesStore()
   const { morphs, isLoading: morphsLoading } = useMorphsStore()
