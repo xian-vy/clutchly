@@ -4,11 +4,11 @@ import { startOfDay } from 'date-fns';
 
 // Get feeding events for a specific schedule
 // Modify getFeedingEvents to use a single join query
-export async function getFeedingEvents(scheduleId: string): Promise<FeedingEventWithDetails[]> {
+export async function getFeedingEvents(scheduleId: string, dateRange?: { startDate?: string; endDate?: string }): Promise<FeedingEventWithDetails[]> {
   const supabase = await createClient();
   
   // First get the feeding events with reptile info
-  const { data: events, error } = await supabase
+  let query = supabase
     .from('feeding_events')
     .select(`
       *,
@@ -16,11 +16,29 @@ export async function getFeedingEvents(scheduleId: string): Promise<FeedingEvent
         id,
         name,
         species_id,
-        morph_id
+        morph_id,
+        reptile_code
       )
     `)
-    .eq('schedule_id', scheduleId)
-    .order('scheduled_date', { ascending: false });
+    .eq('schedule_id', scheduleId);
+
+  // Apply date filtering if range is provided
+  if (dateRange) {
+    if (dateRange.startDate) {
+      query = query.gte('scheduled_date', dateRange.startDate);
+    }
+    if (dateRange.endDate) {
+      // Set end date to end of day
+      const endDate = new Date(dateRange.endDate);
+      endDate.setHours(23, 59, 59, 999);
+      query = query.lte('scheduled_date', endDate.toISOString());
+    }
+  }
+
+  // Order by date
+  query = query.order('scheduled_date', { ascending: false });
+
+  const { data: events, error } = await query;
 
   if (error) throw error;
   if (!events || events.length === 0) return [];
@@ -43,6 +61,7 @@ export async function getFeedingEvents(scheduleId: string): Promise<FeedingEvent
   return events.map(event => ({
     ...event,
     reptile_name: event.reptiles?.name || 'Unknown',
+    reptile_code: event.reptiles?.reptile_code || 'Unknown',
     species_name: speciesMap.get(event.reptiles?.species_id)?.name || 'Unknown',
     morph_name: morphMap.get(event.reptiles?.morph_id)?.name || 'Unknown'
   }));

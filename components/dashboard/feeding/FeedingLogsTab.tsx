@@ -14,6 +14,7 @@ import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 export interface FeedingEventNormalized {
   id: string;
   scheduled_date: string;
+  reptile_code : string;
   reptile_name: string;
   species_name: string;
   morph_name?: string | null;
@@ -24,9 +25,10 @@ export interface FeedingEventNormalized {
 
 export function FeedingLogsTab() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'fed' | 'unfed'>('all');
+  const today = new Date();
   const [dateRange, setDateRange] = useState<DateRange>({
-    from: new Date(),
-    to: new Date(), 
+    from: today,
+    to: today,
   });
   const {feederSizes, feederTypes} = useFeedersStore();
 
@@ -41,11 +43,16 @@ export function FeedingLogsTab() {
     error,
     refetch 
   } = useQuery<FeedingEventNormalized[]>({
-    queryKey: ['feeding-events-logs'],
+    queryKey: ['feeding-events-logs', dateRange],
     queryFn: async () => {
       try {
         if (schedules && schedules.length > 0) {
-          const allEventsPromises = schedules.map((s: { id: string }) => getFeedingEvents(s.id));
+          const allEventsPromises = schedules.map((s: { id: string }) => 
+            getFeedingEvents(s.id, {
+              startDate: dateRange.from?.toISOString(),
+              endDate: dateRange.to?.toISOString()
+            })
+          );
           const eventsArrays = await Promise.all(allEventsPromises);
           const eventsArrayWithFeeder = eventsArrays.map(events => {
             return events.map(event => {
@@ -78,20 +85,8 @@ export function FeedingLogsTab() {
       if (filterStatus === 'unfed' && event.fed) return false;
     }
 
-    // Apply date range filter
-    const eventDate = new Date(event.scheduled_date);
-    
-    // Set time to midnight for accurate date comparison
-    eventDate.setHours(0, 0, 0, 0);
-    const fromDate = dateRange.from ? new Date(dateRange.from.setHours(0, 0, 0, 0)) : null;
-    const toDate = dateRange.to ? new Date(dateRange.to.setHours(0, 0, 0, 0)) : null;
-
-    if (fromDate && eventDate < fromDate) return false;
-    if (toDate && eventDate > toDate) return false;
-
     return true;
   });
-
 
   if (isLoading) {
     return (
@@ -112,8 +107,6 @@ export function FeedingLogsTab() {
 
   return (
     <div className="space-y-6">
-  
-
       <FeedingLogsList 
         events={filteredEvents}
         filterStatus={filterStatus}
@@ -121,7 +114,6 @@ export function FeedingLogsTab() {
         dateRange={dateRange}
         setDateRange={setDateRange}
       />
-
     </div>
   );
 }

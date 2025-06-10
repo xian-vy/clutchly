@@ -52,6 +52,7 @@ export interface FeedingEventWithDetails extends FeedingEvent {
   reptile_name: string;
   species_name: string;
   morph_name: string;
+  reptile_code: string;
 } 
 
 // for reptile details

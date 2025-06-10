@@ -40,7 +40,10 @@ export function FeedingLogsList({
   const activeFilterCount = (filterStatus !== 'all' ? 1 : 0) + (dateRange?.from ? 1 : 0);
 
   const columns: ColumnDef<FeedingEventNormalized>[] = [
-    
+    {
+      accessorKey: "reptile_code",
+      header: "Code",
+    },
     {
       accessorKey: "reptile_name",
       header: "Reptile",
