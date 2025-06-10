@@ -13,12 +13,27 @@ import { FilterControls } from './FilterControls';
 import { OverviewTab } from './OverviewTab';
 import { RecommendationsTab } from './RecommendationsTab';
 import { useQuery } from '@tanstack/react-query';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 export function HealthReportsTab() {
+  const [selectedReptile, setSelectedReptile] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>(() => {
+    const { dateFrom, dateTo } = getCurrentMonthDateRange();
+    return {
+      start: dateFrom,
+      end: dateTo
+    };
+  });
+  const [severityFilter, setSeverityFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const { data: healthLogs = [], isLoading : isHealthLogsLoading } = useQuery<HealthLogEntry[]>({
-    queryKey: ['healthLogs'],
-    queryFn: getHealthLogs,
+    queryKey: ['healthLogs', dateRange],
+    queryFn: () => getHealthLogs({ 
+      startDate: dateRange.start || undefined, 
+      endDate: dateRange.end || undefined 
+    }),
   });
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
@@ -30,15 +45,6 @@ export function HealthReportsTab() {
     queryKey: ['categories'],
     queryFn: getHealthCategories,
   });
-
-  const [selectedReptile, setSelectedReptile] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-    start: '',
-    end: ''
-  });
-  const [severityFilter, setSeverityFilter] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   
   // Apply filters
   const filteredLogs = healthLogs.filter(log => {
