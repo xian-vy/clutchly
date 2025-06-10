@@ -18,10 +18,15 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useQuery } from '@tanstack/react-query';
-
+import { GrowthFilters } from './GrowthFilterDialog';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 export function GrowthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const currentMonthRange = getCurrentMonthDateRange();
+  const [filters, setFilters] = useState<GrowthFilters>({
+    dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
+  });
   
   const {
     resources: growthEntries,
@@ -33,8 +38,11 @@ export function GrowthEntriesTab() {
     handleDelete,
   } = useResource<GrowthEntry, CreateGrowthEntryInput>({
     resourceName: 'Growth Entry',
-    queryKey: ['growthEntries'],
-    getResources: getGrowthEntries,
+    queryKey: ['growthEntries', filters.dateRange],
+    getResources: () => getGrowthEntries({
+      startDate: filters.dateRange?.[0],
+      endDate: filters.dateRange?.[1]
+    }),
     createResource: createGrowthEntry,
     updateResource: updateGrowthEntry,
     deleteResource: deleteGrowthEntry,
@@ -44,7 +52,6 @@ export function GrowthEntriesTab() {
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-
 
   const { species,  isLoading: speciesLoading } = useSpeciesStore()
   const { morphs, isLoading: morphsLoading } = useMorphsStore()
@@ -81,6 +88,8 @@ export function GrowthEntriesTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
+        filters={filters}
+        onFiltersChange={setFilters}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

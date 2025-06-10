@@ -38,12 +38,11 @@ export function ExpenseRecordList({
   onCloseFilterDialog,
   onApplyFilters,
 }: ExpenseRecordListProps) {
-  // Initialize with current month date range if no filters are provided
-  const initialFilters: ExpenseFilters = {
+  const initialFilters = useMemo<ExpenseFilters>(() => ({
     dateFrom: getCurrentMonthDateRange().dateFrom,
     dateTo: getCurrentMonthDateRange().dateTo,
     ...filters
-  };
+  }), [filters]);
 
   // Apply filters to expenses
   const filteredExpenses = useMemo(() => {

@@ -18,9 +18,16 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useQuery } from '@tanstack/react-query';
+import { HealthFilters } from './HealthFilterDialog';
+import { getCurrentMonthDateRange } from '@/lib/utils';
 
 export function HealthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const currentMonthRange = getCurrentMonthDateRange();
+  const [filters, setFilters] = useState<HealthFilters>({
+    dateFrom: currentMonthRange.dateFrom,
+    dateTo: currentMonthRange.dateTo,
+  });
   
   const {
     resources: healthLogs,
@@ -32,8 +39,11 @@ export function HealthEntriesTab() {
     handleDelete,
   } = useResource<HealthLogEntry, CreateHealthLogEntryInput>({
     resourceName: 'Health Log',
-    queryKey: ['healthLogs'],
-    getResources: getHealthLogs,
+    queryKey: ['healthLogs', filters.dateFrom, filters.dateTo],
+    getResources: () => getHealthLogs({
+      startDate: filters.dateFrom,
+      endDate: filters.dateTo
+    }),
     createResource: createHealthLog,
     updateResource: updateHealthLog,
     deleteResource: deleteHealthLog,
@@ -43,7 +53,6 @@ export function HealthEntriesTab() {
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-
 
   const { species,  isLoading: speciesLoading } = useSpeciesStore()
   const { morphs, isLoading: morphsLoading } = useMorphsStore()
@@ -61,7 +70,6 @@ export function HealthEntriesTab() {
       };
     });
   }, [ healthLogs, reptiles, species, morphs ]);
-
 
   if (isLoading || isReptilesLoading || speciesLoading  || morphsLoading) {
     return (
@@ -81,6 +89,8 @@ export function HealthEntriesTab() {
         }}
         onDelete={handleDelete}
         onAddNew={() => setIsDialogOpen(true)}
+        filters={filters}
+        onFiltersChange={setFilters}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -91,12 +101,10 @@ export function HealthEntriesTab() {
           <HealthLogForm
             initialData={selectedHealthLog}
             onSubmit={async (data) => {
-              console.log('Submitting health log data:', data);
               try {
                 const success = selectedHealthLog
                   ? await handleUpdate(data)
                   : await handleCreate(data);
-                console.log('Health log submission result:', success);
                 if (success) {
                   setIsDialogOpen(false);
                   setSelectedHealthLog(undefined);

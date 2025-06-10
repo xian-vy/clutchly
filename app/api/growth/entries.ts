@@ -1,17 +1,33 @@
-
 import { createClient } from '@/lib/supabase/client'
 import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth'
 import { getUserAndOrganizationInfo } from '../utils_client'
 
-export async function getGrowthEntries() {
+export async function getGrowthEntries(dateRange?: { startDate?: string; endDate?: string }) {
   const supabase = await createClient()
   const { organization } = await getUserAndOrganizationInfo()
 
-  const { data: growthEntries, error } = await supabase
+  let query = supabase
     .from('growth_entries')
     .select('*')
     .eq('org_id', organization.id)
-    .order('date', { ascending: false })
+
+  // Apply date filtering if range is provided
+  if (dateRange) {
+    if (dateRange.startDate) {
+      query = query.gte('date', dateRange.startDate)
+    }
+    if (dateRange.endDate) {
+      // Set end date to end of day
+      const endDate = new Date(dateRange.endDate)
+      endDate.setHours(23, 59, 59, 999)
+      query = query.lte('date', endDate.toISOString())
+    }
+  }
+
+  // Order by date
+  query = query.order('date', { ascending: false })
+
+  const { data: growthEntries, error } = await query
 
   if (error) throw error
   return growthEntries as GrowthEntry[]

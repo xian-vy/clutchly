@@ -14,21 +14,26 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useState, useMemo } from "react";
 import { HealthFilterDialog, HealthFilters } from "./HealthFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getSpeciesAbbreviation, getCurrentMonthDateRange } from "@/lib/utils";
+import { getSpeciesAbbreviation } from "@/lib/utils";
 
 interface HealthLogListProps {
   healthLogs: HealthLogEntry[];
   onEdit?: (healthLog: HealthLogEntry) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
+  filters: HealthFilters;
+  onFiltersChange: (filters: HealthFilters) => void;
 }
 
-export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: HealthLogListProps) {
+export function HealthLogList({ 
+  healthLogs, 
+  onEdit, 
+  onDelete, 
+  onAddNew,
+  filters,
+  onFiltersChange
+}: HealthLogListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
-  const [filters, setFilters] = useState<HealthFilters>({
-    dateFrom: getCurrentMonthDateRange().dateFrom,
-    dateTo: getCurrentMonthDateRange().dateTo,
-  });
 
   const { 
     categories, 
@@ -345,7 +350,7 @@ export function HealthLogList({ healthLogs, onEdit, onDelete, onAddNew }: Health
       <HealthFilterDialog
         open={isFilterDialogOpen}
         onOpenChange={setIsFilterDialogOpen}
-        onApplyFilters={setFilters}
+        onApplyFilters={onFiltersChange}
         currentFilters={filters}
         categories={categories}
         subcategories={subcategories}

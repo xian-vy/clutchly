@@ -11,21 +11,26 @@ import { useState, useMemo } from "react";
 import { GrowthFilterDialog, GrowthFilters } from "./GrowthFilterDialog";
 import { YES_NO_COLORS } from "@/lib/constants/colors";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getSpeciesAbbreviation, getCurrentMonthDateRange } from "@/lib/utils";
+import { getSpeciesAbbreviation } from "@/lib/utils";
 
 interface GrowthEntryListProps {
   growthEntries: GrowthEntry[];
   onEdit?: (growthEntry: GrowthEntry) => void;
   onDelete?: (id: string) => void;
   onAddNew?: () => void;
+  filters: GrowthFilters;
+  onFiltersChange: (filters: GrowthFilters) => void;
 }
 
-export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: GrowthEntryListProps) {
+export function GrowthEntryList({ 
+  growthEntries, 
+  onEdit, 
+  onDelete, 
+  onAddNew,
+  filters,
+  onFiltersChange
+}: GrowthEntryListProps) {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
-  const currentMonthRange = getCurrentMonthDateRange();
-  const [filters, setFilters] = useState<GrowthFilters>({
-    dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
-  });
 
   // Apply filters to the growth entries list
   const filteredGrowthEntries = useMemo(() => {
@@ -272,7 +277,7 @@ export function GrowthEntryList({ growthEntries, onEdit, onDelete, onAddNew }: G
       <GrowthFilterDialog
         open={isFilterDialogOpen}
         onOpenChange={setIsFilterDialogOpen}
-        onApplyFilters={setFilters}
+        onApplyFilters={onFiltersChange}
         currentFilters={filters}
       />
     </>
