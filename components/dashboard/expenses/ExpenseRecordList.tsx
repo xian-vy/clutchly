@@ -50,10 +50,6 @@ export function ExpenseRecordList({
       // Status filter
       if (initialFilters.status && expense.status !== initialFilters.status) return false;
       
-      // Date range filter
-      if (initialFilters.dateFrom && new Date(expense.expense_date) < new Date(initialFilters.dateFrom)) return false;
-      if (initialFilters.dateTo && new Date(expense.expense_date) > new Date(initialFilters.dateTo)) return false;
-      
       // Amount range filter
       if (initialFilters.amountFrom && expense.amount < initialFilters.amountFrom) return false;
       if (initialFilters.amountTo && expense.amount > initialFilters.amountTo) return false;
@@ -72,12 +68,12 @@ export function ExpenseRecordList({
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (initialFilters.status) count++;
-    if (initialFilters.dateFrom) count++;
-    if (initialFilters.dateTo) count++;
     if (initialFilters.amountFrom !== undefined && initialFilters.amountFrom > 0) count++;
     if (initialFilters.amountTo !== undefined && initialFilters.amountTo < 20000) count++;
     if (initialFilters.category) count++;
     if (initialFilters.vendor) count++;
+    // Add date filter count
+    if (initialFilters.dateFrom || initialFilters.dateTo) count++;
     return count;
   }, [initialFilters]);
 

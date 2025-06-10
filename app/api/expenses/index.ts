@@ -13,14 +13,31 @@ export interface ExpensesFilterParams {
   amountMax?: number;
 }
 
-export async function getExpensesRecords(): Promise<ExpenseRecord[]> {
+export async function getExpensesRecords(dateRange?: { startDate?: string; endDate?: string }): Promise<ExpenseRecord[]> {
   const { organization } = await getUserAndOrganizationInfo()
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('expenses_records')
     .select('*')
     .eq('org_id', organization.id)
-    .order('expense_date', { ascending: false })
+
+  // Apply date filtering if range is provided
+  if (dateRange) {
+    if (dateRange.startDate) {
+      query = query.gte('expense_date', dateRange.startDate)
+    }
+    if (dateRange.endDate) {
+      // Set end date to end of day
+      const endDate = new Date(dateRange.endDate)
+      endDate.setHours(23, 59, 59, 999)
+      query = query.lte('expense_date', endDate.toISOString())
+    }
+  }
+
+  // Order by expense date by default
+  query = query.order('expense_date', { ascending: false })
+
+  const { data, error } = await query
 
   if (error) throw error
   return data

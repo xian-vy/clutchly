@@ -15,8 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { useState, useEffect } from 'react';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { PaymentMethod } from '@/lib/types/sales';
@@ -38,39 +36,50 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { getCurrentMonthDateRange } from '@/lib/utils';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
 
-export interface SalesFiltersState {
-  status?: string | 'all';
-  paymentMethod?: PaymentMethod | 'all';
+export interface SalesFilters {
+  dateFrom?: string;
+  dateTo?: string;
+  status?: string;
+  paymentMethod?: string;
   speciesId?: string;
   morphId?: string;
   priceRange?: [number, number];
-  dateFrom?: string;
-  dateTo?: string;
   includesDocuments?: boolean;
 }
+
+const filterSchema = z.object({
+  status: z.string().optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  paymentMethod: z.string().optional(),
+  speciesId: z.string().optional(),
+  morphId: z.string().optional(),
+  priceRange: z.tuple([z.number(), z.number()]).optional(),
+  includesDocuments: z.boolean().optional(),
+});
+
+type FilterFormValues = z.infer<typeof filterSchema>;
 
 interface SalesFilterDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onApplyFilters: (filters: SalesFiltersState) => void;
-  currentFilters: SalesFiltersState;
+  onApplyFilters: (filters: SalesFilters) => void;
+  currentFilters: SalesFilters;
 }
 
 export function SalesFilterDialog({
   open,
   onOpenChange,
   onApplyFilters,
-  currentFilters = {},
+  currentFilters,
 }: SalesFilterDialogProps) {
-
-  console.log('Current Filters:', currentFilters);
-  // Initialize filters state with current filters
-  const [filters, setFilters] = useState<SalesFiltersState>({
-    ...currentFilters,
-    dateFrom: currentFilters.dateFrom || getCurrentMonthDateRange().dateFrom,
-    dateTo: currentFilters.dateTo || getCurrentMonthDateRange().dateTo,
-  });
   const { species } = useSpeciesStore();
   const { morphs } = useMorphsStore();
   
@@ -78,23 +87,64 @@ export function SalesFilterDialog({
   const [speciesOpen, setSpeciesOpen] = useState(false);
   const [morphOpen, setMorphOpen] = useState(false);
 
-  // Update local state when currentFilters changes
-  useEffect(() => {
-    setFilters(currentFilters);
-  }, [currentFilters]);
+  const form = useForm<FilterFormValues>({
+    resolver: zodResolver(filterSchema),
+    defaultValues: {
+      status: currentFilters.status || 'all',
+      dateFrom: currentFilters.dateFrom || getCurrentMonthDateRange().dateFrom,
+      dateTo: currentFilters.dateTo || getCurrentMonthDateRange().dateTo,
+      paymentMethod: currentFilters.paymentMethod || 'all',
+      speciesId: currentFilters.speciesId,
+      morphId: currentFilters.morphId,
+      priceRange: currentFilters.priceRange || [0, 10000],
+      includesDocuments: currentFilters.includesDocuments,
+    },
+  });
 
-  const handleReset = () => {
-    setFilters({});
-  };
-
-  const handleApply = () => {
+  function onSubmit(values: FilterFormValues) {
+    const filters = {
+      status: values.status === "all" ? undefined : values.status,
+      dateFrom: values.dateFrom || undefined,
+      dateTo: values.dateTo || undefined,
+      paymentMethod: values.paymentMethod === "all" ? undefined : values.paymentMethod,
+      speciesId: values.speciesId,
+      morphId: values.morphId,
+      priceRange: values.priceRange,
+      includesDocuments: values.includesDocuments,
+    };
+    
     onApplyFilters(filters);
     onOpenChange(false);
-  };
+  }
+
+  function handleReset() {
+    form.reset({
+      status: "all",
+      dateFrom: undefined,
+      dateTo: undefined,
+      paymentMethod: "all",
+      speciesId: undefined,
+      morphId: undefined,
+      priceRange: undefined,
+      includesDocuments: undefined,
+    });
+    
+    // Immediately apply the reset filters
+    onApplyFilters({
+      status: undefined,
+      dateFrom: undefined,
+      dateTo: undefined,
+      paymentMethod: undefined,
+      speciesId: undefined,
+      morphId: undefined,
+      priceRange: undefined,
+      includesDocuments: undefined,
+    });
+  }
 
   // Filter morphs based on selected species
-  const filteredMorphs = filters.speciesId
-    ? morphs.filter(morph => morph.species_id.toString() === filters.speciesId)
+  const filteredMorphs = form.watch('speciesId')
+    ? morphs.filter(morph => morph.species_id.toString() === form.watch('speciesId'))
     : morphs;
 
   // Payment method options
@@ -114,267 +164,302 @@ export function SalesFilterDialog({
     { value: "refunded", label: "Refunded" },
   ];
 
-  // Price range options
-  const [priceRange, setPriceRange] = useState<[number, number]>(
-    filters.priceRange || [0, 5000]
-  );
-
-  // Update price range in filters
-  const handlePriceRangeChange = (value: number[]) => {
-    const newRange: [number, number] = [value[0], value[1]];
-    setPriceRange(newRange);
-    setFilters(prev => ({ ...prev, priceRange: newRange }));
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] xl:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Filter Sales Records</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
-          {/* Status Filter */}
-          <div className="grid gap-2">
-            <Label htmlFor="status">Status</Label>
-            <Select
-              value={filters.status || 'all'}
-              onValueChange={(value) => 
-                setFilters(prev => ({ 
-                  ...prev, 
-                  status: value === 'all' ? 'all' : value 
-                }))
-              }
-            >
-              <SelectTrigger id="status">
-                <SelectValue placeholder="Select a status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                {statusOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Payment Method Filter */}
-          <div className="grid gap-2">
-            <Label htmlFor="paymentMethod">Payment Method</Label>
-            <Select
-              value={filters.paymentMethod || 'all'}
-              onValueChange={(value) => 
-                setFilters(prev => ({ 
-                  ...prev, 
-                  paymentMethod: value === 'all' ? 'all' : (value as PaymentMethod)
-                }))
-              }
-            >
-              <SelectTrigger id="paymentMethod">
-                <SelectValue placeholder="Select payment method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                {paymentOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Species Filter */}
-          <div className="grid gap-2">
-            <Label>Species</Label>
-            <Popover open={speciesOpen} onOpenChange={setSpeciesOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={speciesOpen}
-                  className="justify-between w-full"
-                >
-                  {filters.speciesId
-                    ? species.find((s) => s.id.toString() === filters.speciesId)?.name
-                    : "Select species"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 max-h-[200px] overflow-y-auto">
-                <Command>
-                  <CommandInput placeholder="Search species..." />
-                  <CommandEmpty>No species found</CommandEmpty>
-                  <CommandGroup>
-                    <CommandItem
-                      value="clear"
-                      onSelect={() => {
-                        setFilters(prev => ({ ...prev, speciesId: undefined, morphId: undefined }));
-                        setSpeciesOpen(false);
-                      }}
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      value={field.value ?? "all"}
+                      onValueChange={field.onChange}
                     >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          !filters.speciesId ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Clear selection
-                    </CommandItem>
-                    {species.map((s) => (
-                      <CommandItem
-                        key={s.id}
-                        value={s.name}
-                        onSelect={() => {
-                          setFilters(prev => ({
-                            ...prev,
-                            speciesId: s.id.toString(),
-                            // Clear morph if species changes
-                            morphId: undefined
-                          }));
-                          setSpeciesOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            filters.speciesId === s.id.toString() ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        {s.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        {statusOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
 
-          {/* Morph Filter - Only active if species is selected */}
-          <div className="grid gap-2">
-            <Label className={!filters.speciesId ? "text-muted-foreground" : ""}>
-              Morph
-            </Label>
-            <Popover open={morphOpen} onOpenChange={setMorphOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={morphOpen}
-                  disabled={!filters.speciesId}
-                  className="justify-between w-full"
-                >
-                  {filters.morphId
-                    ? morphs.find((m) => m.id.toString() === filters.morphId)?.name
-                    : "Select morph"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 max-h-[200px] overflow-y-auto">
-                <Command>
-                  <CommandInput placeholder="Search morphs..." />
-                  <CommandEmpty>No morphs found</CommandEmpty>
-                  <CommandGroup>
-                    <CommandItem
-                      value="clear"
-                      onSelect={() => {
-                        setFilters(prev => ({ ...prev, morphId: undefined }));
-                        setMorphOpen(false);
-                      }}
+              <FormField
+                control={form.control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Payment Method</FormLabel>
+                    <Select
+                      value={field.value ?? "all"}
+                      onValueChange={field.onChange}
                     >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          !filters.morphId ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      Clear selection
-                    </CommandItem>
-                    {filteredMorphs.map((m) => (
-                      <CommandItem
-                        key={m.id}
-                        value={m.name}
-                        onSelect={() => {
-                          setFilters(prev => ({ ...prev, morphId: m.id.toString() }));
-                          setMorphOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            filters.morphId === m.id.toString() ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        {m.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-          </div>
-
-          {/* Price Range Filter */}
-          <div className="grid gap-2">
-            <div className="flex justify-between items-center">
-              <Label>Price Range</Label>
-              <span className="text-xs text-muted-foreground">
-                ${priceRange[0]} - ${priceRange[1]}
-              </span>
-            </div>
-            <Slider
-              defaultValue={priceRange}
-              min={0}
-              max={5000}
-              step={50}
-              value={priceRange}
-              onValueChange={handlePriceRangeChange}
-              className="py-4"
-            />
-          </div>
-
-          {/* Date From/To Filter */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label>Date From</Label>
-              <Input
-                type="date"
-                value={filters.dateFrom}
-                onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select payment method" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="all">All Methods</SelectItem>
+                        {paymentOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="grid gap-2">
-              <Label>Date To</Label>
-              <Input
-                type="date"
-                value={filters.dateTo}
-                onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
+
+            <Separator />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="speciesId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Species</FormLabel>
+                    <Popover open={speciesOpen} onOpenChange={setSpeciesOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={speciesOpen}
+                            className="justify-between w-full"
+                          >
+                            {field.value
+                              ? species.find((s) => s.id.toString() === field.value)?.name
+                              : "Select species"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0 max-h-[200px] overflow-y-auto">
+                        <Command>
+                          <CommandInput placeholder="Search species..." />
+                          <CommandEmpty>No species found</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value="clear"
+                              onSelect={() => {
+                                field.onChange(undefined);
+                                form.setValue('morphId', undefined);
+                                setSpeciesOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  !field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              Clear selection
+                            </CommandItem>
+                            {species.map((s) => (
+                              <CommandItem
+                                key={s.id}
+                                value={s.name}
+                                onSelect={() => {
+                                  field.onChange(s.id.toString());
+                                  form.setValue('morphId', undefined);
+                                  setSpeciesOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === s.id.toString() ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {s.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="morphId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Morph</FormLabel>
+                    <Popover open={morphOpen} onOpenChange={setMorphOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={morphOpen}
+                            disabled={!form.watch('speciesId')}
+                            className="justify-between w-full"
+                          >
+                            {field.value
+                              ? morphs.find((m) => m.id.toString() === field.value)?.name
+                              : "Select morph"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0 max-h-[200px] overflow-y-auto">
+                        <Command>
+                          <CommandInput placeholder="Search morphs..." />
+                          <CommandEmpty>No morphs found</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value="clear"
+                              onSelect={() => {
+                                field.onChange(undefined);
+                                setMorphOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  !field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              Clear selection
+                            </CommandItem>
+                            {filteredMorphs.map((m) => (
+                              <CommandItem
+                                key={m.id}
+                                value={m.name}
+                                onSelect={() => {
+                                  field.onChange(m.id.toString());
+                                  setMorphOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === m.id.toString() ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {m.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
               />
             </div>
-          </div>
 
-          {/* Includes Documents Filter */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="includesDocuments"
-              checked={filters.includesDocuments}
-              onCheckedChange={(checked) => {
-                setFilters(prev => ({ 
-                  ...prev, 
-                  includesDocuments: checked === true ? true : undefined 
-                }));
-              }}
+            <Separator />
+
+            <FormField
+              control={form.control}
+              name="priceRange"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price Range</FormLabel>
+                  <div className="pt-2">
+                    <Slider
+                      min={0}
+                      max={10000}
+                      step={50}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between mt-2 text-sm text-muted-foreground">
+                      <span>${field.value?.[0] ?? 0}</span>
+                      <span>${field.value?.[1] ?? 10000}</span>
+                    </div>
+                  </div>
+                </FormItem>
+              )}
             />
-            <Label htmlFor="includesDocuments">Includes documentation</Label>
-          </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={handleReset}>
-            Reset
-          </Button>
-          <Button onClick={handleApply}>Apply</Button>
-        </DialogFooter>
+
+            <Separator />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="dateFrom"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date From</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="dateTo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date To</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="includesDocuments"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className="!mt-0">Includes documentation</FormLabel>
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={handleReset}>
+                Reset
+              </Button>
+              <Button type="submit">Apply Filters</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

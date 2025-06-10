@@ -16,12 +16,18 @@ import { useMemo, useState } from 'react';
 import { SalesRecordDetails } from './SalesRecordDetails';
 import { SalesRecordForm } from './SalesRecordForm';
 import { EnrichedSaleRecord, SalesRecordList } from './SalesRecordList';
-
+import { getCurrentMonthDateRange } from '@/lib/utils';
+import { SalesFilters } from './SalesFilterDialog';
 
 export function SalesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedSaleForDetails, setSelectedSaleForDetails] = useState<EnrichedSaleRecord | null>(null);
+  const currentMonthRange = getCurrentMonthDateRange();
+  const [filters, setFilters] = useState<SalesFilters>({
+    dateFrom: currentMonthRange.dateFrom,
+    dateTo: currentMonthRange.dateTo,
+  });
   const { species } = useSpeciesStore();
   const { morphs } = useMorphsStore();
   const queryClient = useQueryClient();
@@ -36,8 +42,11 @@ export function SalesTab() {
     handleDelete,
   } = useResource<SaleRecord, NewSaleRecord>({
     resourceName: 'Sales Record',
-    queryKey: ['sales-records'],
-    getResources: getSalesRecords,
+    queryKey: ['sales-records', filters.dateFrom, filters.dateTo],
+    getResources: () => getSalesRecords({
+      startDate: filters.dateFrom,
+      endDate: filters.dateTo
+    }),
     createResource: createSalesRecord,
     updateResource: updateSalesRecord,
     deleteResource: deleteSalesRecord,
@@ -99,6 +108,8 @@ export function SalesTab() {
           setSelectedSaleForDetails(sale);
           setIsDetailsDialogOpen(true);
         }}
+        filters={filters}
+        onFiltersChange={setFilters}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
