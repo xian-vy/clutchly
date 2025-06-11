@@ -31,7 +31,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_TITLE,
     description: APP_DESCRIPTION,
-    images: "/og.png", 
+    images: [{
+      url: "/og.png",
+      alt: APP_NAME,
+    }], 
   },
   robots: {
     index: true,
