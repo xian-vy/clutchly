@@ -31,7 +31,7 @@ export function HeroSection() {
             </span>
           </motion.div>
           <motion.h1 
-            className="font-bold tracking-tighter text-4xl md:text-6xl 2xl:text-7xl 3xl:!text-[5rem] text-[#333] dark:text-foreground"
+            className="font-bold tracking-tighter text-4xl md:text-6xl 2xl:text-[4rem] 3xl:!text-[5rem] text-[#333] dark:text-foreground"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -43,7 +43,7 @@ export function HeroSection() {
             </span>
           </motion.h1>
           <motion.p 
-            className="mt-6 text-base xl:text-lg 2xl:text-xl text-muted-foreground max-w-lg xl:max-w-2xl mx-auto"
+            className="mt-6 text-base xl:text-lg 3xl:!text-xl text-muted-foreground max-w-lg xl:max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}

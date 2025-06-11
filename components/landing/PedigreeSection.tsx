@@ -9,10 +9,10 @@ const PedigreeSection = () => {
         <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
             Spotlight Feature
         </span>
-        <h2 className="text-center text-xl lg:text-2xl font-bold tracking-tight xl:text-3xl text-[#333] dark:text-foreground">
+        <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl text-[#333] dark:text-foreground">
             Interactive Pedigree Analysis
         </h2>
-        <p className="text-muted-foreground text-sm lg:text-base max-w-[600px]">
+        <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">
             Visualize your reptile&apos;s complete lineage with our interactive pedigree tree
         </p>
         </div>
