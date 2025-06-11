@@ -125,7 +125,7 @@ export function DataTable<TData, TValue>({
           />
         </div>
       </div>
-      <div className="rounded-md lg:min-h-[270px] max-w-[350px] sm:max-w-[640px] md:max-w-[700px] lg:max-w-full lg:w-full overflow-x-auto ">
+      <div className="rounded-md lg:min-h-[270px] max-w-[92vw] lg:max-w-full lg:w-full overflow-x-auto ">
           <p  className="md:hidden float-right text-[0.65rem] sm:text-xs  mt-2 mb-3">
           {data.length}  {' Total Records'} 
           </p>

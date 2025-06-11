@@ -57,7 +57,7 @@ export function FeedingReportsTab() {
 
       {isLoading ? (
         <Card className="flex items-center justify-center p-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
         </Card>
       ) : reportData ? (
         <div className="space-y-4">
