@@ -150,7 +150,7 @@ export function Navigation() {
         )}
       >
         <div className={cn(
-          "flex h-16 items-center border-b border-sidebar-border py-2.5",
+          "flex h-18 items-center border-b border-sidebar-border py-2.5",
           isCollapsed ? "justify-center px-2" : "gap-2 px-4 2xl:px-5"
         )}>
           <Image
@@ -162,7 +162,7 @@ export function Navigation() {
           />
           {!isCollapsed && (
             <div className="flex flex-col items-start">
-               <span className="font-semibold text-lg text-sidebar-foreground">{APP_NAME}</span>
+               <span className="font-semibold text-base text-sidebar-foreground">{APP_NAME}</span>
                <span className="text-xs font-medium text-muted-foreground">Reptile Husbandry Management</span>
             </div>
           )}
@@ -202,18 +202,18 @@ export function Navigation() {
                       >
                         <CollapsibleTrigger
                           className={cn(
-                            'relative flex w-full items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-1.5 3xl:py-2.5',
+                            'relative flex w-full items-center  gap-3 rounded-lg text-[0.8rem] 3xl:!text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
                             isCollapsed ? 'justify-center px-2' : 'px-3',
                             'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                           )}
                           onClick={() => toggleCollapsible(item.name)}
                         >
                           <div className="flex items-center gap-3 flex-1">
-                              <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' || item.name === 'Sales' ? 'stroke-[0.012rem]' : ''}`} />
+                              <Icon className={`w-4  h-4  ${item.name === 'Reptiles' || item.name === 'Sales' ? 'stroke-[0.012rem]' : ''}`} />
                               {!isCollapsed &&<span>{item.name}</span>}
                           </div>
                           {!isCollapsed && (
-                            openSection === item.name ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                            openSection === item.name ? <ChevronUp className="!h-3 !w-3" /> : <ChevronDown className="!h-3 !w-3" />
                           )}
                           
                         </CollapsibleTrigger>
@@ -227,7 +227,7 @@ export function Navigation() {
                                 : handleNavigation(subItem.href!)
                               }
                               className={cn(
-                                'relative flex items-center  gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                                'relative flex items-center  gap-3 rounded-lg text-[0.8rem] 3xl:!text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
                                 isCollapsed ? 'justify-center px-2' : 'pl-3 pr-3',
                                 pathname === subItem.href
                                   ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
@@ -249,14 +249,14 @@ export function Navigation() {
                       key={item.href}
                       onClick={handleNavigation(item.href!)}
                       className={cn(
-                        'relative flex items-center gap-3 rounded-lg text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                        'relative flex items-center gap-3 rounded-lg text-[0.8rem] 3xl:!text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
                         isCollapsed ? 'justify-center px-2' : 'px-3',
                         pathname === item.href
                           ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
                           : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                       )}
                     >
-                      <Icon className={`w-4.5 3xl:w-5 h-4.5 3xl:h-5 ${item.name === 'Reptiles' && 'stroke-[0.012rem]'}`} />
+                      <Icon className={`w-4  h-4  ${item.name === 'Reptiles' && 'stroke-[0.012rem]'}`} />
                       {!isCollapsed && item.name}
                       {hasPendingFeedings && item.name === 'Feeding' && !isCollapsed && (
                         <Badge className='absolute right-3 text-xs font-medium'>
@@ -276,14 +276,14 @@ export function Navigation() {
         {/* Collapse toggle button */}
         <Button
           variant="outline"
-          size="icon"
-          className="hidden lg:flex !border absolute right-0 top-11 translate-x-1/2 rounded-full  border-sidebar-border !bg-white dark:!bg-background hover:text-foreground"
+          size="sm"
+          className="hidden w-8 h-8 lg:flex !border absolute right-0 top-12 translate-x-1/2 rounded-full  border-sidebar-border !bg-white dark:!bg-background hover:text-foreground"
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="!h-3 !w-3" />
           ) : (
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="!h-3 !w-3" />
           )}
         </Button>
        {dialogToOpen && <AddNewShortcut type={dialogToOpen} />}
