@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <div className="container mx-auto">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
-          <h1 className="text-lg sm:text-xl 2xl:text-2xl font-bold">Shed Management</h1>
+          <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Shed Management</h1>
           <Button size="sm" variant="outline">
             <Settings className="h-4 w-4" />
             Options

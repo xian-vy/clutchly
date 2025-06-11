@@ -172,7 +172,7 @@ export function Navigation() {
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && section && (
-                  <h2 className="mb-2 px-3 text-xs lg:text-sm font-semibold text-sidebar-foreground/60">
+                  <h2 className="mb-2 px-3 text-xs sm:text-[0.8rem] 3xl:!text-sm font-semibold text-sidebar-foreground/60">
                     {section}
                   </h2>
                 )}

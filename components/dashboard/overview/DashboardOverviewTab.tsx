@@ -195,7 +195,7 @@ export function DashboardOverviewTab() {
       <Card className="border-none shadow-none !py-0">
         <CardHeader className="px-0 pt-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-lg sm:text-xl 2xl:text-2xl font-bold">Dashboard</CardTitle>
+            <CardTitle className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Dashboard</CardTitle>
           </div>
         </CardHeader>
       </Card>
