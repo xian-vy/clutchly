@@ -15,8 +15,8 @@
     ],
     "screenshots": [
         {
-            "src": "/og.png",
-            "sizes": "748x881",
+            "src": "clutchly.png",
+            "sizes": "759x941",
             "type": "image/png",
             "form_factor": "wide"
         }

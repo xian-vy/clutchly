@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     siteName: APP_NAME,
     images: [
       {
-        url: "/og.png",
+        url: APP_URL + "/clutchly.png",
         alt: APP_NAME,
       }
     ],
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: APP_DESCRIPTION,
     images: [{
-      url: "/og.png",
+      url: APP_URL + "/clutchly.png",
       alt: APP_NAME,
     }], 
   },
