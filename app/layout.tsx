@@ -3,25 +3,24 @@ import { Source_Sans_3 } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "sonner";
 import "./globals.css";
-import { APP_DESCRIPTION, SITE_TITLE, APP_URL, APP_NAME } from "@/lib/constants/app";
 
 const sourceSans = Source_Sans_3({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: SITE_TITLE,
-  description: APP_DESCRIPTION,
+  title: "Clutchly - Reptile Husbandry Management",
+  description: "The digital toolkit for reptile enthusiasts and breeders. Easily manage records for breeding, health, feeding, finances and more.",
   keywords: ["reptile husbandry app", "reptile management app", "clutchly", "reptile data management", "reptile breeding management"],
-  authors: [{ name: APP_NAME, url: APP_URL }],
-  creator: APP_NAME,
+  authors: [{ name: "Clutchly", url: "https://clutchly.vercel.app" }],
+  creator: "Clutchly",
   openGraph: {
-    title: SITE_TITLE,
-    description: APP_DESCRIPTION,
-    url: APP_URL,
-    siteName: APP_NAME,
+    title: "Clutchly - Reptile Husbandry Management",
+    description: "The digital toolkit for reptile enthusiasts and breeders. Easily manage records for breeding, health, feeding, finances and more.",
+    url: "https://clutchly.vercel.app",
+    siteName: "Clutchly",
     images: [
       {
-        url: APP_URL + "/clutchly.png",
-        alt: APP_NAME,
+        url: "https://clutchly.vercel.app" + "/clutchly.png",
+        alt: "Clutchly",
       }
     ],
     locale: "en_US",
@@ -29,11 +28,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_TITLE,
-    description: APP_DESCRIPTION,
+    title: "Clutchly - Reptile Husbandry Management",
+    description: "The digital toolkit for reptile enthusiasts and breeders. Easily manage records for breeding, health, feeding, finances and more.",
     images: [{
-      url: APP_URL + "/clutchly.png",
-      alt: APP_NAME,
+      url: "https://clutchly.vercel.app" + "/clutchly.png",
+      alt: "Clutchly",
     }], 
   },
   robots: {
@@ -41,7 +40,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: APP_URL,
+    canonical: "https://clutchly.vercel.app",
   },
   manifest: '/manifest.json',
 };
