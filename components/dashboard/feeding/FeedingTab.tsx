@@ -153,7 +153,7 @@ export function FeedingTab() {
       </div>
 
       <Tabs value={activeScheduleId || undefined} onValueChange={setActiveScheduleId} className="space-y-4">
-        <TabsList className="w-full justify-start">
+        <TabsList className="w-full justify-start max-w-[90vw] lg:max-w-fit overflow-x-auto">
           {schedules.map((schedule) => {
             const status = upcomingFeedings.find((feeding) => feeding.schedule.id === schedule.id);
             const isTodayScheduled = isTodayScheduledFeedingDay(schedule);

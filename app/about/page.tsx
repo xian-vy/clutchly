@@ -1,5 +1,6 @@
 import { Footer } from '@/components/landing/Footer'
 import TopNavigation from '@/components/landing/TopNavigation'
+import Link from 'next/link'
 
 const AboutPage = () => {
   return (
@@ -57,12 +58,12 @@ const AboutPage = () => {
             <p className="text-muted-foreground mb-8">
               Join our community of reptile enthusiasts and take your collection management to the next level.
             </p>
-            <a
+            <Link
               href="/auth/signup"
               className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
             >
               Sign Up Now
-            </a>
+            </Link>
           </div>
         </div>
       </main>
