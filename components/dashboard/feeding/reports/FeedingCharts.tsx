@@ -99,7 +99,7 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="col-span-2 lg:col-span-1">
         <CardHeader>
           <CardTitle>Most Fed Species</CardTitle>
         </CardHeader>
@@ -153,7 +153,7 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card  className="col-span-2 lg:col-span-1">
         <CardHeader>
           <CardTitle>Most Used Food Types</CardTitle>
         </CardHeader>

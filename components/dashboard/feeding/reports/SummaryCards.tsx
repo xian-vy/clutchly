@@ -8,16 +8,16 @@ interface SummaryCardsProps {
 
 export function SummaryCards({ data }: SummaryCardsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Feedings</CardTitle>
           <Utensils className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{data.totalFeedings}</div>
+          <div className="text-lg sm:text-2xl font-bold">{data.totalFeedings}</div>
           <p className="text-xs text-muted-foreground">
-            Total feeding events in selected period
+            In selected period
           </p>
         </CardContent>
       </Card>
@@ -28,7 +28,7 @@ export function SummaryCards({ data }: SummaryCardsProps) {
           <CheckCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{data.successRate.toFixed(1)}%</div>
+          <div className="text-lg sm:text-2xl font-bold">{data.successRate.toFixed(1)}%</div>
           <p className="text-xs text-muted-foreground">
             Successful feeding rate
           </p>
@@ -41,7 +41,7 @@ export function SummaryCards({ data }: SummaryCardsProps) {
           <XCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{data.refusalRate.toFixed(1)}%</div>
+          <div className="text-lg sm:text-2xl font-bold">{data.refusalRate.toFixed(1)}%</div>
           <p className="text-xs text-muted-foreground">
             Feeding refusal rate
           </p>
@@ -50,11 +50,11 @@ export function SummaryCards({ data }: SummaryCardsProps) {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Most Fed Species</CardTitle>
+          <CardTitle className="text-sm font-medium">Most Fed </CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-lg sm:text-2xl font-bold">
             {data.mostFedSpecies[0]?.name || 'N/A'}
           </div>
           <p className="text-xs text-muted-foreground">
