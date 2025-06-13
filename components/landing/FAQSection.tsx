@@ -26,7 +26,7 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <section className="container relative py-6 sm:py-16 xl:py-20 ">
+    <section className=" relative py-6 sm:py-16 xl:py-20 ">
       <div className="relative">
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">

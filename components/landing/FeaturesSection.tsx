@@ -11,9 +11,8 @@ export function FeaturesSection() {
   const initialFeatures = FEATURE_LIST.slice(0,3)
 
   return (
-    <section className="container relative py-6 sm:py-16 xl:py-20">
+    <section className="relative py-6 sm:py-16 xl:py-20">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/5%_0%,transparent_50%)]" />
-      <div className="relative">
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
             Features
@@ -25,7 +24,7 @@ export function FeaturesSection() {
             Comprehensive tools designed specifically for reptile breeders and enthusiasts
           </p>
         </div>
-        <div className="px-6 md:px-0 mt-10 sm:mt-16 grid gap-3 sm:gap-4 lg:gap-5 xl:gap-7 grid-cols-1 md:grid-cols-3 max-w-[1100px]">
+        <div className="px-6 md:px-0 mt-10 sm:mt-16 grid gap-3 sm:gap-4 lg:gap-5 xl:gap-7 grid-cols-1 md:grid-cols-3 max-w-[1100px] mx-auto">
           {initialFeatures.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
@@ -45,7 +44,6 @@ export function FeaturesSection() {
           </Button>
         </div>
 
-      </div>
     </section>
   )
 }
