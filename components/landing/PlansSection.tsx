@@ -17,7 +17,7 @@ const PlansSection = () => {
   }
 
   return (
-    <div className="mt-32 mb-8">
+    <section className="mt-32 mb-8">
     <div className="flex flex-col items-center gap-4 text-center">
       <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
         Pricing
@@ -29,7 +29,7 @@ const PlansSection = () => {
         Flexible options for every level of hobbyist, breeder, or professional
       </p>
     </div>
-    <div className="relative max-w-[340px] md:max-w-[400px] lg:max-w-full mx-auto mt-10 sm:mt-16">
+    <div className="relative max-w-[340px] md:max-w-[400px] lg:max-w-[1100px] mx-auto mt-10 sm:mt-16">
       {/* Mobile Carousel (hidden on lg screens) */}
       <div className="lg:hidden">
         {/* Navigation Arrows */}
@@ -88,7 +88,7 @@ const PlansSection = () => {
         ))}
       </div>
     </div>
-    </div>
+    </section>
   )
 }
 
