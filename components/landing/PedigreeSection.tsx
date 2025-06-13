@@ -56,7 +56,7 @@ const PedigreeSection = () => {
               fill
               loading='lazy'
               className="object-cover"
-              sizes='80vw'
+              sizes='(max-width: 768px) 90vw, 70vw'
             />
           </div>
         </div>
