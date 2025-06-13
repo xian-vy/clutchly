@@ -18,7 +18,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative !overflow-hidden flex items-center">
+    <section className="relative !overflow-hidden flex items-center 3xl:mb-10">
       {/* Subtle, random, multi-color green gradient blobs */}
  
       {/* Background grid or effect */}
