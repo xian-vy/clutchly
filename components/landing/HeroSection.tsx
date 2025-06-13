@@ -93,7 +93,7 @@ export function HeroSection() {
         </div>
         {/* Right Side (Image, cut-off and rounded left only) */}
         <div className="flex-1 flex justify-center md:justify-end items-center w-full relative  3xl:mt-8">
-          <div className="relative w-[320px] md:w-[350px] lg:w-[400px] xl:w-[700px] 3xl:!w-[800px] h-[200px] md:h-[500px] lg:h-[400px] xl:h-[550px] 3xl:!h-[700px] border-y border-l overflow-hidden rounded-xl md:rounded-l-xl shadow-2xl shadow-primary/30 dark:shadow-primary/15">
+          <div className="relative w-[320px] md:w-[350px] lg:w-[400px] xl:w-[700px] 3xl:!w-[800px] h-[200px] md:h-[500px] lg:h-[400px] xl:h-[550px] 3xl:!h-[700px] border-y border-l overflow-hidden rounded-xl md:rounded-l-xl md:rounded-r-none shadow-2xl shadow-primary/30 dark:shadow-primary/15">
             <Image 
               src={theme.theme === 'dark' ? '/hero_dark.png' : '/hero_light.png'}
               alt="Hero background"
