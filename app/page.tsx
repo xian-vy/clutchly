@@ -11,14 +11,14 @@ export default function LandingPage() {
     <div className="flex min-h-screen flex-col  pt-16 ">
     <TopNavigation />
 
-      <div className="fixed inset-0 -z-10 h-full w-full bg-[#f0fdf4]/30 dark:bg-[#030619]">
+      {/* <div className="fixed inset-0 -z-10 h-full w-full bg-[#f0fdf4]/30 dark:bg-[#030619]">
         <div className="absolute inset-0 
-        bg-[linear-gradient(to_right,#f2f7f4_1px,transparent_1px),linear-gradient(to_bottom,#f2f7f4_1px,transparent_1px)] 
+        bg-[linear-gradient(to_right,#fbfffc_1px,transparent_1px),linear-gradient(to_bottom,#fbfffc_1px,transparent_1px)] 
         dark:bg-[linear-gradient(to_right,#0A0E22_1px,transparent_1px),linear-gradient(to_bottom,#0A0E22_1px,transparent_1px)]
-        bg-[size:150px_150px]" />
+        bg-[size:60px_60px]" />
         <div className="absolute hidden dark:block left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-50 blur-[100px]" />
-      </div>
-<div className="bg-[#f2f7f4]"></div>
+      </div> */}
+
       <main className='flex-1'>
         <div className="px-4 md:pr-0 md:pl-[5%] 2xl:pl-[10%] 3xl:!pl-[12%]">
            <HeroSection />
