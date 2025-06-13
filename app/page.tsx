@@ -20,7 +20,7 @@ export default function LandingPage() {
       </div> */}
 
       <main className='flex-1'>
-        <div className="px-4 md:pr-0 md:pl-[5%] 2xl:pl-[10%] 3xl:!pl-[12%]">
+        <div className="px-4 lg:pr-0 lg:pl-[5%] 2xl:pl-[10%] 3xl:!pl-[12%]">
            <HeroSection />
         </div>
         <div className="mx-auto w-full px-4 md:px-8">
