@@ -25,7 +25,7 @@ export function HeroSection() {
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
       <div className="max-w-full relative z-10 flex flex-col md:flex-row items-center w-full justify-between gap-12 py-12">
         {/* Left Side */}
-        <div className="flex-1 max-w-3xl w-full text-left">
+        <div className="flex-1 max-w-3xl w-full text-center md:text-left">
           {/* Badge */}
           <motion.div 
             className="relative mb-8"
@@ -39,7 +39,7 @@ export function HeroSection() {
           </motion.div>
           {/* Headline */}
           <motion.h1 
-            className="font-bold tracking-tighter text-4xl md:text-6xl 2xl:text-[4rem] text-[#333] dark:text-foreground mb-4 text-left"
+            className="font-bold tracking-tighter text-4xl xl:text-6xl 2xl:text-[4rem] 3xl:!text-[5rem] text-[#333] dark:text-foreground mb-4 text-center md:text-left"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -52,7 +52,7 @@ export function HeroSection() {
           </motion.h1>
           {/* Supporting text */}
           <motion.p 
-            className="mt-6 text-base xl:text-lg 3xl:!text-xl text-muted-foreground max-w-lg xl:max-w-2xl mb-8 text-left"
+            className="mt-6 text-base xl:text-lg 3xl:!text-xl text-muted-foreground max-w-lg xl:max-w-2xl mb-8 text-center md:text-left mx-auto md:mx-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
@@ -61,7 +61,7 @@ export function HeroSection() {
           </motion.p>
           {/* Buttons */}
           <motion.div 
-            className="flex flex-wrap items-center gap-4 mt-4"
+            className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
@@ -92,8 +92,8 @@ export function HeroSection() {
           </motion.div>
         </div>
         {/* Right Side (Image, cut-off and rounded left only) */}
-        <div className="flex-1 flex justify-end items-center w-full relative h-[400px] md:h-[500px] xl:h-[550px] 3xl:!h-[700px] 3xl:mt-8">
-          <div className="relative w-[350px] md:w-[400px] xl:w-[700px] 3xl:!w-[900px] h-full border-y border-l overflow-hidden rounded-l-xl shadow-2xl shadow-primary/30 dark:shadow-primary/15">
+        <div className="flex-1 flex justify-center md:justify-end items-center w-full relative  3xl:mt-8">
+          <div className="relative w-[320px] md:w-[350px] lg:w-[400px] xl:w-[700px] 3xl:!w-[800px] h-[200px] md:h-[500px] lg:h-[400px] xl:h-[550px] 3xl:!h-[700px] border-y border-l overflow-hidden rounded-xl md:rounded-l-xl shadow-2xl shadow-primary/30 dark:shadow-primary/15">
             <Image 
               src={theme.theme === 'dark' ? '/hero_dark.png' : '/hero_light.png'}
               alt="Hero background"
