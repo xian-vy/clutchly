@@ -48,7 +48,7 @@ const PedigreeSection = () => {
         </div>
         {/* Image */}
         <div className="w-full max-w-4xl relative">
-          <div className="relative aspect-[16/9] border w-full rounded-xl shadow-2xl shadow-primary/30 dark:shadow-primary/15 overflow-hidden">
+          <div className="relative aspect-[16/9] border w-full rounded-md md:rounded-xl shadow-2xl shadow-primary/30 dark:shadow-primary/15 overflow-hidden">
  
            <Image 
               src={theme.theme === 'dark' ? '/featured_dark.png' : '/featured_light.png'}
@@ -56,7 +56,7 @@ const PedigreeSection = () => {
               fill
               loading='lazy'
               className="object-cover"
-              sizes='(max-width: 768px) 80vw, 70vw'
+              sizes='80vw'
             />
           </div>
         </div>

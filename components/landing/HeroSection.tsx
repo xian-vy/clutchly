@@ -39,7 +39,7 @@ export function HeroSection() {
           </motion.div>
           {/* Headline */}
           <motion.h1 
-            className="font-bold tracking-tighter text-4xl xl:text-6xl 2xl:text-[4rem] 3xl:!text-[5rem] text-[#333] dark:text-foreground mb-4 text-center md:text-left"
+            className="font-bold !leading-[1] tracking-tighter text-4xl xl:text-[3rem] 2xl:text-[4rem] 3xl:!text-[4.5rem] text-[#333] dark:text-foreground mb-4 text-center md:text-left"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -93,13 +93,14 @@ export function HeroSection() {
         </div>
         {/* Right Side (Image, cut-off and rounded left only) */}
         <div className="flex-1 flex justify-center md:justify-end items-center w-full relative  3xl:mt-8">
-          <div className="relative w-[320px] md:w-[350px] lg:w-[400px] xl:w-[700px] 3xl:!w-[800px] h-[200px] md:h-[500px] lg:h-[400px] xl:h-[550px] 3xl:!h-[700px] border-y border-l overflow-hidden rounded-xl md:rounded-l-xl md:rounded-r-none shadow-2xl shadow-primary/30 dark:shadow-primary/15">
+          <div className="relative w-[320px] md:w-[350px] lg:w-[400px] xl:w-[700px] 3xl:!w-[800px] h-[200px] md:h-[500px] lg:h-[400px] xl:h-[550px] 3xl:!h-[700px] border-y border overflow-hidden rounded-md md:rounded-xl md:border-l md:border-r-0 md:rounded-l-xl md:rounded-r-none shadow-2xl shadow-primary/30 dark:shadow-primary/15">
             <Image 
               src={theme.theme === 'dark' ? '/hero_dark.png' : '/hero_light.png'}
               alt="Hero background"
               fill
               priority
               className="object-cover object-left rounded-l-xl"
+              sizes='(max-width: 768px) 80vw, 70vw'
             />
           </div>
         </div>
