@@ -8,8 +8,6 @@ const PedigreeSection = () => {
 
   return (
     <section className="relative !overflow-hidden flex items-center justify-center">
-      {/* Background grid or effect */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_50%)]" />
       <div className="max-w-7xl relative z-10 flex flex-col items-center w-full gap-12 py-12 px-4">
         {/* Text Content */}
         <div className="flex flex-col items-center max-w-3xl w-full text-center">
