@@ -16,8 +16,8 @@ const TopNavigation = () => {
             <Link href="/" className="flex items-center space-x-2">
               <Image 
                 src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'} 
-                width={32} 
-                height={32} 
+                width={37} 
+                height={37} 
                 alt="Clutchly Logo" 
                 className="rounded-full"
               />
