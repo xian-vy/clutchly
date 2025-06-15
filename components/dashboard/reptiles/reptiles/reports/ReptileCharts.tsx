@@ -107,7 +107,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
               <YAxis
                 yAxisId="left"
                 orientation="left"
-                stroke="var(--color-chart-2)"
+                stroke="var(--color-chart-1)"
                 label={{
                   value: 'Value ($)',
                   angle: -90,
@@ -121,7 +121,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
               <YAxis
                 yAxisId="right"
                 orientation="right"
-                stroke="var(--color-chart-1)"
+                stroke="var(--color-chart-2)"
                 fontSize={screen === 'mobile' ? 10 : 12}
                 label={{
                   value: 'Number of Reptiles',

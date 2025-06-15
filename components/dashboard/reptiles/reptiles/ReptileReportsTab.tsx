@@ -17,10 +17,7 @@ export function ReptileReportsTab() {
 
   const { data: reportData, isLoading } = useQuery({
     queryKey: ['reptile-reports', filters],
-    queryFn: () => getReptileReportData({
-      startDate: filters.acquisitionDateRange?.[0],
-      endDate: filters.acquisitionDateRange?.[1]
-    })
+    queryFn: getReptileReportData
   });
 
   return (

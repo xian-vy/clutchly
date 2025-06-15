@@ -23,9 +23,7 @@ export interface ReptileReportData {
   };
 }
 
-export async function getReptileReportData(
-  dateRange?: { startDate?: string; endDate?: string }
-): Promise<ReptileReportData> {
+export async function getReptileReportData(): Promise<ReptileReportData> {
   const supabase = await createClient();
 
   // Get all reptiles with their details
