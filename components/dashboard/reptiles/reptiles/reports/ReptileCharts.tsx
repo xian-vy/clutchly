@@ -18,7 +18,7 @@ import {
   Area
 } from 'recharts';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
-import { formatChartAmount } from '@/lib/utils';
+import { formatChartAmount, getSpeciesAbbreviation } from '@/lib/utils';
 
 interface ReptileChartsProps {
   data: ReptileReportData;
@@ -100,9 +100,9 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
               <XAxis 
                 dataKey="name" 
                 fontSize={screen === 'mobile' ? 10 : 12}
-                angle={-45}
                 textAnchor="end"
                 height={60}
+                tickFormatter={getSpeciesAbbreviation}
               />
               <YAxis
                 yAxisId="left"
@@ -175,6 +175,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                 dataKey="value"
                 fill="var(--color-chart-1)"
                 name="value"
+                maxBarSize={25}
                 radius={[4, 4, 0, 0]}
               />
             </ComposedChart>
