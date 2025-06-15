@@ -1,4 +1,5 @@
 import { MorphsTab } from '@/components/dashboard/reptiles/morphs/MorphsTab';
+import { ReptileReportsTab } from '@/components/dashboard/reptiles/reptiles/ReptileReportsTab';
 import { ReptilesTab } from '@/components/dashboard/reptiles/reptiles/ReptilesTab';
 import { SpeciesTab } from '@/components/dashboard/reptiles/species/SpeciesTab';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,7 @@ export default async function ReptilesPage() {
               <TabsTrigger value="reptiles">Reptiles</TabsTrigger>
               <TabsTrigger value="morphs">Morphs</TabsTrigger>
               <TabsTrigger value="species">Species</TabsTrigger>
+              <TabsTrigger value="reports">Reports</TabsTrigger>
             </TabsList>
             <hr className='mt-[1px]'/>
         </div>
@@ -36,6 +38,10 @@ export default async function ReptilesPage() {
 
         <TabsContent value="morphs">
           <MorphsTab />
+        </TabsContent>
+
+        <TabsContent value='reports'>
+          <ReptileReportsTab />
         </TabsContent>
       </Tabs>
     </div>
