@@ -81,11 +81,12 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                 paddingAngle={3}
                 fill="#8884d8"
                 dataKey="count"
+                stroke="none" 
                 nameKey="name"
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 style={{
                   fontSize: '13px',
-                  color: 'var(--foreground)'
+                  color: 'var(--foreground)',
                 }}
               >
                 {data.speciesDistribution.map((entry, index) => (
@@ -220,6 +221,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                 innerRadius={60}
                 paddingAngle={3}
                 fill="#8884d8"
+                stroke='none'
                 dataKey="count"
                 nameKey="status"
                 label={({ status, percent }) => `${status}: ${(percent * 100).toFixed(0)}%`}

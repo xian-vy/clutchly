@@ -65,6 +65,7 @@ export const DonutChart = ({ data }: DonutChartProps) => {
             cx="50%"
             cy="50%"
             outerRadius={100}
+            stroke="none" 
             innerRadius={60}
             paddingAngle={2}
             label={({ name, percent }) => 

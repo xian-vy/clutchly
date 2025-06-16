@@ -113,6 +113,7 @@ export function DistributionPieCharts({ data }: DistributionPieChartsProps) {
                 innerRadius={60}
                 paddingAngle={3}
                 labelLine={true}
+                stroke="none" 
                 label={renderLabel}
                 style={{
                   fontSize: '13px',
@@ -154,6 +155,7 @@ export function DistributionPieCharts({ data }: DistributionPieChartsProps) {
                 outerRadius={100}
                 innerRadius={60}
                 paddingAngle={3}
+                stroke="none" 
                 labelLine={true}
                 label={renderLabel}
                 style={{

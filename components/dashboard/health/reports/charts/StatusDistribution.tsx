@@ -28,6 +28,7 @@ const StatusDistribution = ({statusData} : AnalysisTabProps) => {
                       innerRadius={60}
                       paddingAngle={2}
                       fill="#8884d8"
+                      stroke="none" 
                       dataKey="value"
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       style={{

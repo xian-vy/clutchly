@@ -328,6 +328,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                   innerRadius={60}
                   paddingAngle={2}
                   dataKey="value"
+                  stroke="none" 
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   style={{
                     fontSize: '13px',
@@ -369,6 +370,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                   innerRadius={60}
                   paddingAngle={2}
                   dataKey="value"
+                  stroke="none" 
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   style={{
                     fontSize: '13px',

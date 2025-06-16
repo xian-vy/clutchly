@@ -135,7 +135,7 @@ export function StatsCards({
       value: `${formatPrice(totalProfit)}`,
       icon: BarChart,
       description: "Sales less expenses",
-      link: "/reports",
+      link: "#",
       color: "bg-purple-50 dark:bg-purple-950",
       iconColor: totalProfit >= 0 ? "text-purple-500" : "text-red-500",
       tabIndex : 1

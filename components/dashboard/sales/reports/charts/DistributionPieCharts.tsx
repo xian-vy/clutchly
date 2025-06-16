@@ -86,6 +86,7 @@ export function DistributionPieCharts({
                 innerRadius={60}
                 paddingAngle={3}
                 fill="#8884d8"
+                stroke="none" 
                 dataKey="value"
                 nameKey="name"
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
@@ -125,6 +126,7 @@ export function DistributionPieCharts({
                 innerRadius={60}
                 paddingAngle={3}
                 fill="#8884d8"
+                stroke="none" 
                 dataKey="value"
                 nameKey="name"
                 label={({ name, percent }) => `${name.replace('_', ' ')}: ${(percent * 100).toFixed(0)}%`}
@@ -162,6 +164,7 @@ export function DistributionPieCharts({
                   innerRadius={60}
                   paddingAngle={3}
                   fill="#8884d8"
+                  stroke="none" 
                   dataKey="value"
                   nameKey="name"
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
@@ -200,6 +203,7 @@ export function DistributionPieCharts({
                   innerRadius={60}
                   paddingAngle={3}
                   fill="#8884d8"
+                  stroke="none" 
                   dataKey="value"
                   nameKey="name"
                   label={({ name, percent }) => 
