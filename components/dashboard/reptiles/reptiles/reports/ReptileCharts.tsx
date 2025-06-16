@@ -18,7 +18,7 @@ import {
   Area
 } from 'recharts';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
-import { formatChartAmount, getSpeciesAbbreviation } from '@/lib/utils';
+import { formatChartAmount, formatPrice, getSpeciesAbbreviation } from '@/lib/utils';
 
 interface ReptileChartsProps {
   data: ReptileReportData;
@@ -138,7 +138,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                   borderRadius: '8px'
                 }}
                 formatter={(value: number, name: string) => {
-                  if (name === 'value') return [`$${value.toFixed(2)}`, 'Value'];
+                  if (name === 'value') return [`${formatPrice(value)}`, 'Value'];
                   if (name === 'count') return [value, 'Number of Reptiles'];
                   return [value, name];
                 }}

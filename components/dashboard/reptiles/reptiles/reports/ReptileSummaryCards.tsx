@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ReptileReportData } from '@/app/api/reptiles/reports';
 import {  Scale, DollarSign, TrendingUp, Turtle } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
 
 interface ReptileSummaryCardsProps {
   data: ReptileReportData;
@@ -33,8 +34,8 @@ export function ReptileSummaryCards({ data }: ReptileSummaryCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            ${data.breedingStats.totalBreeders > 0 
-              ? (data.breedingStats.totalBreeders * 1000 / data.breedingStats.totalBreeders).toFixed(0)
+            {data.breedingStats.totalBreeders > 0 
+              ? (formatPrice(data.breedingStats.totalBreeders * 1000 / data.breedingStats.totalBreeders))
               : '0'}
           </div>
           <p className="text-xs text-muted-foreground">
