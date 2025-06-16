@@ -255,8 +255,8 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
             <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
             <Layers className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.totalProjects}</div>
+          <CardContent className='flex flex-col items-start'>
+            <div className="text-lg sm:text-2xl font-bold">{data.totalProjects}</div>
             <p className="text-xs text-muted-foreground">
               {data.activeProjects} active, {data.completedProjects} completed
             </p>
@@ -268,8 +268,8 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
             <CardTitle className="text-sm font-medium">Total Clutches</CardTitle>
             <Egg className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.totalClutches}</div>
+          <CardContent className='flex flex-col items-start'>
+            <div className="text-lg sm:text-2xl font-bold">{data.totalClutches}</div>
             <p className="text-xs text-muted-foreground">
               {data.totalEggs} eggs, {data.totalFertileEggs} fertile
             </p>
@@ -281,8 +281,8 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
             <CardTitle className="text-sm font-medium">Total Hatchlings</CardTitle>
             <Turtle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{data.totalHatchlings}</div>
+          <CardContent className='flex flex-col items-start'>
+            <div className="text-lg sm:text-2xl font-bold">{data.totalHatchlings}</div>
             <p className="text-xs text-muted-foreground">
               {data.successRate}% success rate
             </p>
@@ -294,8 +294,8 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
             <CardTitle className="text-sm font-medium">Fertility Rate</CardTitle>
             <EggOff className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className='flex flex-col items-start'>
+            <div className="text-lg sm:text-2xl font-bold">
               {data.totalEggs > 0 
                 ? Math.round((data.totalFertileEggs / data.totalEggs) * 100) 
                 : 0}%

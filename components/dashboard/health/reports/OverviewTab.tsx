@@ -30,49 +30,53 @@ export function OverviewTab({ stats, reptileHealthSummary }: OverviewTabProps) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium flex items-center justify-between gap-2">
               Total Health Issues
+              <Activity className="h-4 w-4 text-muted-foreground" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold">{stats.totalIssues}</div>
+            <div className="text-lg sm:text-2xl font-bold">{stats.totalIssues}</div>
+            <p className="text-xs text-muted-foreground">Total health issues recorded</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium flex items-center justify-between gap-2">
               Active Issues
+              <AlertCircle className="h-4 w-4 text-muted-foreground" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold text-destructive">{stats.activeIssues}</div>
+            <div className="text-lg sm:text-2xl font-bold ">{stats.activeIssues}</div>
+            <p className="text-xs text-muted-foreground">Currently unresolved issues</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium flex items-center justify-between gap-2">
               Resolution Rate
+              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold text-primary">{stats.resolutionRate.toFixed(2)}%</div>
+            <div className="text-lg sm:text-2xl font-bold ">{stats.resolutionRate.toFixed(2)}%</div>
+            <p className="text-xs text-muted-foreground">Issues successfully resolved</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium flex items-center justify-between gap-2">
               Avg. Resolution Time
+              <Clock className="h-4 w-4 text-muted-foreground" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold">{stats.avgResolutionDays} days</div>
+            <div className="text-lg sm:text-2xl font-bold">{stats.avgResolutionDays} days</div>
+            <p className="text-xs text-muted-foreground">Average time to resolve issues</p>
           </CardContent>
         </Card>
       </div>

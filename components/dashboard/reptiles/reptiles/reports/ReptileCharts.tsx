@@ -120,7 +120,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                 dataKey="name" 
                 fontSize={screen === 'mobile' ? 10 : 12}
                 textAnchor="end"
-                height={60}
+                height={30}
                 tickFormatter={getSpeciesAbbreviation}
               />
               <YAxis

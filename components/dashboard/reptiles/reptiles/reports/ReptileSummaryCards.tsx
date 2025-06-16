@@ -11,14 +11,14 @@ interface ReptileSummaryCardsProps {
 
 export function ReptileSummaryCards({ data }: ReptileSummaryCardsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Collection</CardTitle>
           <Turtle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{data.totalReptiles}</div>
+          <div className="text-lg sm:text-2xl font-bold">{data.totalReptiles}</div>
           <p className="text-xs text-muted-foreground">
             {data.statusDistribution.map(status => 
               `${status.count} ${status.status}`
@@ -33,7 +33,7 @@ export function ReptileSummaryCards({ data }: ReptileSummaryCardsProps) {
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-lg sm:text-2xl font-bold">
             {data.breedingStats.totalBreeders > 0 
               ? (formatPrice(data.breedingStats.totalBreeders * 1000 / data.breedingStats.totalBreeders))
               : '0'}
@@ -50,7 +50,7 @@ export function ReptileSummaryCards({ data }: ReptileSummaryCardsProps) {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-lg sm:text-2xl font-bold">
             {data.breedingStats.activeBreeders} / {data.breedingStats.totalBreeders}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -67,7 +67,7 @@ export function ReptileSummaryCards({ data }: ReptileSummaryCardsProps) {
           <Scale className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-lg sm:text-2xl font-bold">
             {data.growthStats.averageWeight.toFixed(1)}g
           </div>
           <p className="text-xs text-muted-foreground">

@@ -38,52 +38,52 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <DollarSign className="h-4 w-4 mr-2 text-red-700" />
+          <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Total Expenses
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">{formatPrice(summary.totalExpenses)}</div>
-          <p className="text-xs text-muted-foreground">Total</p>
+          <div className="text-lg sm:text-2xl font-bold">{formatPrice(summary.totalExpenses)}</div>
+          <p className="text-xs text-muted-foreground">Total Amount</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <CalendarIcon className="h-4 w-4 mr-2 text-primary" />
+          <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Monthly Average
+            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">{formatPrice(summary.monthlyAverage)}</div>
+          <div className="text-lg sm:text-2xl font-bold">{formatPrice(summary.monthlyAverage)}</div>
           <p className="text-xs text-muted-foreground">Per month</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <ListIcon className="h-4 w-4 mr-2 text-blue-500" />
+          <CardTitle className="text-sm font-medium flex items-center justify-between">
             Categories
+            <ListIcon className="h-4 w-4  text-muted-foreground " />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">{summary.categoriesCount}</div>
-          <p className="text-xs text-muted-foreground">Expense types</p>
+          <div className="text-lg sm:text-2xl font-bold">{summary.categoriesCount}</div>
+          <p className="text-xs text-muted-foreground">Expense Categories</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <TagIcon className="h-4 w-4 mr-2 text-yellow-500" />
+          <CardTitle className="text-sm font-medium flex items-center justify-between">
             Top Category
+            <TagIcon className="h-4 w-4 text-muted-foreground " />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold capitalize">{topCategory}</div>
+          <div className="text-lg sm:text-2xl font-bold capitalize">{topCategory}</div>
           <p className="text-xs text-muted-foreground">
             {formatPrice(topCategoryAmount)}
           </p>
