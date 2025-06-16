@@ -11,6 +11,7 @@ import { differenceInDays, parseISO } from "date-fns";
 import { BarChart, Dna, DollarSign, Heart, LineChart, Turtle, Wallet } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatPrice } from "@/lib/utils";
 
 interface StatsCardsProps {
   reptiles: Reptile[];
@@ -111,7 +112,7 @@ export function StatsCards({
     },
     {
       title: "Total Sales",
-      value: `$${totalSales.toFixed(2)}`,
+      value: `${formatPrice(totalSales)}`,
       icon: DollarSign,
       description: "Revenue from all sales",
       link: "/sales",
@@ -121,7 +122,7 @@ export function StatsCards({
     },
     {
       title: "Total Expenses",
-      value: `$${totalExpenses.toFixed(2)}`,
+      value: `${formatPrice(totalExpenses)}`,
       icon: Wallet,
       description: "Cost of all expenses",
       link: "/expenses",
@@ -131,7 +132,7 @@ export function StatsCards({
     },
     {
       title: "Net Profit",
-      value: `$${totalProfit.toFixed(2)}`,
+      value: `${formatPrice(totalProfit)}`,
       icon: BarChart,
       description: "Sales less expenses",
       link: "/reports",

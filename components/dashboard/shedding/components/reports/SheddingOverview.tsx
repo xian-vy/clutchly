@@ -30,7 +30,7 @@ export function SheddingOverview({ reptile, sheddingStats }: SheddingOverviewPro
           {sheddingStats ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <h3 className="text-sm sm:text-base xl:text-lg font-medium">Shedding Intervals</h3>
+                <h3 className="text-sm sm:text-base font-medium">Shedding Intervals</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-xs sm:text-sm text-muted-foreground">Average Interval</p>
@@ -52,7 +52,7 @@ export function SheddingOverview({ reptile, sheddingStats }: SheddingOverviewPro
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-sm sm:text-base xl:text-lg font-medium">Shedding Completeness</h3>
+                <h3 className="text-sm sm:text-base font-medium">Shedding Completeness</h3>
                 <div className="space-y-2">
                   {Object.entries(sheddingStats.completenessBreakdown).map(([type, count]) => (
                     <div key={type} className="flex justify-between">
@@ -64,7 +64,7 @@ export function SheddingOverview({ reptile, sheddingStats }: SheddingOverviewPro
               </div>
             </div>
           ) : (
-            <p>Not enough data to calculate shedding statistics. Need at least 2 sheds recorded.</p>
+            <p className='text-xs sm:text-sm'>Not enough data to calculate shedding statistics. Need at least 2 sheds recorded.</p>
           )}
         </CardContent>
       </Card>
@@ -78,7 +78,7 @@ export function SheddingOverview({ reptile, sheddingStats }: SheddingOverviewPro
           {sheddingStats ? (
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm sm:text-base xl:text-lg font-medium mb-2">Shedding Pattern Analysis</h3>
+                <h3 className="text-sm sm:text-base font-medium mb-2">Shedding Pattern Analysis</h3>
                 <p className="text-xs sm:text-sm">
                   {sheddingStats.daysSinceLastShed > sheddingStats.averageInterval * 1.5
                     ? "Your reptile is overdue for shedding. Monitor closely and ensure proper humidity levels."
@@ -89,7 +89,7 @@ export function SheddingOverview({ reptile, sheddingStats }: SheddingOverviewPro
               </div>
 
               <div>
-                <h3 className="text-sm sm:text-base xl:text-lg font-medium mb-2">Recommendations</h3>
+                <h3 className="text-sm sm:text-base font-medium mb-2">Recommendations</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li className="text-xs sm:text-sm">Monitor humidity levels during shedding cycles</li>
                   <li className="text-xs sm:text-sm">Document any retained sheds or incomplete sheds</li>
@@ -99,7 +99,7 @@ export function SheddingOverview({ reptile, sheddingStats }: SheddingOverviewPro
               </div>
             </div>
           ) : (
-            <p>Not enough data to provide shedding insights. Add more shedding records to get personalized recommendations.</p>
+            <p className='text-xs sm:text-sm'>Not enough data to provide shedding insights. Add more shedding records to get personalized recommendations.</p>
           )}
         </CardContent>
       </Card>

@@ -144,7 +144,7 @@ export function TimeRangeSelector({
                 <span className="truncate">{formatDateRangeDisplay()}</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0" align="end">
               <Calendar
                 initialFocus
                 mode="range"
