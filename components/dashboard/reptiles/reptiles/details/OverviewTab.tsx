@@ -10,6 +10,7 @@ import { EnrichedReptile } from "../ReptileList";
 import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
 import { HealthLogEntryWithCategory } from "@/lib/types/health";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatPrice } from "@/lib/utils";
 
 interface OverviewTabProps {
   reptile: EnrichedReptile;
@@ -106,14 +107,14 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
             <p className="text-xs sm:text-sm text-muted-foreground">Produced By</p>
             <div className="flex items-center gap-1">
               <User className="h-4 w-4" />
-              <span className="text-xs sm:text-sm">{reptile.original_breeder}</span>
+              <span className="text-xs sm:text-sm capitalize">{reptile.original_breeder}</span>
             </div>
           </div>
           <div>
             <p className="text-xs sm:text-sm text-muted-foreground">Price</p>
             <div className="flex items-center gap-1">
               <DollarSign className="h-4 w-4" />
-              <span className="text-xs sm:text-sm">{reptile.price || "--"}</span>
+              <span className="text-xs sm:text-sm">{formatPrice(reptile.price) || "--"}</span>
             </div>
           </div>
         </CardContent>

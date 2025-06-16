@@ -190,6 +190,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
                                   cy="50%"
                                   outerRadius={100}
                                   innerRadius={60}
+                                  stroke="none" 
                                   paddingAngle={2}
                                   label={({ name, percent }) => 
                                     `${name}: ${(percent * 100).toFixed(0)}%`

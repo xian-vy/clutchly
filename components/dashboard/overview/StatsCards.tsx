@@ -135,7 +135,7 @@ export function StatsCards({
       value: `${formatPrice(totalProfit)}`,
       icon: BarChart,
       description: "Sales less expenses",
-      link: "/reports",
+      link: "#",
       color: "bg-purple-50 dark:bg-purple-950",
       iconColor: totalProfit >= 0 ? "text-purple-500" : "text-red-500",
       tabIndex : 1
@@ -146,18 +146,14 @@ export function StatsCards({
     return (
       <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-5 3xl:gap-10">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Card key={index} className="h-full border bg-card">
+          <Card key={index} className="h-full border bg-card  py-2">
             <CardContent className="p-3 sm:p-4 lg:p-6">
-              <div className="flex justify-between items-center">
-                <div className="min-w-0 w-full">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Skeleton className="h-5 w-5 rounded-full" />
+                  <div className="flex items-center gap-2 mb-2 md:mb-5 justify-between w-full">
                     <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-5 w-5 rounded-full" />
                   </div>
                   <Skeleton className="h-8 w-20 mb-2" />
                   <Skeleton className="h-4 w-32" />
-                </div>
-              </div>
             </CardContent>
           </Card>
         ))}
@@ -173,24 +169,20 @@ export function StatsCards({
         const Icon = stat.icon;
         return (
           <Link href={stat.link} key={index}>
-            <Card className={`hover:shadow-md transition-all cursor-pointer h-full border bg-card`}>
+            <Card className={`hover:shadow-md transition-all cursor-pointer h-full border bg-card py-2`}>
               <CardContent className="p-3 sm:p-4 lg:p-6">
-                <div className="flex justify-between items-center">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className={`rounded-full flex-shrink-0 `}>
-                          <Icon className={`h-4 w-4 sm:h-5 sm:w-5 text-primary`} />
-                        </div>
+                    <div className="flex items-center justify-between gap-2 mb-2 md:mb-5 w-full">
                         <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium truncate">
                          {stat.title}
                         </p>
+                        <div className={`rounded-full flex-shrink-0 `}>
+                          <Icon className={`h-4 w-4 xl:h-5 xl:w-5 text-primary`} />
+                        </div>
                     </div>  
-                    <div className="text-xl sm:text-2xl xl:text-3xl font-bold ">{stat.value}</div>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
+                    <div className="text-lg sm:text-2xl font-bold ">{stat.value}</div>
+                    <p className="text-xs xl:text-sm text-muted-foreground mt-1 truncate">
                       {stat.description}
                     </p>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </Link>

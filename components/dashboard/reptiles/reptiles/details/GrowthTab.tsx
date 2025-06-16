@@ -16,6 +16,7 @@ import {
   Tooltip as RechartsTooltip
 } from 'recharts';
 import { DetailedReptile } from "@/app/api/reptiles/reptileDetails";
+import { formatChartAmount } from "@/lib/utils";
 interface GrowthTabProps {
   reptileDetails: DetailedReptile | null;
 }
@@ -62,9 +63,9 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
 
               />
               <YAxis 
-                width={30}
-                fontSize={12}
-
+                width={35}
+                fontSize={11}
+                tickFormatter={formatChartAmount}
               />
               <CartesianGrid strokeDasharray="3 3"   stroke="var(--color-border)"/>
               <RechartsTooltip 
@@ -101,9 +102,9 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
 
               />
               <YAxis 
-                width={30}
-                fontSize={12}
-
+                width={35}
+                fontSize={11}
+                tickFormatter={formatChartAmount}
               />
               <CartesianGrid strokeDasharray="3 3"   stroke="var(--color-border)"/>
               <RechartsTooltip 

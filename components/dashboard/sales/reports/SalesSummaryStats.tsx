@@ -54,13 +54,13 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       {/* Total Sales */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <ShoppingCart className="h-4 w-4 mr-2 text-primary" />
+          <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Total Sales
+            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">{data.total_sales}</div>
+          <div className="text-lg sm:text-2xl font-bold">{data.total_sales}</div>
           <p className="text-xs text-muted-foreground">Records</p>
         </CardContent>
       </Card>
@@ -68,13 +68,13 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       {/* Total Revenue */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <DollarSign className="h-4 w-4 mr-2 text-primary" />
+          <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Total Revenue
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">{formatPrice(data.total_revenue)}</div>
+          <div className="text-lg sm:text-2xl font-bold">{formatPrice(data.total_revenue)}</div>
           <p className="text-xs text-muted-foreground">Total in Selected Date</p>
         </CardContent>
       </Card>
@@ -83,12 +83,12 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       {/* <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <Diff className="h-4 w-4 mr-2 text-blue-500" />
+            <Diff className="h-4 w-4 text-blue-500" />
             Average Price
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${data.average_price.toFixed(2)}</div>
+          <div className="text-lg sm:text-2xl font-bold">${data.average_price.toFixed(2)}</div>
           <p className="text-xs text-muted-foreground">Per sale</p>
         </CardContent>
       </Card> */}
@@ -97,12 +97,12 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       {/* <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <TrendingUp className="h-4 w-4 mr-2 text-primary" />
+            <TrendingUp className="h-4 w-4 text-primary" />
             Success Rate
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold flex items-center">
+          <div className="text-lg sm:text-2xl font-bold flex items-center">
             {successRate}%
             {Number(successRate) > 75 ? (
               <ArrowUp className="h-4 w-4 ml-2 text-green-500" />
@@ -117,13 +117,13 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       {/* Refund Rate */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <Activity className="h-4 w-4 mr-2 text-yellow-500" />
+          <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Refund Rate
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardTitle>
         </CardHeader>
         <CardContent  className="flex flex-col items-start">
-          <div className="text-2xl font-bold flex items-center">
+          <div className="text-lg sm:text-2xl font-bold flex items-center">
             {refundRate}%
             {Number(refundRate) > 10 ? (
               <ArrowUp className="h-4 w-4 ml-2 text-red-500" />
@@ -138,13 +138,13 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       {/* Cancelled Orders */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <X className="h-4 w-4 mr-2 text-red-500" />
-            Cancelled Orders
+          <CardTitle className="text-sm font-medium  flex items-center justify-between">
+          Cancelled Orders
+            <X className="h-4 w-4 text-muted-foreground" />
           </CardTitle>
         </CardHeader>
         <CardContent  className="flex flex-col items-start">
-          <div className="text-2xl font-bold">
+          <div className="text-lg sm:text-2xl font-bold">
             {data.sales_by_status.cancelled}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -159,12 +159,12 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       {/* <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <Dna className="h-4 w-4 mr-2 text-indigo-500" />
+            <Dna className="h-4 w-4 text-indigo-500" />
             Top Species
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-lg sm:text-2xl font-bold">
             {topSpecies ? topSpecies.name : "N/A"}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -177,12 +177,12 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       {/* <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <Shell className="h-4 w-4 mr-2 text-emerald-500" />
+            <Shell className="h-4 w-4 text-emerald-500" />
             Top Morph
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-lg sm:text-2xl font-bold">
             {topMorph ? topMorph.name : "N/A"}
           </div>
           <p className="text-xs text-muted-foreground">
