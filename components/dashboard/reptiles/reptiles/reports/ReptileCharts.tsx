@@ -41,7 +41,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Species Distribution</CardTitle>
-          <CardDescription>Distribution of reptiles by species</CardDescription>
+          <CardDescription>Distribution of reptiles by species ({data.speciesDistribution.length} unique species)</CardDescription>
         </CardHeader>
         <CardContent className="h-72 flex justify-center">
           <ResponsiveContainer width="100%" height="100%">
@@ -241,6 +241,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                 bottom: 5,
               }}
               maxBarSize={screen === 'mobile' ? 10 : 25}
+              className="[&>svg>path]:fill-transparent"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
               <XAxis 

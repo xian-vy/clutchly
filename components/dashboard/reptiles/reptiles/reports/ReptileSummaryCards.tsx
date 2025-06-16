@@ -19,7 +19,9 @@ export function ReptileSummaryCards({ data }: ReptileSummaryCardsProps) {
         <CardContent>
           <div className="text-2xl font-bold">{data.totalReptiles}</div>
           <p className="text-xs text-muted-foreground">
-            {data.speciesDistribution.length} unique species
+            {data.statusDistribution.map(status => 
+              `${status.count} ${status.status}`
+            ).join(', ')}
           </p>
         </CardContent>
       </Card>
