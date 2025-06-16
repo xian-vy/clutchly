@@ -24,7 +24,16 @@ import {
 } from "recharts";
 
 // Chart colors
-const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+const CHART_COLORS = [
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+  'var(--color-chart-4)',
+  'var(--color-chart-5)',
+  'var(--color-chart-6)',
+  'var(--color-chart-7)',
+  'var(--color-chart-8)'
+];
 
 interface PayloadType {
   name: string;
@@ -200,7 +209,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
     {
       name: 'Other',
       value: data.totalProjects - data.activeProjects - data.completedProjects,
-      color: CHART_COLORS[5]
+      color: CHART_COLORS[2]
     },
   ].filter(item => item.value > 0);
   
@@ -208,12 +217,12 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
     {
       name: 'Fertile',
       value: data.totalFertileEggs,
-      color: CHART_COLORS[1]
+      color: CHART_COLORS[0]
     },
     {
       name: 'Infertile',
       value: data.totalEggs - data.totalFertileEggs,
-      color: CHART_COLORS[3]
+      color: CHART_COLORS[2]
     },
   ];
   
@@ -315,7 +324,6 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                   }))}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
                   outerRadius={100}
                   innerRadius={60}
                   paddingAngle={2}
@@ -357,7 +365,6 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                   }))}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
                   outerRadius={100}
                   innerRadius={60}
                   paddingAngle={2}

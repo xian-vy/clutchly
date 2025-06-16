@@ -40,8 +40,8 @@ const HealthIssues = ({reptileHealthData} : HealthIssuesProps) => {
                     color: 'var(--foreground)' 
                   }}
                   />
-                  <Bar dataKey="active" name="Active Issues" fill="#FF8042" />
-                  <Bar dataKey="resolved" name="Resolved Issues" fill="#00C49F" />
+                  <Bar dataKey="active" name="Active Issues" fill="#FF8042"  radius={[4,4,0,0]} />
+                  <Bar dataKey="resolved" name="Resolved Issues" fill="#00C49F" radius={[4,4,0,0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>

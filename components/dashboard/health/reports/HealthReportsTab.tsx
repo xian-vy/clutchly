@@ -148,7 +148,7 @@ export function HealthReportsTab() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-base sm:text-lg lg:text-xl font-semibold tracking-tight text-start text-muted-foreground">Health Reports</h2>
+          <h2 className="text-base sm:text-lg  font-semibold tracking-tight text-start text-muted-foreground">Health Reports</h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
             Comprehensive analysis of your health and events.
           </p>
