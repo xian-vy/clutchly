@@ -31,7 +31,7 @@ export function FeedingReportsTab() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
        <div>
-          <h2 className="text-base sm:text-lg lg:text-xl font-semibold tracking-tight text-start text-muted-foreground">Feeding Reports</h2>
+          <h2 className="text-base sm:text-lg  font-semibold tracking-tight text-start text-muted-foreground">Feeding Reports</h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
             Comprehensive analysis of your feeding events.
           </p>

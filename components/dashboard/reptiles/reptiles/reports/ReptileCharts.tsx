@@ -25,12 +25,21 @@ interface ReptileChartsProps {
   data: ReptileReportData;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82CA9D'];
+const COLORS = [
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+  'var(--color-chart-4)',
+  'var(--color-chart-5)',
+  'var(--color-chart-6)',
+  'var(--color-chart-7)',
+  'var(--color-chart-8)'
+]
 const STATUS_COLORS = {
-  active: '#00C49F',
-  sold: '#FFBB28',
-  deceased: '#FF8042',
-  unknown: '#8884d8'
+  active:   'var(--color-chart-1)',
+  sold: 'var(--color-chart-3)',
+  deceased: '#333)',
+  unknown: 'var(--color-chart-3)'
 };
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<string, number>) => {
