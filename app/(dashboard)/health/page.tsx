@@ -1,5 +1,6 @@
 
 
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { HealthEntriesTab } from '@/components/dashboard/health/entries/HealthEntriesTab';
 import { HealthReportsTab } from '@/components/dashboard/health/reports/HealthReportsTab';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Settings } from 'lucide-react';
 
 export default async function HealthPage() {
   return (
+  <ProtectedRoute pageName='Health'>  
     <div className="container mx-auto">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
         <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Health Management</h1>
@@ -34,5 +36,6 @@ export default async function HealthPage() {
         </TabsContent>
       </Tabs>
     </div>
+  </ProtectedRoute>
   )
 } 

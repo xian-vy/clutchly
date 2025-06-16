@@ -1,4 +1,5 @@
 
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { GrowthEntriesTab } from '@/components/dashboard/growth/entries/GrowthEntriesTab';
 import { GrowthReportsTab } from '@/components/dashboard/growth/reports/GrowthReportsTab';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { Settings } from 'lucide-react';
 
 export default async function GrowthPage() {
   return (
+  <ProtectedRoute pageName='Growth'>  
     <div className="container mx-auto">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
         <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Growth Tracking</h1>
@@ -32,5 +34,6 @@ export default async function GrowthPage() {
         </TabsContent>
       </Tabs>
     </div>
+  </ProtectedRoute>
   );
 } 

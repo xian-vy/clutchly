@@ -1,3 +1,4 @@
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { ExpenseReportTab } from '@/components/dashboard/expenses/ExpenseReportTab';
 import { ExpensesTab } from '@/components/dashboard/expenses/ExpensesTab';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Settings } from 'lucide-react';
 
 export default async function ExpensesPage() {
   return (
+  <ProtectedRoute pageName='Finance'>  
     <div className="container mx-auto">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
         <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Expenses Management</h1>
@@ -34,5 +36,6 @@ export default async function ExpensesPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </ProtectedRoute>
   )
 } 

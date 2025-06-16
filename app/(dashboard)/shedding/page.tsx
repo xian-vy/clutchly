@@ -1,3 +1,4 @@
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { SheddingPage } from '@/components/dashboard/shedding/SheddingPage';
 import { SheddingReports } from '@/components/dashboard/shedding/SheddingReports';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { Settings } from 'lucide-react';
 
 export default function Page() {
   return (
+  <ProtectedRoute pageName='Shedding'>
     <div className="container mx-auto">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
           <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Shed Management</h1>
@@ -31,5 +33,6 @@ export default function Page() {
         </TabsContent>
       </Tabs>
       </div>
+  </ProtectedRoute>
   )
 } 
