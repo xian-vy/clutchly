@@ -15,7 +15,8 @@ import {
   Pie,
   Cell,
   ComposedChart,
-  Area
+  Area,
+  TooltipProps
 } from 'recharts';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
 import { formatChartAmount, formatPrice, getSpeciesAbbreviation } from '@/lib/utils';
@@ -32,6 +33,21 @@ const STATUS_COLORS = {
   unknown: '#8884d8'
 };
 
+const CustomTooltip = ({ active, payload, label }: TooltipProps<string, number>) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <Card className="shadow-md border-border/50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/75">
+      <CardContent className="p-3 space-y-2">
+      <p style={{ color: 'var(--foreground)', margin: 0 }}>{label}</p>
+      {payload.map((entry, index) => (
+        <p key={index} style={{ color: 'var(--foreground)', margin: 0 }}>
+          {`${entry.value} reptiles`}
+        </p>
+      ))}
+     </CardContent>
+   </Card>
+  );
+};
 export function ReptileCharts({ data }: ReptileChartsProps) {
   const screen = useScreenSize();
 
@@ -67,13 +83,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value: number, name: string) => {
-                  if (name === 'count') return [`${value} reptiles`, 'Count'];
-                  if (name === 'value') return [`$${value.toFixed(2)}`, 'Value'];
-                  return [value, name];
-                }}
-              />
+              <Tooltip content={<CustomTooltip />}/>
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
@@ -216,9 +226,7 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                   />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value: number) => [`${value} reptiles`, 'Count']}
-              />
+              <Tooltip content={<CustomTooltip />}/>
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
