@@ -44,10 +44,18 @@ export function SheddingReports() {
       ?.filter(record => record.reptile.id === reptileId)
       .sort((a, b) => new Date(a.shed_date).getTime() - new Date(b.shed_date).getTime())
 
-    if (!reptileSheds || reptileSheds.length < 2) return []
+    if (!reptileSheds || reptileSheds.length === 0) return []
 
     return reptileSheds.map((shed, index) => {
-      if (index === 0) return null
+      if (index === 0) {
+        // First shedding gets interval of 0
+        return {
+          date: format(new Date(shed.shed_date), 'MMM d, yyyy'),
+          interval: 0,
+          completeness: shed.completeness,
+        }
+      }
+      
       const prevShed = reptileSheds[index - 1]
       const interval = differenceInDays(
         new Date(shed.shed_date),
@@ -58,8 +66,9 @@ export function SheddingReports() {
         interval,
         completeness: shed.completeness,
       }
-    }).filter((item): item is NonNullable<typeof item> => item !== null)
+    })
   }
+
 
   // Calculate shedding completeness trends
   const calculateCompletenessTrends = (reptileId: string) => {
@@ -83,7 +92,12 @@ export function SheddingReports() {
     const intervals = calculateSheddingIntervals(reptileId)
     if (intervals.length === 0) return null
 
-    const avgInterval = intervals.reduce((sum, item) => sum + item.interval, 0) / intervals.length
+    // Filter out the first interval (which is 0) when calculating average
+    const actualIntervals = intervals.filter(item => item.interval > 0)
+    const avgInterval = actualIntervals.length > 0 
+      ? actualIntervals.reduce((sum, item) => sum + item.interval, 0) / actualIntervals.length
+      : 0
+
     const completenessCounts = intervals.reduce((acc, item) => {
       acc[item.completeness] = (acc[item.completeness] || 0) + 1
       return acc
@@ -91,7 +105,7 @@ export function SheddingReports() {
 
     return {
       averageInterval: Math.round(avgInterval),
-      totalSheds: intervals.length + 1,
+      totalSheds: intervals.length, // No need to add 1 since first shed is now included
       completenessBreakdown: completenessCounts,
       lastShedDate: intervals[intervals.length - 1].date,
       daysSinceLastShed: differenceInDays(
@@ -100,6 +114,7 @@ export function SheddingReports() {
       )
     }
   }
+
 
   const sheddingStats = selectedReptileId ? calculateSheddingStats(selectedReptileId) : null
   const intervalData = selectedReptileId ? calculateSheddingIntervals(selectedReptileId) : []
