@@ -33,7 +33,7 @@ export function DatePickerWithRange({
   date,
   onDateChange,
   className,
-  align = "start",
+  align = "end",
   calendarClassName,
 }: DatePickerWithRangeProps) {
   const [isOpen, setIsOpen] = React.useState(false)

@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Species } from '@/lib/types/species';
-import { Filter, X } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { useState } from 'react';
 
 interface BreedingReportFiltersProps {
@@ -84,15 +84,9 @@ export function BreedingReportFilters({
     });
   };
   
-  // Get species name by ID
-  const getSpeciesName = (id: string) => {
-    const found = species.find(s => s.id.toString() === id);
-    return found ? found.name : 'Unknown Species';
-  };
-  
   return (
     <div className="flex items-center gap-2">
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover  open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="h-8 gap-1 border">
             <Filter className="h-3.5 w-3.5" />
@@ -104,7 +98,7 @@ export function BreedingReportFilters({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[340px] p-0" align="start">
+        <PopoverContent className="w-[340px] p-0" align="end">
           <Card className="border-0">
             <CardContent className="p-0">
               <div className="border-b px-3 py-2">
@@ -132,6 +126,7 @@ export function BreedingReportFilters({
                             id={`species-${s.id}`}
                             checked={selectedSpecies.includes(s.id.toString())}
                             onCheckedChange={() => handleSpeciesChange(s.id.toString())}
+                            className='data-[state=checked]:!bg-white'
                           />
                           <span>{s.name}</span>
                         </CommandItem>
@@ -175,50 +170,7 @@ export function BreedingReportFilters({
         </PopoverContent>
       </Popover>
       
-      {/* Active filters display */}
-      <div className="flex flex-wrap gap-1.5">
-        {selectedSpecies.map(id => (
-          <Badge 
-            key={`species-${id}`} 
-            variant="outline"
-            className="h-8 gap-1 pl-2 pr-1 flex items-center"
-          >
-            <span className="text-xs">{getSpeciesName(id)}</span>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-5 w-5"
-              onClick={() => {
-                handleSpeciesChange(id);
-                applyFilters();
-              }}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </Badge>
-        ))}
-        
-        {selectedStatus.map(status => (
-          <Badge 
-            key={`status-${status}`} 
-            variant="outline"
-            className="h-8 gap-1 pl-2 pr-1 flex items-center capitalize"
-          >
-            <span className="text-xs">{status}</span>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-5 w-5"
-              onClick={() => {
-                handleStatusChange(status);
-                applyFilters();
-              }}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </Badge>
-        ))}
-      </div>
+    
     </div>
   );
 } 
