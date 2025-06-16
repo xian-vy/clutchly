@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useScreenSize } from "@/lib/hooks/useScreenSize";
 import { ExpensesSummary } from "@/lib/types/expenses";
 import { SalesSummary } from "@/lib/types/sales";
-import { formatChartAmount } from "@/lib/utils";
+import { formatChartAmount, formatPrice } from "@/lib/utils";
 import { format, parseISO, startOfMonth, endOfMonth } from "date-fns";
 import { useMemo } from "react";
 import {
@@ -47,7 +47,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
       <div className="bg-background border border-border p-3 rounded-md shadow-md text-sm">
         <h5 className="font-semibold mb-2">{label}</h5>
         <div className="space-y-2">
-          {payload.map((entry, index) => (
+          {payload
+          .map((entry, index) => (
             <div key={index} className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <div 
@@ -57,7 +58,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
                 <span>{entry.name === 'sales' ? 'Sales' : entry.name === 'expenses' ? 'Expenses' : 'Profit'}</span>
               </div>
               <span className="font-medium">
-                ${Number(entry.value).toFixed(2)}
+                {formatPrice(Number(entry.value))}
               </span>
             </div>
           ))}
@@ -65,8 +66,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
             <div className="pt-1 mt-1 border-t border-border">
               <div className="flex items-center justify-between gap-4">
                 <span className="font-medium">Net Profit</span>
-                <span className={`font-semibold ${Number(payload[0].value) - Number(payload[1].value) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  ${(Number(payload[0].value) - Number(payload[1].value)).toFixed(2)}
+                <span className={`font-semibold ${Number(payload[1].value) - Number(payload[0].value) >= 0 ? 'text-primary' : 'text-red-500'}`}>
+                  {(formatPrice(Number(payload[1].value) - Number(payload[0].value)))}
                 </span>
               </div>
             </div>

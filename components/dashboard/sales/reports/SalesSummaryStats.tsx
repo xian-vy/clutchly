@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SalesSummary } from "@/lib/types/sales";
+import { formatPrice } from "@/lib/utils";
 import {
   Activity,
   ArrowDown,
@@ -68,13 +69,13 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <DollarSign className="h-4 w-4 mr-2 text-green-500" />
+            <DollarSign className="h-4 w-4 mr-2 text-primary" />
             Total Revenue
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">${data.total_revenue.toFixed(2)}</div>
-          <p className="text-xs text-muted-foreground">USD</p>
+          <div className="text-2xl font-bold">{formatPrice(data.total_revenue)}</div>
+          <p className="text-xs text-muted-foreground">Total in Selected Date</p>
         </CardContent>
       </Card>
 

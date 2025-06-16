@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Area, CartesianGrid, ComposedChart,  ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format, parseISO, isValid } from 'date-fns';
 import { TimePeriod } from '../TimeRangeSelector';
-import { formatChartAmount, formatCurrency } from '@/lib/utils';
+import { formatChartAmount, formatPrice } from '@/lib/utils';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
 
 interface ExpensesByTimeChartProps {
@@ -120,7 +120,7 @@ export function ExpensesByTimeChart({ data, period }: ExpensesByTimeChartProps) 
                   if (active && payload && payload.length) {
                     const formattedDate = formatDate(payload[0].payload.date);
                     const amount = typeof payload[0].value === 'number' 
-                      ? formatCurrency(payload[0].value) 
+                      ? formatPrice(payload[0].value) 
                       : 'N/A';
                     
                     return (

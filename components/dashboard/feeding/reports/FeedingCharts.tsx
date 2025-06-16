@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import { format } from 'date-fns';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
+import { getSpeciesAbbreviation } from '@/lib/utils';
 
 interface FeedingChartsProps {
   data: FeedingReportData;
@@ -120,9 +121,9 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
               <XAxis 
                 dataKey="name" 
                 fontSize={screen === 'mobile' ? 10 : 12}
-                angle={-45}
                 textAnchor="end"
                 height={60}
+                tickFormatter={getSpeciesAbbreviation}
               />
               <YAxis
                 yAxisId="left"

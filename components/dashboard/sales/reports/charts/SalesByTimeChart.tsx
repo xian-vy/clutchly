@@ -17,7 +17,7 @@ import {
 } from "recharts";
 import { TimePeriod } from "../TimeRangeSelector";
 import { useScreenSize } from "@/lib/hooks/useScreenSize";
-import { formatChartAmount } from "@/lib/utils";
+import { formatChartAmount, formatPrice } from "@/lib/utils";
 
 interface SalesByTimeChartProps {
   data: SalesSummary | undefined;
@@ -213,7 +213,7 @@ export function SalesByTimeChart({ data, period }: SalesByTimeChartProps) {
                 borderRadius: '8px'
               }}
               formatter={(value: number, name: string) => {
-                if (name === 'revenue') return [`$${value.toFixed(2)}`, 'Revenue'];
+                if (name === 'revenue') return [`${formatPrice(value)}`, 'Revenue'];
                 if (name === 'count') return [value, 'Number of Sales'];
                 return [value, name];
               }}

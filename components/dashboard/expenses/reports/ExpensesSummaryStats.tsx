@@ -2,10 +2,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExpensesSummary } from '@/lib/types/expenses';
-import { formatCurrency } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 import {
-  BanknoteIcon,
   CalendarIcon,
+  DollarSign,
   ListIcon,
   TagIcon
 } from 'lucide-react';
@@ -39,12 +39,12 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <BanknoteIcon className="h-4 w-4 mr-2 text-primary" />
+            <DollarSign className="h-4 w-4 mr-2 text-red-700" />
             Total Expenses
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">{formatCurrency(summary.totalExpenses)}</div>
+          <div className="text-2xl font-bold">{formatPrice(summary.totalExpenses)}</div>
           <p className="text-xs text-muted-foreground">Total</p>
         </CardContent>
       </Card>
@@ -52,12 +52,12 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-            <CalendarIcon className="h-4 w-4 mr-2 text-green-500" />
+            <CalendarIcon className="h-4 w-4 mr-2 text-primary" />
             Monthly Average
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">{formatCurrency(summary.monthlyAverage)}</div>
+          <div className="text-2xl font-bold">{formatPrice(summary.monthlyAverage)}</div>
           <p className="text-xs text-muted-foreground">Per month</p>
         </CardContent>
       </Card>
@@ -83,9 +83,9 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
-          <div className="text-2xl font-bold">{topCategory}</div>
+          <div className="text-2xl font-bold capitalize">{topCategory}</div>
           <p className="text-xs text-muted-foreground">
-            {formatCurrency(topCategoryAmount)}
+            {formatPrice(topCategoryAmount)}
           </p>
         </CardContent>
       </Card>
