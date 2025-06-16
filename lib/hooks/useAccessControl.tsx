@@ -6,7 +6,7 @@ import { getAccessProfiles, getPages } from '@/app/api/users/access';
 import { useQuery } from '@tanstack/react-query';
 
 interface UseAccessControlReturn {
-  hasAccess: (pageId: string, permission: 'view' | 'edit' | 'delete') => boolean;
+  hasAccess: (pageId: string | undefined, permission: 'view' | 'edit' | 'delete') => boolean;
   filterNavItems: (items: NavItem[]) => NavItem[];
   accessProfile: AccessProfileWithControls | null;
   isLoading: boolean;
@@ -35,7 +35,8 @@ const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
   }, [user, accessProfiles]);
 
   // Check if user has specific permission for a page
-  const hasAccess = useCallback((pageId: string, permission: 'view' | 'edit' | 'delete'): boolean => {
+  const hasAccess = useCallback((pageId: string | undefined, permission: 'view' | 'edit' | 'delete'): boolean => {
+    if (!pageId) return false;
     // Always allow access to Overview page
     const page = pages.find(p => p.id === pageId);
     if (page?.name.toLowerCase() === 'overview') return true;

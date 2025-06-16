@@ -1,3 +1,4 @@
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import FeedersTab from '@/components/dashboard/feeding/feeders/FeedersTab'
 import { FeedingLogsTab } from '@/components/dashboard/feeding/FeedingLogsTab'
 import { FeedingReportsTab } from '@/components/dashboard/feeding/FeedingReportsTab'
@@ -9,6 +10,7 @@ import { Settings } from 'lucide-react'
 
 export default function FeedingPage() {
   return (
+  <ProtectedRoute pageName='Feeding'>  
     <div className="container mx-auto">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
         <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Feeding Management</h1>
@@ -49,5 +51,6 @@ export default function FeedingPage() {
         </TabsContent>
       </Tabs>
     </div>
+  </ProtectedRoute>
   )
 } 

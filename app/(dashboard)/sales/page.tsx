@@ -1,3 +1,4 @@
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { SalesReportTab } from '@/components/dashboard/sales/SalesReportTab';
 import { SalesTab } from '@/components/dashboard/sales/SalesTab';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Settings } from 'lucide-react';
 
 export default async function SalesPage() {
   return (
+  <ProtectedRoute pageName='Finance'>  
     <div className="container mx-auto">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
         <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Sales Management</h1>
@@ -34,5 +36,6 @@ export default async function SalesPage() {
         </TabsContent>
       </Tabs>
     </div>
+  </ProtectedRoute>
   )
 } 

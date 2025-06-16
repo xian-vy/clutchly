@@ -1,4 +1,5 @@
 
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { EnclosureManagement, RacksManagement, RoomsManagement } from "@/components/dashboard/enclosures";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -8,62 +9,64 @@ import { Building2, Info, LayoutGrid, Package, Settings } from "lucide-react";
 
 export default async function HousingPage() {
   return (
-    <div className="container mx-auto">
-     
-         <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
-            <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Enclosure Management</h1>
-            <Button size="sm" variant="outline">
-              <Settings className="h-4 w-4" />
-              Options
-            </Button>
-        </div>
-      
+    <ProtectedRoute pageName='Enclosures'>
+        <div className="container mx-auto">
         
-        <Tabs defaultValue="locations">
-         <div className="flex flex-col w-full mb-4">
-              <TabsList>
-                 <TabsTrigger value="locations" className="flex items-center gap-1">
-                  <Package className="h-4 w-4 mr-2" />
-                  Enclosures
-                </TabsTrigger>
-                <TabsTrigger value="racks" className="flex items-center gap-1">
-                  <LayoutGrid className="h-4 w-4 mr-2" />
-                  Racks
-                </TabsTrigger>
-                <TabsTrigger value="rooms" className="flex items-center gap-1">
-                  <Building2 className="h-4 w-4 mr-2" />
-                  Rooms
-                </TabsTrigger>
-              </TabsList>
-              <hr className='mt-[1px]'/>
-          </div>
-
-            
-        <Alert className="mb-3">
-          <Info className="h-4 w-4" />
-          <AlertTitle>Organize Your Collection Efficiently (For large-scale keepers)</AlertTitle>
-          <AlertDescription>
-            <ol className="list-decimal pl-5 space-y-1">
-              <li className='text-xs md:text-sm'>Create <strong>Rooms</strong> then <strong>Racks</strong> first to setup enclosures</li>
-              <li className='text-xs md:text-sm'><strong>Enclosures</strong> will be generated base on Rack dimensions.</li>
-              <li className='text-xs md:text-sm'>You can <strong>Select</strong> an enclosure to house a reptile.</li>
-            </ol>
-          </AlertDescription>
-        </Alert>
-          <TabsContent value="rooms">
-            <RoomsManagement />
-          </TabsContent>
-          
-          <TabsContent value="racks">
-            <RacksManagement />
-          </TabsContent>
-          
-          <TabsContent value="locations">
-            <div className="space-y-4">
-              <EnclosureManagement />
+            <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
+                <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Enclosure Management</h1>
+                <Button size="sm" variant="outline">
+                  <Settings className="h-4 w-4" />
+                  Options
+                </Button>
             </div>
-          </TabsContent>
-        </Tabs>
-    </div>
+          
+            
+            <Tabs defaultValue="locations">
+            <div className="flex flex-col w-full mb-4">
+                  <TabsList>
+                    <TabsTrigger value="locations" className="flex items-center gap-1">
+                      <Package className="h-4 w-4 mr-2" />
+                      Enclosures
+                    </TabsTrigger>
+                    <TabsTrigger value="racks" className="flex items-center gap-1">
+                      <LayoutGrid className="h-4 w-4 mr-2" />
+                      Racks
+                    </TabsTrigger>
+                    <TabsTrigger value="rooms" className="flex items-center gap-1">
+                      <Building2 className="h-4 w-4 mr-2" />
+                      Rooms
+                    </TabsTrigger>
+                  </TabsList>
+                  <hr className='mt-[1px]'/>
+              </div>
+
+                
+            <Alert className="mb-3">
+              <Info className="h-4 w-4" />
+              <AlertTitle>Organize Your Collection Efficiently (For large-scale keepers)</AlertTitle>
+              <AlertDescription>
+                <ol className="list-decimal pl-5 space-y-1">
+                  <li className='text-xs md:text-sm'>Create <strong>Rooms</strong> then <strong>Racks</strong> first to setup enclosures</li>
+                  <li className='text-xs md:text-sm'><strong>Enclosures</strong> will be generated base on Rack dimensions.</li>
+                  <li className='text-xs md:text-sm'>You can <strong>Select</strong> an enclosure to house a reptile.</li>
+                </ol>
+              </AlertDescription>
+            </Alert>
+              <TabsContent value="rooms">
+                <RoomsManagement />
+              </TabsContent>
+              
+              <TabsContent value="racks">
+                <RacksManagement />
+              </TabsContent>
+              
+              <TabsContent value="locations">
+                <div className="space-y-4">
+                  <EnclosureManagement />
+                </div>
+              </TabsContent>
+            </Tabs>
+        </div>
+    </ProtectedRoute>
   );
 } 
