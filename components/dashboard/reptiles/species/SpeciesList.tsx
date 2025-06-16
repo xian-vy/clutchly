@@ -8,6 +8,7 @@ import { Species } from "@/lib/types/species";
 import { useMemo, useState } from "react";
 import { SpeciesFilterDialog, SpeciesFilters } from "./SpeciesFilterDialog";
 import { Badge } from "@/components/ui/badge";
+import { CARELEVEL_COLORS } from "@/lib/constants/colors";
 
 interface SpeciesListProps {
   species: Species[];
@@ -79,16 +80,27 @@ export function SpeciesList({ species, onEdit, onDelete, onAddNew }: SpeciesList
       header: "Scientific Name",
     },
     {
-      accessorKey: "care_level",
-      header: "Care Level",
-    },
-    {
       header: "Created by",
       accessorKey: "is_global",
       cell: ({ row }) => {
         const is_global = row.original.is_global
         const createdby = is_global ? "System" : "User"
         return <div className="text-left">{createdby}</div>; 
+      }
+    },
+    {
+      accessorKey: "care_level",
+      header: "Care Level",
+      cell : ({ row }) => {
+        const careLevel = row.original.care_level;
+        return (
+          <Badge
+          variant="custom"
+          className={`${CARELEVEL_COLORS[careLevel.toLowerCase() as keyof typeof CARELEVEL_COLORS]} capitalize`}
+        >
+          {careLevel}
+        </Badge>
+        );
       }
     },
     {
