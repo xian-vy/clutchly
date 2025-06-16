@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Pie, PieChart, ResponsiveContainer, Tooltip, Cell, TooltipProps } from 'recharts';
 import { ExpenseRecord } from '@/lib/types/expenses';
-import { formatCurrency } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 import { TimePeriod } from '../TimeRangeSelector';
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
@@ -39,20 +39,16 @@ const CustomTooltip = ({ active, payload }: TooltipProps<ValueType, NameType>) =
   if (active && payload && payload.length) {
     const data = payload[0];
     return (
-      <div className="rounded-lg border bg-background p-2 shadow-sm">
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-semibold">
-            {data.name}
-          </span>
-          <div className="flex items-center gap-2">
-            <div 
-              className="w-3 h-3 rounded-full" 
-              style={{ backgroundColor: data.color as string }}
-            />
-            <span className="text-sm">{formatCurrency(data.value as number)}</span>
-          </div>
-        </div>
-      </div>
+      <Card className="min-w-[100px] shadow-md border-border/50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/75">
+        <CardContent className='flex flex-col items-center gap-2'>
+            <span className="text-sm font-semibold capitalize">
+              {data.name}
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm">{formatPrice(data.value as number)}</span>
+            </div>
+        </CardContent>
+      </Card>
     );
   }
   return null;

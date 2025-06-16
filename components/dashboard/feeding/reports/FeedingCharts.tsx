@@ -114,6 +114,7 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
                 bottom: 5,
               }}
               maxBarSize={screen === 'mobile' ? 10 : 25}
+              className="[&>svg>path]:fill-transparent"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
               <XAxis 
@@ -168,6 +169,7 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
                 bottom: 5,
               }}
               maxBarSize={screen === 'mobile' ? 10 : 25}
+              className="[&>svg>path]:fill-transparent"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
               <XAxis 

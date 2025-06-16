@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SalesSummary } from "@/lib/types/sales";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, TooltipProps } from "recharts";
 
 // Colors for the charts
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
@@ -18,6 +18,22 @@ interface DistributionPieChartsProps {
   speciesData?: { name: string; value: number }[];
   morphData?: { name: string; value: number }[];
 }
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps<string, number>) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <Card className="shadow-md border-border/50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/75">
+      <CardContent className="p-3 space-y-2">
+      <p style={{ color: 'var(--foreground)', margin: 0 }}>{label}</p>
+      {payload.map((entry, index) => (
+        <p key={index} style={{ color: 'var(--foreground)', margin: 0 }}>
+          {`${entry.value} reptiles`}
+        </p>
+      ))}
+     </CardContent>
+   </Card>
+  );
+};
 
 export function DistributionPieCharts({ 
   data, 
@@ -85,9 +101,7 @@ export function DistributionPieCharts({
                   />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value: number) => [`${value} sales`, 'Count']}
-              />
+              <Tooltip content={<CustomTooltip />}/>
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
@@ -123,9 +137,7 @@ export function DistributionPieCharts({
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value: number) => [`${value} sales`, 'Count']}
-              />
+              <Tooltip content={<CustomTooltip />}/>
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
@@ -162,9 +174,7 @@ export function DistributionPieCharts({
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [`${value} sales`, 'Count']}
-                />
+                <Tooltip content={<CustomTooltip />}/>
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -204,9 +214,7 @@ export function DistributionPieCharts({
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [`${value} sales`, 'Count']}
-                />
+                <Tooltip content={<CustomTooltip />}/>
               </PieChart>
             </ResponsiveContainer>
           </CardContent>

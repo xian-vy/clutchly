@@ -3,6 +3,7 @@
 import { BreedingStats } from '@/app/api/breeding/reports';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
+import { getSpeciesAbbreviation } from '@/lib/utils';
 import { Egg,  EggOff, Layers, Turtle } from 'lucide-react';
 
 // Import recharts components
@@ -392,17 +393,20 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart 
                 data={projectsBySpecies} 
-                layout="vertical"
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 maxBarSize={screen === 'mobile' ? 10 : 25}
                 className="[&>svg>path]:fill-transparent"
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis type="number" style={{ fontSize: '12px' }} />
+                <XAxis
+                dataKey="name" 
+                type="category" 
+                tickFormatter={getSpeciesAbbreviation}
+
+                style={{ fontSize: '12px' }} />
                 <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  width={60} 
+                 type="number"
+                  width={20} 
                   style={{ fontSize: '11px' }}
                 />
                 <Tooltip content={<SpeciesDistributionTooltip />} />
@@ -410,8 +414,7 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                   dataKey="count" 
                   name="Projects" 
                   fill={CHART_COLORS[0]} 
-                  radius={[0, 4, 4, 0]}
-                  
+                  radius={[4, 4, 0, 0]}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -481,10 +484,10 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
               <XAxis 
                 dataKey="name" 
                 style={{ fontSize: '12px' }}
-                angle={-45}
                 textAnchor="end"
                 height={70}
                 interval={0}
+                tickFormatter={getSpeciesAbbreviation}
               />
               <YAxis 
                 style={{ fontSize: '12px' }}
@@ -497,8 +500,8 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
                   color: 'var(--foreground)' 
                 }}
               />
-              <Bar dataKey="rate" name="Hatch Rate (%)" fill={CHART_COLORS[1]} />
-              <Bar dataKey="clutches" name="Clutches" fill={CHART_COLORS[5]} />
+              <Bar dataKey="rate" name="Hatch Rate (%)" fill={CHART_COLORS[0]} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="clutches" name="Clutches" fill={CHART_COLORS[1]} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

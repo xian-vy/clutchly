@@ -1,13 +1,12 @@
 'use client';
 
 import { BreedingReportFilters, getBreedingStats, getDetailedBreedingProjects, getGeneticOutcomes } from '@/app/api/breeding/reports';
-import { Button } from '@/components/ui/button';
 import { DatePickerWithRange } from '@/components/ui/date-picker-range';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Database, FilterX, Loader2, PieChart, TrendingUp } from 'lucide-react';
+import { Database,  Loader2, PieChart, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import { BreedingReportFilters as FilterComponent } from './BreedingReportFilters';
@@ -54,11 +53,6 @@ export function BreedingReportsTab() {
     }
   };
   
-  // Reset all filters
-  const handleResetFilters = () => {
-    setFilters({});
-    setDateRange(undefined);
-  };
   
   // Fetch breeding statistics data
   const { 
@@ -123,10 +117,6 @@ export function BreedingReportsTab() {
             filters={filters}
             species={species}
           />
-           <Button variant="outline" size="sm" onClick={handleResetFilters}>
-            <FilterX className="h-4 w-4" />
-            Reset 
-          </Button>
         </div>
       </div>
       

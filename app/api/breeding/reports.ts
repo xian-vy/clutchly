@@ -330,139 +330,156 @@ export async function getDetailedBreedingProjects(filters?: BreedingReportFilter
   speciesData.forEach((species) => {
     speciesMap.set(species.id.toString(), { id: species.id, name: species.name })
   })
-  
+
   // For each project, fetch related clutches and hatchlings
-  const projectsWithDetails = await Promise.all(
-    projects.map(async project => {
-      // Add species data
-      const species = speciesMap.get(project.species_id.toString()) || { name: 'Unknown' }
-      
-      // Fetch clutches for this project
-      const { data: clutches, error: clutchesError } = await supabase
-        .from('clutches')
-        .select('*')
-        .eq('breeding_project_id', project.id)
-      
-      if (clutchesError) throw clutchesError
-      
-      // For each clutch, fetch related hatchlings
-      const clutchesWithHatchlings = await Promise.all(
-        clutches.map(async clutch => {
-          const { data: hatchlings, error: hatchlingsError } = await supabase
-            .from('reptiles')
+  try {
+    const projectsWithDetails = await Promise.all(
+      projects.map(async project => {
+        try {
+          // Add species data
+          const species = speciesMap.get(project.species_id.toString()) || { name: 'Unknown' }
+          
+          // Fetch clutches for this project
+          const { data: clutches, error: clutchesError } = await supabase
+            .from('clutches')
             .select('*')
-            .eq('parent_clutch_id', clutch.id)
+            .eq('breeding_project_id', project.id)
           
-          if (hatchlingsError) throw hatchlingsError
+          if (clutchesError) throw clutchesError
           
-          // Fetch morph information for each hatchling
-          const hatchlingsWithMorphs = await Promise.all(
-            (hatchlings || []).map(async (hatchling) => {
-              if (!hatchling.morph_id) {
-                return {
-                  ...hatchling,
-                  morph_name: null
-                }
-              }
+          // For each clutch, fetch related hatchlings
+          const clutchesWithHatchlings = await Promise.all(
+            clutches.map(async clutch => {
+              const { data: hatchlings, error: hatchlingsError } = await supabase
+                .from('reptiles')
+                .select('*')
+                .eq('parent_clutch_id', clutch.id)
               
-              // Get morph data
+              if (hatchlingsError) throw hatchlingsError
+              
+              // Fetch morph information for each hatchling
+              const hatchlingsWithMorphs = await Promise.all(
+                (hatchlings || []).map(async (hatchling) => {
+                  if (!hatchling.morph_id) {
+                    return {
+                      ...hatchling,
+                      morph_name: null
+                    }
+                  }
+                  
+                  // Get morph data
+                  const { data: morphData, error: morphError } = await supabase
+                    .from('morphs')
+                    .select('name')
+                    .eq('id', hatchling.morph_id)
+                    .single()
+                  
+                  if (morphError) {
+                    return {
+                      ...hatchling,
+                      morph_name: null
+                    }
+                  }
+                  
+                  return {
+                    ...hatchling,
+                    morph_name: morphData.name
+                  }
+                })
+              )
+              
+              return {
+                ...clutch,
+                hatchlings: hatchlingsWithMorphs || []
+              }
+            })
+          )       
+          
+          // Get parent reptiles and their morphs
+          let maleWithMorph = null;
+          if (project.male_id) {
+            const { data: male, error: maleError } = await supabase
+              .from('reptiles')
+              .select('*')
+              .eq('id', project.male_id)
+              .single()
+            
+            if (maleError && maleError.code !== 'PGRST116') throw maleError // Ignore not found
+
+            // Get male morph data
+            let maleMorph = null
+            if (male && male.morph_id) {
               const { data: morphData, error: morphError } = await supabase
                 .from('morphs')
                 .select('name')
-                .eq('id', hatchling.morph_id)
+                .eq('id', male.morph_id)
                 .single()
               
-              if (morphError) {
-                return {
-                  ...hatchling,
-                  morph_name: null
-                }
+              if (!morphError) {
+                maleMorph = morphData
               }
-              
-              return {
-                ...hatchling,
-                morph_name: morphData.name
-              }
-            })
-          )
-          
-          return {
-            ...clutch,
-            hatchlings: hatchlingsWithMorphs || []
+            }
+            
+            // Add morph data to male
+            maleWithMorph = male ? {
+              ...male,
+              morph: maleMorph
+            } : null
           }
-        })
-      )
-      
-      // Get parent reptiles and their morphs
-      const { data: male, error: maleError } = await supabase
-        .from('reptiles')
-        .select('*')
-        .eq('id', project.male_id)
-        .single()
-      
-      if (maleError && maleError.code !== 'PGRST116') throw maleError // Ignore not found
-      
-      // Get male morph data
-      let maleMorph = null
-      if (male && male.morph_id) {
-        const { data: morphData, error: morphError } = await supabase
-          .from('morphs')
-          .select('name')
-          .eq('id', male.morph_id)
-          .single()
-        
-        if (!morphError) {
-          maleMorph = morphData
+          
+          let femaleWithMorph = null;
+          if (project.female_id) {
+            const { data: female, error: femaleError } = await supabase
+              .from('reptiles')
+              .select('*')
+              .eq('id', project.female_id)
+              .single()
+
+            if (femaleError && femaleError.code !== 'PGRST116') throw femaleError // Ignore not found
+            
+            // Get female morph data
+            let femaleMorph = null
+            if (female && female.morph_id) {
+              const { data: morphData, error: morphError } = await supabase
+                .from('morphs')
+                .select('name')
+                .eq('id', female.morph_id)
+                .single()
+
+              if (!morphError) {
+                femaleMorph = morphData
+              }
+            }
+
+            // Add morph data to female
+            femaleWithMorph = female ? {
+              ...female,
+              morph: femaleMorph
+            } : null
+          }
+
+          const projectWithDetails = {
+            ...project,
+            species,
+            male: maleWithMorph,
+            maleMorph: maleWithMorph?.morph?.name || null,
+            femaleMorph: femaleWithMorph?.morph?.name || null,
+            female: femaleWithMorph,
+            clutches: clutchesWithHatchlings || []
+          }
+          
+          return projectWithDetails;
+        } catch (error) {
+          console.error("Error processing project:", project.id, error);
+          throw error;
         }
-      }
-      
-      // Add morph data to male
-      const maleWithMorph = male ? {
-        ...male,
-        morph: maleMorph
-      } : null
-      
-      const { data: female, error: femaleError } = await supabase
-        .from('reptiles')
-        .select('*')
-        .eq('id', project.female_id)
-        .single()
-      
-      if (femaleError && femaleError.code !== 'PGRST116') throw femaleError // Ignore not found
-      
-      // Get female morph data
-      let femaleMorph = null
-      if (female && female.morph_id) {
-        const { data: morphData, error: morphError } = await supabase
-          .from('morphs')
-          .select('name')
-          .eq('id', female.morph_id)
-          .single()
-        
-        if (!morphError) {
-          femaleMorph = morphData
-        }
-      }
-      
-      // Add morph data to female
-      const femaleWithMorph = female ? {
-        ...female,
-        morph: femaleMorph
-      } : null
-      
-      return {
-        ...project,
-        species,
-        male: maleWithMorph,
-        maleMorph: maleMorph?.name,
-        femaleMorph: femaleMorph?.name,
-        female: femaleWithMorph,
-        clutches: clutchesWithHatchlings || []
-      }
-    })
-  )
-  
-  return projectsWithDetails
+      })
+    )
+    return projectsWithDetails;
+  } catch (error) {
+    console.error("Error in Promise.all:", error);
+    throw error;
+  }
 }
 
 // Add these interfaces for genetic outcomes
