@@ -1,24 +1,22 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
-import { format, subMonths, differenceInDays } from 'date-fns'
+import { format,differenceInDays } from 'date-fns'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { Reptile } from '@/lib/types/reptile'
-import { SheddingWithReptile } from '@/lib/types/shedding'
 import { SheddingFilters } from './components/reports/SheddingFilters'
 import { SheddingOverview } from './components/reports/SheddingOverview'
 import { SheddingCharts } from './components/reports/SheddingCharts'
 import { SheddingDataTable } from './components/reports/SheddingDataTable'
+import { getSheddingReports } from '@/app/api/shedding/reports'
 
 export function SheddingReports() {
-  const supabase = createClientComponentClient()
   const [selectedReptileId, setSelectedReptileId] = useState<string>('')
   const [selectedMetric, setSelectedMetric] = useState<'intervals' | 'completeness'>('intervals')
-  const [timeRange, setTimeRange] = useState<'3m' | '6m' | '1y' | 'all'>('6m')
+  const [timeRange, setTimeRange] = useState<'1m' | '3m' | '6m' | '1y'>('1m')
 
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
@@ -26,43 +24,19 @@ export function SheddingReports() {
   })
 
   const { data: sheddingRecords, isLoading } = useQuery({
-    queryKey: ['shedding'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('shedding')
-        .select(`
-          *,
-          reptile:reptiles (
-            id,
-            name,
-            reptile_code,
-            location:locations (
-              id,
-              label,
-              rack:racks (
-                id,
-                name,
-                room:rooms (
-                  id,
-                  name
-                )
-              )
-            )
-          )
-        `)
-        .order('shed_date', { ascending: false })
-
-      if (error) throw error
-      return data as SheddingWithReptile[]
-    },
+    queryKey: ['shedding', timeRange],
+    queryFn: () => {
+      const months = timeRange === '1m' ? 1 : 
+                    timeRange === '3m' ? 3 : 
+                    timeRange === '6m' ? 6 : 12
+      return getSheddingReports(months)
+    }
   })
 
-  // Filter records based on selected time range
-  const filteredRecords = sheddingRecords?.filter(record => {
-    if (timeRange === 'all') return true
-    const months = timeRange === '3m' ? 3 : timeRange === '6m' ? 6 : 12
-    return new Date(record.shed_date) >= subMonths(new Date(), months)
-  })
+  // Filter records based on selected reptile only
+  const filteredRecords = sheddingRecords?.filter(record => 
+    selectedReptileId ? record.reptile.id === selectedReptileId : true
+  )
 
   // Calculate shedding intervals for the selected reptile
   const calculateSheddingIntervals = (reptileId: string) => {
