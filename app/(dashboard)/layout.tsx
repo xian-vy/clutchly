@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
     <QueryProvider>
         <div className="flex min-h-screen bg-background">
           <Navigation />
-          <div className="flex-1 lg:ml-[var(--sidebar-width)]  3xl:ml-[var(--sidebar-width-3xl)] transition-all duration-200">
+          <div className="flex-1 lg:ml-[var(--sidebar-width)]  3xl:!ml-[var(--sidebar-width-3xl)] transition-all duration-200">
             <TopNavigation />
             <div className="p-4 lg:p-6 xl:p-7 2xl:p-9 3xl:!p-10 max-w-screen-2xl mx-auto">
                 {children}
