@@ -169,17 +169,17 @@ export function StatsCards({
         const Icon = stat.icon;
         return (
           <Link href={stat.link} key={index}>
-            <Card className={`hover:shadow-md transition-all cursor-pointer h-full border bg-card py-2`}>
+            <Card className={`transition-all cursor-pointer h-full border bg-card py-2`}>
               <CardContent className="p-3 sm:p-4 lg:p-6">
                     <div className="flex items-center justify-between gap-2 mb-2 md:mb-5 w-full">
-                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium truncate">
+                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium truncate text-muted-foreground">
                          {stat.title}
                         </p>
                         <div className={`rounded-full flex-shrink-0 `}>
-                          <Icon className={`h-4 w-4 xl:h-5 xl:w-5 text-primary`} />
+                          <Icon className={`h-4 w-4 text-muted-foreground`} />
                         </div>
                     </div>  
-                    <div className="text-lg sm:text-2xl font-bold ">{stat.value}</div>
+                    <div className="text-3xl 3xl:text-4xl font-bold text-foreground/85 ">{stat.value}</div>
                     <p className="text-xs xl:text-sm text-muted-foreground mt-1 truncate">
                       {stat.description}
                     </p>
