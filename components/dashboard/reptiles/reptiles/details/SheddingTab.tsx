@@ -27,7 +27,7 @@ export function SheddingTab({ reptileDetails }: SheddingTabProps) {
   if (!sheddingRecords.length) {
     return (
       <div className="space-y-4">
-        <Card className="px-0 py-3 gap-3 border-0">
+        <Card className="px-0 py-3 gap-3 border-0 shadow-none">
           <CardHeader className="p-0">
           <CardTitle className="text-base flex items-center gap-2">
               <Sprout className="h-5 w-5" />
@@ -44,7 +44,7 @@ export function SheddingTab({ reptileDetails }: SheddingTabProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="pt-3 px-0 gap-3 border-0">
+      <Card className="pt-3 px-0 gap-3 border-0 shadow-none">
         <CardHeader className="px-0">
           <CardTitle className="flex items-center gap-2 text-base">
             <Sprout className="h-4 w-4" />

@@ -39,7 +39,7 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
 
   return (
     <div className="space-y-4 2xl:space-y-5 3xl:!space-y-10 mt-2">
-      <Card className="px-0 gap-2 border-0 py-1 xl:py-2 ">
+      <Card className="px-0 gap-2 border-0 py-1 xl:py-2 shadow-none">
         <CardHeader className="px-0 ">
           <CardTitle className="text-base flex items-center gap-2">
             <Info className="h-5 w-5" />
@@ -120,7 +120,7 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
         </CardContent>
       </Card>
 
-      <Card className="px-0 gap-2 py-1 xl:py-2  border-0">
+      <Card className="px-0 gap-2 py-1 xl:py-2  border-0 shadow-none">
         <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -161,7 +161,7 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
         </CardContent>
       </Card>
 
-        <Card className="px-0 py-1 xl:py-2  gap-2 border-0"> 
+        <Card className="px-0 py-1 xl:py-2  gap-2 border-0 shadow-none"> 
           <CardHeader className="px-0">
             <CardTitle className="text-base flex items-center gap-2">
               <Notebook className="h-5 w-5" />
@@ -174,7 +174,7 @@ export function OverviewTab({ reptile, reptileDetails }: OverviewTabProps) {
         </Card>
 
       {reptileDetails?.health_logs && reptileDetails.health_logs.filter(log => !log.resolved).length > 0 && (
-        <Card className="border-yellow-500 py-1 xl:py-2  px-0 gap-2 border-0">
+        <Card className="border-yellow-500 py-1 xl:py-2  px-0 gap-2 border-0 shadow-none">
           <CardHeader className="px-0">
             <CardTitle className="text-base flex items-center gap-2 ">
               <AlertTriangle className="h-5 w-5" />
