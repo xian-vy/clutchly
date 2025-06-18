@@ -7,7 +7,7 @@ import { ContactDialog } from '@/components/navigation/ContactDialog';
 
 const TopNavigation = () => {
   return (
-    <div className="h-16 border-b border-border flex items-center justify-end pr-2 ">
+    <div className="h-16 border-b border-border flex items-center justify-end pr-2 fixed left-0 w-full bg-background/90 z-10">
         <div className="flex items-center gap-3 md:gap-5 2xl:gap-6 ">
             <ContactDialog />
             <InstallDialog />
