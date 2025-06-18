@@ -22,7 +22,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { BreedingProject, Clutch } from '@/lib/types/breeding';
 import { NewReptile, Reptile, Sex } from '@/lib/types/reptile';
-import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils';
+import { generateReptileCode, generateReptileName, getSpeciesCode } from '@/components/dashboard/reptiles/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Info } from 'lucide-react';
 import { useEffect } from 'react';
@@ -107,6 +107,7 @@ export function HatchlingForm({
     source?: 'visual_parent' | 'genetic_test' | 'breeding_odds';
     verified?: boolean;
   }>>([]);
+  const [isNameManuallyEdited, setIsNameManuallyEdited] = useState(false);
 
   // Get values from form for code generation
   const morphId = form.watch('morph_id');
@@ -131,6 +132,9 @@ export function HatchlingForm({
   useEffect(() => {
     if (!morphId || reptilesLoading || limitLoading) return;
     
+    // Don't auto-generate if user has manually edited the name
+    if (isNameManuallyEdited) return;
+    
     // Find the selected morph
     const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
     
@@ -153,9 +157,19 @@ export function HatchlingForm({
         );
         
         form.setValue('reptile_code', generatedCode);
+        
+        // Generate name based on morph and traits
+        const sequenceNumber = generatedCode.split('-')[0];
+        const generatedName = generateReptileName(
+          selectedMorph.name,
+          hetTraits,
+          sequenceNumber
+        );
+        
+        form.setValue('name', generatedName);
       }
     }
-  }, [morphId, sex, form, reptiles, morphsForSpecies, clutch.species_id, species, reptilesLoading, limitLoading]);
+  }, [morphId, sex, form, reptiles, morphsForSpecies, clutch.species_id, species, reptilesLoading, limitLoading, hetTraits, isNameManuallyEdited]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -171,11 +185,13 @@ export function HatchlingForm({
         return;
       }
 
-      //check for duplicate name
-      const duplicate = reptiles?.find(r => r.name.toLowerCase().trim() === values.name?.toLowerCase().trim());
-      if (duplicate) {
-        toast.error('A reptile with that name already exists!');
-        return;
+      //check for duplicate name (only if manual name is provided)
+      if (values.name?.trim()) {
+        const duplicate = reptiles?.find(r => r.name.toLowerCase().trim() === values.name?.toLowerCase().trim());
+        if (duplicate) {
+          toast.error('A reptile with that name already exists!');
+          return;
+        }
       }
       
       // Get morph and species info for code generation
@@ -206,10 +222,18 @@ export function HatchlingForm({
           );
         }
 
-        // Use reptile_code as name if no name is provided
+        // Generate name based on morph and traits
+        const sequenceNumber = uniqueCode.split('-')[0];
+        const baseName = generateReptileName(
+          selectedMorph?.name || '',
+          hetTraits,
+          sequenceNumber
+        );
+        
+        // Use generated name or manual name with numbering for multiple hatchlings
         const hatchlingName = values.name?.trim() 
           ? (values.quantity > 1 ? `${values.name} #${index + 1}` : values.name)
-          : uniqueCode;
+          : baseName;
         
         const hatchlingData: NewReptile = {
           ...hatchlingValues,
@@ -262,7 +286,40 @@ export function HatchlingForm({
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <div className="flex gap-2">
+                        <Input 
+                          {...field} 
+                          placeholder="Auto-generated based on morph and traits"
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setIsNameManuallyEdited(true);
+                          }}
+                        />
+                        {isNameManuallyEdited && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setIsNameManuallyEdited(false);
+                              // Trigger name regeneration
+                              const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
+                              if (selectedMorph) {
+                                const reptileCode = form.getValues('reptile_code');
+                                const sequenceNumber = reptileCode ? reptileCode.split('-')[0] : '';
+                                const generatedName = generateReptileName(
+                                  selectedMorph.name,
+                                  hetTraits,
+                                  sequenceNumber
+                                );
+                                form.setValue('name', generatedName);
+                              }
+                            }}
+                          >
+                            Auto
+                          </Button>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

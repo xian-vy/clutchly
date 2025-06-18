@@ -12,7 +12,7 @@ import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpe
 import { useSelectList } from '@/lib/hooks/useSelectList'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { NewReptile, Reptile, Sex } from '@/lib/types/reptile'
-import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
+import { generateReptileCode, generateReptileName, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -77,6 +77,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
     source?: 'visual_parent' | 'genetic_test' | 'breeding_odds';
     verified?: boolean;
   }>>(initialData?.het_traits || []);
+  const [isNameManuallyEdited, setIsNameManuallyEdited] = useState(false);
 
   // Initialize form with default values, preselecting first species and morph if no initialData
   const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? species[0].id.toString() : '');
@@ -172,6 +173,27 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
     }
   }, [speciesId, morphId, sex, hatchDate, form, reptiles, species, morphsForSpecies, initialData]);
 
+  // Auto-generate reptile name when relevant fields change
+  useEffect(() => {
+    // Don't auto-generate if user has manually edited the name
+    if (isNameManuallyEdited) return;
+    
+    const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
+    if (!selectedMorph) return;
+    
+    // Get sequence number from reptile code
+    const reptileCode = form.getValues('reptile_code');
+    const sequenceNumber = reptileCode ? reptileCode.split('-')[0] : '';
+    
+    const generatedName = generateReptileName(
+      selectedMorph.name,
+      hetTraits,
+      sequenceNumber
+    );
+    
+    form.setValue('name', generatedName);
+  }, [morphId, hetTraits, form, morphsForSpecies, isNameManuallyEdited]);
+
   const { Select: SpeciesSelect } = useSelectList({
     data: species,
     getValue: (species) => species.id.toString(),
@@ -215,7 +237,41 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ''} />
+                      <div className="flex gap-2">
+                        <Input 
+                          {...field} 
+                          value={field.value || ''} 
+                          placeholder="Auto-generated based on morph and traits"
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setIsNameManuallyEdited(true);
+                          }}
+                        />
+                        {isNameManuallyEdited && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setIsNameManuallyEdited(false);
+                              // Trigger name regeneration
+                              const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
+                              if (selectedMorph) {
+                                const reptileCode = form.getValues('reptile_code');
+                                const sequenceNumber = reptileCode ? reptileCode.split('-')[0] : '';
+                                const generatedName = generateReptileName(
+                                  selectedMorph.name,
+                                  hetTraits,
+                                  sequenceNumber
+                                );
+                                form.setValue('name', generatedName);
+                              }
+                            }}
+                          >
+                            Auto
+                          </Button>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
