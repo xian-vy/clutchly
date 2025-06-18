@@ -1,7 +1,22 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
+/* width */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
 
+/* Track */
+::-webkit-scrollbar-track {
+  background: #eaeaea;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 5px;
+}
 @theme inline {
   --breakpoint-3xl: 1850px;
   --color-background: var(--background);
