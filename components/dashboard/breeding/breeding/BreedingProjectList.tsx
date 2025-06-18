@@ -234,15 +234,42 @@ export function BreedingProjectList({
       header: 'Start Date',
       cell: ({ row }) => {
         const date = row.getValue('start_date') as string;
-        return format(new Date(date), 'MMM d, yyyy');
+        return  (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                  <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[130px] xl:max-w-[140px] 3xl:max-w-[150px]">
+                    {format(new Date(date), 'MM/yy') }
+                  </p>
+              </TooltipTrigger>
+              <TooltipContent>
+                  <p>{format(new Date(date), 'MMM d, yyyy') }</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
       },
     },
     {
       accessorKey: 'expected_hatch_date',
-      header: 'Expected Hatch',
+      header: 'Hatch Date',
       cell: ({ row }) => {
         const date = row.getValue('expected_hatch_date') as string | null;
-        return date ? format(new Date(date), 'MMM d, yyyy') : 'Not set';
+        const label = date ? format(new Date(date), 'MM/yy') : '--';
+        return  (
+           <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                  <p className="mt-1 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-[130px] xl:max-w-[140px] 3xl:max-w-[150px]">
+                    {label}
+                  </p>
+              </TooltipTrigger>
+              <TooltipContent>
+                  <p>{date ? format(new Date(date), 'MMM d, yyyy') : "Not Set" }</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>         
+        )
       },
     },
     {
