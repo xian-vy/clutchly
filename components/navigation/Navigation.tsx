@@ -146,7 +146,7 @@ export function Navigation() {
         className={cn(
           "fixed flex flex-col h-[100dvh] inset-y-0 left-0 z-40 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-          isCollapsed ? "w-16" : "w-[18rem] 3xl:w-[21rem]"
+          isCollapsed ? "w-16" : "w-[19rem] 3xl:w-[22rem]"
         )}
       >
         <div className={cn(
@@ -162,8 +162,8 @@ export function Navigation() {
           />
           {!isCollapsed && (
             <div className="flex flex-col items-start">
-               <span className="font-semibold text-base text-sidebar-foreground">{APP_NAME}</span>
-               <span className="text-xs font-medium text-muted-foreground">Reptile Husbandry Management</span>
+               <span className="font-semibold text-base 3xl:text-lg text-sidebar-foreground">{APP_NAME}</span>
+               <span className="text-xs 3xl:text-[0.8rem] font-medium text-muted-foreground">Reptile Husbandry Management</span>
             </div>
           )}
         </div>
@@ -213,7 +213,7 @@ export function Navigation() {
                               {!isCollapsed &&<span>{item.name}</span>}
                           </div>
                           {!isCollapsed && (
-                            openSection === item.name ? <ChevronUp className="!h-3 !w-3" /> : <ChevronDown className="!h-3 !w-3" />
+                            openSection === item.name ? <ChevronUp className="!h-3.5 !w-3.5" /> : <ChevronDown className="!h-3.5 !w-3.5" />
                           )}
                           
                         </CollapsibleTrigger>
@@ -281,9 +281,9 @@ export function Navigation() {
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? (
-            <ChevronRight className="!h-3 !w-3" />
+            <ChevronRight className="!h-3.5 !w-3.5" />
           ) : (
-            <ChevronLeft className="!h-3 !w-3" />
+            <ChevronLeft className="!h-3.5 !w-3.5" />
           )}
         </Button>
        {dialogToOpen && <AddNewShortcut type={dialogToOpen} />}

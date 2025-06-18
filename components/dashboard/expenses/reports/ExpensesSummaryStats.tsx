@@ -40,7 +40,9 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Total Expenses
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+               <DollarSign className="h-4 w-4 text-foreground/80" />
+          </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
@@ -53,7 +55,9 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Monthly Average
-            <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+           <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+              <CalendarIcon className="h-4 w-4 text-foreground/80" />
+          </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
@@ -66,7 +70,9 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center justify-between">
             Categories
-            <ListIcon className="h-4 w-4  text-muted-foreground " />
+            <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+              <ListIcon className="h-4 w-4  text-foreground/80 " />
+           </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
@@ -79,7 +85,9 @@ export function ExpensesSummaryStats({ summary }: ExpensesSummaryStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center justify-between">
             Top Category
-            <TagIcon className="h-4 w-4 text-muted-foreground " />
+           <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+              <TagIcon className="h-4 w-4 text-foreground/80" />
+          </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">

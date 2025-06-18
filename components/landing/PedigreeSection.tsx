@@ -53,7 +53,7 @@ const PedigreeSection = () => {
               alt="Pedigree Analysis Feature"
               fill
               loading='lazy'
-              className="object-cover"
+              className="object-cover object-left"
               sizes='(max-width: 768px) 90vw, 70vw'
             />
           </div>

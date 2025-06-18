@@ -153,7 +153,7 @@ export function GeneticOutcomes({ data }: GeneticOutcomesProps) {
               <AccordionItem 
                 key={index} 
                 value={`pairing-${index}`}
-                className="border rounded-md px-6"
+                className="border rounded-md px-6  shadow-sm"
               >
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-4">

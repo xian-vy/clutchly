@@ -8,10 +8,11 @@ import { HealthLogEntry } from "@/lib/types/health";
 import { Reptile } from "@/lib/types/reptile";
 import { SalesSummary } from "@/lib/types/sales";
 import { differenceInDays, parseISO } from "date-fns";
-import { BarChart, Dna, DollarSign, Heart, LineChart, Turtle, Wallet } from "lucide-react";
+import { BarChart, Dna, DollarSign, Heart, LineChart,  Wallet } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
+import { VscSnake } from "react-icons/vsc";
 
 interface StatsCardsProps {
   reptiles: Reptile[];
@@ -66,7 +67,7 @@ export function StatsCards({
     {
       title: "Total Reptiles",
       value: activeReptiles.toString(),
-      icon: Turtle,
+      icon: VscSnake,
       description: "Active reptiles in your collection",
       link: "/reptiles",
       color: "bg-blue-50 dark:bg-blue-950",
@@ -105,7 +106,7 @@ export function StatsCards({
     {
       title: "Reptile Sold",
       value: totalReptileSold,
-      icon: Turtle,
+      icon: VscSnake,
       description: "Total Reptiles Sold",
       link: "/sales",
       tabIndex : 1
@@ -169,14 +170,14 @@ export function StatsCards({
         const Icon = stat.icon;
         return (
           <Link href={stat.link} key={index}>
-            <Card className={`transition-all cursor-pointer h-full border bg-card py-2`}>
+            <Card className={`transition-all cursor-pointer h-full border bg-card py-1`}>
               <CardContent className="p-3 sm:p-4 lg:p-6">
                     <div className="flex items-center justify-between gap-2 mb-2 md:mb-5 w-full">
-                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium truncate text-muted-foreground">
+                        <p className="text-xs sm:text-sm xl:text-[0.9rem] font-medium truncate text-foreground/80">
                          {stat.title}
                         </p>
-                        <div className={`rounded-full flex-shrink-0 `}>
-                          <Icon className={`h-4 w-4 text-muted-foreground`} />
+                        <div className={`flex-shrink-0 bg-muted dark:bg-muted/80 p-2 rounded-md`}>
+                          <Icon className={`h-4 w-4 text-foreground/80`} />
                         </div>
                     </div>  
                     <div className="text-3xl 3xl:text-4xl font-bold text-foreground/85 ">{stat.value}</div>

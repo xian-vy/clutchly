@@ -92,8 +92,8 @@ export function HeroSection() {
           </motion.div>
         </div>
         {/* Right Side (Image, cut-off and rounded left only) */}
-        <div className="flex-1 flex justify-center lg:justify-end items-center w-full relative  3xl:mt-24">
-          <div className="relative w-[80vw] sm:w-[550px] md:w-[630px] lg:w-[500px] xl:w-[700px] 3xl:!w-[800px] h-[200px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[550px] 3xl:!h-[600px] border-y border overflow-hidden rounded-md lg:rounded-xl lg:border-l lg:border-r-0 lg:rounded-l-xl lg:rounded-r-none shadow-2xl shadow-primary/30 dark:shadow-primary/15">
+        <div className="flex-1 flex justify-center lg:justify-end items-center w-full relative  3xl:mt-12">
+          <div className="relative w-[80vw] sm:w-[550px] md:w-[630px] lg:w-[500px] xl:w-[700px] 3xl:!w-[850px] h-[200px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[550px] 3xl:!h-[650px] border-y border overflow-hidden rounded-md lg:rounded-xl lg:border-l lg:border-r-0 lg:rounded-l-xl lg:rounded-r-none shadow-2xl shadow-primary/30 dark:shadow-primary/15">
             <Image 
               src={theme.theme === 'dark' ? '/hero_dark.png' : '/hero_light.png'}
               alt="Hero background"

@@ -56,7 +56,9 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Total Sales
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+           <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+             <ShoppingCart className="h-4 w-4 text-foreground/80" />
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
@@ -70,7 +72,9 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Total Revenue
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+                <DollarSign className="h-4 w-4 text-foreground/80" />
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-start">
@@ -119,7 +123,9 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium  flex items-center justify-between">
             Refund Rate
-            <Activity className="h-4 w-4 text-muted-foreground" />
+           <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+               <Activity className="h-4 w-4 text-foreground/80" />
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent  className="flex flex-col items-start">
@@ -140,7 +146,9 @@ export function SalesSummaryStats({ data }: SalesSummaryStatsProps) {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium  flex items-center justify-between">
           Cancelled Orders
-            <X className="h-4 w-4 text-muted-foreground" />
+            <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+              <X className="h-4 w-4 text-foreground/80" />
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent  className="flex flex-col items-start">
