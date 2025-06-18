@@ -12,7 +12,9 @@ export function SummaryCards({ data }: SummaryCardsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Feedings</CardTitle>
-          <Utensils className="h-4 w-4 text-muted-foreground" />
+          <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+             <Utensils className="h-4 w-4 text-foreground/80" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-lg sm:text-2xl font-bold">{data.totalFeedings}</div>
@@ -25,7 +27,9 @@ export function SummaryCards({ data }: SummaryCardsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-          <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+            <CheckCircle className="h-4 w-4 text-foreground/80" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-lg sm:text-2xl font-bold">{data.successRate.toFixed(1)}%</div>
@@ -38,7 +42,9 @@ export function SummaryCards({ data }: SummaryCardsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Refusal Rate</CardTitle>
-          <XCircle className="h-4 w-4 text-muted-foreground" />
+          <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+             <XCircle className="h-4 w-4 text-foreground/80" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-lg sm:text-2xl font-bold">{data.refusalRate.toFixed(1)}%</div>
@@ -51,7 +57,9 @@ export function SummaryCards({ data }: SummaryCardsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Most Fed </CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+             <TrendingUp className="h-4 w-4 text-foreground/80" />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-lg sm:text-2xl font-bold">

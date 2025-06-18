@@ -223,7 +223,7 @@ export function FeedingTab() {
               <Collapsible
                 open={expandedScheduleIds.has(schedule.id)}
                 onOpenChange={() => toggleExpanded(schedule.id)}
-                className="border rounded-lg overflow-hidden bg-white dark:bg-card"
+                className="border shadow-sm rounded-lg overflow-hidden bg-white dark:bg-card"
               >
                 <Card className="border-0 shadow-none gap-5 3xl:gap-6">
                   <CardHeader className="pb-0 px-6">

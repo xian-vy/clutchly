@@ -253,7 +253,9 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-            <Layers className="h-4 w-4 text-muted-foreground" />
+            <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+                <Layers className="h-4 w-4 text-foreground/80" />
+          </div>
           </CardHeader>
           <CardContent className='flex flex-col items-start'>
             <div className="text-lg sm:text-2xl font-bold">{data.totalProjects}</div>
@@ -266,7 +268,9 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Clutches</CardTitle>
-            <Egg className="h-4 w-4 text-muted-foreground" />
+             <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+                <Egg className="h-4 w-4 text-foreground/80" />
+            </div>
           </CardHeader>
           <CardContent className='flex flex-col items-start'>
             <div className="text-lg sm:text-2xl font-bold">{data.totalClutches}</div>
@@ -279,7 +283,9 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Hatchlings</CardTitle>
-            <Turtle className="h-4 w-4 text-muted-foreground" />
+            <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+              <Turtle className="h-4 w-4 text-foreground/80" />
+            </div>
           </CardHeader>
           <CardContent className='flex flex-col items-start'>
             <div className="text-lg sm:text-2xl font-bold">{data.totalHatchlings}</div>
@@ -292,7 +298,9 @@ export function BreedingStatistics({ data }: BreedingStatisticsProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Fertility Rate</CardTitle>
-            <EggOff className="h-4 w-4 text-muted-foreground" />
+             <div className="bg-muted dark:bg-muted/80 p-2 rounded-md">
+              <EggOff className="h-4 w-4 text-foreground/80" />
+            </div>
           </CardHeader>
           <CardContent className='flex flex-col items-start'>
             <div className="text-lg sm:text-2xl font-bold">
