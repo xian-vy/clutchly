@@ -38,7 +38,7 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
         
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
           {offspring.map((baby: Reptile) => (
-            <Card key={baby.id} className="overflow-hidden px-0 py-3 gap-3 border-0">
+            <Card key={baby.id} className="overflow-hidden px-0 py-3 gap-3 border-0 shadow-none">
               <CardContent className="px-0">
                 <div className="flex items-start justify-between">
                   <div>
@@ -80,7 +80,7 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
   if (!hasBreedingProjects && (!reptileDetails.offspring || reptileDetails.offspring.length === 0)) {
     return (
       <div className="space-y-4">
-        <Card className="px-0 py-3 gap-3 border-0">
+        <Card className="px-0 py-3 gap-3 border-0 shadow-none">
           <CardHeader className="p-0">
             <CardTitle className="text-base flex items-center gap-2">
               <Egg className="h-5 w-5" />
@@ -98,7 +98,7 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
   return (
     <div className="space-y-3">
       {hasBreedingProjects && (
-        <Card className="px-0 pt-3 pb-0 gap-3 border-0">
+        <Card className="px-0 pt-3 pb-0 gap-3 border-0 shadow-none">
           <CardHeader className="p-0">
             <CardTitle className="text-sm sm:text-base flex items-center gap-2 ">
               <Dna className="h-4 w-4" />
@@ -177,7 +177,7 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
       )}
 
       {reptileDetails.offspring && reptileDetails.offspring.length > 0 && (
-        <Card className="px-0 py-3 gap-3 border-0">
+        <Card className="px-0 py-3 gap-3 border-0 shadow-none">
           <CardContent className="p-0">
             {displayOffspring(reptileDetails.offspring)}
           </CardContent>

@@ -26,7 +26,7 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
   if (!feedingHistory || feedingHistory.length === 0) {
     return (
       <div className="space-y-4">
-        <Card className="px-0 py-3 gap-3 border-0">
+        <Card className="px-0 py-3 gap-3 border-0 shadow-none">
           <CardHeader className="p-0">
             <CardTitle className="text-base flex items-center gap-2">
               <Worm className="h-5 w-5" />
@@ -48,7 +48,7 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="pt-3 px-0 gap-3 border-0">
+      <Card className="pt-3 px-0 gap-3 border-0 shadow-none">
         <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
             <Worm className="h-5 w-5" />

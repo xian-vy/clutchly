@@ -53,7 +53,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
   // Update the JSX to use currentEntry instead of catalogEntry
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-0 lg:gap-3 xl:gap-4 2xl:gap-5 sm:mb-5 xl:mb-10 ">
-      <Card className="overflow-hidden py-0 border-0 rounded-none  gap-0">
+      <Card className="overflow-hidden py-0 border-0 rounded-none  gap-0 shadow-none">
         <CardHeader id='catalog-entry-details' className='px-0 pb-0'>
           <div className="relative h-[350px] sm:h-[500px] lg:h-[600px] bg-muted rounded-none  overflow-hidden">
             {catalogEntry.catalog_images.length > 0 && catalogEntry.catalog_images[selectedImageIndex]?.image_url ? (
@@ -114,7 +114,7 @@ export function CatalogEntryDetails({ catalogEntry, reptileName, isAdmin,onImage
       </Card>
 
       {/* Right column - Details */}
-      <Card className='px-0 py-5 sm:p-6 lg:p-2 xl:p-3 border-0 border-t-1 rounded-none  lg:border-t-0 lg:border-l-1 gap-2 sm:gap-4'>
+      <Card className='px-0 py-5 sm:p-6 lg:p-2 xl:p-3 border-0 border-t-1 rounded-none  lg:border-t-0 lg:border-l-1 gap-2 sm:gap-4 shadow-none'>
         <CardHeader>
           <CardTitle className='flex flex-col items-start gap-1 sm:gap-2 mt-3'>
             <h2 className="text-2xl  md:text-3xl 2xl:text-[2rem] font-bold text-foreground/80 leading-[1.1]">

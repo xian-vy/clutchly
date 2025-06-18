@@ -206,7 +206,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,organization} : Props) 
                     <span onClick={() => setOpenShareDialog(true)} className='text-[0.8rem] md:text-sm cursor-pointer '>Share</span>
             </div>
         </div>
-      <Card className='p-0 border-0 w-full  '>
+      <Card className='p-0 border-0 w-full  shadow-none'>
         <CardContent className='flex flex-col items-start text-start gap-3 md:gap-4 px-0 bg-muted/30'>
           {isAdmin ? (
             !isEditing ? (

@@ -34,7 +34,7 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
   if (!activeIssues.length && !resolvedIssues.length) {
     return (
       <div className="space-y-4 ">
-        <Card className="px-0 py-3 gap-3 border-0">
+        <Card className="px-0 py-3 gap-3 border-0 shadow-none">
           <CardHeader className="p-0">
             <CardTitle className="text-base flex items-center gap-2">
               <Heart className="h-5 w-5" />
@@ -52,7 +52,7 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
   return (
     <div className="space-y-2 ">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="px-0 py-3 gap-3 border-0">
+        <Card className="px-0 py-3 gap-3 border-0 shadow-none">
           <CardHeader className="px-0">
             <CardTitle className="text-base flex items-center gap-2">
               <LiaPoopSolid className="h-5 w-5 stroke-[0.013rem]" />
@@ -86,7 +86,7 @@ export function HealthTab({ reptileDetails }: ReptileTabProps) {
           </CardContent>
         </Card>
       </div>
-      <Card className="px-0 gap-3 border-0">
+      <Card className="px-0 gap-3 border-0 shadow-none">
         <CardHeader className="px-0">
           <CardTitle className="text-base flex items-center gap-2">
             <Heart className="h-5 w-5" />
