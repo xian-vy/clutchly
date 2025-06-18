@@ -155,8 +155,8 @@ export function Navigation() {
         )}>
           <Image
             src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'}
-            width={37}
-            height={37}
+            width={40}
+            height={40}
             alt="clutchly"
             className="rounded-full"
           />
