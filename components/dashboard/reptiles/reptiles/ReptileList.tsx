@@ -17,6 +17,7 @@ import { generateReptilePDF } from "@/components/dashboard/reptiles/reptiles/det
 import { getReptileDetails } from "@/app/api/reptiles/reptileDetails";
 import { formatChartAmount, getSpeciesAbbreviation } from "@/lib/utils";
 import { Organization } from "@/lib/types/organizations";
+import { format } from "date-fns";
 
 export interface EnrichedReptile extends Reptile {
   species_name: string;
@@ -284,15 +285,15 @@ export function ReptileList({
       header: "Hatch",
       cell: ({ row }) => {
         const hatch = row.getValue("hatch_date") as string;
-        const year = hatch ? new Date(hatch).getFullYear() : "--";
+        const label = hatch ? format(new Date(hatch), 'MM/yy') : '--';
         return (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger className="truncate max-w-[85px]">
-                {year}
+                  {label}
               </TooltipTrigger>
               <TooltipContent>
-              <p>{hatch || "--"}</p>
+                  <p>{hatch ? format(new Date(hatch), 'MMM d, yyyy') : "Not Set"}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
