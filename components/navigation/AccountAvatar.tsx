@@ -73,7 +73,7 @@ const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
                                 }
                         </div>
                         {!isCollapsed &&
-                             <ChevronDown className="ml-4 !h-3 !w-3" />
+                             <ChevronDown className="ml-4 !h-3.5 !w-3.5" />
                         }
                     </div>
                 </Button>

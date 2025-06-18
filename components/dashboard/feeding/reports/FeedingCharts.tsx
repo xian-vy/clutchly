@@ -32,8 +32,9 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <Card className="col-span-2">
-        <CardHeader>
+        <CardHeader className='gap-1'>
           <CardTitle>Feeding Trends</CardTitle>
+          <p className='text-sm text-muted-foreground'>Feeding frequency over time</p>
         </CardHeader>
         <CardContent className="h-80 px-0 2xl:pl-2 2xl:pr-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -59,7 +60,8 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
                 label={{
                   value: 'Number of Feedings',
                   angle: -90,
-                  position: 'insideLeft',
+                  dx:-20,
+                  dy:0,
                   fontSize: screen === 'mobile' ? 10 : 13,
                   style: { fill: 'var(--color-muted-foreground)', display: screen === 'mobile' ? 'none' : 'block' }
                 }}
