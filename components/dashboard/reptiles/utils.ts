@@ -43,6 +43,50 @@ export const generateReptileCode = (
 };
 
 /**
+ * Generates a reptile name based on morph and traits following reptile hobby naming conventions
+ * Format: "Morph het trait1 het trait2 00035"
+ * 
+ * @param morphName - The name of the morph
+ * @param hetTraits - Array of het traits
+ * @param sequenceNumber - Optional sequence number to append
+ * @returns A formatted reptile name
+ */
+export const generateReptileName = (
+  morphName: string,
+  hetTraits: Array<{ trait: string; percentage: number }> = [],
+  sequenceNumber?: string
+): string => {
+  const parts: string[] = [];
+  
+  // Add morph name (capitalize first letter of each word)
+  if (morphName) {
+    const formattedMorph = morphName
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    parts.push(formattedMorph);
+  }
+  
+  // Add het traits (only if percentage > 0)
+  hetTraits
+    .filter(het => het.percentage > 0)
+    .forEach(het => {
+      const formattedHet = het.trait
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+      parts.push(`het ${formattedHet}`);
+    });
+  
+  // Add sequence number if provided
+  if (sequenceNumber) {
+    parts.push(sequenceNumber);
+  }
+  
+  return parts.join(' ');
+};
+
+/**
  * Extracts species code/initials from a species name
  * 
  * @param speciesName - The full species name
@@ -54,7 +98,4 @@ export const getSpeciesCode = (speciesName: string): string => {
     .map(word => word[0])
     .join('')
     .toUpperCase();
-};
-
-// Keeping the old function for backward compatibility, but making it use the new function
-export const generateReptileName = generateReptileCode; 
+}; 
