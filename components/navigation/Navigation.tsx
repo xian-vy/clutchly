@@ -15,7 +15,7 @@ import { Badge } from '../ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '../ui/scroll-area';
 import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Dot, Loader2, Menu } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Dot, Loader2, Menu } from 'lucide-react';
 import dynamic from 'next/dynamic'
 import { APP_NAME } from '@/lib/constants/app';
 import useAccessControl from '@/lib/hooks/useAccessControl';
@@ -155,15 +155,15 @@ export function Navigation() {
         )}>
           <Image
             src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'}
-            width={40}
-            height={40}
+            width={34}
+            height={34}
             alt="clutchly"
-            className="rounded-full"
+            className="rounded-full h-[34px] w-[34px] 3xl:!h-[40px] 3xl:!w-[40px]"
           />
           {!isCollapsed && (
             <div className="flex flex-col items-start">
                <span className="font-semibold text-base 3xl:text-lg text-sidebar-foreground">{APP_NAME}</span>
-               <span className="text-xs 3xl:text-[0.8rem] font-medium text-muted-foreground">Reptile Husbandry Management</span>
+               <span className="text-xs 2xl:text-[0.8rem] font-medium text-sidebar-foreground/70">Reptile Husbandry Management</span>
             </div>
           )}
         </div>
@@ -172,7 +172,7 @@ export function Navigation() {
             {Object.entries(groupedNavItems).map(([section, items]) => (
               <div key={section} className="space-y-1">
                 {!isCollapsed && section && (
-                  <h2 className="mb-2 px-3 text-xs sm:text-[0.8rem] 3xl:!text-sm font-semibold text-sidebar-foreground/60">
+                  <h2 className="mb-2 px-3 text-xs sm:text-[0.8rem] font-semibold text-sidebar-foreground/70">
                     {section}
                   </h2>
                 )}
@@ -197,12 +197,12 @@ export function Navigation() {
                     return (
                       <Collapsible 
                         key={item.name} 
-                        className="space-y-2"
+                        className="space-y-1 3xl:!space-y-2"
                         open={openSection === item.name}
                       >
                         <CollapsibleTrigger
                           className={cn(
-                            'relative flex w-full items-center  gap-3 rounded-lg text-[0.8rem] 3xl:!text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                            'relative flex w-full items-center  gap-3 rounded-lg text-[0.8rem] xl:text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
                             isCollapsed ? 'justify-center px-2' : 'px-3',
                             'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                           )}
@@ -213,7 +213,7 @@ export function Navigation() {
                               {!isCollapsed &&<span>{item.name}</span>}
                           </div>
                           {!isCollapsed && (
-                            openSection === item.name ? <ChevronUp className="!h-3.5 !w-3.5" /> : <ChevronDown className="!h-3.5 !w-3.5" />
+                            openSection === item.name ? <ChevronDown className="!h-4 !w-4" /> : <ChevronRight className="!h-4 !w-4" />
                           )}
                           
                         </CollapsibleTrigger>
@@ -227,7 +227,7 @@ export function Navigation() {
                                 : handleNavigation(subItem.href!)
                               }
                               className={cn(
-                                'relative flex items-center  gap-3 rounded-lg text-[0.8rem] 3xl:!text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                                'relative flex items-center  gap-3 rounded-lg text-[0.8rem] xl:text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
                                 isCollapsed ? 'justify-center px-2' : 'pl-3 pr-3',
                                 pathname === subItem.href
                                   ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
@@ -249,7 +249,7 @@ export function Navigation() {
                       key={item.href}
                       onClick={handleNavigation(item.href!)}
                       className={cn(
-                        'relative flex items-center gap-3 rounded-lg text-[0.8rem] 3xl:!text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
+                        'relative flex items-center gap-3 rounded-lg text-[0.8rem] xl:text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
                         isCollapsed ? 'justify-center px-2' : 'px-3',
                         pathname === item.href
                           ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
@@ -281,9 +281,9 @@ export function Navigation() {
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? (
-            <ChevronRight className="!h-3.5 !w-3.5" />
+            <ChevronRight className="!h-4 !w-4" />
           ) : (
-            <ChevronLeft className="!h-3.5 !w-3.5" />
+            <ChevronLeft className="!h-4 !w-4" />
           )}
         </Button>
        {dialogToOpen && <AddNewShortcut type={dialogToOpen} />}

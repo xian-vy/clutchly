@@ -8,7 +8,7 @@ import {
     Network,
     Package,
     Plus,
-    Settings,
+    Settings2,
     Sprout,
     Users2,
     Worm,
@@ -122,6 +122,12 @@ export interface NavItem {
     },
     {
       section: 'Health & Growth',
+      name: 'Feeding',
+      href: '/feeding',
+      icon: Worm,
+    },
+    {
+      section: 'Health & Growth',
       name: 'Shedding',
       href: '/shedding',
       icon: Sprout
@@ -144,17 +150,11 @@ export interface NavItem {
       href: '/growth',
       icon: LineChart,
     },
-    {
-      section: 'Health & Growth',
-      name: 'Feeding',
-      href: '/feeding',
-      icon: Worm,
-    },
    
     {
       section: 'System',
       name: 'Settings',
       href: '/settings',
-      icon: Settings,
+      icon: Settings2,
     },
   ];

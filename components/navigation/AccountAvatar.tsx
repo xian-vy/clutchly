@@ -9,7 +9,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-    ChevronDown,
+    ChevronsUpDown,
     LogOut,
     Moon,
     Sun
@@ -67,13 +67,13 @@ const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
                                 </Avatar>
                                 {!isCollapsed &&
                                     <div className="flex flex-col items-start">
-                                        <span className='text-xs 3xl:text-[0.8rem] capitalize'>{userFullname}</span>
-                                        <span className='text-xs 3xl:text-[0.8rem] text-muted-foreground'>{userEmail}</span>
+                                        <span className='text-xs 2xl:text-[0.8rem] capitalize'>{userFullname}</span>
+                                        <span className='text-xs 2xl:text-[0.8rem] text-muted-foreground'>{userEmail}</span>
                                     </div>
                                 }
                         </div>
                         {!isCollapsed &&
-                             <ChevronDown className="ml-4 !h-3.5 !w-3.5" />
+                             <ChevronsUpDown className="ml-4 !h-4 !w-4" />
                         }
                     </div>
                 </Button>
