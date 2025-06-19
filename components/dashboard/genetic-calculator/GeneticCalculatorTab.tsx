@@ -29,6 +29,9 @@ import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DonutChart } from './charts/DonutChart'
 import { Species } from '@/lib/types/species'
+import { Organization } from '@/lib/types/organizations'
+import { getOrganization } from '@/app/api/organizations/organizations'
+import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies'
 
 const GeneticCalculatorTab = () => {
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>( null)
@@ -44,14 +47,18 @@ const GeneticCalculatorTab = () => {
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-
+  const { data: organization } = useQuery<Organization>({
+    queryKey: ['organization2'],
+    queryFn: getOrganization
+  })
   const { selectedSpeciesId, maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
     reptiles,
     speciesId : selectedSpecies?.id.toString() || '',
   });
+  const sortedSpecies = useSortedSpecies(species, organization?.selected_species || []);
 
   const { Select: SpeciesSelect } = useSelectList({
-    data: species,
+    data: sortedSpecies,
     getValue: (species) => species.id.toString(),
     getLabel: (species) => species.name,
   })
@@ -145,16 +152,15 @@ const GeneticCalculatorTab = () => {
       </Alert>
 
       <Card className="p-6">
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-sm font-medium mb-2">Species</h3>
-            <SpeciesSelect
-              value={selectedSpeciesId}
-              onValueChange={handleSpeciesChange}
-              placeholder="Select species..."
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+            <div className='md:h-[120px]'>
+                <h3 className="text-sm font-medium mb-2">Species</h3>
+                <SpeciesSelect
+                  value={selectedSpeciesId}
+                  onValueChange={handleSpeciesChange}
+                  placeholder="Select species..."
+                />
+            </div>
             <div className='md:h-[120px]'>
               <h3 className="text-sm font-medium mb-2">Dam (F)</h3>
               <DamSelect
@@ -206,7 +212,6 @@ const GeneticCalculatorTab = () => {
               )}
             </Button>
           </div>
-        </div>
       </Card>
 
       {calculation?.error && (

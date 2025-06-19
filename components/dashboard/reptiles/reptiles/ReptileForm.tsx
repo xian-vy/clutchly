@@ -22,6 +22,7 @@ import { VisualTraitsForm } from './VisualTraitsForm'
 import { Organization } from '@/lib/types/organizations'
 import { Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
+import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies'
 
 interface EnrichedReptile extends Reptile {
   species_name?: string;
@@ -52,7 +53,8 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   }>>(initialData?.het_traits || []);
   const [isNameManuallyEdited, setIsNameManuallyEdited] = useState(false);
 
-  const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? species[0].id.toString() : '');
+  const sortedSpecies = useSortedSpecies(species, organization?.selected_species || []);
+  const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? sortedSpecies[0].id.toString() : '');
   const actualProfile = Array.isArray(organization) ? organization[0] : organization;
   const defaultBreeder = initialData?.original_breeder || actualProfile?.full_name || '';
 
@@ -153,7 +155,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   }, [morphId, hetTraits, form, morphsForSpecies, isNameManuallyEdited]);
 
   const { Select: SpeciesSelect } = useSelectList({
-    data: species,
+    data: sortedSpecies,
     getValue: (species) => species.id.toString(),
     getLabel: (species) => species.name,
   })

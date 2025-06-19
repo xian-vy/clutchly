@@ -32,6 +32,9 @@ import { useForm } from 'react-hook-form';
 import { AlertCircle } from 'lucide-react';
 import * as z from 'zod';
 import { useGroupedReptileByMorphSelect } from '@/lib/hooks/useGroupedReptileByMorphSelect';
+import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies';
+import { Organization } from '@/lib/types/organizations';
+import { getOrganization } from '@/app/api/organizations/organizations';
 
 const breedingStatuses: BreedingStatus[] = ['planned', 'active', 'completed', 'failed'];
 
@@ -83,12 +86,15 @@ export function BreedingProjectForm({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
-
+  const { data: organization } = useQuery<Organization>({
+    queryKey: ['organization2'],
+    queryFn: getOrganization
+  })
   const { species } = useSpeciesStore();
   const speciesId = form.watch('species_id');
   const maleId = form.watch('male_id');
   const femaleId = form.watch('female_id');
-  
+  const sortedSpecies = useSortedSpecies(species, organization?.selected_species || []);
   const { maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
     reptiles,
     speciesId : speciesId || '',
@@ -188,7 +194,7 @@ export function BreedingProjectForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {species.map((s) => (
+                    {sortedSpecies.map((s) => (
                       <SelectItem key={s.id} value={s.id.toString()}>
                         {s.name}
                       </SelectItem>
