@@ -9,12 +9,12 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { APP_NAME } from "@/lib/constants/app";
-import {  Plus, Share2, Smartphone, Laptop, LucideIcon, MonitorDown } from "lucide-react";
+import {  Plus, Share2, Smartphone, Laptop, LucideIcon, MonitorDown, EllipsisVertical } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RiAppleLine } from "react-icons/ri";
-import { RiMacbookLine } from "react-icons/ri";
 import { PiAndroidLogoBold } from "react-icons/pi";
-
+import { MdAddToHomeScreen } from "react-icons/md";
+import { RiWindowsLine } from "react-icons/ri";
 type Platform = 'ios' | 'android' | 'desktop' | 'mac';
 
 export function InstallDialog() {
@@ -55,15 +55,15 @@ export function InstallDialog() {
           steps: [
             { icon: null, text: "Open Chrome browser on your Android device" },
             { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
-            { icon: Share2, text: "Tap the three dots menu (⋮) in the top-right" },
-            { icon: Plus, text: "Select Install app from the menu" },
-            { icon: Smartphone, text: "Tap Install in the prompt" }
+            { icon: EllipsisVertical, text: "Tap the three dots menu in the top-right" },
+            { icon: MdAddToHomeScreen, text: "Select Install App or Add to Homescreen from the menu" },
+            { icon: null, text: "Tap Install in the prompt" }
           ]
         };
       case 'mac':
         return {
           title: "Mac Installation",
-          icon: RiMacbookLine,
+          icon: Laptop,
           steps: [
             { icon: null, text: "Open Safari browser on your Mac" },
             { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
@@ -75,12 +75,11 @@ export function InstallDialog() {
       default:
         return {
           title: "Windows Installation",
-          icon: Laptop,
+          icon: RiWindowsLine,
           steps: [
             { icon: null, text: "Open Chrome, Edge, Brave, or Firefox browser on your PC" },
             { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
             { icon: MonitorDown, text: "Look for the install icon in the URL bar" },
-            { icon: Plus, text: "Click the install icon" },
             { icon: Laptop, text: "Click Install in the prompt" }
           ]
         };
@@ -144,7 +143,7 @@ export function InstallDialog() {
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
                   <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
-                    <RiMacbookLine className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+                    <Laptop className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold">Mac</h3>
                 </div>
@@ -159,7 +158,7 @@ export function InstallDialog() {
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
                   <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
-                    <Laptop className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+                    <RiWindowsLine className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold">Windows</h3>
                 </div>
