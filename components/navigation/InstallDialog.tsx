@@ -9,10 +9,11 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { APP_NAME } from "@/lib/constants/app";
-import { Chrome, Plus, Share2, Smartphone, Laptop, LucideIcon, MonitorDown } from "lucide-react";
+import {  Plus, Share2, Smartphone, Laptop, LucideIcon, MonitorDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RiAppleLine } from "react-icons/ri";
 import { RiMacbookLine } from "react-icons/ri";
+import { PiAndroidLogoBold } from "react-icons/pi";
 
 type Platform = 'ios' | 'android' | 'desktop' | 'mac';
 
@@ -50,7 +51,7 @@ export function InstallDialog() {
       case 'android':
         return {
           title: "Android Installation",
-          icon: Chrome,
+          icon: PiAndroidLogoBold,
           steps: [
             { icon: null, text: "Open Chrome browser on your Android device" },
             { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
@@ -95,7 +96,7 @@ export function InstallDialog() {
         Install
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] md:max-w-[700px] 2xl:max-w-[900px] overflow-y-auto max-h-[90vh] p-4 sm:p-6">
-        <DialogHeader className="sm:space-y-2">
+        <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl md:text-2xl font-bold">Install {APP_NAME}</DialogTitle>
           </div>
@@ -104,11 +105,10 @@ export function InstallDialog() {
           </p>
         </DialogHeader>
         
-        <div className="grid gap-4 sm:gap-6">
           {/* Platform Selection Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
             <Card 
-              className={`relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors cursor-pointer ${selectedPlatform === 'ios' ? 'ring-2 ring-primary' : ''}`}
+              className={`py-1 relative overflow-hidden border bg-card  transition-colors cursor-pointer ${selectedPlatform === 'ios' ? 'border border-ring ring-ring/50 ring-[4px]' : ''}`}
               onClick={() => setSelectedPlatform('ios')}
             >
               <CardContent className="p-3 sm:p-4">
@@ -123,13 +123,13 @@ export function InstallDialog() {
             </Card>
 
             <Card 
-              className={`relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors cursor-pointer ${selectedPlatform === 'android' ? 'ring-2 ring-primary' : ''}`}
+              className={`py-1 relative overflow-hidden border bg-card  transition-colors cursor-pointer ${selectedPlatform === 'android' ? 'border border-ring ring-ring/50 ring-[4px]' : ''}`}
               onClick={() => setSelectedPlatform('android')}
             >
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
                   <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
-                    <Chrome className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+                    <PiAndroidLogoBold className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold">Android</h3>
                 </div>
@@ -138,7 +138,7 @@ export function InstallDialog() {
             </Card>
 
             <Card 
-              className={`relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors cursor-pointer ${selectedPlatform === 'mac' ? 'ring-2 ring-primary' : ''}`}
+              className={`py-1 relative overflow-hidden border bg-card  transition-colors cursor-pointer ${selectedPlatform === 'mac' ? 'border border-ring ring-ring/50 ring-[4px]' : ''}`}
               onClick={() => setSelectedPlatform('mac')}
             >
               <CardContent className="p-3 sm:p-4">
@@ -153,7 +153,7 @@ export function InstallDialog() {
             </Card>
 
             <Card 
-              className={`relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors cursor-pointer ${selectedPlatform === 'desktop' ? 'ring-2 ring-primary' : ''}`}
+              className={`py-1 relative overflow-hidden border bg-card  transition-colors cursor-pointer ${selectedPlatform === 'desktop' ? 'border border-ring ring-ring/50 ring-[4px]' : ''}`}
               onClick={() => setSelectedPlatform('desktop')}
             >
               <CardContent className="p-3 sm:p-4">
@@ -170,16 +170,16 @@ export function InstallDialog() {
 
           {/* Instructions Card */}
           {instructions && (
-            <Card className="relative overflow-hidden border bg-card hover:bg-accent/50 transition-colors">
+            <Card className="relative overflow-hidden border bg-card  transition-colors pt-0">
               <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-5">
+                <div className="flex items-center gap-3 sm:gap-4 mb-3 ">
                   <div className="p-2 rounded-full bg-primary/10">
                     {Icon && <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
                   </div>
                   <h3 className="text-lg sm:text-xl font-semibold">{instructions.title}</h3>
                 </div>
                 
-                <div className="space-y-3 sm:space-y-6">
+                <div className="space-y-3 sm:space-y-4">
                   <p className="text-sm text-muted-foreground">Follow these steps on your device:</p>
                   <div className="space-y-3 sm:space-y-5">
                     {instructions.steps.map((step, index) => (
@@ -198,7 +198,6 @@ export function InstallDialog() {
               </CardContent>
             </Card>
           )}
-        </div>
       </DialogContent>
     </Dialog>
   );
