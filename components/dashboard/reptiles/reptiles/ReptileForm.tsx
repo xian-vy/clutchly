@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
 import { useSelectList } from '@/lib/hooks/useSelectList'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
-import { NewReptile, Reptile, Sex } from '@/lib/types/reptile'
+import { NewReptile, Reptile, reptileFormSchema, Sex } from '@/lib/types/reptile'
 import { generateReptileCode, generateReptileName, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
@@ -22,33 +22,8 @@ import { VisualTraitsForm } from './VisualTraitsForm'
 import { Organization } from '@/lib/types/organizations'
 import { Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
+import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies'
 
-const formSchema = z.object({
-  name: z.string().nullable(),
-  reptile_code: z.string().nullable(),
-  species_id: z.string().min(1, 'Species is required'),
-  morph_id: z.string().min(1, 'Morph is required'),
-  sex: z.enum(['male', 'female', 'unknown'] as const),
-  hatch_date: z.string().nullable(),
-  acquisition_date: z.string().min(1, 'Acquisition date is required'),
-  status: z.enum(['active', 'sold', 'deceased'] as const),
-  notes: z.string().nullable(),
-  dam_id: z.string().nullable(),
-  sire_id: z.string().nullable(),
-  weight: z.coerce.number().min(0, 'Weight must be a positive number'),
-  length: z.coerce.number().min(0, 'Length must be a positive number'),
-  visual_traits: z.array(z.string()).nullable(),
-  het_traits: z.array(z.object({
-    trait: z.string(),
-    percentage: z.number().min(0).max(100),
-    source: z.enum(['visual_parent', 'genetic_test', 'breeding_odds']).optional(),
-    verified: z.boolean().optional()
-  })).nullable(),
-  location_id: z.string().nullable(),
-  original_breeder : z.string().nullable(),
-  price: z.coerce.number().min(0, 'Price must be a positive number').nullable(),})
-
-// Extended Reptile type with species_name and morph_name
 interface EnrichedReptile extends Reptile {
   species_name?: string;
   morph_name?: string;
@@ -62,14 +37,13 @@ interface ReptileFormProps {
 }
 
 export function ReptileForm({ initialData, onSubmit, onCancel,organization }: ReptileFormProps) {
-  const { species, fetchSpecies } = useSpeciesStore()
+  const { species } = useSpeciesStore()
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
   
-  // State for managing visual traits and het traits
   const [visualTraits, setVisualTraits] = useState<string[]>(initialData?.visual_traits || []);
   const [hetTraits, setHetTraits] = useState<Array<{
     trait: string;
@@ -79,13 +53,13 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   }>>(initialData?.het_traits || []);
   const [isNameManuallyEdited, setIsNameManuallyEdited] = useState(false);
 
-  // Initialize form with default values, preselecting first species and morph if no initialData
-  const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? species[0].id.toString() : '');
+  const sortedSpecies = useSortedSpecies(species, organization?.selected_species || []);
+  const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? sortedSpecies[0].id.toString() : '');
   const actualProfile = Array.isArray(organization) ? organization[0] : organization;
   const defaultBreeder = initialData?.original_breeder || actualProfile?.full_name || '';
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof reptileFormSchema>>({
+    resolver: zodResolver(reptileFormSchema),
     defaultValues: {
       name: initialData?.name || '',
       reptile_code: initialData?.reptile_code || null,
@@ -109,11 +83,9 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   });
   const isSubmitting = form.formState.isSubmitting;
 
-  // Handle form submission
-  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (data: z.infer<typeof reptileFormSchema>) => {
     const formattedData = {
       ...data,
-      // If name is empty, use reptile_code as name
       name: data.name || data.reptile_code || '',
       hatch_date: data.hatch_date || null,
       notes: data.notes || null,
@@ -123,13 +95,6 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
     }
     await onSubmit(formattedData)
   }
-
-  useEffect(() => {
-    // Fetch species if not already loaded
-    if (species.length === 0) {
-      fetchSpecies()
-    }
-  }, [species.length, fetchSpecies])
 
   const speciesId = form.watch('species_id');
   const morphId = form.watch('morph_id');
@@ -150,16 +115,13 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
 
   // Auto-generate reptile code when relevant fields change
   useEffect(() => {
-    // Only auto-generate code for new reptiles (not when editing)
     if (initialData) return;
     
     const selectedSpecies = species.find(s => s.id.toString() === speciesId);
     const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
     
     if (selectedSpecies && selectedMorph) {
-      // Use utility function to get species code
       const speciesCode = getSpeciesCode(selectedSpecies.name);
-      
       
       const generatedCode = generateReptileCode(
         reptiles,
@@ -175,13 +137,11 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
 
   // Auto-generate reptile name when relevant fields change
   useEffect(() => {
-    // Don't auto-generate if user has manually edited the name
     if (isNameManuallyEdited) return;
     
     const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
     if (!selectedMorph) return;
     
-    // Get sequence number from reptile code
     const reptileCode = form.getValues('reptile_code');
     const sequenceNumber = reptileCode ? reptileCode.split('-')[0] : '';
     
@@ -195,7 +155,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   }, [morphId, hetTraits, form, morphsForSpecies, isNameManuallyEdited]);
 
   const { Select: SpeciesSelect } = useSelectList({
-    data: species,
+    data: sortedSpecies,
     getValue: (species) => species.id.toString(),
     getLabel: (species) => species.name,
   })
