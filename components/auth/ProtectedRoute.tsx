@@ -34,10 +34,17 @@ export default function ProtectedRoute({ children, pageName }: ProtectedRoutePro
   const pageId = pages.find(p => p.name.toLowerCase() === pageName.toLowerCase())?.id ;
 
   useEffect(() => {
+    // Special case: Only org owners can access Users page
+    if (pageName.toLowerCase() === 'users') {
+      if (!userLoading && !pagesLoading && user && !(user.id === user.org_id)) {
+        router.push('/');
+      }
+      return;
+    }
     if (!userLoading && !accessLoading && !pagesLoading && !hasAccess(pageId, 'view')) {
       router.push('/'); // Redirect to home page if no access
     }
-  }, [userLoading, accessLoading, hasAccess, pagesLoading, router, pageId]);
+  }, [userLoading, accessLoading, hasAccess, pagesLoading, router, pageId, user, pageName]);
 
   if (userLoading || accessLoading || pagesLoading) {
     return (
@@ -46,8 +53,12 @@ export default function ProtectedRoute({ children, pageName }: ProtectedRoutePro
       </div>
     );
   }
-  if (!pageId) return null;
-  if (!hasAccess(pageId, 'view')) {
+  // Special case: Only org owners can access Users page
+  if (pageName.toLowerCase() === 'users' && user && !(user.id === user.org_id)) {
+    return null;
+  }
+  if (!pageId && pageName.toLowerCase() !== 'users') return null;
+  if (!hasAccess(pageId, 'view') && pageName.toLowerCase() !== 'users') {
     return null; // Don't render anything while redirecting
   }
 

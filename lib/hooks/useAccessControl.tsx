@@ -72,8 +72,8 @@ const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
     // If still loading, show nothing
     if (profilesLoading || pagesLoading) return [];
 
-    // Admin users and organization owners see all items
-    if (user?.role === 'admin' || (user && user.id === user.org_id)) {
+    //  organization owners see all items
+    if (user && user.id === user.org_id) {
       return items;
     }
 
@@ -83,6 +83,10 @@ const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
     return items.filter(item => {
       // Always show Overview page
       if (item.name.toLowerCase() === 'overview') return true;
+      // Show settings to admin
+      if (item.name.toLowerCase() === 'settings' && user.role === 'admin') return true;
+      // Special case: Only org owners can see Users page
+      if (item.name.toLowerCase() === 'users') return user && user.id === user.org_id;
 
       // Find the page corresponding to the current navigation item
       const itemPage = pages.find(p => 
