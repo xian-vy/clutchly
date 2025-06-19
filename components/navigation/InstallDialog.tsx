@@ -9,8 +9,10 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { APP_NAME } from "@/lib/constants/app";
-import { Chrome, Plus, Share2, Smartphone, Laptop, Apple, LucideIcon, MonitorDown } from "lucide-react";
+import { Chrome, Plus, Share2, Smartphone, Laptop, LucideIcon, MonitorDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import { RiAppleLine } from "react-icons/ri";
+import { RiMacbookLine } from "react-icons/ri";
 
 type Platform = 'ios' | 'android' | 'desktop' | 'mac';
 
@@ -36,7 +38,7 @@ export function InstallDialog() {
       case 'ios':
         return {
           title: "iOS Installation",
-          icon: Apple,
+          icon: RiAppleLine,
           steps: [
             { icon: null, text: "Open Safari browser on your iPhone or iPad" },
             { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
@@ -60,7 +62,7 @@ export function InstallDialog() {
       case 'mac':
         return {
           title: "Mac Installation",
-          icon: Apple,
+          icon: RiMacbookLine,
           steps: [
             { icon: null, text: "Open Safari browser on your Mac" },
             { icon: null, text: "Visit Clutchly website (clutchly.vercel.app)" },
@@ -112,7 +114,7 @@ export function InstallDialog() {
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
                   <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
-                    <Apple className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+                    <RiAppleLine className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold">iOS</h3>
                 </div>
@@ -142,7 +144,7 @@ export function InstallDialog() {
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
                   <div className="p-1.5 sm:p-2 rounded-full bg-primary/10">
-                    <Apple className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+                    <RiMacbookLine className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold">Mac</h3>
                 </div>
