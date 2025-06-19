@@ -180,6 +180,14 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                   <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0.1} />
                 </linearGradient>
               </defs>
+              <Bar
+                yAxisId="left"
+                dataKey="value"
+                fill="var(--color-chart-1)"
+                name="value"
+                maxBarSize={25}
+                radius={[4, 4, 0, 0]}
+              />
               <Area
                 type="monotone"
                 dataKey="count"
@@ -189,15 +197,9 @@ export function ReptileCharts({ data }: ReptileChartsProps) {
                 fillOpacity={0.2}
                 strokeWidth={1.5}
                 yAxisId="right"
+                dot
               />
-              <Bar
-                yAxisId="left"
-                dataKey="value"
-                fill="var(--color-chart-1)"
-                name="value"
-                maxBarSize={25}
-                radius={[4, 4, 0, 0]}
-              />
+             
             </ComposedChart>
           </ResponsiveContainer>
         </CardContent>

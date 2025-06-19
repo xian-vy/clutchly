@@ -9,6 +9,8 @@ import { Edit, MoreHorizontal, Trash2, Mail, Crown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getAccessProfiles } from '@/app/api/users/access';
 import { AccessProfile } from '@/lib/types/access';
+import { USER_STATUS_COLORS } from '@/lib/constants/colors';
+import { Badge } from '@/components/ui/badge';
 
 // Supabase email confirmation expiration is 24 hours
 const EMAIL_CONFIRMATION_EXPIRATION_MS = 24 * 60 * 60 * 1000;
@@ -53,7 +55,7 @@ export function UserList({ users, onEdit, onDelete, onAddNew, onResendConfirmati
         const isOrganizationOwner = user.id === organizationId;
         return (
         <div className="flex items-center gap-2 capitalize">
-          {isOrganizationOwner && <Crown className='w-4 h-4 text-yellow-600' />}
+          {isOrganizationOwner && <Crown className='w-4 h-4 text-primary' />}
           { user.full_name}
           </div>
         )
@@ -88,9 +90,9 @@ export function UserList({ users, onEdit, onDelete, onAddNew, onResendConfirmati
         
         return (
           <div className="flex items-center gap-2">
-            <div className={`capitalize ${status === 'active' ? 'text-green-500' : 'text-orange-500'}`}>
-              {status === 'active' ? 'Active' : "Pending Email Confirmation"}
-            </div>
+            <Badge variant="custom"  className={`${USER_STATUS_COLORS[status.toLowerCase() as keyof typeof USER_STATUS_COLORS]} capitalize`} >
+            {status}
+           </Badge>
             {isExpired && (
               <Button
                 variant="outline"
