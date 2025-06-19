@@ -95,10 +95,10 @@ export function useGroupedReptileByMorphSelect({ filteredReptiles,disabled }: Pr
                       onSelect={() => setExpandedSpecies(
                         expandedSpecies === group.label ? null : group.label
                       )}
-                      className="cursor-pointer font-medium"
+                      className="cursor-pointer font-medium group"
                     >
                       <ChevronsUpDown className={cn(
-                        "mr-2 h-4 w-4 shrink-0 transition-transform",
+                        "mr-2 h-4 w-4 shrink-0 transition-transform group-hover:text-white",
                         expandedSpecies === group.label ? "rotate-180" : ""
                       )} />
                       {group.label}
