@@ -1,12 +1,12 @@
 'use client';
 
-import { Building, Home, Trophy, Medal } from 'lucide-react';
-import { UseFormReturn } from 'react-hook-form';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { ProfileFormValues } from './OrganizationSetupDialog';
+import { Card, CardContent } from '@/components/ui/card';
 import { FormField } from '@/components/ui/form';
+import { cn } from '@/lib/utils';
+import { Building, CheckCircle, Home, Trophy } from 'lucide-react';
+import { UseFormReturn } from 'react-hook-form';
+import { ProfileFormValues } from './OrganizationSetupDialog';
 
 interface ProfileStep2Props {
   form: UseFormReturn<ProfileFormValues>;
@@ -29,7 +29,7 @@ export function Step2({ form, onNext, onPrev }: ProfileStep2Props) {
               <AccountTypeCard 
                 title="Keeper"
                 description="Manage personal collection"
-                icon={<Home className="h-7 w-7 mb-2 text-primary" />}
+                icon={<Home className="h-5 w-5 text-primary" />}
                 selected={field.value === 'keeper'}
                 onClick={() => field.onChange('keeper')}
               />
@@ -37,7 +37,7 @@ export function Step2({ form, onNext, onPrev }: ProfileStep2Props) {
               <AccountTypeCard 
                 title="Breeder"
                 description="Track breeding projects and genetics"
-                icon={<Trophy className="h-7 w-7 mb-2 text-primary" />}
+                icon={<Trophy className="h-5 w-5 text-primary" />}
                 selected={field.value === 'breeder'}
                 onClick={() => field.onChange('breeder')}
               />
@@ -45,7 +45,7 @@ export function Step2({ form, onNext, onPrev }: ProfileStep2Props) {
               <AccountTypeCard 
                 title="Facility"
                 description="Manage multiple collections and teams"
-                icon={<Building className="h-7 w-7 mb-2 text-primary" />}
+                icon={<Building className="h-5 w-5 text-primary" />}
                 selected={field.value === 'facility'}
                 onClick={() => field.onChange('facility')}
               />
@@ -102,15 +102,15 @@ function AccountTypeCard({
     >
       <CardContent className="flex items-center p-4">
         <div className={cn(
-          "flex items-center justify-center w-14 h-14 rounded-full mr-4",
+          "flex items-center justify-center w-10 h-10 rounded-full mr-4",
           selected ? "bg-primary/10" : "bg-muted"
         )}>
           {icon}
         </div>
         <div className="flex-1">
-          <div className="text-lg font-medium flex items-center">
+          <div className="text-sm font-medium flex items-center">
             {title}
-            {selected && <Medal className="h-4 w-4 ml-2 text-primary" />}
+            {selected && <CheckCircle className="h-4 w-4 ml-2 text-primary" />}
           </div>
           <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
         </div>

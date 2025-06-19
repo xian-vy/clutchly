@@ -99,7 +99,6 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
         onSubmit={(e) => {
           console.log('Form submission attempted');
           console.log('Form errors:', form.formState.errors);
-          console.log('Form values:', form.getValues());
           form.handleSubmit(handleSubmit)(e);
         }} 
         className="space-y-4"
