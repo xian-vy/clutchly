@@ -50,18 +50,33 @@ export function Step1({ form, onNext }: ProfileStep1Props) {
             </FormLabel>
             <FormControl>
               <Input
-                type="number"
-                min="0"
+                type="text"
                 max={MAX_PROFILE_COLLECTION_SIZE}
                 placeholder="Number of animals"
                 className="w-full transition-all border-input/50 focus:border-primary/50 text-base py-6"
                 value={field.value || ''}
                 onChange={(e) => {
-                  const value = parseInt(e.target.value);
-                  if (!e.target.value) {
-                    field.onChange(null);
-                  } else if (value >= 0 && value <= MAX_PROFILE_COLLECTION_SIZE) {
-                    field.onChange(value);
+                  const val = e.target.value;
+                  // Allow empty input
+                  if (val === '') {
+                    field.onChange(0);
+                    return;
+                  }
+                  // Check if value is only digits
+                  if (/^\d+$/.test(val)) {
+                    const number = parseInt(val, 10);
+                    if (number <= MAX_PROFILE_COLLECTION_SIZE) {
+                      field.onChange(number);
+                    }
+                  }
+                }}
+                onKeyDown={(e) => {
+                  // Disallow non-numeric characters (except backspace/delete/tab/arrow keys)
+                  if (
+                    !/[0-9]/.test(e.key) &&
+                    !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)
+                  ) {
+                    e.preventDefault();
                   }
                 }}
               />

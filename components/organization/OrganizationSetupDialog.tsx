@@ -235,7 +235,7 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
         </div>
         
         <DialogHeader className="p-6 pb-3">
-          <DialogTitle className="!text-2xl md:!text-3xl font-bold text-center flex items-center justify-center gap-2">
+          <DialogTitle className="!text-xl md:!text-2xl font-bold text-center flex items-center justify-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             Welcome to {APP_NAME}
             <Sparkles className="h-5 w-5 text-primary" />
