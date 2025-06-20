@@ -528,6 +528,7 @@ export function ReptileList({
         open={isBatchDialogOpen}
         onOpenChange={setIsBatchDialogOpen}
         reptiles={selectedReptiles}
+        allReptiles={reptiles}
         onSuccess={() => {
           setIsBatchDialogOpen(false);
           setSelectedReptiles([]);
