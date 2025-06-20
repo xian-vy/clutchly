@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { VisualTraitsForm } from './VisualTraitsForm';
 import { HetTraitsForm } from './HetTraitsForm';
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies';
+import { useSelectList } from '@/lib/hooks/useSelectList';
 
 interface BatchUpdateDialogProps {
   open: boolean;
@@ -83,17 +84,16 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
 
   // useSelectList for parent selects
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { useSelectList } = require('@/lib/hooks/useSelectList');
   const { Select: SireSelect } = useSelectList({
     data: maleReptiles,
-    getValue: (r: any) => r.id.toString(),
-    getLabel: (r: any) => r.name,
+    getValue: (r) => r.id.toString(),
+    getLabel: (r) => r.name,
     disabled: !fields.sire_id || !isSingleSpecies,
   });
   const { Select: DamSelect } = useSelectList({
     data: femaleReptiles,
-    getValue: (r: any) => r.id.toString(),
-    getLabel: (r: any) => r.name,
+    getValue: (r) => r.id.toString(),
+    getLabel: (r) => r.name,
     disabled: !fields.dam_id || !isSingleSpecies,
   });
 
@@ -186,7 +186,6 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
                       value={values.dam_id || ''}
                       onValueChange={(v: string) => handleValueChange('dam_id', v)}
                       placeholder={isSingleSpecies ? "Select Dam" : "Select single species"}
-                      disabled={!fields.dam_id || !isSingleSpecies}
                     />
                   </div>
                 </div>
@@ -199,7 +198,6 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
                       value={values.sire_id || ''}
                       onValueChange={(v: string) => handleValueChange('sire_id', v)}
                       placeholder={isSingleSpecies ? "Select Sire" : "Select single species"}
-                      disabled={!fields.sire_id || !isSingleSpecies}
                     />
                   </div>
                 </div>              
