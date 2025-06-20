@@ -12,6 +12,9 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import * as Select from '@/components/ui/select';
 import { Sex, HetTrait, NewReptile } from '@/lib/types/reptile';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { VisualTraitsForm } from './VisualTraitsForm';
+import { HetTraitsForm } from './HetTraitsForm';
 
 interface BatchUpdateDialogProps {
   open: boolean;
@@ -61,6 +64,7 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, onSuccess }: B
   });
   const [loading, setLoading] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('fields');
 
   // Update handler signatures to use correct types
   const handleFieldToggle = (field: keyof BatchFieldToggles) => {
@@ -118,128 +122,133 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, onSuccess }: B
             <AlertDescription>
               Select which fields you want to update for all selected reptiles by checking the boxes. Only checked fields will be changed.
             </AlertDescription>
-          </Alert>     
+          </Alert>
 
-          {/* Fields to Update Section */}
-          <div>
-            <div  className='grid grid-cols-2 gap-3 sm:gap-4'>
-              {/* Sex */}
-              <div className="flex items-start gap-3">
-                <Checkbox id="batch-sex" checked={fields.sex} onCheckedChange={() => handleFieldToggle('sex')} className="mt-2" />
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="batch-sex" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Sex</Label>
-                  <Select.Select value={values.sex} onValueChange={v => handleValueChange('sex', v as Sex)} disabled={!fields.sex}>
-                    <Select.SelectTrigger className="w-32" disabled={!fields.sex}>
-                      <Select.SelectValue placeholder="Select sex" />
-                    </Select.SelectTrigger>
-                    <Select.SelectContent>
-                      <Select.SelectItem value="male">Male</Select.SelectItem>
-                      <Select.SelectItem value="female">Female</Select.SelectItem>
-                      <Select.SelectItem value="unknown">Unknown</Select.SelectItem>
-                    </Select.SelectContent>
-                  </Select.Select>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList>
+              <TabsTrigger value="fields">Fields</TabsTrigger>
+              <TabsTrigger value="visual_traits">Visual Traits</TabsTrigger>
+              <TabsTrigger value="het_traits">Het Traits</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="fields">
+              <div className='grid grid-cols-2 gap-3 sm:gap-4'>
+                {/* Sex */}
+                <div className="flex items-start gap-3">
+                  <Checkbox id="batch-sex" checked={fields.sex} onCheckedChange={() => handleFieldToggle('sex')} className="mt-2" />
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch-sex" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Sex</Label>
+                    <Select.Select value={values.sex} onValueChange={v => handleValueChange('sex', v as Sex)} disabled={!fields.sex}>
+                      <Select.SelectTrigger className="w-32" disabled={!fields.sex}>
+                        <Select.SelectValue placeholder="Select sex" />
+                      </Select.SelectTrigger>
+                      <Select.SelectContent>
+                        <Select.SelectItem value="male">Male</Select.SelectItem>
+                        <Select.SelectItem value="female">Female</Select.SelectItem>
+                        <Select.SelectItem value="unknown">Unknown</Select.SelectItem>
+                      </Select.SelectContent>
+                    </Select.Select>
+                  </div>
+                </div>
+                {/* Dam */}
+                <div className="flex items-start gap-3">
+                  <Checkbox id="batch-dam" checked={fields.dam_id} onCheckedChange={() => handleFieldToggle('dam_id')} className="mt-2" />
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch-dam" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Dam (Mother)</Label>
+                    <Input
+                      disabled={!fields.dam_id}
+                      value={values.dam_id || ''}
+                      onChange={e => handleValueChange('dam_id', e.target.value as string | null)}
+                      className="w-40"
+                      placeholder="Dam ID"
+                    />
+                  </div>
+                </div>
+                {/* Sire */}
+                <div className="flex items-start gap-3">
+                  <Checkbox id="batch-sire" checked={fields.sire_id} onCheckedChange={() => handleFieldToggle('sire_id')} className="mt-2" />
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch-sire" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Sire (Father)</Label>
+                    <Input
+                      disabled={!fields.sire_id}
+                      value={values.sire_id || ''}
+                      onChange={e => handleValueChange('sire_id', e.target.value as string | null)}
+                      className="w-40"
+                      placeholder="Sire ID"
+                    />
+                  </div>
+                </div>
+                {/* Acquisition Date */}
+                <div className="flex items-start gap-3">
+                  <Checkbox id="batch-acq" checked={fields.acquisition_date} onCheckedChange={() => handleFieldToggle('acquisition_date')} className="mt-2" />
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch-acq" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Acquisition Date</Label>
+                    <Input
+                      disabled={!fields.acquisition_date}
+                      type="date"
+                      value={values.acquisition_date}
+                      onChange={e => handleValueChange('acquisition_date', e.target.value)}
+                      className="w-40"
+                    />
+                  </div>
+                </div>
+                {/* Hatch Date */}
+                <div className="flex items-start gap-3">
+                  <Checkbox id="batch-hatch" checked={fields.hatch_date} onCheckedChange={() => handleFieldToggle('hatch_date')} className="mt-2" />
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch-hatch" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Hatch Date</Label>
+                    <Input
+                      disabled={!fields.hatch_date}
+                      type="date"
+                      value={values.hatch_date || ''}
+                      onChange={e => handleValueChange('hatch_date', e.target.value as string | null)}
+                      className="w-40"
+                    />
+                  </div>
+                </div>
+                {/* Original Breeder */}
+                <div className="flex items-start gap-3">
+                  <Checkbox id="batch-breeder" checked={fields.original_breeder} onCheckedChange={() => handleFieldToggle('original_breeder')} className="mt-2" />
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch-breeder" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Original Breeder</Label>
+                    <Input
+                      disabled={!fields.original_breeder}
+                      value={values.original_breeder || ''}
+                      onChange={e => handleValueChange('original_breeder', e.target.value)}
+                      className="w-40"
+                      placeholder="Original Breeder"
+                    />
+                  </div>
                 </div>
               </div>
-              {/* Dam */}
-              <div className="flex items-start gap-3">
-                <Checkbox id="batch-dam" checked={fields.dam_id} onCheckedChange={() => handleFieldToggle('dam_id')} className="mt-2" />
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="batch-dam" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Dam (Mother)</Label>
-                  <Input
-                    disabled={!fields.dam_id}
-                    value={values.dam_id || ''}
-                    onChange={e => handleValueChange('dam_id', e.target.value as string | null)}
-                    className="w-40"
-                    placeholder="Dam ID"
-                  />
-                </div>
+            </TabsContent>
+
+            <TabsContent value="visual_traits">
+              <div className="mb-2 flex items-center justify-end w-full gap-2">
+                <Checkbox id="batch-visual" checked={fields.visual_traits} onCheckedChange={() => handleFieldToggle('visual_traits')} />
+                <Label htmlFor="batch-visual" >Update Visual Traits</Label>
               </div>
-              {/* Sire */}
-              <div className="flex items-start gap-3">
-                <Checkbox id="batch-sire" checked={fields.sire_id} onCheckedChange={() => handleFieldToggle('sire_id')} className="mt-2" />
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="batch-sire" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Sire (Father)</Label>
-                  <Input
-                    disabled={!fields.sire_id}
-                    value={values.sire_id || ''}
-                    onChange={e => handleValueChange('sire_id', e.target.value as string | null)}
-                    className="w-40"
-                    placeholder="Sire ID"
-                  />
-                </div>
+              <div className={fields.visual_traits ? '' : 'opacity-50 pointer-events-none'}>
+                <VisualTraitsForm
+                  initialTraits={values.visual_traits || []}
+                  onChange={traits => handleValueChange('visual_traits', traits.length > 0 ? traits : null)}
+                />
               </div>
-              {/* Acquisition Date */}
-              <div className="flex items-start gap-3">
-                <Checkbox id="batch-acq" checked={fields.acquisition_date} onCheckedChange={() => handleFieldToggle('acquisition_date')} className="mt-2" />
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="batch-acq" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Acquisition Date</Label>
-                  <Input
-                    disabled={!fields.acquisition_date}
-                    type="date"
-                    value={values.acquisition_date}
-                    onChange={e => handleValueChange('acquisition_date', e.target.value)}
-                    className="w-40"
-                  />
-                </div>
+            </TabsContent>
+
+            <TabsContent value="het_traits">
+              <div className="mb-2 flex items-center justify-end w-full gap-2">
+                <Checkbox id="batch-het" checked={fields.het_traits} onCheckedChange={() => handleFieldToggle('het_traits')} />
+                <Label htmlFor="batch-het">Update Het Traits </Label>
               </div>
-              {/* Hatch Date */}
-              <div className="flex items-start gap-3">
-                <Checkbox id="batch-hatch" checked={fields.hatch_date} onCheckedChange={() => handleFieldToggle('hatch_date')} className="mt-2" />
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="batch-hatch" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Hatch Date</Label>
-                  <Input
-                    disabled={!fields.hatch_date}
-                    type="date"
-                    value={values.hatch_date || ''}
-                    onChange={e => handleValueChange('hatch_date', e.target.value as string | null)}
-                    className="w-40"
-                  />
-                </div>
+              <div className={fields.het_traits ? '' : 'opacity-50 pointer-events-none'}>
+                <HetTraitsForm
+                  initialTraits={values.het_traits || []}
+                  onChange={traits => handleValueChange('het_traits', traits.length > 0 ? traits : null)}
+                />
               </div>
-              {/* Original Breeder */}
-              <div className="flex items-start gap-3">
-                <Checkbox id="batch-breeder" checked={fields.original_breeder} onCheckedChange={() => handleFieldToggle('original_breeder')} className="mt-2" />
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="batch-breeder" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Original Breeder</Label>
-                  <Input
-                    disabled={!fields.original_breeder}
-                    value={values.original_breeder || ''}
-                    onChange={e => handleValueChange('original_breeder', e.target.value)}
-                    className="w-40"
-                    placeholder="Original Breeder"
-                  />
-                </div>
-              </div>
-              {/* Visual Traits */}
-              <div className="flex items-start gap-3">
-                <Checkbox id="batch-visual" checked={fields.visual_traits} onCheckedChange={() => handleFieldToggle('visual_traits')} className="mt-2" />
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="batch-visual" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Visual Traits</Label>
-                  <Input
-                    disabled={!fields.visual_traits}
-                    value={values.visual_traits ? values.visual_traits.join(', ') : ''}
-                    onChange={e => handleValueChange('visual_traits', e.target.value ? e.target.value.split(',').map(s => s.trim()).filter(Boolean) : null)}
-                    className="w-40"
-                    placeholder="Trait1, Trait2"
-                  />
-                </div>
-              </div>
-              {/* Het Traits */}
-              <div className="flex items-start gap-3">
-                <Checkbox id="batch-het" checked={fields.het_traits} onCheckedChange={() => handleFieldToggle('het_traits')} className="mt-2" />
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor="batch-het" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Het Traits</Label>
-                  <Input
-                    disabled={!fields.het_traits}
-                    value={values.het_traits ? values.het_traits.map(ht => ht.trait).join(', ') : ''}
-                    onChange={e => handleValueChange('het_traits', e.target.value ? e.target.value.split(',').map(s => ({ trait: s.trim(), percentage: 100 })) : null)}
-                    className="w-40"
-                    placeholder="Trait1, Trait2"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
 
           {/* Actions */}
           <div className="flex justify-between  mt-4">
