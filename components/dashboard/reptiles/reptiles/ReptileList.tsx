@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import {  STATUS_COLORS, YES_NO_COLORS } from "@/lib/constants/colors";
 import { Reptile } from "@/lib/types/reptile";
 import { ColumnDef } from "@tanstack/react-table";
-import { CircleHelp, Edit, Eye, Filter, MapPin, Mars, MoreHorizontal, Printer, Trash, Venus } from "lucide-react";
+import { CircleHelp, Edit, Eye, Filter, MapPin, Mars, MoreHorizontal, Printer, SquarePen, Trash, Venus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ReptileFilterDialog, ReptileFilters } from "./ReptileFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -18,6 +18,7 @@ import { getReptileDetails } from "@/app/api/reptiles/reptileDetails";
 import { formatChartAmount, getSpeciesAbbreviation } from "@/lib/utils";
 import { Organization } from "@/lib/types/organizations";
 import { format } from "date-fns";
+import { BatchUpdateDialog } from "./BatchUpdateDialog";
 
 export interface EnrichedReptile extends Reptile {
   species_name: string;
@@ -50,6 +51,8 @@ export function ReptileList({
   const [selectedReptile, setSelectedReptile] = useState<EnrichedReptile>({} as EnrichedReptile)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [selectedReptiles, setSelectedReptiles] = useState<EnrichedReptile[]>([]);
+  const [isBatchDialogOpen, setIsBatchDialogOpen] = useState(false);
 
   // Apply filters to the reptiles list
   const filteredReptiles = useMemo(() => {
@@ -471,6 +474,19 @@ export function ReptileList({
     </Button>
   );
 
+  // Batch update button
+  const batchActions = (
+    <Button
+      variant="default"
+      size="sm"
+      onClick={() => setIsBatchDialogOpen(true)}
+      disabled={selectedReptiles.length === 0}
+    >
+      Edit Selected ({selectedReptiles.length})
+      <SquarePen className="w-4 h-4" />
+    </Button>
+  );
+
   return (
     <>
       <DataTable 
@@ -480,6 +496,8 @@ export function ReptileList({
         filterButton={<CustomFilterButton />}
         onImport={() => setIsImportDialogOpen(true)}
         isOwner={isOwner}
+        onSelectionChange={setSelectedReptiles}
+        batchActions={batchActions}
       />
       
       <ReptileFilterDialog
@@ -500,6 +518,17 @@ export function ReptileList({
         reptiles={reptiles}
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
+      />
+
+      <BatchUpdateDialog
+        open={isBatchDialogOpen}
+        onOpenChange={setIsBatchDialogOpen}
+        reptiles={selectedReptiles}
+        onSuccess={() => {
+          setIsBatchDialogOpen(false);
+          setSelectedReptiles([]);
+          onImportSuccess(); // refresh list
+        }}
       />
     </>
   );
