@@ -18,8 +18,10 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  RowSelectionState,
   SortingState,
   useReactTable,
+  OnChangeFn,
 } from "@tanstack/react-table"
 import { FileSpreadsheet, Filter, Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -73,7 +75,7 @@ export function DataTable<TData, TValue>({
   // Use controlled or uncontrolled row selection
   const rowSelection = controlledRowSelection !== undefined ? controlledRowSelection : uncontrolledRowSelection;
   // Wrap setRowSelection to match TanStack Table's OnChangeFn<RowSelectionState> signature
-  const setRowSelection = (updaterOrValue: any) => {
+  const setRowSelection: OnChangeFn<RowSelectionState> = (updaterOrValue) => {
     if (onRowSelectionChange) {
       // updaterOrValue can be a function or a value
       if (typeof updaterOrValue === 'function') {
