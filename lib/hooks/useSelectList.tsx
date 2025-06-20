@@ -57,6 +57,7 @@ export function useSelectList<T>({ data, getValue, getLabel, disabled }: UseSele
               role="combobox"
               aria-expanded={open}
               className="w-full overflow-hidden"
+              disabled={disabled}
             >
               <div className="truncate text-start flex-1">
                  {selectedLabel || placeholder}

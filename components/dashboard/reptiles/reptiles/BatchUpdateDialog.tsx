@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EnrichedReptile } from './ReptileList';
 import { updateReptile } from '@/app/api/reptiles/reptiles';
 import { toast } from 'sonner';
@@ -43,7 +43,7 @@ type BatchFieldToggles = {
 
 export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, onSuccess }: BatchUpdateDialogProps) {
 
-  const [fields, setFields] = useState<BatchFieldToggles>({
+  const initialFields: BatchFieldToggles = {
     sex: false,
     dam_id: false,
     sire_id: false,
@@ -52,9 +52,8 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
     original_breeder: false,
     visual_traits: false,
     het_traits: false,
-  });
-  // Field values
-  const [values, setValues] = useState<BatchReptileFields>({
+  };
+  const initialValues: BatchReptileFields = {
     sex: 'unknown',
     dam_id: null,
     sire_id: null,
@@ -63,7 +62,10 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
     original_breeder: null,
     visual_traits: null,
     het_traits: null,
-  });
+  };
+
+  const [fields, setFields] = useState<BatchFieldToggles>(initialFields);
+  const [values, setValues] = useState<BatchReptileFields>(initialValues);
   const [loading, setLoading] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('fields');
@@ -86,13 +88,13 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
     data: maleReptiles,
     getValue: (r: any) => r.id.toString(),
     getLabel: (r: any) => r.name,
-    disabled: !isSingleSpecies,
+    disabled: !fields.sire_id || !isSingleSpecies,
   });
   const { Select: DamSelect } = useSelectList({
     data: femaleReptiles,
     getValue: (r: any) => r.id.toString(),
     getLabel: (r: any) => r.name,
-    disabled: !isSingleSpecies,
+    disabled: !fields.dam_id || !isSingleSpecies,
   });
 
   // Update handler signatures to use correct types
@@ -138,6 +140,13 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
     }
   };
 
+  // Reset fields and values every time dialog is opened
+  useEffect(() => {
+    if (open) {
+      setFields(initialFields);
+      setValues(initialValues);
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -161,8 +170,40 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
             </TabsList>
 
             <TabsContent value="fields">
-              <div className='grid grid-cols-2 gap-3 sm:gap-4'>
-                {/* Sex */}
+              <div className='grid grid-cols-2 gap-3 sm:gap-4'> 
+                {/* Dam/Sire warning */}
+                {!isSingleSpecies  && (
+                  <div className="col-span-2 text-red-400 text-xs font-semibold mt-2">
+                    Dam/Sire can only be updated when all selected reptiles are the same species.
+                  </div>
+                )}
+                {/* Dam */}
+                <div className="flex items-start gap-3">
+                  <Checkbox id="batch-dam" checked={fields.dam_id} onCheckedChange={() => handleFieldToggle('dam_id')} className="mt-2" disabled={!isSingleSpecies} />
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch-dam" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Dam (Mother)</Label>
+                    <DamSelect
+                      value={values.dam_id || ''}
+                      onValueChange={(v: string) => handleValueChange('dam_id', v)}
+                      placeholder={isSingleSpecies ? "Select Dam" : "Select single species"}
+                      disabled={!fields.dam_id || !isSingleSpecies}
+                    />
+                  </div>
+                </div>
+                {/* Sire */}
+                <div className="flex items-start gap-3">
+                  <Checkbox id="batch-sire" checked={fields.sire_id} onCheckedChange={() => handleFieldToggle('sire_id')} className="mt-2" disabled={!isSingleSpecies} />
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="batch-sire" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Sire (Father)</Label>
+                    <SireSelect
+                      value={values.sire_id || ''}
+                      onValueChange={(v: string) => handleValueChange('sire_id', v)}
+                      placeholder={isSingleSpecies ? "Select Sire" : "Select single species"}
+                      disabled={!fields.sire_id || !isSingleSpecies}
+                    />
+                  </div>
+                </div>              
+                  {/* Sex */}
                 <div className="flex items-start gap-3">
                   <Checkbox id="batch-sex" checked={fields.sex} onCheckedChange={() => handleFieldToggle('sex')} className="mt-2" />
                   <div className="flex flex-col gap-1">
@@ -192,39 +233,7 @@ export function BatchUpdateDialog({ open, onOpenChange, reptiles, allReptiles, o
                       placeholder="Original Breeder"
                     />
                   </div>
-                </div>  
-                {/* Dam/Sire warning */}
-                {(!isSingleSpecies && (fields.dam_id || fields.sire_id)) && (
-                  <div className="col-span-2 text-red-600 text-xs font-semibold mb-2">
-                    Dam/Sire can only be updated when all selected reptiles are the same species.
-                  </div>
-                )}
-                {/* Dam */}
-                <div className="flex items-start gap-3">
-                  <Checkbox id="batch-dam" checked={fields.dam_id} onCheckedChange={() => handleFieldToggle('dam_id')} className="mt-2" disabled={!isSingleSpecies} />
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="batch-dam" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Dam (Mother)</Label>
-                    <DamSelect
-                      value={values.dam_id || ''}
-                      onValueChange={(v: string) => handleValueChange('dam_id', v)}
-                      placeholder={isSingleSpecies ? "Select Dam" : "Select single species"}
-                      disabled={!fields.dam_id || !isSingleSpecies}
-                    />
-                  </div>
-                </div>
-                {/* Sire */}
-                <div className="flex items-start gap-3">
-                  <Checkbox id="batch-sire" checked={fields.sire_id} onCheckedChange={() => handleFieldToggle('sire_id')} className="mt-2" disabled={!isSingleSpecies} />
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="batch-sire" className="min-w-[80px] text-[0.65rem] md:text-[0.8rem]">Sire (Father)</Label>
-                    <SireSelect
-                      value={values.sire_id || ''}
-                      onValueChange={(v: string) => handleValueChange('sire_id', v)}
-                      placeholder={isSingleSpecies ? "Select Sire" : "Select single species"}
-                      disabled={!fields.sire_id || !isSingleSpecies}
-                    />
-                  </div>
-                </div>
+                </div> 
                 {/* Acquisition Date */}
                 <div className="flex items-start gap-3">
                   <Checkbox id="batch-acq" checked={fields.acquisition_date} onCheckedChange={() => handleFieldToggle('acquisition_date')} className="mt-2" />
