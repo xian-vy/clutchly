@@ -18,8 +18,10 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  RowSelectionState,
   SortingState,
   useReactTable,
+  OnChangeFn,
 } from "@tanstack/react-table"
 import { FileSpreadsheet, Filter, Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -35,6 +37,10 @@ interface DataTableProps<TData, TValue> {
   onImport?: () => void
   filterButton?: React.ReactNode
   isOwner?: boolean
+  onSelectionChange?: (selectedRows: TData[]) => void
+  batchActions?: React.ReactNode
+  rowSelection?: Record<string, boolean>
+  onRowSelectionChange?: (rowSelection: Record<string, boolean>) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -45,6 +51,10 @@ export function DataTable<TData, TValue>({
   onImport,
   filterButton,
   isOwner = false,
+  onSelectionChange,
+  batchActions,
+  rowSelection: controlledRowSelection,
+  onRowSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -54,12 +64,35 @@ export function DataTable<TData, TValue>({
     pageIndex: 0, 
     pageSize: screenSize === "large" ? 5 : 10,
   });
+  const [uncontrolledRowSelection, setUncontrolledRowSelection] = useState<Record<string, boolean>>({});
   useEffect(() => {
     setPagination(prev => ({
       ...prev,
       pageSize: screenSize === "large" ? 5 : 10
     }));
   }, [screenSize]);
+
+  // Use controlled or uncontrolled row selection
+  const rowSelection = controlledRowSelection !== undefined ? controlledRowSelection : uncontrolledRowSelection;
+  // Wrap setRowSelection to match TanStack Table's OnChangeFn<RowSelectionState> signature
+  const setRowSelection: OnChangeFn<RowSelectionState> = (updaterOrValue) => {
+    if (onRowSelectionChange) {
+      // updaterOrValue can be a function or a value
+      if (typeof updaterOrValue === 'function') {
+        // Compute new value from current
+        const newValue = updaterOrValue(rowSelection);
+        onRowSelectionChange(newValue);
+      } else {
+        onRowSelectionChange(updaterOrValue);
+      }
+    } else {
+      if (typeof updaterOrValue === 'function') {
+        setUncontrolledRowSelection(updaterOrValue);
+      } else {
+        setUncontrolledRowSelection(updaterOrValue);
+      }
+    }
+  };
 
   const table = useReactTable({
     data,
@@ -77,45 +110,60 @@ export function DataTable<TData, TValue>({
       columnFilters,
       globalFilter,
       pagination,
+      rowSelection,
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
   })
+
+  useEffect(() => {
+    if (onSelectionChange) {
+      const selectedRows = table.getSelectedRowModel().rows.map(r => r.original)
+      onSelectionChange(selectedRows)
+    }
+  }, [rowSelection])
 
   return (
     <div className="space-y-2 sm:space-y-4 w-full">
+
       <div className="flex  items-center justify-between gap-2 sm:gap-3">
-        <div className="flex items-center space-x-2 w-full md:w-auto">
-          {filterButton ? (
-            filterButton
-          ) : (
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-1" />
-              Filter
-            </Button>
-          )}
-          {onImport && isOwner && (
-              <Button 
-                variant="outline" 
-                onClick={onImport}
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <FileSpreadsheet className="h-4 w-4" />
-                Import
+        {batchActions && table.getSelectedRowModel().rows.length > 0 ? (
+          <div className="mb-2">{batchActions}</div>
+        ) :(
+          <div className="flex items-center space-x-2 w-full md:w-auto">
+            {filterButton ? (
+              filterButton
+            ) : (
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-1" />
+                Filter
               </Button>
+            )}
+            {onImport && isOwner && (
+                <Button 
+                  variant="outline" 
+                  onClick={onImport}
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Import
+                </Button>
+            )}
+            {onAddNew && (
+              <Button variant="default" size="sm" onClick={onAddNew}>
+                New
+                <Plus className="h-4 w-4 " />
+              </Button>
+            )}
+            {onDownload && (
+              <div className="flex items-center gap-2">
+              <DownloadCommonMorphs showInMorphsTab={true} />
+            </div> 
+            )}
+          </div>
           )}
-          {onAddNew && (
-            <Button variant="default" size="sm" onClick={onAddNew}>
-               New
-              <Plus className="h-4 w-4 " />
-            </Button>
-          )}
-          {onDownload && (
-             <div className="flex items-center gap-2">
-             <DownloadCommonMorphs showInMorphsTab={true} />
-           </div> 
-          )}
-        </div>
-        <div className="flex items-center relative  w-full md:w-auto">
+        <div className={`flex items-center relative  w-full md:w-auto ${batchActions ? 'justify-end' : 'justify-end'}`}>
           <Search className="h-4 w-4 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="Search..."
@@ -133,6 +181,15 @@ export function DataTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
+               {batchActions &&
+                  <TableHead key="select-all">
+                    <input
+                      type="checkbox"
+                      checked={table.getIsAllPageRowsSelected()}
+                      onChange={table.getToggleAllPageRowsSelectedHandler()}
+                    />
+                  </TableHead>
+                }
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -155,6 +212,15 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
+                   {batchActions &&
+                      <TableCell key={`select-${row.id}`}>
+                        <input
+                          type="checkbox"
+                          checked={row.getIsSelected()}
+                          onChange={row.getToggleSelectedHandler()}
+                        />
+                      </TableCell>
+                    }
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -168,7 +234,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + 1}
                   className="h-24 text-center"
                 >
                   No results.

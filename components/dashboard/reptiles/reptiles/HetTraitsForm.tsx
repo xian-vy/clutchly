@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { FormLabel } from '@/components/ui/form'
+import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { PlusIcon, X } from 'lucide-react'
@@ -58,7 +58,7 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
       <div className="flex flex-col lg:flex-row items-start lg:items-center">
           <div className="grid grid-cols-[1fr_auto_1fr] lg:grid-cols-4 gap-2 sm:gap-3 md:gap-5 ">
             <div className='space-y-2'>
-              <FormLabel>Possible Trait</FormLabel>
+              <Label>Possible Trait</Label>
               <Input 
                 placeholder="Ex: Eclipse" 
                 value={newHetTrait.trait} 
@@ -66,7 +66,7 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
               />
             </div>
             <div className='space-y-2'>
-              <FormLabel>Probability (%)</FormLabel>
+              <Label>Probability (%)</Label>
               <Input 
                 type="number" 
                 min="0" 
@@ -77,7 +77,7 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
               />
             </div>
             <div className='space-y-2'>
-            <FormLabel>Source</FormLabel>
+            <Label>Source</Label>
             <Select 
                 value={newHetTrait.source} 
                 onValueChange={(value: 'visual_parent' | 'genetic_test' | 'breeding_odds') => 
