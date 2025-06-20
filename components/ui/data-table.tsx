@@ -37,6 +37,8 @@ interface DataTableProps<TData, TValue> {
   isOwner?: boolean
   onSelectionChange?: (selectedRows: TData[]) => void
   batchActions?: React.ReactNode
+  rowSelection?: Record<string, boolean>
+  onRowSelectionChange?: (rowSelection: Record<string, boolean>) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -49,6 +51,8 @@ export function DataTable<TData, TValue>({
   isOwner = false,
   onSelectionChange,
   batchActions,
+  rowSelection: controlledRowSelection,
+  onRowSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -58,13 +62,35 @@ export function DataTable<TData, TValue>({
     pageIndex: 0, 
     pageSize: screenSize === "large" ? 5 : 10,
   });
-  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [uncontrolledRowSelection, setUncontrolledRowSelection] = useState<Record<string, boolean>>({});
   useEffect(() => {
     setPagination(prev => ({
       ...prev,
       pageSize: screenSize === "large" ? 5 : 10
     }));
   }, [screenSize]);
+
+  // Use controlled or uncontrolled row selection
+  const rowSelection = controlledRowSelection !== undefined ? controlledRowSelection : uncontrolledRowSelection;
+  // Wrap setRowSelection to match TanStack Table's OnChangeFn<RowSelectionState> signature
+  const setRowSelection = (updaterOrValue: any) => {
+    if (onRowSelectionChange) {
+      // updaterOrValue can be a function or a value
+      if (typeof updaterOrValue === 'function') {
+        // Compute new value from current
+        const newValue = updaterOrValue(rowSelection);
+        onRowSelectionChange(newValue);
+      } else {
+        onRowSelectionChange(updaterOrValue);
+      }
+    } else {
+      if (typeof updaterOrValue === 'function') {
+        setUncontrolledRowSelection(updaterOrValue);
+      } else {
+        setUncontrolledRowSelection(updaterOrValue);
+      }
+    }
+  };
 
   const table = useReactTable({
     data,

@@ -53,6 +53,8 @@ export function ReptileList({
   const [isPrinting, setIsPrinting] = useState(false);
   const [selectedReptiles, setSelectedReptiles] = useState<EnrichedReptile[]>([]);
   const [isBatchDialogOpen, setIsBatchDialogOpen] = useState(false);
+  // Controlled row selection for DataTable
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   // Apply filters to the reptiles list
   const filteredReptiles = useMemo(() => {
@@ -498,6 +500,8 @@ export function ReptileList({
         isOwner={isOwner}
         onSelectionChange={setSelectedReptiles}
         batchActions={batchActions}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
       />
       
       <ReptileFilterDialog
@@ -527,7 +531,8 @@ export function ReptileList({
         onSuccess={() => {
           setIsBatchDialogOpen(false);
           setSelectedReptiles([]);
-          onImportSuccess(); // refresh list
+          setRowSelection({}); 
+          onImportSuccess(); 
         }}
       />
     </>
