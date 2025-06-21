@@ -142,7 +142,7 @@ export async function getCatalogEntriesByorgName(orgName: string, req?: NextRequ
   // Rate limit: 1 request per 30 seconds per IP
   const { success } = await ratelimit.limit(ip);
   if (!success) {
-    const error: any = new Error('Too many requests. Please try again later.');
+    const error = new Error('Too many requests. Please try again later.') as Error & { status?: number };
     error.status = 429;
     throw error;
   }
