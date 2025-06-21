@@ -4,8 +4,8 @@ import { getCatalogEntriesByorgName } from '@/app/api/catalog';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { calculateAgeInMonths } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Info, Loader2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ArrowLeft, Info, Loader2, Clock } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
 import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
 import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
 import { CatalogFilterDialog, CatalogFilters } from '../dashboard/catalog/components/CatalogFilterDialog';
@@ -34,9 +34,20 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
     sortBy: 'newest',
   });
   
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['catalog', orgName],
-    queryFn: () => getCatalogEntriesByorgName(orgName),
+    queryFn: async () => {
+      try {
+        return await getCatalogEntriesByorgName(orgName);
+      } catch (err: any) {
+        if (err?.status === 429 || err?.message?.toLowerCase().includes('too many requests')) {
+          const rateLimitError = new Error('Too many requests. Please wait 30 seconds and try again.');
+          (rateLimitError as any).isRateLimit = true;
+          throw rateLimitError;
+        }
+        throw err;
+      }
+    },
   });
 
 
@@ -137,13 +148,22 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
     );
   }
 
-  if (isError) {
+  if (isError && (error as any)?.isRateLimit) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-2">Website Not Found</h1>
-        <p className="text-muted-foreground text-center">
-          The catalog you&apos;re looking for doesn&apos;t exist or is no longer available.
-        </p>
+        <div className="bg-white dark:bg-zinc-900 border border-yellow-300 dark:border-yellow-600 rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md w-full animate-fade-in">
+          <Clock className="h-12 w-12 text-yellow-500 mb-4" />
+          <h1 className="text-2xl font-extrabold mb-2 text-center text-yellow-700 dark:text-yellow-400 drop-shadow">Whoa, slow down!</h1>
+          <p className="text-muted-foreground text-center mb-6 text-base">
+            You've reached the viewing limit for this page.<br />
+            Please wait a bit before trying again.<br />
+            This helps us keep the site fast and fair for everyone.<br />
+            <span className="text-xs text-yellow-600 dark:text-yellow-400 mt-2 block">If you believe this is a mistake, please contact support.</span>
+          </p>
+          <Button onClick={() => refetch()} className="w-full font-semibold bg-yellow-500 hover:bg-yellow-600 text-white">
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }

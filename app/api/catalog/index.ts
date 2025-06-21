@@ -3,6 +3,24 @@ import { CatalogEntry, CatalogImage, CatalogSettings, EnrichedCatalogEntry, NewC
 import { createClient } from '@/lib/supabase/server'
 import { OGTYPE } from '@/lib/types/og';
 import { getUserAndOrganizationInfo } from '../utils_server';
+import {Ratelimit} from "@upstash/ratelimit";
+import {Redis} from "@upstash/redis";
+import { NextRequest } from 'next/server';
+ 
+ 
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+})
+ 
+const CATALOG_RATE_LIMIT_COUNT = 5
+const CATALOG_RATE_LIMIT_WINDOW = 30
+
+// Create a new ratelimiter, that allows 5 requests per 5 seconds
+const ratelimit = new Ratelimit({
+  redis: redis,
+  limiter: Ratelimit.fixedWindow(CATALOG_RATE_LIMIT_COUNT, `${CATALOG_RATE_LIMIT_WINDOW} s`),
+});
 
 // Get all catalog entries for the current user
 export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
@@ -115,7 +133,19 @@ export async function getCatalogEntries(): Promise<EnrichedCatalogEntry[]> {
 }
 
 // Get catalog entries by organization name (public)
-export async function getCatalogEntriesByorgName(orgName: string): Promise<EnrichedCatalogEntry[]> {
+export async function getCatalogEntriesByorgName(orgName: string, req?: NextRequest): Promise<EnrichedCatalogEntry[]> {
+  // Extract IP address for rate limiting
+  let ip = 'unknown';
+  if (req) {
+    ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  }
+  // Rate limit: 1 request per 30 seconds per IP
+  const { success } = await ratelimit.limit(ip);
+  if (!success) {
+    const error: any = new Error('Too many requests. Please try again later.');
+    error.status = 429;
+    throw error;
+  }
   const supabase = await createClient()
 
   // First get the organization data since other queries depend on it
