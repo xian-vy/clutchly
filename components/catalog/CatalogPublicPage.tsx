@@ -15,6 +15,7 @@ import { APP_URL } from '@/lib/constants/app';
 import CatalogFooter from '../dashboard/catalog/components/CatalogFooter';
 import { CatalogIntro } from '../dashboard/catalog/components/CatalogIntro';
 import NotSetup from '../dashboard/catalog/components/NotSetup';
+import { ThemeToggleCatalog } from '../theme/ThemeToggleCatalog';
 interface CatalogClientPageProps {
   orgName: string;
 }
@@ -150,10 +151,11 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
   }
   return (
     <main className="min-h-screen bg-background ">
-        <div className="flex flex-col justify-center items-center bg-primary w-full text-white dark:text-black min-h-[30px] px-2">
+        <div className="flex  justify-between items-center bg-primary w-full text-white dark:text-black min-h-[30px] px-2 sm:px-4">
           <p className='text-[0.7rem] sm:text-sm lg:text-xs font-medium tracking-wide'>
             Made with <a href={APP_URL} className='font-semibold underline underline-offset-2' target='_blank'>Clutchly</a>
           </p>
+          <ThemeToggleCatalog />
         </div>
        
         <CatalogIntro
