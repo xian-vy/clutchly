@@ -52,6 +52,8 @@ export async function updateSession(request: NextRequest) {
   request.nextUrl.pathname === '/features' ||
   request.nextUrl.pathname === '/about' ||
   request.nextUrl.pathname === '/contact' ||
+  request.nextUrl.pathname === '/terms' ||
+  request.nextUrl.pathname === '/privacy' ||
   request.nextUrl.pathname.startsWith('/auth') ||
   request.nextUrl.pathname.startsWith('/c/') ||
   request.nextUrl.pathname.startsWith('/api/og');

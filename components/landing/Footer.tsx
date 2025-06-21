@@ -41,6 +41,12 @@ export function Footer() {
           <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
             Contact
           </Link>
+          <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            Privacy
+          </Link>
+          <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            Terms
+          </Link>
         </div>
         
         {/* Social Links */}
@@ -74,7 +80,7 @@ export function Footer() {
             <Github className="h-5 w-5" />
           </Link>
           <Link
-            href="mailto:xianv0000@gmail.com"
+            href="mailto:clutchlyreptilehusbandry@gmail.com"
             className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
             aria-label="Email"
           >
