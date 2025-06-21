@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
   const error = requestUrl.searchParams.get('error')
   const error_description = requestUrl.searchParams.get('error_description')
   const next = requestUrl.searchParams.get('next') || '/overview'
+  const type = requestUrl.searchParams.get('type')
 
   // Handle error cases
   if (error) {
@@ -30,6 +31,13 @@ export async function GET(request: NextRequest) {
 
     if (sessionError) {
       throw sessionError
+    }
+
+
+    // Handle password reset
+    if (type === 'recovery' || type === 'recovery_signup') {
+      // This is a password reset flow, redirect to password update page
+      return NextResponse.redirect(new URL('/auth/reset-password/confirm', request.url))
     }
 
     // Check if the user's email is verified

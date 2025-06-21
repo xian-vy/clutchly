@@ -12,11 +12,13 @@ import {
     ChevronsUpDown,
     LogOut,
     Moon,
-    Sun
+    Sun,
+    Key
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { User } from '@/lib/types/users';
 import { Skeleton } from '../ui/skeleton';
+import { useRouter } from 'next/navigation';
 
 interface Props {
     isCollapsed : boolean
@@ -26,6 +28,7 @@ interface Props {
 }
 const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
     const { theme, setTheme } = useTheme();
+    const router = useRouter();
   
 
     if (isLoading) {
@@ -54,6 +57,9 @@ const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
     const userEmail = organization?.email;
     const userFullname = organization?.full_name;
 
+    const handleUpdatePassword = () => {
+        router.push('/auth/reset-password');
+    };
 
   return (
     <div className='mb-3 2xl:mb-4 3xl:mb-5 w-full'>
@@ -85,6 +91,15 @@ const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
                         : <Sun className="mr-2" />
                         }
                         Theme
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleUpdatePassword();
+                    }} className='cursor-pointer'>
+                        <Key className="mr-2" />
+                        Update Password
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem  onClick={onLogout}
