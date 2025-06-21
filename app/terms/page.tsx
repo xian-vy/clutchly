@@ -36,7 +36,7 @@ const TermsOfServicePage = () => {
           <div className="bg-card p-8">
             <div className="space-y-6">
               <p className="text-base text-muted-foreground text-center">
-                These Terms of Service ("Terms") govern your use of Clutchly, a reptile husbandry management platform. 
+                These Terms of Service (&ldquo;Terms&rdquo;) govern your use of Clutchly, a reptile husbandry management platform. 
                 By using our service, you agree to these terms.
               </p>
             </div>
@@ -109,7 +109,7 @@ const TermsOfServicePage = () => {
           <div className="bg-card p-8">
             <h2 className="text-xl font-semibold mb-4 text-[#333] dark:text-foreground">6. Limitation of Liability</h2>
             <p className="text-base text-muted-foreground">
-              Clutchly is provided "as is" without warranties. We are not liable for any damages arising from 
+              Clutchly is provided &ldquo;as is&rdquo; without warranties. We are not liable for any damages arising from 
               your use of the service, including but not limited to financial losses, legal issues, or disputes 
               between users.
             </p>
@@ -146,7 +146,7 @@ const TermsOfServicePage = () => {
               Questions About Our Terms?
             </h2>
             <p className="text-muted-foreground mb-8">
-              If you have any questions about these terms, please don't hesitate to reach out to us.
+              If you have any questions about these terms, please don&apos;t hesitate to reach out to us.
             </p>
             <Link
               href="/contact"

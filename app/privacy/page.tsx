@@ -184,7 +184,7 @@ const PrivacyPage = () => {
               Questions About Privacy?
             </h2>
             <p className="text-muted-foreground mb-8">
-              We're committed to transparency and protecting your privacy. Reach out if you need clarification.
+              We&apos;re committed to transparency and protecting your privacy. Reach out if you need clarification.
             </p>
             <Link
               href="/contact"
