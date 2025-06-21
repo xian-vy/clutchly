@@ -24,6 +24,7 @@ export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [detailView, setDetailView] = useState<EnrichedCatalogEntry | null>(null);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [filters, setFilters] = useState<CatalogFilters>({
     species: [],
     morphs: [],
@@ -136,9 +137,16 @@ export function CatalogTab() {
     );
   }
 
-  const onDialogChange = () => {
-    setIsDialogOpen(false);
-    setSelectedCatalogEntry(undefined);
+  const onDialogChange = (open: boolean) => {
+    if (isSubmitting) return;
+    setIsDialogOpen(open);
+    if (!open) {
+      setSelectedCatalogEntry(undefined);
+    }
+  };
+
+  const onCancel = () => {
+    onDialogChange(false);
   };
 
   // Count featured reptiles
@@ -296,17 +304,22 @@ export function CatalogTab() {
             availableReptiles={availableReptiles}
             initialData={selectedCatalogEntry}
             onSubmit={async (data) => {
-              const success = selectedCatalogEntry
-                ? await handleUpdate(data)
-                : await handleCreate(data);
-              if (success) {
-                onDialogChange();
-                await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
-
+              setIsSubmitting(true);
+              try {
+                const success = selectedCatalogEntry
+                  ? await handleUpdate(data)
+                  : await handleCreate(data);
+                if (success) {
+                  onDialogChange(false);
+                  await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+                }
+              } finally {
+                setIsSubmitting(false);
               }
             }}
-            onCancel={onDialogChange}
+            onCancel={onCancel}
             featuredLimit={featuredCount >= 6 && !selectedCatalogEntry?.featured}
+            loading={isSubmitting}
           />
         </DialogContent>
       </Dialog>

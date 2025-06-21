@@ -4,7 +4,7 @@ import { getCatalogEntriesByorgName } from '@/app/api/catalog';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { calculateAgeInMonths } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Info, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
 import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
@@ -15,6 +15,9 @@ import { APP_URL } from '@/lib/constants/app';
 import CatalogFooter from '../dashboard/catalog/components/CatalogFooter';
 import { CatalogIntro } from '../dashboard/catalog/components/CatalogIntro';
 import NotSetup from '../dashboard/catalog/components/NotSetup';
+import { ThemeToggleCatalog } from '../theme/ThemeToggleCatalog';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import Link from 'next/link';
 interface CatalogClientPageProps {
   orgName: string;
 }
@@ -150,10 +153,11 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
   }
   return (
     <main className="min-h-screen bg-background ">
-        <div className="flex flex-col justify-center items-center bg-primary w-full text-white dark:text-black min-h-[30px] px-2">
+        <div className="flex  justify-between items-center bg-primary w-full text-white dark:text-black min-h-[30px] px-2 sm:px-4">
           <p className='text-[0.7rem] sm:text-sm lg:text-xs font-medium tracking-wide'>
             Made with <a href={APP_URL} className='font-semibold underline underline-offset-2' target='_blank'>Clutchly</a>
           </p>
+          <ThemeToggleCatalog />
         </div>
        
         <CatalogIntro
@@ -163,7 +167,19 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
           organization = {organization}
        />
 
-     <div className="container mx-auto xl:px-16 2xl:px-24 3xl:px-0">
+
+     <div className="container mx-auto xl:px-16 2xl:px-24 3xl:px-0">      
+       <Alert className='mt-5 w-11/12 sm:w-full mx-auto'>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Disclaimer</AlertTitle>
+          <AlertDescription className='text-foreground/90 inline'>
+              Clutchly is a free listing service for reptile keepers and breeders. We do not facilitate transactions or verify the legality of animals listed. 
+              All users are responsible for complying with 
+              <Link target='_blank'  href="https://www.officialgazette.gov.ph/2001/07/30/republic-act-no-9417/" className='underline underline-offset-4'> RA 9147 </Link>  and other relevant wildlife laws. Contact the seller directly for inquiries.
+              If you believe a listing violates the law, please inform us through our 
+              <Link target='_blank' href="https://clutchly.vercel.app/contact"  className='underline underline-offset-4 ml-1'>Contact Page</Link>
+          </AlertDescription>
+       </Alert>
           {detailView && reptileForDetail ? (
             <div className="space-y-0 sm:space-y-3 md:space-y-6 mt-5 px-4">
               <div className="flex items-center">

@@ -49,10 +49,10 @@ export function ContactDialog() {
             <Mail strokeWidth={1.5} className="w-5 h-5 mt-1 text-primary" />
             <div className="flex-1">
               <h3 className="font-semibold">Email</h3>
-              <p className="text-muted-foreground">xianvy0000@gmail.com</p>
+              <p className="text-muted-foreground">clutchlyreptilehusbandry@gmail.com</p>
             </div>
             <Button 
-              onClick={() => handleCopy("xianvy0000@gmail.com", "email")} 
+              onClick={() => handleCopy("clutchlyreptilehusbandry@gmail.com", "email")} 
               variant="ghost" 
               size="icon" 
               className="h-8 w-8"
