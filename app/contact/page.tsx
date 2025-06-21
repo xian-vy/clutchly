@@ -63,10 +63,10 @@ const ContactPage = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-sm text-muted-foreground">Email</h3>
-                      <p className="text-foreground hover:text-primary transition-colors">xianvy0000@gmail.com</p>
+                      <p className="text-foreground hover:text-primary transition-colors">clutchlyreptilehusbandry@gmail.com</p>
                     </div>
                     <Button 
-                      onClick={() => handleCopy("xianvy0000@gmail.com", "email")} 
+                      onClick={() => handleCopy("clutchlyreptilehusbandry@gmail.com", "email")} 
                       variant="ghost" 
                       size="icon" 
                       className="h-8 w-8"
