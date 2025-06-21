@@ -45,15 +45,6 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If user is authenticated and trying to access auth pages (except password reset pages),
-  // redirect to overview
-  if (user && request.nextUrl.pathname.startsWith('/auth') && 
-      !request.nextUrl.pathname.startsWith('/auth/reset-password')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/overview'
-    return NextResponse.redirect(url)
-  }
-
   // If user is not authenticated and trying to access protected routes,
   // redirect to landing page
   const isPublicRoute = 

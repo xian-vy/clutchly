@@ -154,12 +154,6 @@ export function SignInForm() {
               )}
             />
 
-            <div className="flex items-center justify-end">
-              <Link href="/auth/reset-password" className="text-sm font-medium text-primary hover:text-primary/90 transition-colors">
-                Forgot password?
-              </Link>
-            </div>
-
             {error && (
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
