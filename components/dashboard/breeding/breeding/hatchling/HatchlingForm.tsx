@@ -230,10 +230,8 @@ export function HatchlingForm({
           sequenceNumber
         );
         
-        // Use generated name or manual name with numbering for multiple hatchlings
-        const hatchlingName = values.name?.trim() 
-          ? (values.quantity > 1 ? `${values.name} #${index + 1}` : values.name)
-          : baseName;
+        // Always use the auto-generated name with unique sequence number
+        const hatchlingName = baseName;
         
         const hatchlingData: NewReptile = {
           ...hatchlingValues,

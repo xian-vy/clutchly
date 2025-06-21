@@ -144,11 +144,12 @@ const GeneticCalculatorTab = () => {
     <div className="space-y-6">
       <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>AI-Powered Analysis</AlertTitle>
+        <AlertTitle>Important Disclaimer</AlertTitle>
         <AlertDescription>
-          This calculator uses AI to predict genetic outcomes. While it provides valuable insights, 
-          please note that genetic inheritance can be complex and results should be used as a guide only.
-        </AlertDescription>
+          This calculator utilizes basic AI models to offer **probabilistic insights** into potential genetic outcomes. It is crucial to understand that **genetic inheritance is highly complex**, influenced by multiple genes, environmental factors, and even unpredictable events.
+          <br /><br />
+          **Therefore, the results provided by this tool are for informational purposes only and should be considered a general guide, not a definitive prediction.
+      </AlertDescription>
       </Alert>
 
       <Card className="p-6">
@@ -195,7 +196,7 @@ const GeneticCalculatorTab = () => {
 
           <Separator />
 
-          <div className="flex justify-center">
+          <div className="flex justify-end">
             <Button 
               onClick={handleCalculate}
               disabled={!dam || !sire || isCalculating}
@@ -208,7 +209,7 @@ const GeneticCalculatorTab = () => {
                   Calculating...
                 </>
               ) : (
-                'Calculate Offspring Genetics'
+                'Calculate'
               )}
             </Button>
           </div>

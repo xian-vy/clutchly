@@ -84,10 +84,10 @@ const ContactPage = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-sm text-muted-foreground">Discord</h3>
-                      <p className="text-foreground hover:text-primary transition-colors">discord.gg/crispysnowflake</p>
+                      <p className="text-foreground hover:text-primary transition-colors">discord.gg/crispysnowflake.</p>
                     </div>
                     <Button 
-                      onClick={() => handleCopy("discord.gg/crispysnowflake", "discord")} 
+                      onClick={() => handleCopy("discord.gg/crispysnowflake.", "discord")} 
                       variant="ghost" 
                       size="icon" 
                       className="h-8 w-8"
