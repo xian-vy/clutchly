@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { CatalogEntry, NewCatalogEntry } from '@/lib/types/catalog';
 import { Reptile } from '@/lib/types/reptile';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +9,8 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2 } from 'lucide-react';
 import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 
 interface CatalogEntryFormProps {
@@ -17,14 +19,18 @@ interface CatalogEntryFormProps {
   onSubmit: (data: NewCatalogEntry) => void;
   onCancel: () => void;
   featuredLimit: boolean;
+  loading?: boolean;
 }
 
 // Create a schema that matches the NewCatalogEntry type but without org_id
 // org_id will be added on the server
 const formSchema = z.object({
-  reptile_id: z.string({ required_error: 'Please select a reptile' }),
+  reptile_id: z.string().min(1, { message: 'Please select a reptile' }),
   featured: z.boolean(),
   display_order: z.number(),
+  legal_compliance: z.boolean().refine((val) => val === true, {
+    message: 'You must confirm legal compliance to proceed',
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -35,6 +41,7 @@ export function CatalogEntryForm({
   onSubmit,
   onCancel,
   featuredLimit,
+  loading,
 }: CatalogEntryFormProps) {
 
   const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: availableReptiles});
@@ -45,9 +52,11 @@ export function CatalogEntryForm({
       reptile_id: initialData?.reptile_id || '',
       featured: initialData?.featured || false,
       display_order: initialData?.display_order || 0,
+      legal_compliance: false,
     },
   });
   const isSubmitting = form.formState.isSubmitting;
+  const isLoading = loading || isSubmitting;
 
   // Reset form when initialData changes
   useEffect(() => {
@@ -56,6 +65,7 @@ export function CatalogEntryForm({
         reptile_id: initialData.reptile_id,
         featured: initialData.featured,
         display_order: initialData.display_order,
+        legal_compliance: false, // Always reset to false for new confirmations
       });
     }
   }, [form, initialData]);
@@ -86,6 +96,7 @@ export function CatalogEntryForm({
                           placeholder="Select a reptile"
                       />
                 </FormControl>
+                <FormMessage />
               {!initialData && availableReptiles.length === 0 && (
                 <FormDescription className="text-destructive">
                   Please add a reptile first before adding a catalog entry.
@@ -115,19 +126,58 @@ export function CatalogEntryForm({
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
-                  disabled={featuredLimit}
+                  disabled={featuredLimit || isLoading}
                 />
               </FormControl>
             </FormItem>
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="legal_compliance"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-lg border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={isLoading}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel className="text-base">
+                  Legal Compliance Confirmation
+                </FormLabel>
+                <FormDescription>
+                  I confirm that I am complying with all applicable wildlife trade laws in the Philippines and hold any necessary permits for this animal. 
+                  <a 
+                    href="https://www.officialgazette.gov.ph/2001/07/30/republic-act-no-9417/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline ml-1"
+                  >
+                    (Republic Act No. 9417)
+                  </a>
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="submit" disabled={!initialData && availableReptiles.length === 0 || isSubmitting}>
-            {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Add to Catalog'}
+          <Button type="submit" disabled={!initialData && availableReptiles.length === 0 || isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {initialData ? 'Updating...' : 'Adding...'}
+              </>
+            ) : (
+              initialData ? 'Update' : 'Add to Catalog'
+            )}
           </Button>
         </div>
       </form>
