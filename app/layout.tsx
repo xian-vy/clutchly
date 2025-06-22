@@ -53,7 +53,7 @@ export default function RootLayout({
       <body className={`${sourceSans.className} antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
