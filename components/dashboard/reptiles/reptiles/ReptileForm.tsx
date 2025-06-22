@@ -51,7 +51,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
     source?: 'visual_parent' | 'genetic_test' | 'breeding_odds';
     verified?: boolean;
   }>>(initialData?.het_traits || []);
-  const [isNameManuallyEdited, setIsNameManuallyEdited] = useState(false);
+  const [isNameManuallyEdited, setIsNameManuallyEdited] = useState(() => !!initialData);
 
   const sortedSpecies = useSortedSpecies(species, organization?.selected_species || []);
   const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? sortedSpecies[0].id.toString() : '');
@@ -137,22 +137,24 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
 
   // Auto-generate reptile name when relevant fields change
   useEffect(() => {
+    // Only auto-generate name if not manually edited and (not editing or user has reset to auto mode)
     if (isNameManuallyEdited) return;
-    
+    if (initialData) return; // Do not auto-generate name on edit unless user clicks Auto
+
     const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
     if (!selectedMorph) return;
-    
+
     const reptileCode = form.getValues('reptile_code');
     const sequenceNumber = reptileCode ? reptileCode.split('-')[0] : '';
-    
+
     const generatedName = generateReptileName(
       selectedMorph.name,
       hetTraits,
       sequenceNumber
     );
-    
+
     form.setValue('name', generatedName);
-  }, [morphId, hetTraits, form, morphsForSpecies, isNameManuallyEdited]);
+  }, [morphId, hetTraits, form, morphsForSpecies, isNameManuallyEdited, initialData]);
 
   const { Select: SpeciesSelect } = useSelectList({
     data: sortedSpecies,
