@@ -7,7 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { createClient } from '@/lib/supabase/client';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { FiCheckCircle, FiAlertCircle, FiKey } from 'react-icons/fi';
+import { FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { KeyRound } from 'lucide-react';
 
 const passwordSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
@@ -49,7 +50,7 @@ export function UpdatePasswordDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start"><FiKey className="mr-2" />Update Password</Button>
+        <Button variant="ghost" className="w-full justify-start"><KeyRound className="mr-1 text-muted-foreground" />Update Password</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

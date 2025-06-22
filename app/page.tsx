@@ -5,6 +5,7 @@ import TopNavigation from '@/components/landing/TopNavigation'
 import PlansSection from '@/components/landing/PlansSection'
 import PedigreeSection from '@/components/landing/PedigreeSection'
 import { FAQSection } from '@/components/landing/FAQSection'
+import CatalogSection from '@/components/landing/CatalogSection'
 
 export default function LandingPage() {
   return (
@@ -25,6 +26,7 @@ export default function LandingPage() {
         </div>
         <div className="mx-auto w-full px-4 md:px-8">
             <FeaturesSection />
+            <CatalogSection />
             <PedigreeSection />
             <PlansSection />
             <FAQSection />
