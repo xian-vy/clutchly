@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes'
 import { useState } from 'react'
 import { X } from 'lucide-react'
 
-const PedigreeSection = () => {
+const DataManagementSection = () => {
   const theme = useTheme()
   const [isImageEnlarged, setIsImageEnlarged] = useState(false)
 
@@ -20,11 +20,10 @@ const PedigreeSection = () => {
   return (
     <>
       <section className="relative !overflow-hidden flex items-center justify-center">
-        <div className="max-w-7xl relative z-10 flex flex-col items-center w-full gap-12 py-12 px-4">
+        <div className="max-w-7xl relative z-10 flex flex-col items-center w-full gap-12 py-6 px-4">
           {/* Text Content */}
           <div className="flex flex-col items-center max-w-3xl w-full text-center">
-            {/* Badge */}
-            <motion.div 
+          <motion.div 
               className="relative mb-8"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -41,9 +40,9 @@ const PedigreeSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              Interactive
+              Comprehensive
               <span className="text-primary ml-2">
-                Pedigree Analysis
+                Data Management
               </span>
             </motion.h2>
             {/* Supporting text */}
@@ -53,19 +52,19 @@ const PedigreeSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
             >
-              Visualize your reptile&apos;s complete lineage with our interactive pedigree tree
+              Feature-rich data management system for your reptile collection
             </motion.p>
           </div>
           {/* Image */}
-          <div className="w-full max-w-4xl relative">
+          <div className="w-full max-w-4xl 3xl:max-w-[1100px]  relative">
             <div 
-              className="relative aspect-[16/9] border w-full rounded-sm shadow-2xl shadow-primary/30 dark:shadow-primary/15 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+              className="relative aspect-[16/9] border w-full rounded-sm shadow-2xl shadow-primary/20 dark:shadow-primary/15 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
               onClick={handleImageClick}
             >
  
              <Image 
-                src={theme.theme === 'dark' ? '/featured_dark.png' : '/featured_light.png'}
-                alt="Pedigree Analysis Feature"
+                src={theme.theme === 'dark' ? '/features/reptile_dark.png' : '/features/reptile_light.png'}
+                alt="Data Management Feature"
                 fill
                 loading='lazy'
                 className="object-cover object-left"
@@ -82,16 +81,16 @@ const PedigreeSection = () => {
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={handleCloseModal}
         >
-          <div className="relative w-[90vw] h-[90vh] max-w-6xl">
+          <div className="relative w-[90vw] h-[90vh] 3xl:!w-[100vw] 3xl:!h-[100vh] max-w-6xl 3xl:max-w-screen-2xl">
             <button
               onClick={handleCloseModal}
-              className="absolute top-0 right-0 lg:-right-10 text-white hover:text-gray-300 text-2xl font-bold z-10 cursor-pointer"
+              className="absolute top-0 right-0 lg:-right-10 3xl:top-10 text-white hover:text-gray-300 text-2xl font-bold z-10 cursor-pointer"
             >
               <X strokeWidth={1.5} className="w-8 h-8" />
             </button>
             <Image 
-              src={theme.theme === 'dark' ? '/featured_dark.png' : '/featured_light.png'}
-              alt="Pedigree Analysis Feature - Enlarged"
+              src={theme.theme === 'dark' ? '/features/reptile_dark.png' : '/features/reptile_light.png'}
+              alt="Data Management Feature - Enlarged"
               fill
               loading='lazy'
               className="object-contain"
@@ -104,4 +103,4 @@ const PedigreeSection = () => {
   )
 }
 
-export default PedigreeSection
+export default DataManagementSection

@@ -1,5 +1,5 @@
 
-import { FeatureCard } from '@/components/landing/FeatureCard'
+import { FeatureCard } from '@/components/landing/features/FeatureCard'
 import { Footer } from '@/components/landing/Footer'
 import TopNavigation from '@/components/landing/TopNavigation'
 import { FEATURE_LIST } from '@/lib/constants/features'

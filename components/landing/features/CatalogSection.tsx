@@ -20,11 +20,10 @@ const CatalogSection = () => {
   return (
     <>
       <section className="relative !overflow-hidden flex items-center justify-center">
-        <div className="max-w-7xl relative z-10 flex flex-col items-center w-full gap-12 py-12 px-4">
+        <div className="max-w-7xl relative z-10 flex flex-col items-center w-full gap-12 py-6 px-4">
           {/* Text Content */}
           <div className="flex flex-col items-center max-w-3xl w-full text-center">
-            {/* Badge */}
-            <motion.div 
+          <motion.div 
               className="relative mb-8"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -33,7 +32,7 @@ const CatalogSection = () => {
               <span className="inline-block rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
                 Spotlight Feature
               </span>
-            </motion.div>
+            </motion.div>     
             {/* Headline */}
             <motion.h2 
               className="font-bold tracking-tighter text-2xl lg:text-3xl xl:text-4xl text-[#333] dark:text-foreground "
@@ -43,7 +42,7 @@ const CatalogSection = () => {
             >
               Free
               <span className="text-primary ml-2">
-                Reptile Store
+                Customizable Online Store
               </span>
             </motion.h2>
             {/* Supporting text */}
@@ -57,14 +56,13 @@ const CatalogSection = () => {
             </motion.p>
           </div>
           {/* Image */}
-          <div className="w-full max-w-4xl relative">
+          <div className="w-full max-w-4xl 3xl:max-w-[1100px] relative">
             <div 
-              className="relative aspect-[16/9] border w-full rounded-sm shadow-2xl shadow-primary/30 dark:shadow-primary/15 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+              className="relative aspect-[16/9] border w-full rounded-sm shadow-2xl shadow-primary/20 dark:shadow-primary/15 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
               onClick={handleImageClick}
             >
- 
              <Image 
-                src={theme.theme === 'dark' ? '/website_dark.png' : '/website_light.png'}
+                src={theme.theme === 'dark' ? '/features/website_dark.png' : '/features/website_light.png'}
                 alt="Pedigree Analysis Feature"
                 fill
                 loading='lazy'
@@ -90,7 +88,7 @@ const CatalogSection = () => {
               <X strokeWidth={1.5} className="w-8 h-8" />
             </button>
             <Image 
-              src={theme.theme === 'dark' ? '/website_dark.png' : '/website_light.png'}
+              src={theme.theme === 'dark' ? '/features/website_dark.png' : '/features/website_light.png'}
               alt="Pedigree Analysis Feature - Enlarged"
               fill
               loading='lazy'

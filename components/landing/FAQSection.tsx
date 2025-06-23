@@ -26,7 +26,7 @@ export function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
-    <section className=" relative py-6 sm:py-16 xl:py-20 ">
+    <section className=" relative py-16 sm:py-24">
       <div className="relative">
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
@@ -40,7 +40,7 @@ export function FAQSection() {
           </p>
         </div>
 
-        <div className="mt-10 max-w-3xl mx-auto px-4 xl:!px-0">
+        <div className="mt-10 max-w-4xl 3xl:max-w-5xl mx-auto px-4 xl:!px-0">
           {faqs.map((faq, index) => (
             <div
               key={index}
