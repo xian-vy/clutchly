@@ -16,7 +16,7 @@ import { useTheme } from 'next-themes'
 import Image from 'next/image';
 import { CatalogIntroContact } from './CatalogIntroContact';
 import { AboutSettingsDialog } from './CatalogIntroAbout';
-import { cn } from '@/lib/utils';
+import { cn, toTitleCase } from '@/lib/utils';
 import { MinProfileInfo } from '@/lib/types/organizations';
 import ShareURLDialog from './ShareURLDialog';
 import { APP_NAME } from '@/lib/constants/app';
@@ -269,7 +269,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,organization} : Props) 
             )
           ) : (
             <div className="flex items-start justify-center">
-              <p className="text-start  text-sm md:text-base max-w-3xl">{settings?.bio || 'Add your Bio/Intro here !'}</p>
+              <p className="text-start  text-sm md:text-base max-w-3xl">{settings?.bio ? toTitleCase(settings.bio) : 'Add your Bio/Intro here !'}</p>
             </div>
           )}
           <div className="flex items-start justify-start gap-1 sm:gap-1.5  w-full">

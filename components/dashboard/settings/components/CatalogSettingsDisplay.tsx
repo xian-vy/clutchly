@@ -1,6 +1,7 @@
 import { CatalogSettings } from '@/lib/types/catalog';
 import { Button } from '@/components/ui/button';
 import { Edit2, ExternalLink } from 'lucide-react';
+import { toTitleCase } from '@/lib/utils';
 
 interface CatalogSettingsDisplayProps {
   settings: CatalogSettings | undefined;
@@ -32,7 +33,7 @@ export const CatalogSettingsDisplay = ({ settings, onEdit }: CatalogSettingsDisp
       <div className="space-y-4">
         <div>
           <label className="text-sm font-medium text-muted-foreground">Bio/Intro</label>
-          <p className="mt-1 text-sm xl:text-base">{settings.bio || 'Not set'}</p>
+          <p className="mt-1 text-sm">{settings.bio || 'Not set'}</p>
         </div>
         <div>
           <label className="text-sm font-medium text-muted-foreground">Contacts</label>
@@ -40,8 +41,8 @@ export const CatalogSettingsDisplay = ({ settings, onEdit }: CatalogSettingsDisp
             {settings.contacts && settings.contacts.length > 0 ? (
               settings.contacts.map((contact, idx) => (
                 <div key={idx} className="flex gap-2 items-center">
-                  <span className="font-medium capitalize text-sm xl:text-base">{contact.type}:</span>
-                  <span className="text-sm xl:text-base">{contact.link}</span>
+                  <span className="font-medium capitalize text-sm">{contact.type}:</span>
+                  <span className="text-sm">{contact.link}</span>
                   {isValidUrl(contact.link) && (
                     <a
                       href={contact.link}
@@ -61,11 +62,13 @@ export const CatalogSettingsDisplay = ({ settings, onEdit }: CatalogSettingsDisp
         </div>
         <div>
           <label className="text-sm font-medium text-muted-foreground">Address</label>
-          <p className="mt-1 text-sm xl:text-base">{settings.address || 'Not set'}</p>
+          <p className="mt-1 text-sm">
+            {settings.address ? toTitleCase(settings.address) : 'Not set'}
+          </p>
         </div>
         <div>
           <label className="text-sm font-medium text-muted-foreground">About</label>
-          <p className="mt-1 text-sm xl:text-base">{settings.about || 'Not set'}</p>
+          <p className="mt-1 text-sm">{settings.about || 'Not set'}</p>
         </div>
       </div>
     </div>

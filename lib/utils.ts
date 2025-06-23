@@ -86,3 +86,9 @@ export function getCurrentMonthDateRange(): { dateFrom: string; dateTo: string }
     dateTo: formatDate(lastDay)
   };
 }
+
+export function toTitleCase(str : string): string {
+  return str
+    .toLowerCase()
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
