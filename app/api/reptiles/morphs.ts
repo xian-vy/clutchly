@@ -1,4 +1,3 @@
-
 import { createClient } from '@/lib/supabase/client'
 import { Morph, NewMorph } from '@/lib/types/morph'
 import { getUserAndOrganizationInfo } from '../utils_client'
@@ -125,10 +124,31 @@ export async function deleteMorph(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function getGlobalMorphs() {
-  const supabase = await createClient()
-  
-  const { data: morphs, error } = await supabase
+export async function getGlobalMorphs(speciesIds?: string[]) {
+  const supabase =  createClient();
+  const { organization } = await getUserAndOrganizationInfo();
+
+  // 1. Fetch all unique species_id from reptiles for the current org
+  const { data: reptiles, error: reptilesError } = await supabase
+    .from('reptiles')
+    .select('species_id')
+    .eq('org_id', organization.id);
+  if (reptilesError) throw reptilesError;
+
+  const reptileSpeciesIds = Array.from(
+    new Set((reptiles || []).map(r => r.species_id?.toString()).filter(Boolean))
+  );
+
+  // 2. Merge with provided speciesIds
+  let allSpeciesIds: string[] = [];
+  if (speciesIds && speciesIds.length > 0) {
+    allSpeciesIds = Array.from(new Set([...speciesIds, ...reptileSpeciesIds]));
+  } else {
+    allSpeciesIds = reptileSpeciesIds;
+  }
+
+  // 3. Fetch morphs for all these species IDs (global or org)
+  let query = supabase
     .from('morphs')
     .select(`
       id,
@@ -139,9 +159,16 @@ export async function getGlobalMorphs() {
       is_global,
       species:species(name)
     `)
-    .eq('is_global', true)
-    .order('name')
+    .or(`is_global.eq.true,org_id.eq.${organization.id}`)
+    .order('name');
 
-  if (error) throw error
-  return (morphs as unknown) as (Morph & { species: { name: string } })[]
+  if (allSpeciesIds.length > 0) {
+    query = query.in('species_id', allSpeciesIds);
+  }
+
+  const { data: morphs, error } = await query;
+  console.log("Fetching global morphs for species IDs:", morphs);
+
+  if (error) throw error;
+  return (morphs as unknown) as (Morph & { species: { name: string } })[];
 } 
