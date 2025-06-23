@@ -53,12 +53,8 @@ export const useMorphsStore = create<MorphsState>()(
             await speciesStore.downloadCommonSpecies();
           }
 
-          const commonMorphs = await getGlobalMorphs();
-          
-          // Filter morphs by selected species if provided
-          const morphsToDownload = selectedSpeciesIds
-            ? commonMorphs.filter(m => selectedSpeciesIds.includes(m.species_id.toString()))
-            : commonMorphs;
+          // Just pass selectedSpeciesIds to getGlobalMorphs
+          const commonMorphs = await getGlobalMorphs(selectedSpeciesIds);
           
           // Merge with existing morphs, avoiding duplicates by name and species
           const existingMorphs = get().morphs;
@@ -66,7 +62,7 @@ export const useMorphsStore = create<MorphsState>()(
             existingMorphs.map(m => `${m.name.toLowerCase()}-${m.species.name.toLowerCase()}`)
           );
           
-          const newMorphs = morphsToDownload.filter(
+          const newMorphs = commonMorphs.filter(
             m => !existingMorphKeys.has(`${m.name.toLowerCase()}-${m.species.name.toLowerCase()}`)
           );
           

@@ -199,20 +199,15 @@ export function HatchlingForm({
       const speciesInfo = species.find(s => s.id.toString() === clutch.species_id.toString());
       
       // Create array of promises for multiple hatchlings
-      const createPromises = Array.from({ length: values.quantity }, async (_, index) => {
+      const baseReptiles = [...(reptiles || [])];
+
+      for (let index = 0; index < values.quantity; index++) {
         // Destructure quantity out and keep the rest
         const { quantity, ...hatchlingValues } = values;
-        console.log(quantity);
-        // Generate unique code for each hatchling
+        console.log(quantity)
         let uniqueCode = '';
         if (selectedMorph && speciesInfo) {
           const speciesCode = getSpeciesCode(speciesInfo.name);
-          const baseReptiles = [...(reptiles || [])];
-          // Add previous hatchlings to ensure unique sequence
-          for (let i = 0; i < index; i++) {
-            baseReptiles.push({ id: `temp_${Date.now()}_${i}` } as Reptile);
-          }
-          
           uniqueCode = generateReptileCode(
             baseReptiles,
             speciesCode,
@@ -222,17 +217,17 @@ export function HatchlingForm({
           );
         }
 
-        // Generate name based on morph and traits
+        // Use the sequence number from the unique code for the name
         const sequenceNumber = uniqueCode.split('-')[0];
-        const baseName = generateReptileName(
+        const hatchlingName = generateReptileName(
           selectedMorph?.name || '',
           hetTraits,
           sequenceNumber
         );
-        
-        // Always use the auto-generated name with unique sequence number
-        const hatchlingName = baseName;
-        
+
+        // Add the new reptile to baseReptiles so the next code and name are unique
+        baseReptiles.push({ id: `temp_${Date.now()}_${index}`, name: hatchlingName, reptile_code: uniqueCode } as Reptile);
+
         const hatchlingData: NewReptile = {
           ...hatchlingValues,
           reptile_code: uniqueCode,
@@ -251,9 +246,7 @@ export function HatchlingForm({
           price :  0,
         };
         await onSubmit(hatchlingData);
-      });
-  
-      await Promise.all(createPromises);
+      }
     } catch (error) {
       console.error('Error submitting hatchlings:', error);
     } 

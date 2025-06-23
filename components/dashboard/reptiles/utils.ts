@@ -23,9 +23,6 @@ export const generateReptileCode = (
   hatchDate: string | null,
   sex: Sex
 ): string => {
-  // 1 billion
-  const sequenceNumber = (reptiles.length + 1).toString().padStart(5, '0');
-  
   // Extract year from hatch date or use current year if not available
   const year = hatchDate 
     ? new Date(hatchDate).getFullYear().toString().slice(-2)
@@ -37,6 +34,19 @@ export const generateReptileCode = (
   // Get first 5 letters of morph name (uppercase), removing spaces
   const cleanedMorphName = morphName.replace(/\s+/g, '');
   const morphCode = cleanedMorphName.substring(0, 5).toUpperCase();
+  
+  // Find the max sequence number among existing reptiles
+  let maxSeq = 0;
+  reptiles.forEach(r => {
+    if (r.reptile_code) {
+      const match = r.reptile_code.match(/^(\d{5})-/);
+      if (match) {
+        const seq = parseInt(match[1], 10);
+        if (seq > maxSeq) maxSeq = seq;
+      }
+    }
+  });
+  const sequenceNumber = (maxSeq + 1).toString().padStart(5, '0');
   
   // Format: SEQ_SPECIESINITIAL_MORPHNAME_HATCHYEAR_SEX
   return `${sequenceNumber}-${speciesCode}-${morphCode}-${year}-${sexCode}`;
