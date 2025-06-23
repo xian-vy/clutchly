@@ -16,6 +16,7 @@ import { CatalogIntroContact } from './CatalogIntroContact'
 import { AboutSettingsDialog } from './CatalogIntroAbout'
 import { MinProfileInfo } from '@/lib/types/organizations'
 import ShareURLDialog from './ShareURLDialog'
+import { toTitleCase } from '@/lib/utils'
 
 interface Props {
      organization : MinProfileInfo
@@ -100,14 +101,14 @@ return (
               </form>
             ) : (
               <>
-                <span>{settings?.address || <span className="italic text-muted-foreground">Add your address here!</span>}</span>
+                <span>{settings?.address ? toTitleCase(settings.address)  : <span className="italic text-muted-foreground">Add your address here!</span>}</span>
                 <Button variant="ghost" size="icon" className="ml-1" onClick={() => setIsEditing(true)}>
                   <Pencil className="h-4 w-4 text-foreground/70" />
                 </Button>
               </>
             )
           ) : (
-            <span className='text-center'>{settings?.address || ''}</span>
+            <span className='text-center'>{settings?.address ? toTitleCase(settings.address)  : ''}</span>
           )}
         </div>
 

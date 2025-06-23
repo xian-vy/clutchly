@@ -1,22 +1,16 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card,  } from '@/components/ui/card';
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getReptileReportData } from '@/app/api/reptiles/reports';
-import { Loader2, Filter } from 'lucide-react';
-import { ReptileFilterDialog } from './ReptileFilterDialog';
+import { Loader2 } from 'lucide-react';
 import { ReptileSummaryCards } from './reports/ReptileSummaryCards';
 import { ReptileCharts } from './reports/ReptileCharts';
-import { ReptileFilters } from './ReptileFilterDialog';
 
 export function ReptileReportsTab() {
-  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
-  const [filters, setFilters] = useState<ReptileFilters>({});
 
   const { data: reportData, isLoading } = useQuery({
-    queryKey: ['reptile-reports', filters],
+    queryKey: ['reptile-reports'],
     queryFn: getReptileReportData
   });
 
@@ -29,22 +23,7 @@ export function ReptileReportsTab() {
             Comprehensive analysis of your reptile collection.
           </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => setFilterDialogOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <Filter className="h-4 w-4" />
-          Filter
-        </Button>
       </div>
-
-      <ReptileFilterDialog
-        open={filterDialogOpen}
-        onOpenChange={setFilterDialogOpen}
-        onApplyFilters={setFilters}
-        currentFilters={filters}
-      />
 
       {isLoading ? (
         <div className="flex items-center justify-center p-8">

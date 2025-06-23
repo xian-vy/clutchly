@@ -33,7 +33,7 @@ export function VisualTraitsForm({ initialTraits, onChange }: VisualTraitsFormPr
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm sm:text-base xl:text-lg font-medium">Add Visual Traits</h3>
+      <h3 className="text-sm sm:text-base font-medium">Add Visual Traits</h3>
       <div className="flex gap-2">
         <Input 
           placeholder="Add visual trait" 

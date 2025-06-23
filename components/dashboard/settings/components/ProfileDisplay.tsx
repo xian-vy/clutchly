@@ -123,15 +123,15 @@ export const ProfileDisplay = ({ organization, isAdmin = false }: ProfileDisplay
           <div className="space-y-2">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Name</label>
-              <p className="text-sm xl:text-base">{organization.full_name || 'Not set'}</p>
+              <p className="text-sm">{organization.full_name || 'Not set'}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground">Email</label>
-              <p className="text-sm xl:text-base">{organization.email}</p>
+              <p className="text-sm">{organization.email}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-muted-foreground">Account Type</label>
-              <p className="text-sm xl:text-base capitalize">{organization.account_type}</p>
+              <p className="text-sm capitalize">{organization.account_type}</p>
             </div>
           </div>
         </div>

@@ -54,7 +54,7 @@ export function HetTraitsForm({ initialTraits, onChange }: HetTraitsFormProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm sm:text-base xl:text-lg font-medium">Add Het Traits</h3>
+      <h3 className="text-sm sm:text-base font-medium">Add Het Traits</h3>
       <div className="flex flex-col lg:flex-row items-start lg:items-center">
           <div className="grid grid-cols-[1fr_auto_1fr] lg:grid-cols-4 gap-2 sm:gap-3 md:gap-5 ">
             <div className='space-y-2'>
