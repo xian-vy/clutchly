@@ -26,7 +26,7 @@ const PlansSection = () => {
           <h2 className="text-center text-2xl lg:text-3xl 3xl:!text-4xl font-bold tracking-tight text-[#333] dark:text-foreground">
             Choose the right plan for your needs
           </h2>
-          <p className="text-muted-foreground text-sm lg:text-base 3xl:!text-base max-w-[600px]">
+          <p className="text-muted-foreground text-sm lg:text-base 3xl:!text-lg max-w-[600px]">
              Flexible options for every level of hobbyist, breeder, or professional
           </p>
       </div>
