@@ -11,8 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useReptilesParentsBySpecies } from '@/lib/hooks/useReptilesParentsBySpecies'
 import { useSelectList } from '@/lib/hooks/useSelectList'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
-import { NewReptile, Reptile, reptileFormSchema, Sex } from '@/lib/types/reptile'
-import { generateReptileCode, generateReptileName, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
+import { NewReptile, Reptile, reptileFormSchema } from '@/lib/types/reptile'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -23,6 +22,7 @@ import { Organization } from '@/lib/types/organizations'
 import { Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies'
+import { useReptileNameGeneration } from '@/lib/hooks/useReptileNameGeneration'
 
 interface EnrichedReptile extends Reptile {
   species_name?: string;
@@ -51,7 +51,6 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
     source?: 'visual_parent' | 'genetic_test' | 'breeding_odds';
     verified?: boolean;
   }>>(initialData?.het_traits || []);
-  const [isNameManuallyEdited, setIsNameManuallyEdited] = useState(() => !!initialData);
 
   const sortedSpecies = useSortedSpecies(species, organization?.selected_species || []);
   const defaultSpeciesId = initialData?.species_id.toString() || (species.length > 0 ? sortedSpecies[0].id.toString() : '');
@@ -97,13 +96,20 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   }
 
   const speciesId = form.watch('species_id');
-  const morphId = form.watch('morph_id');
-  const sex = form.watch('sex');
-  const hatchDate = form.watch('hatch_date');
   
   const { selectedSpeciesId, maleReptiles, femaleReptiles, morphsForSpecies } = useReptilesParentsBySpecies({
     reptiles,
     speciesId : speciesId || '',
+  });
+
+  // Use the custom hook for name generation logic
+  const { isNameManuallyEdited, setIsNameManuallyEdited, toggleNameMode } = useReptileNameGeneration({
+    form,
+    initialData,
+    species,
+    morphsForSpecies,
+    reptiles,
+    hetTraits
   });
 
   // Select first morph when species changes or when component first loads
@@ -112,49 +118,6 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
       form.setValue('morph_id', morphsForSpecies[0].id.toString());
     }
   }, [morphsForSpecies, form, initialData]);
-
-  // Auto-generate reptile code when relevant fields change
-  useEffect(() => {
-    if (initialData) return;
-    
-    const selectedSpecies = species.find(s => s.id.toString() === speciesId);
-    const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
-    
-    if (selectedSpecies && selectedMorph) {
-      const speciesCode = getSpeciesCode(selectedSpecies.name);
-      
-      const generatedCode = generateReptileCode(
-        reptiles,
-        speciesCode,
-        selectedMorph.name,
-        hatchDate,
-        sex as Sex
-      );
-      
-      form.setValue('reptile_code', generatedCode);
-    }
-  }, [speciesId, morphId, sex, hatchDate, form, reptiles, species, morphsForSpecies, initialData]);
-
-  // Auto-generate reptile name when relevant fields change
-  useEffect(() => {
-    // Only auto-generate name if not manually edited and (not editing or user has reset to auto mode)
-    if (isNameManuallyEdited) return;
-    if (initialData) return; // Do not auto-generate name on edit unless user clicks Auto
-
-    const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
-    if (!selectedMorph) return;
-
-    const reptileCode = form.getValues('reptile_code');
-    const sequenceNumber = reptileCode ? reptileCode.split('-')[0] : '';
-
-    const generatedName = generateReptileName(
-      selectedMorph.name,
-      hetTraits,
-      sequenceNumber
-    );
-
-    form.setValue('name', generatedName);
-  }, [morphId, hetTraits, form, morphsForSpecies, isNameManuallyEdited, initialData]);
 
   const { Select: SpeciesSelect } = useSelectList({
     data: sortedSpecies,
@@ -203,36 +166,24 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
                         <Input 
                           {...field} 
                           value={field.value || ''} 
-                          placeholder="Auto-generated based on morph and traits"
+                          placeholder={
+                            initialData 
+                              ? (isNameManuallyEdited ? "Edit name manually" : "Auto-generated based on current fields")
+                              : (isNameManuallyEdited ? "Enter name manually" : "Auto-generated based on morph and traits")
+                          }
                           onChange={(e) => {
                             field.onChange(e);
                             setIsNameManuallyEdited(true);
                           }}
                         />
-                        {isNameManuallyEdited && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setIsNameManuallyEdited(false);
-                              // Trigger name regeneration
-                              const selectedMorph = morphsForSpecies.find(m => m.id.toString() === morphId);
-                              if (selectedMorph) {
-                                const reptileCode = form.getValues('reptile_code');
-                                const sequenceNumber = reptileCode ? reptileCode.split('-')[0] : '';
-                                const generatedName = generateReptileName(
-                                  selectedMorph.name,
-                                  hetTraits,
-                                  sequenceNumber
-                                );
-                                form.setValue('name', generatedName);
-                              }
-                            }}
-                          >
-                            Auto
-                          </Button>
-                        )}
+                        <Button
+                          type="button"
+                          variant={isNameManuallyEdited ? "outline" : "secondary"}
+                          size="sm"
+                          onClick={toggleNameMode}
+                        >
+                          {isNameManuallyEdited ? "Auto" : "Manual"}
+                        </Button>
                       </div>
                     </FormControl>
                     <FormMessage />
