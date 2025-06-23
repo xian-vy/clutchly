@@ -9,7 +9,7 @@ export function Footer() {
   const { theme } = useTheme()
   
   return (
-    <footer className="w-full mx-auto border-t border-border/50 bg-[#f0fdf4]/40 dark:bg-background/95  px-4 sm:px-6 lg:px-8 2xl:!px-16 py-16 relative">
+    <footer className="w-full mx-auto border-t border-border/50 bg-[#f0fdf4]/20 dark:bg-background/95 px-6 lg:px-8 2xl:!px-16 py-16 relative">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,var(--color-primary)/15%_0%,transparent_70%)]" />
       
       <div className="container mx-auto relative flex flex-col items-center">
@@ -23,7 +23,7 @@ export function Footer() {
               alt="clutchly" 
               className="rounded-full" 
             />
-            <span className="font-bold text-xl md:text-2xl xl:text-3xl text-[#333] dark:text-foreground">{APP_NAME}</span>
+            <span className="font-bold text-xl md:text-2xl xl:text-3xl text-foreground/90">{APP_NAME}</span>
           </div>
           <p className="text-sm xl:text-base 3xl:text-lg text-muted-foreground">
             {APP_DESCRIPTION}
@@ -31,7 +31,7 @@ export function Footer() {
         </div>
         
         {/* Links Section */}
-        <div className="flex items-center justify-center gap-8 mb-12">
+        <div className="flex items-center justify-center gap-5 sm:gap-8 mb-12">
           <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
             About
           </Link>

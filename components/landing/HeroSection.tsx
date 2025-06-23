@@ -39,7 +39,7 @@ export function HeroSection() {
           </motion.div>
           {/* Headline */}
           <motion.h1 
-            className="font-bold !leading-[1] tracking-tighter text-4xl md:text-[3rem] lg:text-4xl xl:text-[3rem] 2xl:text-[4rem] 3xl:!text-[4.5rem] text-[#333] dark:text-foreground mb-4 text-center lg:text-left"
+            className="font-bold !leading-[1] tracking-tighter text-4xl md:text-[3rem] lg:text-4xl xl:text-[3rem] 2xl:text-[3.5rem] 3xl:!text-[4rem] text-[#333] dark:text-foreground mb-4 text-center lg:text-left"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -68,7 +68,7 @@ export function HeroSection() {
           >
             <motion.button
               onClick={() => handleNavigation('/auth/signup')}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm md:text-base xl:text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 relative overflow-hidden group cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm md:text-base 3xl:!text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 relative overflow-hidden group cursor-pointer"
               disabled={isPending}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}

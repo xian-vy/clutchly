@@ -22,12 +22,14 @@ const PlansSection = () => {
       <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
         Pricing
       </span>
-      <h2 className="text-center text-2xl lg:text-3xl font-bold tracking-tight xl:text-4xl text-[#333] dark:text-foreground">
-        Choose the right plan for your needs
-      </h2>
-      <p className="text-muted-foreground text-sm lg:text-lg max-w-[600px]">
-        Flexible options for every level of hobbyist, breeder, or professional
-      </p>
+      <div className='space-y-1.5'>
+          <h2 className="text-center text-2xl lg:text-3xl 3xl:!text-4xl font-bold tracking-tight text-[#333] dark:text-foreground">
+            Choose the right plan for your needs
+          </h2>
+          <p className="text-muted-foreground text-sm lg:text-base 3xl:!text-base max-w-[600px]">
+             Flexible options for every level of hobbyist, breeder, or professional
+          </p>
+      </div>
     </div>
     <div className="relative max-w-[340px] md:max-w-[760px] lg:max-w-[1100px] mx-auto mt-10 sm:mt-16">
       {/* Mobile Carousel (hidden on lg screens) */}
