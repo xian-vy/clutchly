@@ -47,23 +47,25 @@ const ContactPage = () => {
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
             Get in Touch
           </span>
-          <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight text-[#333] dark:text-foreground">
-            Connect With Us
-          </h1>
-          <p className="text-muted-foreground text-base sm:text-lg px-4 max-w-[600px] mt-2">
-            Have questions? We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
-          </p>
+          <div className="space-y-1.5">
+              <h1 className="text-2xl lg:text-3xl 3xl:!text-4xl max-w-2xl font-bold tracking-tight text-[#333] dark:text-foreground">
+                Connect With Us
+              </h1>
+              <p className="text-muted-foreground text-base sm:text-base 3xl:!text-lg px-4 max-w-[600px] mt-2">
+                Have questions? We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
+              </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 max-w-xl mx-auto md:mb-10">
                 <div className="space-y-6">
-                  <div className="flex items-start gap-4 group">
+                  <div className="flex items-center gap-4 group">
                     <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                       <Mail className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-sm text-muted-foreground">Email</h3>
-                      <p className="text-foreground hover:text-primary transition-colors">clutchlyreptilehusbandry@gmail.com</p>
+                      <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">clutchlyreptilehusbandry@gmail.com</p>
                     </div>
                     <Button 
                       onClick={() => handleCopy("clutchlyreptilehusbandry@gmail.com", "email")} 
@@ -78,13 +80,13 @@ const ContactPage = () => {
                       )}
                     </Button>
                   </div>
-                  <div className="flex items-start gap-4 group">
+                  <div className="flex items-center gap-4 group">
                     <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                       <PiDiscordLogo className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-sm text-muted-foreground">Discord</h3>
-                      <p className="text-foreground hover:text-primary transition-colors">discord.gg/crispysnowflake.</p>
+                      <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">discord.gg/crispysnowflake.</p>
                     </div>
                     <Button 
                       onClick={() => handleCopy("discord.gg/crispysnowflake.", "discord")} 
@@ -99,13 +101,13 @@ const ContactPage = () => {
                       )}
                     </Button>
                   </div>
-                  <div className="flex items-start gap-4 group">
+                  <div className="flex items-center gap-4 group">
                     <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                       <PiMessengerLogo className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-sm text-muted-foreground">Messenger</h3>
-                      <p className="text-foreground hover:text-primary transition-colors">facebook.com/xzyian.vy</p>
+                      <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">facebook.com/xzyian.vy</p>
                     </div>
                     <Button 
                       onClick={() => handleCopy("facebook.com/xzyian.vy", "messenger")} 

@@ -22,26 +22,24 @@ const AboutPage = () => {
           <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
             About Us
           </span>
-          <h1 className="text-2xl lg:text-3xl xl:text-4xl max-w-2xl font-bold tracking-tight text-[#333] dark:text-foreground">
-            Empowering Reptile Enthusiasts
-          </h1>
-          <p className="text-muted-foreground text-base sm:text-lg px-4  max-w-[600px] mt-2">
-            Revolutionizing how reptile enthusiasts manage and track their collections with innovative solutions
-          </p>
+          <div className="space-y-1.5">
+              <h1 className="text-2xl lg:text-3xl 3xl:!text-4xl max-w-2xl font-bold tracking-tight text-[#333] dark:text-foreground">
+                Empowering Reptile Enthusiasts
+              </h1>
+              <p className="text-muted-foreground text-base sm:text-base 3xl:!text-lg px-4  max-w-[600px] mt-2">
+                Revolutionizing how reptile enthusiasts manage and track their collections with innovative solutions
+              </p>
+          </div>
         </div>
 
         {/* Mission Section */}
         <div className="max-w-[800px] mx-auto mb-8">
           <div className=" bg-card p-8">
             <div className="space-y-6">
-              <p className="text-base text-muted-foreground text-center">
+              <p className="text-base text-muted-foreground text-center max-w-[600px] mx-auto">
                 At Clutchly, we&apos;re dedicated to revolutionizing how reptile enthusiasts manage and track their collections. 
-                Our platform combines cutting-edge technology with user-friendly design to make reptile management 
-                more efficient and enjoyable than ever before.
-              </p>
-              <p className="text-base  text-muted-foreground text-center">
                 Whether you&apos;re a professional breeder or a passionate hobbyist, Clutchly provides the tools you need 
-                to maintain detailed records, track breeding programs, and ensure the well-being of your reptiles.
+                to maintain detailed records, track breeding programs, and more.
               </p>
             </div>
           </div>
@@ -55,7 +53,7 @@ const AboutPage = () => {
             <h2 className="text-2xl font-semibold tracking-tight mb-4 text-[#333] dark:text-foreground">
               Ready to Get Started?
             </h2>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-8 max-w-[600px] mx-auto">
               Join our community of reptile enthusiasts and take your collection management to the next level.
             </p>
             <Link

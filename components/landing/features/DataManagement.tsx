@@ -35,7 +35,7 @@ const DataManagementSection = () => {
             </motion.div>
             {/* Headline */}
             <motion.h2 
-              className="font-bold tracking-tighter text-2xl lg:text-3xl xl:text-4xl text-[#333] dark:text-foreground "
+              className="font-bold tracking-tighter text-2xl lg:text-3xl 3xl:!text-4xl text-[#333] dark:text-foreground "
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
@@ -47,7 +47,7 @@ const DataManagementSection = () => {
             </motion.h2>
             {/* Supporting text */}
             <motion.p 
-              className="mt-2 text-muted-foreground text-sm lg:text-lg max-w-[600px]"
+              className="mt-2 text-muted-foreground text-sm lg:text-base 3xl:!text-lg max-w-[600px]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
