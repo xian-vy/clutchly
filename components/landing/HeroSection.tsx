@@ -39,20 +39,20 @@ export function HeroSection() {
           </motion.div>
           {/* Headline */}
           <motion.h1 
-            className="font-bold !leading-[1] tracking-tighter text-4xl md:text-[3rem] lg:text-4xl xl:text-[3rem] 2xl:text-[3.5rem] 3xl:!text-[4rem] text-[#333] dark:text-foreground mb-4 text-center lg:text-left"
+            className="font-bold !leading-[1] tracking-tighter text-3xl md:text-[3rem] lg:text-4xl xl:text-[3rem] 2xl:text-[3.5rem] 3xl:!text-[4rem] text-[#333] dark:text-foreground mb-4 text-center lg:text-left"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
             The Reptile Data
             <br />
-            <span className="text-primary">
+            <span className="text-[#237050] dark:text-primary">
               Management Platform
             </span>
           </motion.h1>
           {/* Supporting text */}
           <motion.p 
-            className="mt-6 text-base xl:text-lg 3xl:!text-xl text-muted-foreground max-w-lg xl:max-w-2xl mb-8 text-center lg:text-left mx-auto lg:mx-0"
+            className="mt-6 text-sm sm:text-base xl:text-lg 3xl:!text-xl text-muted-foreground max-w-lg xl:max-w-2xl mb-8 text-center lg:text-left mx-auto lg:mx-0"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
