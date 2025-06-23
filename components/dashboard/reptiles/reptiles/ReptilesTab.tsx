@@ -157,6 +157,7 @@ export function ReptilesTab() {
     if (success) {
       onDialogChange(); 
       queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+      queryClient.invalidateQueries({ queryKey: ['reptiles'] });
     }
   }
 
