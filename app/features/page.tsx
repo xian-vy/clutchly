@@ -1,5 +1,5 @@
 
-import { FeatureCard } from '@/components/landing/FeatureCard'
+import { FeatureCard } from '@/components/landing/features/FeatureCard'
 import { Footer } from '@/components/landing/Footer'
 import TopNavigation from '@/components/landing/TopNavigation'
 import { FEATURE_LIST } from '@/lib/constants/features'
@@ -33,7 +33,7 @@ export default function FeaturesPage() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid gap-3 sm:gap-4 md:gap-5 xl:gap-8 lg:gap-10 grid-cols-1 sm:grid-cols-2  lg:grid-cols-3 max-w-[1200px] mx-auto">
+        <div className="grid gap-3 sm:gap-4 lg:gap-5 xl:gap-6 grid-cols-1 sm:grid-cols-2  lg:grid-cols-3 3xl:!grid-cols-4 max-w-screen-lg 3xl:!max-w-screen-xl mx-auto">
           {FEATURE_LIST.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}

@@ -17,7 +17,7 @@ const PlansSection = () => {
   }
 
   return (
-    <section className="mt-32 mb-8">
+    <section className="py-16 sm:py-24 mb-8">
     <div className="flex flex-col items-center gap-4 text-center">
       <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
         Pricing
@@ -29,23 +29,23 @@ const PlansSection = () => {
         Flexible options for every level of hobbyist, breeder, or professional
       </p>
     </div>
-    <div className="relative max-w-[340px] md:max-w-[400px] lg:max-w-[1100px] mx-auto mt-10 sm:mt-16">
+    <div className="relative max-w-[340px] md:max-w-[760px] lg:max-w-[1100px] mx-auto mt-10 sm:mt-16">
       {/* Mobile Carousel (hidden on lg screens) */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         {/* Navigation Arrows */}
         <button
           onClick={prevSlide}
           className="absolute left-1 sm:-left-10 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
           aria-label="Previous plan"
         >
-          <ChevronLeft className="h-6 w-6" />
+          <ChevronLeft className="h-3 md:h-5 md:w-5 w-3" />
         </button>
         <button
           onClick={nextSlide}
           className="absolute right-1 sm:-right-10 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-background/80 hover:bg-background p-2 rounded-full shadow-md border border-border"
           aria-label="Next plan"
         >
-          <ChevronRight className="h-6 w-6" />
+          <ChevronRight className="h-3 md:h-5 md:w-5 w-3" />
         </button>
 
         {/* Carousel Container */}
@@ -82,7 +82,7 @@ const PlansSection = () => {
       </div>
 
       {/* Desktop Grid (hidden on mobile) */}
-      <div className="hidden lg:grid grid-cols-3 md:gap-3 lg:gap-5 xl:gap-7">
+      <div className="hidden md:grid grid-cols-3 md:gap-3 lg:gap-5 xl:gap-7">
         {PLANS_LIST.map((plan) => (
           <PlanCard key={plan.id} plan={plan} />
         ))}
