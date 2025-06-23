@@ -40,7 +40,7 @@ export function FAQSection() {
           </p>
         </div>
 
-        <div className="mt-10 max-w-4xl 3xl:max-w-5xl mx-auto px-4 xl:!px-0">
+        <div className="mt-10 max-w-4xl 2xl:max-w-5xl mx-auto px-4 xl:!px-0">
           {faqs.map((faq, index) => (
             <div
               key={index}
