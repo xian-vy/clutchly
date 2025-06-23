@@ -7,13 +7,14 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Morph } from '@/lib/types/morph';
 import { Reptile } from '@/lib/types/reptile';
 import { cn } from '@/lib/utils';
-import { CircleHelp, Dna, Mars, Venus, ChevronRight } from 'lucide-react';
+import { CircleHelp, Dna, Mars, Venus, ChevronRight, Eye } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { CustomNodeData, GroupedReptilesType } from './types';
 import { STATUS_COLORS } from '@/lib/constants/colors';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from '@/components/ui/separator';
+import { ReptileDetailsDialog } from '@/components/dashboard/reptiles/reptiles/ReptileDetailsDialog';
 
 
 interface Props {
@@ -22,6 +23,8 @@ interface Props {
 }
 
 const GroupNode = ({ reptiles = [], data }: Props) => {
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedReptile, setSelectedReptile] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { morphs } = useMorphsStore();
   const [selectedMorph, setSelectedMorph] = useState<string>('');
@@ -253,9 +256,15 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
                                     {reptile.status}
                                   </Badge>
                               </div>
-                              <div>
+                              <div className='absolute bottom-8 left-6 flex items-center gap-3'>
+                                  <Eye 
+                                  className='h-3 w-3 text-muted-foreground cursor-pointer'
+                                  onClick={() => {
+                                  setSelectedReptile(reptile.id);
+                                  setDetailsDialogOpen(true);
+                                  }} />
                                 <Tooltip>
-                                  <TooltipTrigger className='absolute bottom-8 left-6'>
+                                  <TooltipTrigger className=''>
                                   <div className="flex items-center gap-1 ">
                                         <Dna className="h-3 w-3 text-muted-foreground"/>
                                         <p className='text-xs sm:text-sm'>{reptile.visual_traits?.length}</p>
@@ -293,6 +302,12 @@ const GroupNode = ({ reptiles = [], data }: Props) => {
           </div>
         </DrawerContent>
       </Drawer>
+      <ReptileDetailsDialog
+        reptileId={selectedReptile}
+        reptiles={reptiles || []}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+      />
       </>
     </TooltipProvider>
   );

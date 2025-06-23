@@ -43,4 +43,5 @@ export interface CustomNodeData {
   connectedSireId?: string;
   connectedChildrenIds?: string[];
   code: string | null;
+  reptileId: string;
 }
