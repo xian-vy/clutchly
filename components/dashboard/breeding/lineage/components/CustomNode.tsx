@@ -3,11 +3,13 @@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {  Reptile } from '@/lib/types/reptile';
-import { CircleHelp, Dna, Mars, Venus } from 'lucide-react';
+import { CircleHelp, Dna, Mars, Venus,Eye } from 'lucide-react';
 import { Handle, Position } from 'reactflow';
 import { CustomNodeData } from './types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Separator } from '@/components/ui/separator';
+import { ReptileDetailsDialog } from '@/components/dashboard/reptiles/reptiles/ReptileDetailsDialog';
+import { useState } from 'react';
 
 interface Props {
   reptiles?: Reptile[];
@@ -15,8 +17,17 @@ interface Props {
 }
 
 
-const CustomNode = ({ data }: Props) => (
+const CustomNode = ({ data,reptiles }: Props) => {
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedReptile, setSelectedReptile] = useState("");
+
+  return(
   <div
+    onDoubleClick={ (e) => {
+      e.stopPropagation(); 
+      setSelectedReptile(data.reptileId);
+      setDetailsDialogOpen(true);
+    }}
     className={cn(
       'relative px-4 py-2 shadow-md rounded-xl border border-input bg-card dark:bg-slate-900/50 w-[250px] transition-all duration-300',
       data.isSelected && 
@@ -54,14 +65,14 @@ const CustomNode = ({ data }: Props) => (
             <Badge key={index} className='bg-slate-700/10 dark:bg-slate-700/20 text-muted-foreground text-xs lg:text-sm'>{trait.percentage + "% het " +  trait.trait}</Badge>
           ))}
         </div>
-        {/* <div className="flex gap-2 justify-center flex-wrap w-full">
-          {data.generation && (
-            <Badge variant="outline">Gen {data.generation}</Badge>
-          )}
-          {data.breeding_line && (
-            <Badge variant="secondary">{data.breeding_line}</Badge>
-          )}
-        </div> */}
+
+        <Eye 
+          onClick={() => {
+           setSelectedReptile(data.reptileId);
+           setDetailsDialogOpen(true);
+          }} 
+        className='h-4 w-4 text-muted-foreground absolute top-3 left-3 cursor-pointer' />
+     
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger className='flex items-center gap-1 absolute top-1 right-2 p-2'>
@@ -89,7 +100,13 @@ const CustomNode = ({ data }: Props) => (
         left: '50%'
       }}
     />
+    <ReptileDetailsDialog
+        reptileId={selectedReptile}
+        reptiles={reptiles || []}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+      />
   </div>
-);
+)};
 
 export default CustomNode; 

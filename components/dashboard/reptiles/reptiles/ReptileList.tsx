@@ -518,7 +518,7 @@ export function ReptileList({
       />
 
       <ReptileDetailsDialog
-        reptile={selectedReptile}
+        reptileId={selectedReptile.id}
         reptiles={reptiles}
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}

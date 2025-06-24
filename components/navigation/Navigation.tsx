@@ -1,78 +1,53 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useState, useTransition, useMemo } from 'react';
+import React, { useMemo, useState, useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
-import { useTheme } from 'next-themes';
 import { TopLoader } from '../ui/TopLoader';
-import { useUpcomingFeedings } from '@/lib/hooks/useUpcomingFeedings';
-import { isToday } from 'date-fns';
-import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
-import { Badge } from '../ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ScrollArea } from '../ui/scroll-area';
-import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
-import { ChevronDown, ChevronLeft, ChevronRight, Dot, Loader2, Menu } from 'lucide-react';
-import dynamic from 'next/dynamic'
-import { APP_NAME } from '@/lib/constants/app';
-import useAccessControl from '@/lib/hooks/useAccessControl';
-import { Skeleton } from '../ui/skeleton';
-import { logout } from '@/app/auth/logout/actions';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { OrganizationSetupDialog } from '../organization/OrganizationSetupDialog';
 import { User } from '@/lib/types/users';
 import { getCurrentUser } from '@/app/api/organizations/organizations';
-
-const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
- {
-  loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
-    <Loader2 className="animate-spin w-4 h-4 text-primary" />
-  </div>,
- }
-)
+import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
+import { logout } from '@/app/auth/logout/actions';
+import ReptileList from './ReptileList';
+import { OrganizationSetupDialog } from '../organization/OrganizationSetupDialog';
+import useAccessControl from '@/lib/hooks/useAccessControl';
+import { useSidebarStore } from '@/lib/stores/sidebarStore';
+import Image from 'next/image';
+import { useTheme } from 'next-themes';
+import { Skeleton } from '../ui/skeleton';
 
 export function Navigation() {
   const pathname = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const { theme } = useTheme();
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
-  useSidebarAnimation({ isCollapsed }); 
-  const [openSection, setOpenSection] = useState<string | null>(null);
-  const { 
-    upcomingFeedings, 
-  } = useUpcomingFeedings();
-  const [dialogToOpen, setDialogToOpen] = React.useState<"Reptile" | "Sale" | "Expense" | null>(null)
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const queryClient = useQueryClient();
+  const {theme} = useTheme();
 
-  const { data, isLoading } = useQuery<User>({
+  const { data: user, isLoading } = useQuery<User>({
     queryKey: ['user'],
     queryFn: getCurrentUser,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-    retry: 1, // Only retry once on failure
-    retryDelay: 1000, // Wait 1 second before retrying
-  }); 
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000, 
+    retry: 1,
+    retryDelay: 1000, 
+  });
 
-  const { filterNavItems, isLoading: accessLoading } = useAccessControl(data);
+  const { filterNavItems, isLoading: accessLoading } = useAccessControl(user);
 
-  // Filter navigation items based on access
   const accessibleNavItems = useMemo(() => {
-    if (isLoading || accessLoading) return []; // Return empty array while loading
+    if (isLoading || accessLoading) return []; 
     return filterNavItems(NAV_ITEMS);
   }, [filterNavItems, isLoading, accessLoading]);
 
   // Group accessible items by section
   const groupedNavItems = useMemo(() => {
     if (isLoading || accessLoading) {
-      return {
-        '': Array(10).fill(null) 
-      };
+      return {};
     }
     return accessibleNavItems.reduce((acc: Record<string, NavItem[]>, item: NavItem) => {
       const section = item.section || '';
@@ -84,9 +59,7 @@ export function Navigation() {
     }, {});
   }, [accessibleNavItems, isLoading, accessLoading]);
 
-  const todayFeedings = upcomingFeedings.filter(feeding => isToday(feeding.date));
-  const pendingTodayFeedings = todayFeedings.filter(feeding => !feeding.isCompleted);
-  const hasPendingFeedings = pendingTodayFeedings.length > 0;
+  
   const handleNavigation = (href: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     if (href !== pathname) {
@@ -96,199 +69,184 @@ export function Navigation() {
     }
   };
 
-  const toggleCollapsible = (name: string) => {
-    setOpenSection(current => current === name ? null : name);
-  };
-  const handleAddNew =(type : "Reptile" | "Sale" | "Expense") => {
-    setDialogToOpen(type)
-  }
-
-  
   const handleLogout = async () => {
     try {
-        setIsLoggingOut(true);
-        // Invalidate all queries first
-        await queryClient.invalidateQueries();
-        // Then clear the cache
-        queryClient.clear();
-        await logout();
-        window.location.reload();
-        setIsLoggingOut(false);
+      setIsLoggingOut(true);
+      await queryClient.invalidateQueries();
+      queryClient.clear();
+      await logout();
+      window.location.reload();
     } catch (error) {
-        console.error('Logout failed:', error);
-    } 
-};
+      console.error('Logout failed:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const mobileSidebarOpen = useSidebarStore((s) => s.mobileSidebarOpen);
+  const closeSidebar = useSidebarStore((s) => s.closeSidebar);
 
   return (
     <>
-    { isPending  && <TopLoader />}
-    { isLoggingOut  && <TopLoader />}
+       { isPending  && <TopLoader />}
+       { isLoggingOut  && <TopLoader />}
 
-      {/* Mobile menu button */}
-      <Button
-        variant="outline"
-        size="icon"
-        className="fixed top-4 left-4 z-40 lg:hidden"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        <Menu className="h-4 w-4" />
-      </Button>
-
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <div
-        className={cn(
-          "fixed flex flex-col h-[100dvh] inset-y-0 left-0 z-40 bg-sidebar border-r border-sidebar-border transform transition-all duration-200 ease-in-out lg:translate-x-0",
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-          isCollapsed ? "w-16" : "w-[19rem] 3xl:w-[22rem]"
-        )}
-      >
+      {/* Desktop sidebar/reptile list */}
+      <div className="hidden lg:flex fixed left-0 top-0 h-screen z-20">
+        {/* Overlay sidebar */}
         <div className={cn(
-          "flex h-18 items-center border-b border-sidebar-border py-2.5",
-          isCollapsed ? "justify-center px-2" : "gap-2 px-4 2xl:px-5"
+          "absolute h-full left-0 top-0 bg-sidebar border-r border-sidebar-border z-30 flex flex-col transition-all duration-200 group/sidebar",
+          isDropdownOpen ? "w-[240px]" : "w-[54px] hover:w-[240px]"
         )}>
-          <Image
-            src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'}
-            width={34}
-            height={34}
-            alt="clutchly"
-            className="rounded-full h-[34px] w-[34px] 3xl:!h-[40px] 3xl:!w-[40px]"
-          />
-          {!isCollapsed && (
-            <div className="flex flex-col items-start">
-               <span className="font-semibold text-base 3xl:text-lg text-sidebar-foreground">{APP_NAME}</span>
-               <span className="text-xs 2xl:text-[0.8rem] font-medium text-sidebar-foreground/70">Reptile Husbandry Management</span>
-            </div>
-          )}
-        </div>
-        <ScrollArea className='h-full'>
-          <nav className="px-3 2xl:px-4 space-y-3  3xl:!space-y-6 pt-2 3xl:!pt-4 flex-1">
-            {Object.entries(groupedNavItems).map(([section, items]) => (
-              <div key={section} className="space-y-1">
-                {!isCollapsed && section && (
-                  <h2 className="mb-2 px-3 text-xs sm:text-[0.8rem] font-semibold text-sidebar-foreground/70">
-                    {section}
-                  </h2>
-                )}
-                {items.map((item, index) => {
-                  if (isLoading || accessLoading) {
-                    return (
-                      <div
-                        key={`skeleton-${section}-${index}`}
-                        className={cn(
-                          'relative flex items-center gap-3 rounded-lg py-3 3xl:!py-4',
-                          isCollapsed ? 'justify-center px-1.5' : 'px-2.5'
-                        )}
-                      >
-                        <Skeleton className="h-7 w-7 rounded-full" />
-                        {!isCollapsed && <Skeleton className="h-6 flex-1" />}
-                      </div>
-                    );
-                  }
-
-                  const Icon = item.icon;
-                  if ('items' in item) {
-                    return (
-                      <Collapsible 
-                        key={item.name} 
-                        className="space-y-1 3xl:!space-y-2"
-                        open={openSection === item.name}
-                      >
-                        <CollapsibleTrigger
+          {/* Navigation section */}
+          <ScrollArea className="flex-1 py-2 pt-14 3xl:pt-16">
+            <nav className="space-y-1 px-3">
+              {/* Render nav items grouped by section, with a divider between each section */}
+              {(isLoading || accessLoading) ? (
+                // Skeletons for nav items loading
+                Array.from({ length: 14 }).map((_, idx) => (
+                  <div key={idx} className="flex items-center gap-3 mb-1 p-1.5">
+                    <Skeleton className={cn("w-5 h-5", isDropdownOpen ? "" : "opacity-0 group-hover/sidebar:opacity-100")} />
+                  </div>
+                ))
+              ) : (
+                Object.values(groupedNavItems).map((items, idx, arr) => (
+                  <React.Fragment key={idx}>
+                    {items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = pathname === item.href;
+                      return (
+                        <button
+                          key={item.href}
+                          onClick={handleNavigation(item.href || '')}
                           className={cn(
-                            'relative flex w-full items-center  gap-3 rounded-lg text-[0.8rem] xl:text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
-                            isCollapsed ? 'justify-center px-2' : 'px-3',
-                            'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                          )}
-                          onClick={() => toggleCollapsible(item.name)}
+                            'w-full p-2 rounded-md transition-colors flex items-center gap-3 cursor-pointer ',
+                            isActive
+                            ? 'text-primary group-hover/sidebar:bg-primary/10 group-hover/sidebar:text-primary'
+                            : 'text-sidebar-foreground hover:bg-sidebar-accent'                        )}
                         >
-                          <div className="flex items-center gap-3 flex-1">
-                              <Icon className={`w-4  h-4  ${item.name === 'Reptiles'  ? 'stroke-[0.019rem]' : ''}`} />
-                              {!isCollapsed &&<span>{item.name}</span>}
-                          </div>
-                          {!isCollapsed && (
-                            openSection === item.name ? <ChevronDown className="!h-4 !w-4" /> : <ChevronRight className="!h-4 !w-4" />
-                          )}
-                          
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className={`space-y-1 ${isCollapsed ? "" : "border-l pl-5 ml-5"}`}>
-                          {item.items && item.items.map((subItem: NavItem) => (
-                            <p
-                              key={subItem.href}
-                              onClick={   
-                                 subItem.action ?
-                                 ()=> handleAddNew(subItem.type as "Reptile" | "Sale" | "Expense")
-                                : handleNavigation(subItem.href!)
-                              }
-                              className={cn(
-                                'relative flex items-center  gap-3 rounded-lg text-[0.8rem] xl:text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
-                                isCollapsed ? 'justify-center px-2' : 'pl-3 pr-3',
-                                pathname === subItem.href
-                                  ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
-                                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                              )}
-                            >
-                              {/* <subItem.icon className="w-4 h-4" /> */}
-                              <Dot className="h-4 w-4" />
-                              {!isCollapsed && subItem.name}
-                            </p>
-                          ))}
-                        </CollapsibleContent>
-                      </Collapsible>
-                    );
-                  }
+                          <Icon className={cn("w-4 h-4 ",
+                            isActive ? 'text-primary' : 'text-sidebar-foreground/80'
+                          )} />
+                          <span className={cn(
+                            "text-sm font-medium truncate transition-opacity duration-300",
+                            isDropdownOpen ? "opacity-100" : "opacity-0 group-hover/sidebar:opacity-100"
+                          )}>
+                            {item.name}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    {/* Divider between sections, except after the last section */}
+                    {idx < arr.length - 1 && (
+                      <div className="my-1 3xl:my-2 border-t border-sidebar-border" />
+                    )}
+                  </React.Fragment>
+                ))
+              )}
+            </nav>
+          </ScrollArea>
 
-                  return (
-                    <p
-                      key={item.href}
-                      onClick={handleNavigation(item.href!)}
-                      className={cn(
-                        'relative flex items-center gap-3 rounded-lg text-[0.8rem] xl:text-sm font-medium transition-colors cursor-pointer py-2 3xl:py-2.5',
-                        isCollapsed ? 'justify-center px-2' : 'px-3',
-                        pathname === item.href
-                          ? 'bg-primary dark:bg-slate-800/50 text-white dark:text-primary'
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                      )}
-                    >
-                      <Icon className={`w-4  h-4  ${item.name === 'Reptiles' && 'stroke-[0.012rem]'}`} />
-                      {!isCollapsed && item.name}
-                      {hasPendingFeedings && item.name === 'Feeding' && !isCollapsed && (
-                        <Badge className='absolute right-3 text-xs font-medium'>
-                          {pendingTodayFeedings.length}
-                        </Badge>
-                      )}
-                    </p>
-                  );
-                })}
-              </div>
-            ))}
-          </nav>
-        </ScrollArea>
+          {/* Bottom avatar */}
+          <div className="h-16 flex items-center px-2 border-t border-sidebar-border">
+            <AccountAvatar 
+              onLogout={handleLogout} 
+              user={user} 
+              isLoading={isLoading}
+              onDropdownOpenChange={setIsDropdownOpen}
+            />
+          </div>
+        </div>
 
-        <AccountAvatar  isCollapsed={isCollapsed} onLogout={handleLogout} user={data} isLoading={isLoading}/>
+        {/* Permanent reptile list panel */}
+         <ReptileList />
 
-        {/* Collapse toggle button */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="hidden w-8 h-8 lg:flex !border absolute right-0 top-12 translate-x-1/2 rounded-full  border-sidebar-border !bg-white dark:!bg-background hover:text-foreground"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="!h-4 !w-4" />
-          ) : (
-            <ChevronLeft className="!h-4 !w-4" />
-          )}
-        </Button>
-       {dialogToOpen && <AddNewShortcut type={dialogToOpen} />}
-       <OrganizationSetupDialog isLoggingOut={isLoggingOut}  isUserLoading={isLoading} user={data}/>
+         <OrganizationSetupDialog isLoggingOut={isLoggingOut}  isUserLoading={isLoading} user={user}/>
+
       </div>
+
+      {/* Mobile sidebar/reptile list overlay */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/50" onClick={closeSidebar} />
+          {/* Sidebar panel */}
+          <div className="relative bg-sidebar border-r border-sidebar-border w-[80vw] max-w-xs h-full z-50 flex flex-col animate-slide-in-left">
+           
+            {/* Navigation section (reuse desktop nav) */}
+            <ScrollArea className="flex-1 pt-4">
+              <nav className="space-y-1 px-3">
+                <div className="flex items-center gap-2 mb-3">
+                    <Image
+                      src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'}
+                      width={30}
+                      height={30}
+                      alt="clutchly"
+                      className="rounded-full "
+                    />
+                    <span className='font-semibold text-base text-foreground/90'>Clutchly</span>
+                </div>
+                {(isLoading || accessLoading) ? (
+                  Array.from({ length: 6 }).map((_, idx) => (
+                    <div key={idx} className="flex items-center gap-3 mb-1">
+                      <Skeleton className="w-4 h-4" />
+                      <Skeleton className="h-4 rounded w-24 opacity-100" />
+                    </div>
+                  ))
+                ) : (
+                  Object.values(groupedNavItems).map((items, idx, arr) => (
+                    <React.Fragment key={idx}>
+                      {items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = pathname === item.href;
+                        return (
+                          <button
+                            key={item.href}
+                            onClick={handleNavigation(item.href || '')}
+                            className={cn(
+                              'w-full p-2 rounded-md transition-colors flex items-center gap-3 cursor-pointer ',
+                              isActive
+                              ? 'text-primary bg-primary/10 '
+                              : 'text-sidebar-foreground hover:bg-sidebar-accent'                        )}
+                          >
+                            <Icon className={cn("w-4 h-4 ",
+                              isActive ? 'text-primary' : 'text-sidebar-foreground/80'
+                            )} />
+                            <span className={cn(
+                              "text-sm font-medium truncate transition-opacity duration-300 opacity-100"
+                            )}>
+                              {item.name}
+                            </span>
+                          </button>
+                        );
+                      })}
+                      {idx < arr.length - 1 && (
+                        <div className="my-1 3xl:my-2 border-t border-sidebar-border" />
+                      )}
+                    </React.Fragment>
+                  ))
+                )}
+              </nav>
+            </ScrollArea>
+            {/* Bottom avatar */}
+            <div className="h-16 flex items-center px-2 border-t border-sidebar-border">
+              <AccountAvatar 
+                onLogout={handleLogout} 
+                user={user} 
+                isLoading={isLoading}
+                onDropdownOpenChange={setIsDropdownOpen}
+              />
+            </div>
+            {/* Reptile list for mobile */}
+            <div className="border-t border-sidebar-border">
+              <ReptileList />
+            </div>
+            <OrganizationSetupDialog isLoggingOut={isLoggingOut}  isUserLoading={isLoading} user={user}/>
+          </div>
+        </div>
+      )}
     </>
   );
 }
+
+export default Navigation;

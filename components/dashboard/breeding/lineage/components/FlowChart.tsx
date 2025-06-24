@@ -314,6 +314,7 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
             visualTraits: reptileNode.visual_traits || [],
             hetTraits: reptileNode.het_traits || [],
             code : reptileNode.reptile_code,
+            reptileId: reptileNode.id,
           },
         };
         
@@ -374,6 +375,7 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
               visualTraits: [],
               hetTraits: [],
               code : '',
+              reptileId: reptileId, 
             }
           };
           
@@ -488,6 +490,7 @@ function Flow({ reptileId, reptiles, isFeature, morphs }: FlowChartProps) {
             visualTraits: [],
             hetTraits: [],
             code : '',
+            reptileId: reptileId, 
           },
           style: {
             background: 'transparent',
