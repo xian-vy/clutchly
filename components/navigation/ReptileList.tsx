@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
 import { Skeleton } from '../ui/skeleton';
 import { ReptileSidebarFilterDialog, SidebarReptileFilters } from './ReptileSidebarFilterDialog';
+import { useSidebarStore } from '@/lib/stores/sidebarStore';
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
   loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
@@ -31,7 +32,8 @@ const ReptileDetailsDialog = dynamic(
 const ReptileList = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [openAddNew, setOpenAddNew] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const isCollapsed = useSidebarStore((s) => s.isCollapsed);
+    const setIsCollapsed = useSidebarStore((s) => s.setIsCollapsed);
     const [selectedReptile, setSelectedReptile] = useState<Reptile | null>(null);
     const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
     const [filters, setFilters] = useState<SidebarReptileFilters>({});
@@ -203,7 +205,7 @@ const ReptileList = () => {
             {isCollapsed ? (
                 <PanelRightClose strokeWidth={1.5} className="!h-5 !w-5 text-foreground/75" />  
             ) : (
-                <PanelRightOpen strokeWidth={1.5}  className="!h-5 !w-5 text-foreground/75" />
+                <PanelRightOpen strokeWidth={1.5}  className="!h-5 !w-5 text-foreground/65" />
             )}
         </button>
 
