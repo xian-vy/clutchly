@@ -4,12 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { useRef, useState } from 'react'
 import { Button } from '../ui/button';
-import {  Funnel, Loader2, PanelRightClose, PanelRightOpen, Plus, Search } from 'lucide-react';
+import {  CircleHelp, Funnel, Loader2, Mars, PanelRightClose, PanelRightOpen, Plus,  Search,  Venus,  } from 'lucide-react';
 import { Input } from '../ui/input';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
 import { Skeleton } from '../ui/skeleton';
+import { ReptileSidebarFilterDialog, SidebarReptileFilters } from './ReptileSidebarFilterDialog';
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
   loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
@@ -32,15 +33,61 @@ const ReptileList = () => {
     const [openAddNew, setOpenAddNew] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selectedReptile, setSelectedReptile] = useState<Reptile | null>(null);
+    const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
+    const [filters, setFilters] = useState<SidebarReptileFilters>({});
     useSidebarAnimation({ isCollapsed }); 
   const { data: reptiles = [], isLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
     queryFn: getReptiles,
   });
 
-  const filteredReptiles = reptiles.filter(reptile => 
-    reptile.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filtering logic for sidebar (5 filters)
+  const filteredReptiles = reptiles
+    .filter(reptile => {
+      // Search filter (matches name or reptile_code)
+      if (
+        searchQuery &&
+        !(
+          reptile.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (reptile.reptile_code && reptile.reptile_code.toLowerCase().includes(searchQuery.toLowerCase()))
+        )
+      ) {
+        return false;
+      }
+      // Species filter
+      if (filters.species?.length && !filters.species.includes(reptile.species_id?.toString())) {
+        return false;
+      }
+      // Morph filter
+      if (filters.morphs?.length && !filters.morphs.includes(reptile.morph_id?.toString())) {
+        return false;
+      }
+      // Sex filter
+      if (filters.sex?.length && !filters.sex.includes(reptile.sex)) {
+        return false;
+      }
+      // Status filter
+      if (filters.status?.length && !filters.status.includes(reptile.status)) {
+        return false;
+      }
+      // Breeder filter
+      if (filters.isBreeder !== null && filters.isBreeder !== undefined) {
+        if (filters.isBreeder !== !!reptile.is_breeder) {
+          return false;
+        }
+      }
+      return true;
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // Sort by name descending
+
+  // Count active filters
+  const activeFilterCount = [
+    filters.species?.length,
+    filters.morphs?.length,
+    filters.sex?.length,
+    filters.status?.length,
+    (filters.isBreeder !== null && filters.isBreeder !== undefined) ? 1 : 0
+  ].filter(Boolean).length;
 
   // Virtualization setup
   const parentRef = useRef<HTMLDivElement>(null);
@@ -73,7 +120,16 @@ const ReptileList = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8 h-9 text-sm bg-sidebar-accent/50 placeholder:text-xs 3xl:placeholder:text-[0.8rem]"
             />
-            <Funnel className="absolute right-3 top-3 h-3 w-3 text-muted-foreground cursor-pointer" />
+            
+            <div className="absolute right-3 top-2.5 flex items-center gap-1">
+              <Funnel 
+                className="h-3 w-3 text-muted-foreground cursor-pointer" 
+                onClick={() => setIsFilterDialogOpen(true)}
+              />
+              {activeFilterCount > 0 && (
+                <span className="ml-1 bg-primary text-white rounded-full px-1.5 py-0.5 text-[10px] font-bold">{activeFilterCount}</span>
+              )}
+            </div>
             </div>
 
             {/* Virtualized reptiles list */}
@@ -115,10 +171,19 @@ const ReptileList = () => {
                             >
                                 <button
                                     className={cn(
-                                        'w-full flex items-center px-2 py-1.5 rounded-md text-xs transition-colors max-w-[200px] 3xl:max-w-[220px]',
+                                        'w-full flex items-center px-2 py-1.5 gap-1.5 rounded-md text-xs cursor-pointer transition-colors max-w-[200px] 3xl:max-w-[220px]',
                                         'text-sidebar-foreground hover:bg-sidebar-accent'
                                     )}
                                 >
+                                    <div className="">
+                                        {reptile.sex === 'male' ? (
+                                        <Mars className="h-3.5 3xl:h-4 w-3.5 3xl:w-4 text-blue-400 shrink-0"/>
+                                        ) : reptile.sex === 'female' ? (
+                                        <Venus className="h-3.5 3xl:h-4 w-3.5 3xl:w-4 text-red-500 shrink-0"/>
+                                        ) :(
+                                        <CircleHelp className="h-3.5 3xl:h-4 w-3.5 3xl:w-4 text-muted-foreground shrink-0"/>
+                                        )}
+                                    </div>
                                     <span className="truncate text-[0.8rem] 3xl:text-sm">{reptile.name}</span>
                                 </button>
                             </div>
@@ -151,7 +216,13 @@ const ReptileList = () => {
                 reptiles={reptiles}
             />
         )}
-
+        {/* Sidebar Filter Dialog */}
+        <ReptileSidebarFilterDialog
+          open={isFilterDialogOpen}
+          onOpenChange={setIsFilterDialogOpen}
+          onApplyFilters={setFilters}
+          currentFilters={filters}
+        />
     </div>
   )
 }
