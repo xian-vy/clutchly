@@ -74,6 +74,9 @@ export function Navigation() {
       setIsLoggingOut(true);
       await queryClient.invalidateQueries();
       queryClient.clear();
+      localStorage.removeItem('feeders-storage');
+      localStorage.removeItem('morphs-storage');
+      localStorage.removeItem('species-storage');
       await logout();
       window.location.reload();
     } catch (error) {
