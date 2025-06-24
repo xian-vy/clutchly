@@ -80,7 +80,7 @@ const CatalogSection = () => {
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={handleCloseModal}
         >
-          <div className="relative w-[90vw] h-[90vh] max-w-6xl">
+          <div className="relative w-[90vw] h-[90vh] max-w-6xl 3xl:max-w-screen-2xl">
             <button
               onClick={handleCloseModal}
               className="absolute top-0 right-0 lg:-right-10 text-white hover:text-gray-300 text-2xl font-bold z-10 cursor-pointer"
