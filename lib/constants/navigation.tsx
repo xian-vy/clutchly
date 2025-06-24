@@ -3,7 +3,7 @@ import {
   Dna,
   Globe,
   Heart,
-  LayoutDashboard,
+  House,
   LineChart,
   Network,
   Package,
@@ -30,7 +30,7 @@ export interface NavItem {
     {
       name: 'Overview',
       href: '/overview',
-      icon: LayoutDashboard,
+      icon: House,
     },
     {
       section: 'Main',
