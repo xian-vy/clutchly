@@ -11,7 +11,7 @@ import {
 import {
     ChevronsUpDown,
     LogOut,
-    Moon,
+    MoonStar,
     Sun,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -86,7 +86,7 @@ const AccountAvatar =   ({onLogout, user , isLoading, onDropdownOpenChange} : Pr
             <DropdownMenuContent className="w-40" align="end" forceMount>
                 <DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className='cursor-pointer'>
                         {theme === 'dark'? 
-                        <Moon className="mr-2" />
+                        <MoonStar className="mr-2" />
                         : <Sun className="mr-2" />
                         }
                         Theme
