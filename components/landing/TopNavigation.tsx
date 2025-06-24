@@ -27,7 +27,7 @@ const TopNavigation = () => {
             </Link>
           </div>
           
-          <div className="flex items-center space-x-4 sm:space-x-5 md:space-x-6 2xl:space-x-8"> 
+          <div className="flex items-center space-x-4 sm:space-x-5 md:space-x-6 3xl:space-x-8"> 
             <Link href="/features" className=" text-xs md:text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
               Features
             </Link>
