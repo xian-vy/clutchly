@@ -18,16 +18,23 @@ import { useTheme } from 'next-themes';
 import { User } from '@/lib/types/users';
 import { Skeleton } from '../ui/skeleton';
 import UpdatePasswordDialog from './UpdatePasswordDialog';
+import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface Props {
-    isCollapsed : boolean
     onLogout: () => void;
      user : User | undefined,
      isLoading : boolean
+     onDropdownOpenChange: (open: boolean) => void
 }
-const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
+const AccountAvatar =   ({onLogout, user , isLoading, onDropdownOpenChange} : Props) => {
     const { theme, setTheme } = useTheme();
-  
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const handleDropdownChange = (open: boolean) => {
+        setIsDropdownOpen(open);
+        onDropdownOpenChange(open);
+    };
 
     if (isLoading) {
         return (
@@ -36,16 +43,12 @@ const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
                     <div className="flex items-center w-full">
                         <div className="flex items-center gap-2 w-full flex-1">
                             <Skeleton className="h-10 w-10 rounded-full" />
-                            {!isCollapsed && (
-                                <div className="flex flex-col items-start gap-1">
-                                    <Skeleton className="h-4 w-24" />
-                                    <Skeleton className="h-3 w-32" />
-                                </div>
-                            )}
+                            <div className="flex flex-col items-start gap-1 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300">
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-3 w-32" />
+                            </div>
                         </div>
-                        {!isCollapsed && (
-                            <Skeleton className="h-4 w-4 ml-4" />
-                        )}
+                        <Skeleton className="h-4 w-4 ml-4 opacity-0 group-hover/sidebar:opacity-100 transition-opacity duration-300" />
                     </div>
                 </Button>
             </div>
@@ -56,25 +59,27 @@ const AccountAvatar =   ({isCollapsed ,onLogout, user , isLoading} : Props) => {
     const userFullname = organization?.full_name;
 
   return (
-    <div className='mb-3 2xl:mb-4 3xl:mb-5 w-full'>
-        <DropdownMenu>
+    <div className='w-full'>
+        <DropdownMenu onOpenChange={handleDropdownChange}>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full focus-visible:ring-0">
-                    <div className="flex items-center w-full 2xl:pr-2">
+                <Button variant="ghost" className="relative rounded-md hover:!bg-inherit hover:!text-primary cursor-pointer w-full focus-visible:ring-0 px-1">
+                    <div className="flex items-center w-full ">
                         <div className="flex items-center gap-2 3xl:gap-2.5 w-full flex-1">
                                 <Avatar className="cursor-pointer">
                                     <AvatarFallback className='bg-primary dark:bg-slate-800/90 text-white dark:text-primary'> {userEmail?.charAt(0).toUpperCase()}</AvatarFallback>
                                 </Avatar>
-                                {!isCollapsed &&
-                                    <div className="flex flex-col items-start">
-                                        <span className='text-xs 2xl:text-[0.8rem] capitalize'>{userFullname}</span>
-                                        <span className='text-xs 2xl:text-[0.8rem] text-muted-foreground'>{userEmail}</span>
-                                    </div>
-                                }
+                                <div className={cn(
+                                    "flex flex-col items-start transition-opacity duration-300",
+                                    isDropdownOpen ? "opacity-100" : "lg:opacity-0 group-hover/sidebar:opacity-100" //only hide in lg screen
+                                )}>
+                                    <span className='text-xs 2xl:text-[0.8rem] capitalize'>{userFullname}</span>
+                                    <span className='text-xs 2xl:text-[0.8rem] text-muted-foreground'>{userEmail}</span>
+                                </div>
                         </div>
-                        {!isCollapsed &&
-                             <ChevronsUpDown className="ml-4 !h-4 !w-4" />
-                        }
+                        <ChevronsUpDown className={cn(
+                            "ml-4 !h-4 !w-4 transition-opacity duration-300",
+                            isDropdownOpen ? "opacity-100" : "opacity-0 group-hover/sidebar:opacity-100"
+                        )} />
                     </div>
                 </Button>
             </DropdownMenuTrigger>
