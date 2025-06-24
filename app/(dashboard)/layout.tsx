@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }: LayoutProps) {
           <Navigation />
           <div className="flex-1 lg:ml-[var(--sidebar-width)]  3xl:!ml-[var(--sidebar-width-3xl)] transition-all duration-200">
             <TopNavigation />
-            <div className="pt-20 xl:pt-24 2xl:!pt-28 px-4 lg:px-6 xl:px-7 2xl:px-9 3xl:!px-10 max-w-screen-2xl mx-auto">
+            <div className="pt-20 xl:pt-24 2xl:!pt-28 px-4 lg:px-6 xl:px-7 2xl:px-9 3xl:!px-10 max-w-full mx-auto">
                 {children}
             </div>
           </div>

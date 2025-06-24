@@ -123,13 +123,13 @@ export function Navigation() {
                             'w-full p-2 rounded-md transition-colors flex items-center gap-3 cursor-pointer ',
                             isActive
                             ? 'text-primary group-hover/sidebar:bg-primary/10 group-hover/sidebar:text-primary'
-                            : 'text-sidebar-foreground hover:bg-sidebar-accent'                        )}
+                            : 'text-sidebar-foreground/80 hover:bg-sidebar-accent'                        )}
                         >
                           <Icon className={cn("w-4 h-4 ",
                             isActive ? 'text-primary' : 'text-sidebar-foreground/80'
                           )} />
                           <span className={cn(
-                            "text-sm font-medium truncate transition-opacity duration-300",
+                            "text-sm font-medium truncate transition-opacity duration-200",
                             isDropdownOpen ? "opacity-100" : "opacity-0 group-hover/sidebar:opacity-100"
                           )}>
                             {item.name}
@@ -139,7 +139,7 @@ export function Navigation() {
                     })}
                     {/* Divider between sections, except after the last section */}
                     {idx < arr.length - 1 && (
-                      <div className="my-1 3xl:my-2 border-t border-sidebar-border" />
+                      <div className="my-1 3xl:my-2.5 border-t border-sidebar-border w-[30px] group-hover/sidebar:w-full" />
                     )}
                   </React.Fragment>
                 ))
@@ -172,11 +172,8 @@ export function Navigation() {
           <div className="absolute inset-0 bg-black/50" onClick={closeSidebar} />
           {/* Sidebar panel */}
           <div className="relative bg-sidebar border-r border-sidebar-border w-[80vw] max-w-xs h-full z-50 flex flex-col animate-slide-in-left">
-           
-            {/* Navigation section (reuse desktop nav) */}
-            <ScrollArea className="flex-1 pt-4">
-              <nav className="space-y-1 px-3">
-                <div className="flex items-center gap-2 mb-3">
+
+           <div className="flex items-center gap-2 p-3">
                     <Image
                       src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'}
                       width={30}
@@ -185,7 +182,10 @@ export function Navigation() {
                       className="rounded-full "
                     />
                     <span className='font-semibold text-base text-foreground/90'>Clutchly</span>
-                </div>
+             </div>
+
+            {/* Navigation section (reuse desktop nav) */}
+              <nav className="flex-1 space-y-1 px-3 overflow-y-auto">
                 {(isLoading || accessLoading) ? (
                   Array.from({ length: 6 }).map((_, idx) => (
                     <div key={idx} className="flex items-center gap-3 mb-1">
@@ -227,7 +227,6 @@ export function Navigation() {
                   ))
                 )}
               </nav>
-            </ScrollArea>
             {/* Bottom avatar */}
             <div className="h-16 flex items-center px-2 border-t border-sidebar-border">
               <AccountAvatar 
