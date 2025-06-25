@@ -176,7 +176,7 @@ const ReptileList = () => {
                                 <button
                                     className={cn(
                                         'w-full flex items-center px-2 py-1.5 gap-1.5 rounded-md text-xs cursor-pointer transition-colors max-w-[200px] 3xl:max-w-[220px]',
-                                        'text-sidebar-foreground/90 hover:bg-sidebar-accent'
+                                        'text-sidebar-foreground hover:bg-sidebar-accent'
                                     )}
                                 >
                                     <div className="">
