@@ -109,7 +109,7 @@ const PlanCard = ({ plan }: { plan: typeof PLANS_LIST[0] }) => (
         plan.recommended ? "bg-primary" : "bg-muted"
       )} />
       
-      <div className="p-6 flex-1">
+      <div className="p-5 md:p-3 lg:p-5  flex-1">
         {plan.badge && (
           <span className={cn(
             "text-xs font-medium px-2.5 py-0.5 rounded-full w-fit mb-4 inline-block",
@@ -120,7 +120,7 @@ const PlanCard = ({ plan }: { plan: typeof PLANS_LIST[0] }) => (
         )}
         
         <h3 className="text-xl font-bold text-[#333] dark:text-foreground">{plan.name}</h3>
-        <p className="text-sm text-muted-foreground mt-1 mb-5">
+        <p className="text-sm text-muted-foreground mt-1 mb-3 lg:mb-5">
           {plan.description}
         </p>
         
@@ -132,7 +132,7 @@ const PlanCard = ({ plan }: { plan: typeof PLANS_LIST[0] }) => (
         </div>
         
         <div className="mb-8 flex-1">
-          <ul className="space-y-3">
+          <ul className="space-y-2 lg:space-y-3">
             {plan.features.map((feature, i) => (
               <li key={i} className="flex text-sm">
                 <Check className="h-5 w-5 text-primary shrink-0 mr-2" />

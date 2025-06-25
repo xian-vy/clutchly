@@ -13,7 +13,7 @@ export const FEATURE_LIST = [
     },
     {
       icon: Globe,
-      title: 'Free Website For your Store',
+      title: 'Free Website for your Store',
       features: [
         'Free URL link for your store/collections',
         'Showcase your featured reptiles and share your website to socials',

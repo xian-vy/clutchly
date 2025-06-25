@@ -56,7 +56,7 @@ const DataManagementSection = () => {
             </motion.p>
           </div>
           {/* Image */}
-          <div className="w-full max-w-4xl 3xl:max-w-[1100px]  relative">
+          <div className="w-full max-w-4xl 3xl:max-w-[1100px]  relative pb-10">
             <div 
               className="relative aspect-[16/9] border w-full rounded-sm shadow-2xl shadow-primary/20 dark:shadow-primary/15 overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
               onClick={handleImageClick}
