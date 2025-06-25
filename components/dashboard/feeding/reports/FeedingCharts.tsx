@@ -56,9 +56,9 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
               <YAxis
                 yAxisId="left"
                 orientation="left"
-                stroke="var(--color-chart-2)"
+                stroke="var(--color-chart-1)"
                 label={{
-                  value: 'Number of Feedings',
+                  value: 'Feeding Frequency',
                   angle: -90,
                   dx:-20,
                   dy:0,
@@ -73,7 +73,7 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
                   border: '1px solid var(--color-border)',
                   borderRadius: '8px'
                 }}
-                formatter={(value: number) => [value, 'Number of Feedings']}
+                formatter={(value: number) => [value, 'Feeding Frequency']}
               />
               <Legend
                 wrapperStyle={{
@@ -83,15 +83,15 @@ export function FeedingCharts({ data }: FeedingChartsProps) {
               />
               <defs>
                 <linearGradient id="feedingGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0.1} />
+                  <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0.1} />
                 </linearGradient>
               </defs>
               <Area
                 type="monotone"
                 dataKey="count"
                 name="Feedings"
-                stroke="var(--color-chart-2)"
+                stroke="var(--color-chart-1)"
                 fill="url(#feedingGradient)"
                 fillOpacity={0.2}
                 strokeWidth={1.5}
