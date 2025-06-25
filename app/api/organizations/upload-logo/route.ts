@@ -1,14 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
+import { getUserAndOrganizationInfo } from '../../utils_server';
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const  {organization} = await getUserAndOrganizationInfo()
 
-    if (userError || !user) {
-      return NextResponse.json({ error: 'Unauthorized - User ID is required' }, { status: 401 });
+    if (!organization) {
+      return NextResponse.json({ error: 'Unauthorized - Org ID is required' }, { status: 401 });
     }
 
     // Parse the form data
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Generate a unique filename (overwrite for user)
-      const filename = `${user.id}/logo.png`;
+      const filename = `${organization.id}/logo.png`;
 
       try {
         // Remove any existing logo for this user
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       const { error: orgError } = await supabase
       .from('organizations')
       .update({ logo: publicUrl })
-      .eq('id', user.id);
+      .eq('id', organization.id);
 
       if (orgError) {
         console.error('Error updating organization:', orgError);

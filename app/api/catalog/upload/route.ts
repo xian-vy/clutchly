@@ -2,14 +2,15 @@ import { addCatalogImage } from '@/app/api/catalog';
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
+import { getUserAndOrganizationInfo } from '../../utils_server';
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser()
+    const  {organization} = await getUserAndOrganizationInfo()
   
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized - User ID is required' }, { status: 401 });
+    if (!organization) {
+      return NextResponse.json({ error: 'Unauthorized - Org not found' }, { status: 401 });
     }
 
     // Parse the form data
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     // Generate a unique filename
     const timestamp = Date.now();
-    const filename = `${user.id}/${catalogEntryId}/${timestamp}.png`;
+    const filename = `${organization.id}/${catalogEntryId}/${timestamp}.png`;
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
