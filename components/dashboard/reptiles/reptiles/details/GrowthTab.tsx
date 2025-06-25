@@ -51,8 +51,8 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis 
@@ -76,8 +76,8 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
               <Area
                 type="monotone"
                 dataKey="weight"
-                stroke="#6366f1"
-                fillOpacity={1}
+                stroke="var(--color-chart-1)"
+                fillOpacity={0.5}
                 fill="url(#colorWeight)"
               />
             </AreaChart>
@@ -90,8 +90,8 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorLength" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.8} />
+                  <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis 
@@ -115,8 +115,8 @@ export function GrowthTab({ reptileDetails }: GrowthTabProps) {
               <Area
                 type="monotone"
                 dataKey="length"
-                stroke="#10b981"
-                fillOpacity={1}
+                stroke="var(--color-chart-2)"
+                fillOpacity={0.5}
                 fill="url(#colorLength)"
               />
             </AreaChart>
