@@ -109,8 +109,8 @@ const ReptileList = () => {
         isCollapsed ? 'opacity-0' : 'opacity-100'
         )}>
             <Button size="sm" onClick={()=> setOpenAddNew(true)}  className="w-full">
-            <span className="text-xs">Add New Reptile</span>
-            <Plus strokeWidth={1.5} className="ml-2 h-3 w-3" />
+              <span className="text-xs 3xl:text-sm">Add New Reptile</span>
+              <Plus  className="ml-2 h-3 w-3" />
             </Button>
             {/* Search input */}
             <div className="relative ">
@@ -129,7 +129,7 @@ const ReptileList = () => {
                 onClick={() => setIsFilterDialogOpen(true)}
               />
               {activeFilterCount > 0 && (
-                <span className="ml-1 bg-primary text-white rounded-full px-1.5 py-0.5 text-[10px] font-bold">{activeFilterCount}</span>
+                <span className="ml-1 bg-primary text-white dark:text-black rounded-full px-1.5 py-0.5 text-[10px] font-bold">{activeFilterCount}</span>
               )}
             </div>
             </div>
