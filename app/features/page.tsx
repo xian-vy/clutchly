@@ -35,7 +35,7 @@ export default function FeaturesPage() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid gap-2 sm:gap-4 lg:gap-5 xl:gap-6 grid-cols-2  lg:grid-cols-3 3xl:!grid-cols-4 max-w-screen-lg 3xl:!max-w-screen-xl mx-auto">
+        <div className="grid gap-3 sm:gap-4 lg:gap-5 xl:gap-6 grid-cols-2  lg:grid-cols-3 3xl:!grid-cols-4 max-w-screen-lg 3xl:!max-w-screen-xl mx-auto">
           {FEATURE_LIST.map((feature, index) => (
             <FeatureCard key={index} {...feature} />
           ))}
