@@ -22,12 +22,11 @@ export function HelpDialog() {
       <DialogTrigger className="text-[0.8rem] 3xl:text-sm text-muted-foreground hover:text-primary transition">
           Help
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="text-xl md:text-2xl font-bold">Welcome to {APP_NAME}</DialogTitle>
         </DialogHeader>
-        
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible className="w-full overflow-x-hidden overflow-y-auto h-[calc(60vh)]">
           <AccordionItem value="getting-started">
             <AccordionTrigger>Getting Started</AccordionTrigger>
             <AccordionContent>

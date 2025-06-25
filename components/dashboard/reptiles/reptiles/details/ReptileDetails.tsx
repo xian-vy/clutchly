@@ -2,7 +2,6 @@
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useReptileDetails } from "./useReptileDetails";
 import { EnrichedReptile } from "../ReptileList";
 import { Reptile } from "@/lib/types/reptile";
@@ -126,7 +125,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
             <TabsTrigger value="breeding">Breeding</TabsTrigger>
           </TabsList>
 
-          <ScrollArea className="h-[calc(60vh)] px-6">
+          <div className="h-[calc(60vh)] px-6 overflow-y-auto [scrollbar-color:var(--color-sidebar-scrollbar)_var(--color-background)]">
             {isLoading ? (
               renderLoadingContent()
             ) : error ? (
@@ -180,7 +179,7 @@ export function ReptileDetails({ reptile, open, onOpenChange, reptiles }: Reptil
                 </TabsContent>
               </>
             )}
-          </ScrollArea>
+          </div>
         </Tabs>
         <DialogFooter className="px-2 py-2 border-t">
           <Button variant="outline" onClick={() => onOpenChange(false)}>

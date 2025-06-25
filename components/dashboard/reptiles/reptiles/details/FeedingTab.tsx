@@ -50,26 +50,26 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
     <div className="space-y-4">
       <Card className="pt-3 px-0 gap-3 border-0 shadow-none">
         <CardHeader className="px-0">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Worm className="h-5 w-5" />
-            Feeding History
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6 px-0 sm:px-2">
-          <div className="flex items-center gap-2 justify-between w-full">
-            <h4 className="text-sm font-medium">Recent Feeding</h4>
+          <CardTitle className="text-base flex justify-between ">
+            <div className="flex items-center gap-2">
+                <Worm className="h-5 w-5" />
+                Feeding History
+            </div>
             <div className="space-y-1">
                 <Progress value={fedPercentage} className="h-2" />
                 <p className="text-xs text-muted-foreground">{fedPercentage}% success rate ({fedEvents}/{totalEvents} feeds)</p>
             </div>
-          </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6 px-0 sm:px-2">
+      
           <div>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Feeder</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Notes</TableHead>
                 </TableRow>
               </TableHeader>
@@ -78,16 +78,16 @@ export function FeedingTab({ reptileDetails }: FeedingTabProps) {
                   <TableRow key={entry.id}>
                     <TableCell>{formatDate(entry.scheduled_date)}</TableCell>
                     <TableCell>
-                      <Badge variant={entry.fed ? "custom" : "destructive"} className={entry.fed ? YES_NO_COLORS.yes : ""}>
-                        {entry.fed ? "Fed" : "Refused"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
                       {entry.feeder_type_name && entry.feeder_size_name 
                         ? `${entry.feeder_type_name} (${entry.feeder_size_name})`
                         : '-'}
                     </TableCell>
-                    <TableCell>{entry.notes || '-'}</TableCell>
+                    <TableCell>
+                      <Badge variant="custom" className={entry.fed ? YES_NO_COLORS.yes : YES_NO_COLORS.no}>
+                        {entry.fed ? "Fed" : "Refused"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate">{entry.notes || '-'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

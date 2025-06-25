@@ -175,7 +175,7 @@ export function InstallDialog() {
                   <div className="p-2 rounded-full bg-primary/10">
                     {Icon && <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />}
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold">{instructions.title}</h3>
+                  <h3 className="text-base sm:text-lg font-semibold">{instructions.title}</h3>
                 </div>
                 
                 <div className="space-y-3 sm:space-y-4">
