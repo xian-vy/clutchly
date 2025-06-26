@@ -6,6 +6,7 @@ import { getUserAndOrganizationInfo } from '../utils_server';
 import {Ratelimit} from "@upstash/ratelimit";
 import {Redis} from "@upstash/redis";
 import { NextRequest } from 'next/server';
+import { EnrichedReptile } from '@/components/dashboard/reptiles/reptiles/ReptileList';
  
  
 const redis = new Redis({
@@ -164,7 +165,6 @@ export async function getCatalogEntriesByorgName(orgName: string, req?: NextRequ
       .from('catalog_entries')
       .select(`
         *,
-        reptiles:view_public_catalog!inner(*),
         catalog_images(*)
       `)
       .eq('org_id', orgData.id)
@@ -185,9 +185,20 @@ export async function getCatalogEntriesByorgName(orgName: string, req?: NextRequ
   if (settingsResult.error) throw settingsResult.error;
   const settingsData = settingsResult.data;
 
-  // Combine the data with settings
+  // Get reptile data using the get_public_reptiles function
+  const { data: publicReptiles, error: reptilesError } = await supabase
+    .rpc('get_public_reptiles')
+    .eq('org_id', orgData.id);
+
+  if (reptilesError) throw reptilesError;
+
+  // Create a map of reptile data by ID for quick lookup
+  const reptileMap = new Map(publicReptiles?.map((reptile: EnrichedReptile) => [reptile.id, reptile]) || []);
+
+  // Combine the data with settings and reptile data
   const enrichedData = data?.map(entry => ({
     ...entry,
+    reptiles: reptileMap.get(entry.reptile_id) || null,
     catalog_images: entry.catalog_images || [],
     catalog_settings: settingsData,
     organization: orgData
