@@ -13,9 +13,9 @@ export function FeaturesSection() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/5%_0%,transparent_50%)]" />
 
       <div className="flex flex-col gap-8 lg:gap-16 3xl:gap-20">
-        <CatalogSection />
         <PedigreeSection/>
         <DataManagementSection />
+        <CatalogSection />
      </div>
       {/* See All Features Button */}
       <div className="mt-12 flex justify-center z-50">
