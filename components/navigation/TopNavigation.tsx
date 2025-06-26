@@ -6,12 +6,13 @@ import { HelpDialog } from '@/components/navigation/HelpDialog';
 import { ContactDialog } from '@/components/navigation/ContactDialog';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
-import { Building2, ChevronsUpDown, Menu, User } from 'lucide-react';
+import { Building2,  ChevronsUpDown, Menu, User } from 'lucide-react';
 import { useSidebarStore } from '@/lib/stores/sidebarStore';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser, getOrganization } from '@/app/api/organizations/organizations';
 import { Skeleton } from '../ui/skeleton';
 import { Organization } from '@/lib/types/organizations';
+import RealtimeBadge from './RealtimeBadge';
 
 const TopNavigation = () => {
   const { theme } = useTheme();
@@ -70,6 +71,8 @@ const TopNavigation = () => {
                 </span>
               )}
               <ChevronsUpDown className='inline-block w-3.5 h-3.5 text-foreground/75'  />
+              <span className='text-muted-foreground/60 text-xs'>/</span>
+             <RealtimeBadge />
           </div>
      </div>
       <div className="flex items-center gap-3 md:gap-5 2xl:gap-6 ">
