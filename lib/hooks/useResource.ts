@@ -115,6 +115,26 @@ export function useResource<T extends Resource, N>({
     await deleteMutation.mutateAsync(id)
   }
 
+  // --- Cache manipulation methods for real-time events ---
+  function addResourceToCache(resource: T) {
+    queryClient.setQueryData(queryKey, (old: T[] = []) => {
+      if (old.some(r => r.id === resource.id)) return old;
+      return [resource, ...old];
+    });
+  }
+
+  function updateResourceInCache(resource: T) {
+    queryClient.setQueryData(queryKey, (old: T[] = []) =>
+      old.map(r => r.id === resource.id ? resource : r)
+    );
+  }
+
+  function removeResourceFromCache(id: string) {
+    queryClient.setQueryData(queryKey, (old: T[] = []) =>
+      old.filter(r => r.id !== id)
+    );
+  }
+
   return {
     resources,
     isLoading,
@@ -124,5 +144,8 @@ export function useResource<T extends Resource, N>({
     handleUpdate,
     handleDelete,
     refetch,
+    addResourceToCache,
+    updateResourceInCache,
+    removeResourceFromCache,
   }
 }
