@@ -83,7 +83,7 @@ export function SubscriptionBadge() {
         {isPremium ? (
           <Badge 
             variant="default" 
-            className="flex items-center gap-1.5 font-medium from-primary dark:bg-primary/15 hover:from-amber-600 hover:to-yellow-500 text-white dark:text-primary cursor-pointer transition-all duration-300 py-1.5 px-2.5 shadow-sm hover:shadow group"
+            className="flex items-center gap-1.5 !rounded-2xl font-medium from-primary dark:bg-primary/15 hover:from-amber-600 hover:to-yellow-500 text-white dark:text-primary cursor-pointer transition-all duration-300 py-1 px-2.5 shadow-sm hover:shadow group"
           >
             <span className="bg-white/20 dark:bg-white/15 p-1 rounded-full backdrop-blur-sm">
               <Crown className="h-3 w-3" />
@@ -93,7 +93,7 @@ export function SubscriptionBadge() {
         ) : isTrialing ? (
           <Badge 
             variant="outline" 
-            className="flex items-center gap-1.5 font-medium border-amber-500/70 bg-amber-500/10 text-amber-600 dark:text-amber-400 cursor-pointer transition-all duration-300 hover:bg-amber-500/15 hover:border-amber-500 py-1.5 pl-1.5 pr-2.5 group"
+            className="flex items-center gap-1.5 !rounded-2xl font-medium border-amber-500/70 bg-amber-500/10 text-amber-600 dark:text-amber-400 cursor-pointer transition-all duration-300 hover:bg-amber-500/15 hover:border-amber-500 py-1 pl-1.5 pr-2.5 group"
           >
             <span className="bg-amber-500/20 p-1 rounded-full">
               <Clock className="h-3 w-3" />
@@ -103,7 +103,7 @@ export function SubscriptionBadge() {
         ) : (
           <Badge 
             variant="outline" 
-            className="flex items-center gap-1.5 font-medium border-primary/30 hover:border-primary/60 cursor-pointer transition-all hover:bg-primary/5 py-1.5 pl-1.5 pr-2.5 group"
+            className="flex items-center gap-1.5 font-medium border-primary/30 hover:border-primary/60 cursor-pointer transition-all hover:bg-primary/5 py-1 pl-1.5 pr-2.5 group"
           >
             <span className="bg-primary/10 p-1 rounded-full">
               <Sparkles className="h-3 w-3" />

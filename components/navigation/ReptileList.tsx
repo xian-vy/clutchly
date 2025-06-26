@@ -109,7 +109,7 @@ const ReptileList = () => {
         isCollapsed ? 'opacity-0' : 'opacity-100'
         )}>
             <Button size="sm" onClick={()=> setOpenAddNew(true)}  className="w-full">
-              <span className="text-xs 3xl:text-sm">Add New Reptile</span>
+              <span className="text-[0.8rem] 3xl:text-sm">Add New Reptile</span>
               <Plus  className="ml-2 h-3 w-3" />
             </Button>
             {/* Search input */}
