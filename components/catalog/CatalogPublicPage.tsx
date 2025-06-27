@@ -4,7 +4,7 @@ import { getCatalogEntriesByorgName } from '@/app/api/catalog';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { calculateAgeInMonths } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Info, Loader2, Clock } from 'lucide-react';
+import { ArrowLeft, Info, Clock } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
 import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
@@ -18,6 +18,8 @@ import NotSetup from '../dashboard/catalog/components/NotSetup';
 import { ThemeToggleCatalog } from '../theme/ThemeToggleCatalog';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
+import CatalogSkeleton from '../dashboard/catalog/components/CatalogSkeleton';
+
 interface CatalogClientPageProps {
   orgName: string;
 }
@@ -158,11 +160,7 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-      </div>
-    );
+    return <CatalogSkeleton />;
   }
 
   if (isError && (error as Error & { isRateLimit?: boolean })?.isRateLimit) {
@@ -209,12 +207,10 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
        <Alert className='mt-5 w-11/12 sm:w-full mx-auto'>
           <Info className="h-4 w-4" />
           <AlertTitle>Disclaimer</AlertTitle>
-          <AlertDescription className='text-foreground/90 inline'>
-              Clutchly is a free listing service for reptile keepers and breeders. We do not facilitate transactions or verify the legality of animals listed. 
-              All users are responsible for complying with 
-              <Link target='_blank'  href="https://www.officialgazette.gov.ph/2001/07/30/republic-act-no-9417/" className='underline underline-offset-4'> RA 9147 </Link>  and other relevant wildlife laws. Contact the seller directly for inquiries.
-              If you believe a listing violates the law, please inform us through our 
-              <Link target='_blank' href="https://clutchly.vercel.app/contact"  className='underline underline-offset-4 ml-1'>Contact Page</Link>
+          <AlertDescription className='text-foreground/90 inline text-[0.8rem] sm:text-sm'>
+            Clutchly lists reptiles for free but does not handle transactions or verify legality. Users must comply with 
+            <Link target='_blank' href="https://www.officialgazette.gov.ph/2001/07/30/republic-act-no-9417/" className='underline underline-offset-4'> RA 9147 </Link> and wildlife laws. Contact sellers directly. Report illegal or suspicious listings through our 
+            <Link target='_blank' href="https://clutchly.vercel.app/contact" className='underline underline-offset-4 ml-1'>Contact Page</Link>.
           </AlertDescription>
        </Alert>
           {detailView && reptileForDetail ? (

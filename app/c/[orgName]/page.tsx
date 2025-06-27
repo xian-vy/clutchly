@@ -13,7 +13,7 @@ export async function generateMetadata(
   const { orgName } = await params;
 
   //const ogUrl = new URL(`/api/og/catalog/${orgName}`, APP_URL);
-  const publicProfile = await getPublicOrganization(orgName);
+  const publicProfile = await getPublicOrganization(orgName.toLowerCase());
 
   if (!publicProfile) {
     return {

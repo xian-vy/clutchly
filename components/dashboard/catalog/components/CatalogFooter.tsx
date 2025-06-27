@@ -82,7 +82,7 @@ return (
       <div className="w-full flex flex-col md:flex-row md:justify-center md:items-center gap-2 md:gap-6 text-sm text-foreground/90 px-4">
         {/* Address */}
         <div className="flex  items-center justify-center gap-2 min-w-[120px] ">
-          <MapPin className="h-4 w-4 text-primary/80 shrink-0" />
+          <MapPin className="hidden lg:block h-4 w-4 text-primary/80 shrink-0" />
           {isAdmin ? (
             isEditing ? (
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2 w-full">
@@ -108,7 +108,7 @@ return (
               </>
             )
           ) : (
-            <span className='text-center'>{settings?.address ? toTitleCase(settings.address)  : ''}</span>
+            <span className='text-center text-sm md:text-base max-w-3xl'>{settings?.address ? toTitleCase(settings.address)  : ''}</span>
           )}
         </div>
 

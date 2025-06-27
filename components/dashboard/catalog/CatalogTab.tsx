@@ -8,7 +8,7 @@ import { useState,  useMemo } from 'react';
 import { CatalogEntryForm } from './CatalogEntryForm';
 import { CatalogEntryList } from './CatalogEntryList'
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { CatalogEntryDetails } from './CatalogEntryDetails';
 import { Button } from '@/components/ui/button';
 import { CatalogFilterDialog, CatalogFilters } from './components/CatalogFilterDialog';
@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import CatalogFooter from './components/CatalogFooter';
 import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
+import CatalogSkeleton from './components/CatalogSkeleton';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -131,9 +132,7 @@ export function CatalogTab() {
 
   if (isLoading) {
     return (
-      <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
-        <Loader2 className='w-4 h-4 animate-spin text-primary' />
-      </div>
+     <CatalogSkeleton />
     );
   }
 
