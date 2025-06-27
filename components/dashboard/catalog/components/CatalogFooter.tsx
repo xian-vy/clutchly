@@ -108,7 +108,7 @@ return (
               </>
             )
           ) : (
-            <span className='text-center'>{settings?.address ? toTitleCase(settings.address)  : ''}</span>
+            <span className='text-center text-sm md:text-base max-w-3xl'>{settings?.address ? toTitleCase(settings.address)  : ''}</span>
           )}
         </div>
 
