@@ -36,11 +36,10 @@ export default function CatalogSkeleton() {
             <Skeleton className="h-4 w-4 rounded-full" />
             <div className="space-y-2 w-full">
               <Skeleton className="h-3 w-16 lg:w-20 rounded" />
-              <Skeleton className="h-3 w-full rounded" />
-              <Skeleton className="h-3 w-10/12 rounded " />
-              <Skeleton className="h-3 w-full rounded lg:hidden" />
+              <Skeleton className="h-3 w-11/12 rounded" />
+              <Skeleton className="h-3 w-9/12 rounded xl:hidden" />
               <Skeleton className="h-3 w-11/12 rounded lg:hidden" />
-              <Skeleton className="h-3 w-full rounded lg:hidden" />
+              <Skeleton className="h-3 w-10/12 rounded lg:hidden" />
             </div>
           </div>
         </div>
