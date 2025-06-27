@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { ChevronDown, Loader2 } from 'lucide-react'
 import { DonutChart } from './charts/DonutChart'
+import { PunnettSquareComponent } from './PunnettSquare'
 
 
 const GeneticHistoryTab = () => {
@@ -190,10 +191,12 @@ const GeneticHistoryTab = () => {
                         <p className="text-xs sm:text-sm">{calculation.result.probability_summary}</p>
                       </div>
 
-                      <div>
-                        <h5 className="text-sm font-medium mb-2">Detailed Analysis</h5>
-                        <p className="text-xs sm:text-sm whitespace-pre-wrap">{calculation.result.detailed_analysis}</p>
-                      </div>
+                      {calculation.result?.punnett_square && (
+                        <div>
+                          <h5 className="text-sm font-medium mb-2">Punnett Square</h5>
+                          <PunnettSquareComponent punnettSquare={calculation.result.punnett_square} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CollapsibleContent>

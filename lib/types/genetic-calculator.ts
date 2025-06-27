@@ -15,6 +15,7 @@ export interface GeneticResult {
   possible_hets: PossibleHet[]
   probability_summary: string
   detailed_analysis: string
+  punnett_square?: PunnettSquare
 }
 
 export interface PossibleMorph {
@@ -37,8 +38,39 @@ export interface GeneticCalculatorInput {
   species : Species
 }
 
+export interface PunnettSquareCell {
+  genotype: string;
+  phenotype: string;
+  probability: number;
+  description?: string;
+}
+
+export interface PunnettSquareRow {
+  label: string;
+  cells: PunnettSquareCell[];
+}
+
+export interface PunnettSquare {
+  headers: string[];
+  rows: PunnettSquareRow[];
+}
+
 export interface GeneticCalculatorResponse {
-  result: GeneticResult
-  error?: string
+  result?: {
+    possible_morphs: Array<{
+      name: string;
+      probability: number;
+      description: string;
+    }>;
+    possible_hets: Array<{
+      trait: string;
+      probability: number;
+      description: string;
+    }>;
+    probability_summary: string;
+    punnett_square: PunnettSquare;
+    detailed_analysis: string;
+  };
+  error?: string;
   rateLimited?: boolean
 } 

@@ -5,7 +5,7 @@ import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { Reptile } from '@/lib/types/reptile'
 import { GeneticCalculatorResponse } from '@/lib/types/genetic-calculator'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Loader2, AlertTriangle, ChevronDown } from 'lucide-react'
+import { Loader2, AlertTriangle, ChevronDown, Info, CheckCircle, RefreshCcw, ChevronRight, Circle } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -32,6 +32,9 @@ import { Species } from '@/lib/types/species'
 import { Organization } from '@/lib/types/organizations'
 import { getOrganization } from '@/app/api/organizations/organizations'
 import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies'
+import { PunnettSquareComponent } from './PunnettSquare'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const GeneticCalculatorTab = () => {
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>( null)
@@ -39,6 +42,7 @@ const GeneticCalculatorTab = () => {
   const [sire, setSire] = useState<Reptile | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [calculation, setCalculation] = useState<GeneticCalculatorResponse | null>(null)
+  const [showResults, setShowResults] = useState(false)
   const {morphs} = useMorphsStore()
   const { species,  } = useSpeciesStore()
   const queryClient = useQueryClient();
@@ -84,6 +88,7 @@ const GeneticCalculatorTab = () => {
     }
 
     setIsCalculating(true);
+    setShowResults(false);
     try {
       const damDetails = {
          id: dam.id,
@@ -112,6 +117,7 @@ const GeneticCalculatorTab = () => {
 
       const data: GeneticCalculatorResponse = await response.json();
       setCalculation(data);
+      setShowResults(true);
       queryClient.invalidateQueries({ queryKey: ['genetic-calculations-history'] });
 
     } catch (error) {
@@ -120,6 +126,14 @@ const GeneticCalculatorTab = () => {
       setIsCalculating(false);
     }
   };
+
+  const handleReset = () => {
+    setSelectedSpecies(null);
+    setDam(null);
+    setSire(null);
+    setCalculation(null);
+    setShowResults(false);
+  }
 
   const handleSpeciesChange = (value: string) => {
     setSelectedSpecies(species.find(s => s.id.toString() === value) || null)
@@ -144,15 +158,29 @@ const GeneticCalculatorTab = () => {
     <div className="space-y-6">
       <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Important Disclaimer</AlertTitle>
-        <AlertDescription>
-          This calculator utilizes basic AI models to offer **probabilistic insights** into potential genetic outcomes. It is crucial to understand that **genetic inheritance is highly complex**, influenced by multiple genes, environmental factors, and even unpredictable events.
-          <br /><br />
-          **Therefore, the results provided by this tool are for informational purposes only and should be considered a general guide, not a definitive prediction.
-      </AlertDescription>
+        <AlertTitle>Disclaimer</AlertTitle>
+        <AlertDescription className='inline'>
+          This calculator uses <u className='underline-offset-4'> basic AI </u> to give probable genetic outcomes, but <u className='underline-offset-4'>inheritance is complex</u> and influenced by many factors. 
+          Use this tool as a general guide, <u className='underline-offset-4'>not a guaranteed prediction</u>.
+        </AlertDescription>
       </Alert>
 
       <Card className="p-6">
+        <div className="flex  flex-col-reverse items-end lg:flex-row lg:items-center justify-between">
+           <div className="hidden lg:flex items-center justify-center gap-2">
+              <Step active={true} label="Select Species" done={!!selectedSpecies} />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <Step active={!!selectedSpecies} label="Select Parents" done={!!dam && !!sire} />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <Step active={!!dam && !!sire} label="Calculate" done={!!calculation?.result} />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <Step active={!!calculation?.result} label="View Results" done={!!calculation?.result} />
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleReset} aria-label="Reset calculation">
+            <RefreshCcw className="w-4 h-4 mr-1" /> Reset
+          </Button>
+        </div>
+        <TooltipProvider>
           <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
             <div className='md:h-[120px]'>
                 <h3 className="text-sm font-medium mb-2">Species</h3>
@@ -163,7 +191,14 @@ const GeneticCalculatorTab = () => {
                 />
             </div>
             <div className='md:h-[120px]'>
-              <h3 className="text-sm font-medium mb-2">Dam (F)</h3>
+              <h3 className="text-sm font-medium mb-2 flex items-center gap-1">Dam (F)
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3 h-3 text-muted-foreground cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent>Mother (female parent) of the clutch</TooltipContent>
+                </Tooltip>
+              </h3>
               <DamSelect
                 value={dam?.id || ''}
                 onValueChange={handleDamChange}
@@ -171,14 +206,45 @@ const GeneticCalculatorTab = () => {
               />
               {dam && (
                 <div className="mt-2 text-sm text-muted-foreground">
-                  <p>Morph: {morphs.find((morph) => morph.id.toString() === dam.morph_id.toString())?.name}</p>
-                  <p>Visual Traits: {dam.visual_traits?.join(', ') || 'None'}</p>
-                  <p>Het Traits: {dam.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', ') || 'None'}</p>
+                  <p className="flex items-center gap-1">Morph:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 text-muted-foreground cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent>Genetic appearance (visual morph) of the reptile</TooltipContent>
+                    </Tooltip>
+                    {morphs.find((morph) => morph.id.toString() === dam.morph_id.toString())?.name}
+                  </p>
+                  <p className="flex items-center gap-1">Visual Traits:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 text-muted-foreground cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent>Traits that are visually expressed in the reptile</TooltipContent>
+                    </Tooltip>
+                    {dam.visual_traits?.join(', ') || 'None'}
+                  </p>
+                  <p className="flex items-center gap-1">Het Traits:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 text-muted-foreground cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent>&quot;Het&quot; means heterozygous: a hidden gene that can be passed to offspring</TooltipContent>
+                    </Tooltip>
+                    {dam.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', ') || 'None'}
+                  </p>
                 </div>
               )}
             </div>
             <div className='md:h-[120px]'>
-              <h3 className="text-sm font-medium mb-2">Sire (M)</h3>
+              <h3 className="text-sm font-medium mb-2 flex items-center gap-1">Sire (M)
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3 h-3 text-muted-foreground cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent>Father (male parent) of the clutch</TooltipContent>
+                </Tooltip>
+              </h3>
               <SireSelect
                 value={sire?.id || ''}
                 onValueChange={handleSireChange}
@@ -186,33 +252,58 @@ const GeneticCalculatorTab = () => {
               />
               {sire && (
                 <div className="mt-2 text-sm text-muted-foreground">
-                  <p>Morph: {morphs.find((morph) => morph.id.toString() === sire.morph_id.toString())?.name}</p>
-                  <p>Visual Traits: {sire.visual_traits?.join(', ') || 'None'}</p>
-                  <p>Het Traits: {sire.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', ') || 'None'}</p>
+                  <p className="flex items-center gap-1">Morph:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 text-muted-foreground cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent>Genetic appearance (visual morph) of the reptile</TooltipContent>
+                    </Tooltip>
+                    {morphs.find((morph) => morph.id.toString() === sire.morph_id.toString())?.name}
+                  </p>
+                  <p className="flex items-center gap-1">Visual Traits:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 text-muted-foreground cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent>Traits that are visually expressed in the reptile</TooltipContent>
+                    </Tooltip>
+                    {sire.visual_traits?.join(', ') || 'None'}
+                  </p>
+                  <p className="flex items-center gap-1">Het Traits:
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-3 h-3 text-muted-foreground cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent>&quot;Het&quot; means heterozygous: a hidden gene that can be passed to offspring</TooltipContent>
+                    </Tooltip>
+                    {sire.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', ') || 'None'}
+                  </p>
                 </div>
               )}
             </div>
           </div>
+        </TooltipProvider>
 
-          <Separator />
+        <Separator />
 
-          <div className="flex justify-end">
-            <Button 
-              onClick={handleCalculate}
-              disabled={!dam || !sire || isCalculating}
-              size="lg"
-              className="min-w-[200px]"
-            >
-              {isCalculating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Calculating...
-                </>
-              ) : (
-                'Calculate'
-              )}
-            </Button>
-          </div>
+        <div className="flex justify-end">
+          <Button 
+            onClick={handleCalculate}
+            disabled={!dam || !sire || isCalculating}
+            size="lg"
+            className="min-w-[200px]"
+          >
+            {isCalculating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Calculating...
+              </>
+            ) : (
+              'Calculate'
+            )}
+          </Button>
+        </div>
       </Card>
 
       {calculation?.error && (
@@ -222,104 +313,126 @@ const GeneticCalculatorTab = () => {
         </Alert>
       )}
 
-      {calculation?.result && (
-        <Card className="p-6">
-          <h3 className="text-sm sm:text-base xl:text-lg font-semibold ">Genetic Analysis Results</h3>
-          
-          <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="shadow-none border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Possible Morphs</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <DonutChart 
-                    data={calculation.result.possible_morphs.map(morph => ({
-                      name: morph.name,
-                      value: morph.probability
-                    }))} 
-                  />
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-none border">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Possible Het Traits</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <DonutChart 
-                    data={calculation.result.possible_hets.map(het => ({
-                      name: het.trait,
-                      value: het.probability
-                    }))} 
-                  />
-                </CardContent>
-              </Card>
-            </div>
-            <div  className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:[900px] xl:max-w-[1100px] lg:w-full overflow-x-auto">
-              <h4 className="text-sm font-medium mb-2">Possible Morphs</h4>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Morph</TableHead>
-                    <TableHead>Probability</TableHead>
-                    <TableHead>Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {calculation.result.possible_morphs.map((morph, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{morph.name}</TableCell>
-                      <TableCell>{(morph.probability * 100).toFixed(1)}%</TableCell>
-                      <TableCell className="text-muted-foreground">{morph.description}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            <div  className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:[900px] xl:max-w-[1100px] lg:w-full overflow-x-auto">
-              <h4 className="text-sm font-medium mb-2">Possible Het Traits</h4>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Trait</TableHead>
-                    <TableHead>Probability</TableHead>
-                    <TableHead>Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {calculation.result.possible_hets.map((het, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{het.trait}</TableCell>
-                      <TableCell>{(het.probability * 100).toFixed(1)}%</TableCell>
-                      <TableCell className="text-muted-foreground">{het.description}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            <Collapsible>
-              <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium">
-                <ChevronDown className="h-4 w-4" />
-                Summary & Detailed Analysis
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-4 pt-4">
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Summary</h4>
-                  <p className="text-xs sm:text-sm">{calculation.result.probability_summary}</p>
+      <AnimatePresence>
+        {showResults && calculation?.result && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Card className="p-6 bg-gradient-to-br from-card via-muted/60 to-card/80 shadow-xl border-2 border-primary/10">
+              <div className="flex items-center gap-2 mb-4">
+                <CheckCircle className="w-5 h-5 text-green-600" aria-label="Calculation complete" />
+                <h3 className="text-base xl:text-lg font-semibold ">Genetic Analysis Results</h3>
+              </div>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <Card className="shadow-none border bg-background/80">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Possible Morphs</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <DonutChart
+                        data={calculation.result.possible_morphs.map(morph => ({
+                          name: morph.name,
+                          value: morph.probability
+                        }))}
+                      />
+                    </CardContent>
+                  </Card>
+                  <Card className="shadow-none border bg-background/80">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Possible Het Traits</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <DonutChart
+                        data={calculation.result.possible_hets.map(het => ({
+                          name: het.trait,
+                          value: het.probability
+                        }))}
+                      />
+                    </CardContent>
+                  </Card>
                 </div>
-
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Detailed Analysis</h4>
-                  <p className="text-xs sm:text-sm whitespace-pre-wrap">{calculation.result.detailed_analysis}</p>
+                <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:[900px] xl:max-w-[1100px] lg:w-full overflow-x-auto">
+                  <h4 className="text-sm font-medium mb-2">Possible Morphs</h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Morph</TableHead>
+                        <TableHead>Probability</TableHead>
+                        <TableHead>Description</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {calculation.result.possible_morphs.map((morph, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{morph.name}</TableCell>
+                          <TableCell>{(morph.probability * 100).toFixed(1)}%</TableCell>
+                          <TableCell className="text-muted-foreground">{morph.description}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        </Card>
+                <div className="max-w-[300px] sm:max-w-[640px] md:max-w-[700px] lg:[900px] xl:max-w-[1100px] lg:w-full overflow-x-auto">
+                  <h4 className="text-sm font-medium mb-2">Possible Het Traits</h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Trait</TableHead>
+                        <TableHead>Probability</TableHead>
+                        <TableHead>Description</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {calculation.result.possible_hets.map((het, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{het.trait}</TableCell>
+                          <TableCell>{(het.probability * 100).toFixed(1)}%</TableCell>
+                          <TableCell className="text-muted-foreground">{het.description}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <Collapsible>
+                  <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium">
+                    <ChevronDown className="h-4 w-4" />
+                    Summary & Punnett Square
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-4 pt-4">
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Summary</h4>
+                      <p className="text-xs sm:text-sm">{calculation.result.probability_summary}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Punnett Square</h4>
+                      <PunnettSquareComponent punnettSquare={calculation.result.punnett_square} />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function Step({ active, done, label }: { active: boolean; done: boolean; label: string }) {
+  return (
+    <div className="flex items-center gap-1">
+      {done ? (
+        <CheckCircle className="w-4 h-4 text-primary" aria-label="Step complete" />
+      ) : active ? (
+        <Circle className="w-4 h-4 text-primary" aria-label="Current step" />
+      ) : (
+        <Circle className="w-4 h-4 text-muted-foreground" aria-label="Upcoming step" />
       )}
+      <span className={`text-xs sm:text-sm ${active ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>{label}</span>
     </div>
   )
 }

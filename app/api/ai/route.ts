@@ -128,7 +128,17 @@ Please provide a detailed genetic analysis in the following JSON format:
     }
   ],
   "probability_summary": "string",
-  "detailed_analysis": "string"
+  "punnett_square": {
+    "headers": ["string", ...],
+    "rows": [
+      {
+        "label": "string",
+        "cells": [
+          { "genotype": "string", "phenotype": "string", "probability": number, "description": "string" }
+        ]
+      }
+    ]
+  },
 }
 
 IMPORTANT: Respond ONLY with the JSON object, no additional text or markdown formatting.`;
@@ -177,7 +187,7 @@ IMPORTANT: Respond ONLY with the JSON object, no additional text or markdown for
       result = JSON.parse(jsonContent);
       
       // Validate the expected structure
-      if (!result.possible_morphs || !result.possible_hets || !result.probability_summary || !result.detailed_analysis) {
+      if (!result.possible_morphs || !result.possible_hets || !result.probability_summary || !result.punnett_square ) {
         throw new Error('Invalid response structure');
       }
     } catch (error) {
