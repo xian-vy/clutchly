@@ -105,14 +105,14 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
               Breeding Projects
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-0 ">
             {reptileDetails && (
               <div className="space-y-4">
                 {reptileDetails.breeding_projects_as_sire && reptileDetails.breeding_projects_as_sire.length > 0 && (
                   <div>
                     <div className="space-y-2">
                       {reptileDetails.breeding_projects_as_sire.slice(0, 3).map((project) => (
-                        <Card key={project.id} className="overflow-hidden px-0 py-1 gap-2 border-0">
+                        <Card key={project.id} className="overflow-hidden px-0 py-1 gap-2 border-0 shadow-none">
                           <CardContent className="p-0">
                             <div className="flex justify-between items-start">
                               <div>
@@ -140,7 +140,7 @@ export function BreedingTab({ reptileDetails, reptiles }: BreedingTabProps) {
                   <div>
                     <div className="space-y-2">
                       {reptileDetails.breeding_projects_as_dam.slice(0, 3).map((project) => (
-                        <Card key={project.id} className="overflow-hidden px-0 py-3 gap-3 border-0">
+                        <Card key={project.id} className="overflow-hidden px-0 py-3 gap-3 border-0 shadow-none">
                           <CardContent className="p-0">
                             <div className="flex justify-between items-start">
                               <div>
