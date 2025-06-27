@@ -23,6 +23,7 @@ import { Loader2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies'
 import { useReptileNameGeneration } from '@/lib/hooks/useReptileNameGeneration'
+import { toast } from 'sonner'
 
 interface EnrichedReptile extends Reptile {
   species_name?: string;
@@ -83,6 +84,40 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   const isSubmitting = form.formState.isSubmitting;
 
   const handleSubmit = async (data: z.infer<typeof reptileFormSchema>) => {
+
+    if (initialData?.id === data.dam_id ) {
+      form.setError('dam_id', {
+        type: 'manual',
+        message: 'A reptile cannot be its own parent.',
+      });
+      return;
+    }
+    if (initialData?.id === data.sire_id ) {
+      form.setError('sire_id', {
+        type: 'manual',
+        message: 'A reptile cannot be its own parent.',
+      });
+      return;
+    }
+
+    const hasBreedingProjects = (initialData?.project_ids?.length ?? 0) > 0;
+
+    // Prevent gender change if reptile is part of a breeding project
+    if (hasBreedingProjects && initialData?.sex !== data.sex) {
+      form.setError('sex', {
+        type: 'manual',
+        message: 'This reptile is part of an active breeding project. ',
+      });
+    
+      toast.error(
+        `This reptile is currently associated with one or more breeding projects. To modify its sex, please remove it from all associated projects first.`,
+        {
+          duration: 10000,
+        }
+      );
+      return;
+    }
+    
     const formattedData = {
       ...data,
       name: data.name || data.reptile_code || '',

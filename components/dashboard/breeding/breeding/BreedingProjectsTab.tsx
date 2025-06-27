@@ -12,7 +12,7 @@ import { BreedingProjectList } from './BreedingProjectList';
 import { Badge } from '@/components/ui/badge';
 import { STATUS_COLORS } from '@/lib/constants/colors';
 import { format } from 'date-fns';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { getAllClutches } from '@/app/api/breeding/clutches';
@@ -21,6 +21,7 @@ export function BreedingProjectsTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedProjectForDetails, setSelectedProjectForDetails] = useState<BreedingProject | null>(null);
+  const queryClient = useQueryClient();
 
   const {
     resources: projects,
@@ -137,6 +138,7 @@ export function BreedingProjectsTab() {
               if (success) {
                 setIsDialogOpen(false);
                 setSelectedProject(undefined);
+                queryClient.invalidateQueries({ queryKey: ['reptiles'] });
               }
             }}
             onCancel={() => {
