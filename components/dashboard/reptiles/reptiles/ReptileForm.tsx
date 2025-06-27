@@ -83,6 +83,22 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   const isSubmitting = form.formState.isSubmitting;
 
   const handleSubmit = async (data: z.infer<typeof reptileFormSchema>) => {
+
+    if (initialData?.id === data.dam_id ) {
+      form.setError('dam_id', {
+        type: 'manual',
+        message: 'A reptile cannot be its own parent.',
+      });
+      return;
+    }
+    if (initialData?.id === data.sire_id ) {
+      form.setError('sire_id', {
+        type: 'manual',
+        message: 'A reptile cannot be its own parent.',
+      });
+      return;
+    }
+
     const formattedData = {
       ...data,
       name: data.name || data.reptile_code || '',
