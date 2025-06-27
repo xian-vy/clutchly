@@ -4,7 +4,7 @@ import { getCatalogEntriesByorgName } from '@/app/api/catalog';
 import { EnrichedCatalogEntry } from '@/lib/types/catalog';
 import { calculateAgeInMonths } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Info, Loader2, Clock } from 'lucide-react';
+import { ArrowLeft, Info, Clock } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { CatalogEntryDetails } from '../dashboard/catalog/CatalogEntryDetails';
 import { CatalogEntryList } from '../dashboard/catalog/CatalogEntryList';
@@ -18,6 +18,8 @@ import NotSetup from '../dashboard/catalog/components/NotSetup';
 import { ThemeToggleCatalog } from '../theme/ThemeToggleCatalog';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
+import CatalogSkeleton from '../dashboard/catalog/components/CatalogSkeleton';
+
 interface CatalogClientPageProps {
   orgName: string;
 }
@@ -158,11 +160,7 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-      </div>
-    );
+    return <CatalogSkeleton />;
   }
 
   if (isError && (error as Error & { isRateLimit?: boolean })?.isRateLimit) {
