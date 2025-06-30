@@ -12,11 +12,9 @@ import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReptileForm } from './ReptileForm';
 import { EnrichedReptile, ReptileList } from './ReptileList';
 import { Loader2 } from 'lucide-react';
-import { getCurrentUser, getOrganization } from '@/app/api/organizations/organizations';
-import { Organization } from '@/lib/types/organizations';
 import { toast } from 'sonner';
 import {  getSubscriptionLimitClient } from '@/app/api/utils_client';
-import { User } from '@/lib/types/users';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 type EnrichedReptileWithLabel = EnrichedReptile & {
   label: string;
@@ -24,6 +22,7 @@ type EnrichedReptileWithLabel = EnrichedReptile & {
 export function ReptilesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const queryClient = useQueryClient();
+  const { user, isLoading :userLoading, organization} = useAuthStore();
 
   const {
     resources: reptiles,
@@ -48,14 +47,6 @@ export function ReptilesTab() {
     queryFn: getSubscriptionLimitClient
   })
 
-  const { data: organization, isLoading : profileLoading } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: getOrganization,
-  })
-  const { data: user, isLoading : userLoading } = useQuery<User>({
-    queryKey: ['user2'],
-    queryFn: getCurrentUser,
-  })
 
   const isOwner = useMemo(() => {
      if (!user || !organization) return false;
@@ -120,7 +111,7 @@ export function ReptilesTab() {
     });
   }, [reptiles, species, morphs, locationData]);
 
-  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations || profileLoading || limitLoading || userLoading
+  const isLoading = reptilesLoading || speciesLoading || morphsLoading || loadingLocations  || limitLoading || userLoading
 
   if (isLoading) {
     return (

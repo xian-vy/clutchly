@@ -2,13 +2,11 @@
 
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useMemo, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { TopLoader } from '../ui/TopLoader';
 import { ScrollArea } from '../ui/scroll-area';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { User } from '@/lib/types/users';
-import { getCurrentUser } from '@/app/api/organizations/organizations';
+import { useQueryClient } from '@tanstack/react-query';
 import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
 import { logout } from '@/app/auth/logout/actions';
 import ReptileList from './ReptileList';
@@ -18,24 +16,21 @@ import { useSidebarStore } from '@/lib/stores/sidebarStore';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { Skeleton } from '../ui/skeleton';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function Navigation() {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const queryClient = useQueryClient();
   const {theme} = useTheme();
+  const { user,  fetchUserAndOrg, isLoading, isLoggingOut, setIsLoggingOut ,clearAuth} = useAuthStore();
 
-  const { data: user, isLoading } = useQuery<User>({
-    queryKey: ['user'],
-    queryFn: getCurrentUser,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000, 
-    retry: 1,
-    retryDelay: 1000, 
-  });
+ useEffect(() => {
+  fetchUserAndOrg()
+  }, [fetchUserAndOrg]);
+
 
   const { filterNavItems, isLoading: accessLoading } = useAccessControl(user);
 
@@ -78,10 +73,11 @@ export function Navigation() {
       localStorage.removeItem('morphs-storage');
       localStorage.removeItem('species-storage');
       await logout();
+      clearAuth();
       window.location.reload();
     } catch (error) {
       console.error('Logout failed:', error);
-    } finally {
+      // Reset logout state on error
       setIsLoggingOut(false);
     }
   };

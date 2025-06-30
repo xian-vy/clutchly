@@ -2,11 +2,11 @@
 
 import useAccessControl from '@/lib/hooks/useAccessControl';
 import { useQuery } from '@tanstack/react-query';
-import { getCurrentUser } from '@/app/api/organizations/organizations';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { getPages } from '@/app/api/users/access';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -16,11 +16,7 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children, pageName }: ProtectedRouteProps) {
   const router = useRouter();
   
-  const { data: user, isLoading: userLoading } = useQuery({
-    queryKey: ['user2'],
-    queryFn: getCurrentUser,
-    staleTime: 60 * 60 * 1000, 
-  });
+  const { user, isLoading :userLoading} = useAuthStore();
 
   
   const { data: pages = [], isLoading: pagesLoading } = useQuery({

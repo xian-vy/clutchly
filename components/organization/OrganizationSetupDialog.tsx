@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Organization, ProfileFormData } from '@/lib/types/organizations';
+import {  ProfileFormData } from '@/lib/types/organizations';
 import { 
-  getOrganization, 
   createOrganization, 
   updateOrganization, 
 } from '@/app/api/organizations/organizations';
@@ -25,10 +24,10 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Step1 } from './Step1';
 import { Step2 } from './Step2';
 import { Step3 } from './Step3';
-import { useQuery } from '@tanstack/react-query';
 import { APP_NAME } from '@/lib/constants/app';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
 import { User } from '@/lib/types/users';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 // Validation schemas for each step
 export const profileStep1Schema = z.object({
@@ -53,15 +52,7 @@ export const profileFormSchema = profileStep1Schema
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-async function getOrganizations(): Promise<Organization[]> {
-  try {
-    const organization = await getOrganization();
-    return organization ? [organization] : [];
-  } catch (error) {
-    console.error('Error fetching organization:', error);
-    return [];
-  }
-}
+
 interface Props {
   isLoggingOut : boolean;
   isUserLoading : boolean
@@ -75,14 +66,7 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
   const { fetchInitialSpecies } = useSpeciesStore();
   const { fetchFeederSizes, fetchFeederTypes } = useFeedersStore();
   const { downloadCommonMorphs } = useMorphsStore();
-
-  const { data: organizations, isLoading } = useQuery({
-    queryKey: ['organization'],
-    queryFn: getOrganizations,
-  })
-
-  const organization = organizations ? organizations[0] : null;
-
+  const { organization, isLoading } = useAuthStore();
 
   const isProfileComplete = 
     user ? true :
@@ -117,12 +101,38 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
 
   // Set dialog state once organization data is loaded
   useEffect(() => {
-    if (isLoading || user || isLoggingOut || isUserLoading) return;
+    // Don't show dialog if any loading states are active or user exists
+    if (isLoading || isUserLoading || isLoggingOut || user) {
+      setOpen(false);
+      return;
+    }
 
-    const shouldOpen = !isProfileComplete;
-
+    // Only show dialog if profile is incomplete and we have organization data
+    // Also ensure we're not in any transition state
+    const shouldOpen = !!(
+      organization && 
+      !isProfileComplete && 
+      !isLoading && 
+      !isUserLoading && 
+      !isLoggingOut && 
+      !user
+    );
     setOpen(shouldOpen);
-  }, [isLoading, isProfileComplete, user,isLoggingOut,isUserLoading]);
+  }, [isLoading, isUserLoading, isLoggingOut, user, organization, isProfileComplete]);
+
+  // Force close dialog when logging out
+  useEffect(() => {
+    if (isLoggingOut) {
+      setOpen(false);
+    }
+  }, [isLoggingOut]);
+
+  // Additional safety check - close dialog if any loading state becomes true
+  useEffect(() => {
+    if (isLoading || isUserLoading || isLoggingOut) {
+      setOpen(false);
+    }
+  }, [isLoading, isUserLoading, isLoggingOut]);
 
   // Update form data when organization changes
   useEffect(() => {
@@ -217,9 +227,8 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
     }
   };
 
-  // Simplified loading and user checks
-  if (isLoading || isUserLoading) return null;
-  if (user) return null;
+  // Early return conditions - more comprehensive
+  if (isLoading || isUserLoading || isLoggingOut || user || !organization) return null;
 
   return (
     <Dialog open={open} onOpenChange={(newOpen) => setOpen(newOpen)}>
