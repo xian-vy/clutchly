@@ -14,7 +14,7 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 })
  
-const CATALOG_RATE_LIMIT_COUNT = 5
+const CATALOG_RATE_LIMIT_COUNT = 3
 const CATALOG_RATE_LIMIT_WINDOW = 30
 
 // Create a new ratelimiter, that allows 5 requests per 5 seconds
