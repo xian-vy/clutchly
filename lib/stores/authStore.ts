@@ -3,6 +3,7 @@ import { getUserAndOrganizationInfo } from '@/app/api/utils_client';
 import { User } from '@/lib/types/users';
 import { Organization } from '@/lib/types/organizations';
 import { logout } from '@/app/auth/logout/actions';
+import { toast } from 'sonner';
 
 interface AuthState {
   user: User | undefined;
@@ -76,16 +77,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logoutUser: async () => {
     set({ isLoggingOut: true });
+    const toastId = toast.loading("Logging Out...");
     try {
       localStorage.removeItem('feeders-storage');
       localStorage.removeItem('morphs-storage');
       localStorage.removeItem('species-storage');
       await logout();
       get().clearAuth();
+      toast.dismiss(toastId);
       window.location.reload();
     } catch (error) {
       set({ isLoggingOut: false });
       set({ error: error instanceof Error ? error.message : 'Logout failed' });
+      toast.error("Logout failed", { id: toastId });
     }
   },
 })); 
