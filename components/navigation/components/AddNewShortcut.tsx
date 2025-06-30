@@ -2,7 +2,7 @@ import { createReptile } from '@/app/api/reptiles/reptiles';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ReptileForm } from '../dashboard/reptiles/reptiles/ReptileForm';
+import { ReptileForm } from '../../dashboard/reptiles/reptiles/ReptileForm';
 
 interface Props {
    open : boolean;

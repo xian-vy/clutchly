@@ -3,13 +3,13 @@ import { Reptile } from '@/lib/types/reptile';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { useRef, useState } from 'react'
-import { Button } from '../ui/button';
+import { Button } from '../../ui/button';
 import {  CircleHelp, Funnel, Loader2, Mars, PanelRightClose, PanelRightOpen, Plus,  Search,  Venus,  } from 'lucide-react';
-import { Input } from '../ui/input';
+import { Input } from '../../ui/input';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '../../ui/skeleton';
 import { ReptileSidebarFilterDialog, SidebarReptileFilters } from './ReptileSidebarFilterDialog';
 import { useSidebarStore } from '@/lib/stores/sidebarStore';
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
@@ -21,7 +21,7 @@ const AddNewShortcut = dynamic(() => import('./AddNewShortcut'),
 )
 
 const ReptileDetailsDialog = dynamic(
-    () => import('../dashboard/reptiles/reptiles/ReptileDetailsDialog').then(mod => mod.ReptileDetailsDialog),
+    () => import('../../dashboard/reptiles/reptiles/ReptileDetailsDialog').then(mod => mod.ReptileDetailsDialog),
     {
       loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
         <Loader2 className="animate-spin w-4 h-4 text-primary" />

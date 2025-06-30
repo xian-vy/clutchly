@@ -9,7 +9,7 @@ import { useTheme } from 'next-themes';
 import { Building2,  ChevronsUpDown, Menu, User } from 'lucide-react';
 import { useSidebarStore } from '@/lib/stores/sidebarStore';
 import { Skeleton } from '../ui/skeleton';
-import RealtimeBadge from './RealtimeBadge';
+import RealtimeBadge from './components/RealtimeBadge';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 const TopNavigation = () => {

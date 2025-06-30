@@ -3,11 +3,11 @@
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
-import AccountAvatar from './AccountAvatar';
+import AccountAvatar from './components/AccountAvatar';
 import { TopLoader } from '../ui/TopLoader';
 import { ScrollArea } from '../ui/scroll-area';
 import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
-import ReptileList from './ReptileList';
+import ReptileList from './components/ReptileList';
 import { OrganizationSetupDialog } from '../organization/OrganizationSetupDialog';
 import useAccessControl from '@/lib/hooks/useAccessControl';
 import { useSidebarStore } from '@/lib/stores/sidebarStore';
