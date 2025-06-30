@@ -137,7 +137,7 @@ export function Navigation() {
         {/* Permanent reptile list panel */}
          <ReptileList />
 
-         <OrganizationSetupDialog isLoggingOut={isLoggingOut}  isUserLoading={isLoading} user={user}/>
+         <OrganizationSetupDialog />
 
       </div>
 
@@ -207,7 +207,7 @@ export function Navigation() {
             <div className="h-16 flex items-center px-2 border-t border-sidebar-border">
               <AccountAvatar 
                 onLogout={logoutUser} 
-                user={user} 
+                user={user}
                 isLoading={isLoading}
                 onDropdownOpenChange={setIsDropdownOpen}
               />
@@ -216,7 +216,7 @@ export function Navigation() {
             <div className="border-t border-sidebar-border">
               <ReptileList />
             </div>
-            <OrganizationSetupDialog isLoggingOut={isLoggingOut}  isUserLoading={isLoading} user={user}/>
+            <OrganizationSetupDialog />
           </div>
         </div>
       )}
