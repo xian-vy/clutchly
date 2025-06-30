@@ -167,7 +167,6 @@ export async function getGlobalMorphs(speciesIds?: string[]) {
   }
 
   const { data: morphs, error } = await query;
-  console.log("Fetching global morphs for species IDs:", morphs);
 
   if (error) throw error;
   return (morphs as unknown) as (Morph & { species: { name: string } })[];
