@@ -43,7 +43,7 @@ const TopNavigation = () => {
           <div className="hidden lg:flex items-center gap-3 3xl:gap-4">
               <span className='text-muted-foreground/60 text-xs'>/</span>
               {userLoading ? (
-                <Skeleton className='w-17 rounded-md h-4' />
+                <Skeleton className='w-[69px] 3xl:w-[74px] rounded-md h-4' />
               ) : (
                 <span className='flex items-center gap-2 font-medium text-[0.8rem] 3xl:!text-sm text-foreground/75 capitalize'>
                   <Building2 className='inline-block w-3.5 h-3.5' />
@@ -52,7 +52,7 @@ const TopNavigation = () => {
               )}
               <span className='text-muted-foreground/60 text-xs'>/</span>
               {userLoading ? (
-                <Skeleton className='w-17 rounded-md h-4' />
+                <Skeleton className='w-[69px] 3xl:w-[74px] rounded-md h-4' />
               ) : (
                 <span className='flex items-center gap-2 font-medium text-[0.8rem] 3xl:!text-sm text-foreground/75 capitalize'>
                   <User className='inline-block w-3.5 h-3.5' />
