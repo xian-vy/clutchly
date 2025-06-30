@@ -66,7 +66,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     organization: undefined, 
     error: null,
     isLoading: false,
-    isLoggingOut: false
   }),
 
   resetLoadingStates: () => set({

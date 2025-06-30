@@ -21,11 +21,7 @@ export default function ProtectedRoute({ children, pageName }: ProtectedRoutePro
   
   const { data: pages = [], isLoading: pagesLoading } = useQuery({
     queryKey: ['pages'],
-    queryFn: async () => {
-      if (!user) return [];
-      return getPages(user);
-      },
-    enabled: !!user,
+    queryFn: getPages,
     staleTime: 60 * 60 * 1000,
   });
 

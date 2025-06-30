@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {  ProfileFormData } from '@/lib/types/organizations';
 import { 
   createOrganization, 
@@ -26,7 +26,6 @@ import { Step2 } from './Step2';
 import { Step3 } from './Step3';
 import { APP_NAME } from '@/lib/constants/app';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
-import { User } from '@/lib/types/users';
 import { useAuthStore } from '@/lib/stores/authStore';
 
 // Validation schemas for each step
@@ -52,13 +51,7 @@ export const profileFormSchema = profileStep1Schema
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-
-interface Props {
-  isLoggingOut : boolean;
-  isUserLoading : boolean
-  user : User | undefined,
-}
-export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Props) {
+export function OrganizationSetupDialog() {
   const [step, setStep] = useState(1);
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,15 +59,17 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
   const { fetchInitialSpecies, species} = useSpeciesStore();
   const { fetchFeederSizes, fetchFeederTypes,feederSizes,feederTypes } = useFeedersStore();
   const { downloadCommonMorphs } = useMorphsStore();
-  const { organization, isLoading } = useAuthStore();
+  const { organization, isLoading , isLoggingOut } = useAuthStore();
 
-  const isProfileComplete = 
-    user ? true :
-    organization ? (
-      !!organization.full_name && 
-      !!organization.account_type && 
-      (organization.selected_species && organization.selected_species?.length > 0)
-    ) : false;
+  const isProfileComplete = useMemo(() => {
+    return (
+      organization &&
+      organization.full_name &&
+      organization.selected_species &&
+      organization.selected_species.length > 0
+    );
+  }, [organization,]);
+  
   
   // Initialize the form with react-hook-form and zod validation
   const form = useForm<ProfileFormValues>({
@@ -105,42 +100,16 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
     if (!organization) return
     fetchFeederTypes(organization)
   }, [fetchFeederTypes,feederTypes,organization])
- 
 
-  // Set dialog state once organization data is loaded
+
   useEffect(() => {
-    // Don't show dialog if any loading states are active or user exists
-    if (isLoading || isUserLoading || isLoggingOut || user) {
+    if (isLoading || isLoggingOut) {
       setOpen(false);
       return;
     }
 
-    // Only show dialog if profile is incomplete and we have organization data
-    // Also ensure we're not in any transition state
-    const shouldOpen = !!(
-      organization && 
-      !isProfileComplete && 
-      !isLoading && 
-      !isUserLoading && 
-      !isLoggingOut && 
-      !user
-    );
-    setOpen(shouldOpen);
-  }, [isLoading, isUserLoading, isLoggingOut, user, organization, isProfileComplete]);
-
-  // Force close dialog when logging out
-  useEffect(() => {
-    if (isLoggingOut) {
-      setOpen(false);
-    }
-  }, [isLoggingOut]);
-
-  // Additional safety check - close dialog if any loading state becomes true
-  useEffect(() => {
-    if (isLoading || isUserLoading || isLoggingOut) {
-      setOpen(false);
-    }
-  }, [isLoading, isUserLoading, isLoggingOut]);
+    setOpen(!isProfileComplete);
+  }, [isLoading,isLoggingOut, isProfileComplete]);
 
   // Update form data when organization changes
   useEffect(() => {
@@ -186,30 +155,24 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
         logo : null
       };
 
-      if (!organization) {
-        toast.error("Something went wrong. Please refresh the page and try again.");
-        return
-      }
-      
       if (data.selected_species && data.selected_species.length > 0) {
+        if (!organization) {
+          toast.error("Something went wrong. Please refresh the page and try again.");
+          return
+        }
         // Download morphs for the selected species
         await downloadCommonMorphs(organization,data.selected_species);
       }
-      if (organization) {
+      if (isProfileComplete) {
         // Set the selected resource before update
         const success = await updateOrganization(orgData);
         if (success) {
           console.log("Organization updated successfully");
         } else {
-          console.error("Organization update failed");
           toast.error("There was a problem updating your organization. Please try again.");
         }
       } else {
-         if (!user) {
-          toast.error("Something went wrong. Please refresh the page and try again.");
-          return;
-         }
-        await createOrganization(user,orgData);
+        await createOrganization(orgData);
         console.log("Organization created successfully");
       }
       
@@ -223,6 +186,7 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
           toast.error("Organization setup failed. Please try again.");
         }
       }, 500);
+
     } catch (error) {
       console.error("Organization update error:", error);
       if (error instanceof Error && error.message === 'An organization with this name already exists') {
@@ -244,11 +208,17 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
     }
   };
 
-  // Early return conditions - more comprehensive
-  if (isLoading || isUserLoading || isLoggingOut || user || !organization) return null;
+  if (isLoading || isLoggingOut ) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => setOpen(newOpen)}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(newOpen) => {
+        // Prevent opening if logging out
+        if (isLoggingOut) return;
+        setOpen(newOpen);
+      }}
+    >
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden bg-gradient-to-b from-background to-background/95 border-0 [&>button]:hidden">
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-background/0 pointer-events-none" />
         

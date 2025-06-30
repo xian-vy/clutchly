@@ -3,8 +3,12 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.organizations (id, email, is_active)
-  VALUES (NEW.id, NEW.email, TRUE);
+  INSERT INTO public.organizations (id, email, is_active, account_type)
+  VALUES (NEW.id, NEW.email, TRUE, 'keeper');
+
+  INSERT INTO public.users (id, org_id, access_profile_id,role ,status)
+  VALUES (NEW.id, NEW.id, NULL, 'owner','active');
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
