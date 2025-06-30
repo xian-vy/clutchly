@@ -10,7 +10,7 @@ import { useSpeciesStore } from "@/lib/stores/speciesStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { VirtualizedMorphSelect } from "../ui/virtual-morph-select";
+import { VirtualizedMorphSelect } from "../../ui/virtual-morph-select";
 
 const sex = ["male", "female", "unknown"] as const;
 const reptileStatus = ["active", "sold", "deceased"] as const;

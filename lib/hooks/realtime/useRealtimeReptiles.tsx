@@ -1,23 +1,14 @@
-import { getCurrentUser, getOrganization } from '@/app/api/organizations/organizations'
-import { Organization } from '@/lib/types/organizations'
-import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useResource } from '../useResource'
 import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/api/reptiles/reptiles'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner';
-import { User } from '@/lib/types/users'
+import { useAuthStore } from '@/lib/stores/authStore'
 
 const useRealtimeReptiles = () => {
-    const { data: organization, isLoading : orgLoading } = useQuery<Organization>({
-        queryKey: ['organization2'],
-        queryFn: getOrganization
-      })
-      const { data: user, isLoading : userLoading } = useQuery<User>({
-        queryKey: ['user2'],
-        queryFn: getCurrentUser,
-      })    
+    const { user, isLoading :userLoading, organization} = useAuthStore();
+
     const supabase  = createClient()
 
     const {
@@ -34,7 +25,7 @@ const useRealtimeReptiles = () => {
     })
 
     useEffect(() => {   
-        if (!organization?.id || orgLoading) return;
+        if (!organization?.id || userLoading) return;
         const channel = supabase
         .channel("reptiles" + organization.id)
         .on("postgres_changes", { event: "*", schema: "public", table: "reptiles" }, async (payload) => {
@@ -64,7 +55,6 @@ const useRealtimeReptiles = () => {
         addResourceToCache,
         updateResourceInCache,
         removeResourceFromCache,
-        orgLoading,
         userLoading
     ]);
 }

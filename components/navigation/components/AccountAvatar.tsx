@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { User } from '@/lib/types/users';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '../../ui/skeleton';
 import UpdatePasswordDialog from './UpdatePasswordDialog';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
