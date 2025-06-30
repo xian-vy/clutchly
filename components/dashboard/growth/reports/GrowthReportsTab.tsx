@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
+import { useAuthStore } from '@/lib/stores/authStore';
 import { useGrowthStore } from '@/lib/stores/growthStore';
 import { Reptile } from '@/lib/types/reptile';
 import { useQuery } from '@tanstack/react-query';
@@ -23,25 +24,31 @@ export function GrowthReportsTab() {
     getEntriesByReptile,
     isLoading: growthStoreLoading
   } = useGrowthStore();
+  const {organization} = useAuthStore()
 
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
   const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptiles});
 
   // Fetch growth entries if not already loaded
   useEffect(() => {
-    if (entries.length === 0) {
-      fetchEntries();
-    }
-  }, [entries.length, fetchEntries]);
+    if (entries.length !== 0) return
+    if (!organization) return
+      fetchEntries(organization);
+    
+  }, [entries.length, fetchEntries,organization]);
 
   useEffect(() => {
     if (selectedReptileId) {
-      fetchEntries();
+      if (!organization) return;
+      fetchEntries(organization);
     }
-  }, [selectedReptileId, fetchEntries]);
+  }, [selectedReptileId, fetchEntries,organization]);
 
   // Get entries for the selected reptile
   const reptileEntries = selectedReptileId 

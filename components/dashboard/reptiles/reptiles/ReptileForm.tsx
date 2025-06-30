@@ -42,7 +42,10 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
   
   const [visualTraits, setVisualTraits] = useState<string[]>(initialData?.visual_traits || []);

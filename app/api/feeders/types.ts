@@ -1,11 +1,10 @@
 import { createClient } from '@/lib/supabase/client';
 import { FeederType, NewFeederType } from '@/lib/types/feeders';
 import { getUserAndOrganizationInfo } from '../utils_client';
+import { Organization } from '@/lib/types/organizations';
 
-export async function getFeederTypes(): Promise<FeederType[]> {
-  const supabase = await createClient();
-  const { organization } = await getUserAndOrganizationInfo()
-
+export async function getFeederTypes(organization : Organization): Promise<FeederType[]> {
+  const supabase =  createClient();
   
   const { data: preyTypes, error } = await supabase
     .from('feeder_types')

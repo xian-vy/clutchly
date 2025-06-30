@@ -13,13 +13,15 @@ import { SalesSummaryStats } from './reports/SalesSummaryStats';
 import { SalesByTimeChart } from './reports/charts/SalesByTimeChart';
 import { DistributionPieCharts } from './reports/charts/DistributionPieCharts';
 import { TimePeriod, TimeRangeSelector } from './reports/TimeRangeSelector';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function SalesReportTab() {
   const [activeTab, setActiveTab] = useState('overview');
   const [filters, setFilters] = useState<SalesFilterParams>({});
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
-  
+  const {organization} = useAuthStore();
+
   // Handle time period change
   const handleTimePeriodChange = (period: TimePeriod) => {
     setTimePeriod(period);
@@ -78,7 +80,10 @@ export function SalesReportTab() {
     isLoading: summaryLoading 
   } = useQuery({
     queryKey: ['sales-summary', filters],
-    queryFn: () => getSalesSummary(filters),
+    queryFn: async () => {
+      if (!organization) return undefined;
+      return getSalesSummary(organization,filters)
+    },
   });
   
   // Fetch species distribution data
@@ -87,7 +92,10 @@ export function SalesReportTab() {
     isLoading: speciesLoading 
   } = useQuery({
     queryKey: ['sales-by-species', filters],
-    queryFn: () => getSalesBySpecies(filters),
+    queryFn: async () => { 
+      if (!organization) return undefined;
+      getSalesBySpecies(organization,filters)
+    },
   });
   
   // Fetch morph distribution data
@@ -96,7 +104,10 @@ export function SalesReportTab() {
     isLoading: morphLoading 
   } = useQuery({
     queryKey: ['sales-by-morphs', filters],
-    queryFn: () => getSalesByMorphs(filters),
+    queryFn:async () => { 
+      if (!organization) return undefined;
+       getSalesByMorphs(organization,filters)
+    },
   });
 
   return (

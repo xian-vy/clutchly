@@ -27,13 +27,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { FeedingOverview } from './FeedingOverview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Organization } from '@/lib/types/organizations';
-import { getOrganization } from '@/app/api/organizations/organizations';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function DashboardOverviewTab() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
+  const {organization} = useAuthStore();
   
   // Format date string for API calls
   const formatDateForApi = (date: Date) => {
@@ -50,26 +50,25 @@ export function DashboardOverviewTab() {
   
   useEffect(() => {
     if (species.length === 0) {
-      fetchSpecies()
+      if (!organization) return
+      fetchSpecies(organization)
     }
-  }, [fetchSpecies,species])
+  }, [fetchSpecies,species,organization])
 
   useEffect(() => {
     if (feederSizes.length === 0) {
-      fetchFeederSizes()
+      if (!organization) return
+      fetchFeederSizes(organization)
     }
-  }, [fetchFeederSizes,feederSizes])
+  }, [fetchFeederSizes,feederSizes,organization])
 
   useEffect(() => {
     if (feederTypes.length === 0) {
-      fetchFeederTypes()
+      if (!organization) return
+      fetchFeederTypes(organization)
     }
-  }, [fetchFeederTypes,feederTypes])
+  }, [fetchFeederTypes,feederTypes,organization])
  
-  const { data: organization } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: getOrganization
-  })
 
   // In the event local storage has been cleared (Refetch morphs base on organization sp selection)
   useEffect(() => {
@@ -86,11 +85,11 @@ export function DashboardOverviewTab() {
           return;
         }
         console.log("Downloading common morphs...");
-       await downloadCommonMorphs(speciesIds);
+       await downloadCommonMorphs(organization,speciesIds);
       }
       fetchMorphs()
     } 
-  }, [organization]);
+  }, [organization, morphs, downloadCommonMorphs]);
 
   // Create date filter params for API calls
   const dateFilterParams = useMemo(() => {
@@ -106,41 +105,65 @@ export function DashboardOverviewTab() {
     queries: [
       {
         queryKey: ['reptiles'],
-        queryFn: getReptiles,
+        queryFn: async () => {
+          if (!organization) return [];
+           return getReptiles(organization) 
+        },
+        enabled: !!organization,
       },
       {
         queryKey: ['health-logs', dateFilterParams],
-        queryFn: () => dateFilterParams 
-          ? getHealthLogsByDate(dateFilterParams) 
-          : getHealthLogs(),
+        queryFn: async () => {
+          if (!organization) return [];
+          return dateFilterParams 
+            ? getHealthLogsByDate(organization, dateFilterParams)
+            : getHealthLogs(organization);
+        },
+        enabled: !!organization,
       },
       {
         queryKey: ['growth-entries', dateFilterParams],
-        queryFn: () => dateFilterParams 
-          ? getGrowthEntriesByDate(dateFilterParams) 
-          : getGrowthEntries(),
+        queryFn: async () => {
+          if (!organization) return [];
+          return dateFilterParams 
+            ? getGrowthEntriesByDate(organization, dateFilterParams)
+            : getGrowthEntries(organization);
+        },
+        enabled: !!organization,
       },
       {
         queryKey: ['breeding-projects', dateFilterParams],
-        queryFn: () => dateFilterParams 
-          ? getBreedingProjectsByDate({ 
-              ...dateFilterParams, 
-              dateField: 'start_date' 
-            }) 
-          : getBreedingProjects(),
+        queryFn: async () => {
+          if (!organization) return [];
+          return dateFilterParams 
+            ? getBreedingProjectsByDate(organization, { 
+                ...dateFilterParams, 
+                dateField: 'start_date' 
+              })
+            : getBreedingProjects(organization);
+        },
+        enabled: !!organization,
       },
       {
         queryKey: ['sales-summary', dateFilterParams, timePeriod],
-        queryFn: (): Promise<SalesSummary> => getSalesSummary({
-          ...dateFilterParams,
-          period: timePeriod === 'custom' ? undefined : timePeriod,
-        }),
+        queryFn: async (): Promise<SalesSummary> => {
+          if (!organization) return {} as SalesSummary;
+          return getSalesSummary(organization, {
+            ...dateFilterParams,
+            period: timePeriod === 'custom' ? undefined : timePeriod,
+          });
+        },
+        enabled: !!organization,
       },
       {
         queryKey: ['expenses-summary', dateFilterParams],
-        queryFn: (): Promise<ExpensesSummary> => getExpensesSummary(dateFilterParams),
+        queryFn: async (): Promise<ExpensesSummary> => {
+          if (!organization) return {} as ExpensesSummary;
+          return getExpensesSummary(organization, dateFilterParams);
+        },
+        enabled: !!organization,
       }
-    ]
+    ],
   });
 
   // Destructure the results with loading states
@@ -158,7 +181,8 @@ export function DashboardOverviewTab() {
     queryKey: ['clutches', dateFilterParams, breedingProjects],
     queryFn: async () => {
       if (dateFilterParams) {
-        return getAllClutchesByDate(dateFilterParams);
+         if (!organization) return [];
+        return getAllClutchesByDate(organization,dateFilterParams);
       } else if (breedingProjects.length) {
         const clutchPromises = breedingProjects.map(project => getClutches(project.id));
         const clutchesArrays = await Promise.all(clutchPromises);

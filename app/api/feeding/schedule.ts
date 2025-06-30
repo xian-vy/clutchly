@@ -1,11 +1,11 @@
 import { createClient } from '@/lib/supabase/client';
 import { FeedingTarget, NewFeedingSchedule, FeedingScheduleWithTargets, TargetType } from '@/lib/types/feeding';
 import { getUserAndOrganizationInfo } from '../utils_client';
+import { Organization } from '@/lib/types/organizations';
 
 // Get all feeding schedules for the current user
-export async function getFeedingSchedules(): Promise<FeedingScheduleWithTargets[]> {
-  const supabase = await createClient();
-  const { organization } = await getUserAndOrganizationInfo()
+export async function getFeedingSchedules(organization : Organization): Promise<FeedingScheduleWithTargets[]> {
+  const supabase =  createClient();
 
   if (!organization) throw new Error('Not authenticated');
   

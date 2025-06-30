@@ -18,6 +18,7 @@ import { SalesRecordForm } from './SalesRecordForm';
 import { EnrichedSaleRecord, SalesRecordList } from './SalesRecordList';
 import { getCurrentMonthDateRange } from '@/lib/utils';
 import { SalesFilters } from './SalesFilterDialog';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function SalesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -31,6 +32,7 @@ export function SalesTab() {
   const { species } = useSpeciesStore();
   const { morphs } = useMorphsStore();
   const queryClient = useQueryClient();
+  const {organization} = useAuthStore()
 
   const {
     resources: salesRecords,
@@ -43,10 +45,13 @@ export function SalesTab() {
   } = useResource<SaleRecord, NewSaleRecord>({
     resourceName: 'Sales Record',
     queryKey: ['sales-records', filters.dateFrom, filters.dateTo],
-    getResources: () => getSalesRecords({
+    getResources: async () => {
+      if (!organization) return [];
+      return getSalesRecords(organization,{
       startDate: filters.dateFrom,
       endDate: filters.dateTo
-    }),
+    })
+  },
     createResource: createSalesRecord,
     updateResource: updateSalesRecord,
     deleteResource: deleteSalesRecord,
@@ -55,7 +60,10 @@ export function SalesTab() {
   // Fetch reptiles data
   const { data: reptiles, isLoading: reptilesLoading } = useQuery({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
 
   // Create enriched sales records with reptile information

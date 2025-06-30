@@ -12,6 +12,7 @@ import useSidebarAnimation from '@/lib/hooks/useSidebarAnimation';
 import { Skeleton } from '../../ui/skeleton';
 import { ReptileSidebarFilterDialog, SidebarReptileFilters } from './ReptileSidebarFilterDialog';
 import { useSidebarStore } from '@/lib/stores/sidebarStore';
+import { useAuthStore } from '@/lib/stores/authStore';
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
   loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
@@ -38,10 +39,15 @@ const ReptileList = () => {
     const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
     const [filters, setFilters] = useState<SidebarReptileFilters>({});
     useSidebarAnimation({ isCollapsed }); 
-  const { data: reptiles = [], isLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
-    queryFn: getReptiles,
-  });
+    const { organization } = useAuthStore()
+    const { data: reptiles = [], isLoading } = useQuery<Reptile[]>({
+      queryKey: ['reptiles'],
+      queryFn: async () => {
+        if (!organization) return [];
+        return getReptiles(organization) 
+      },
+      enabled: !!organization,
+    });
 
   // Filtering logic for sidebar (5 filters)
   const filteredReptiles = reptiles

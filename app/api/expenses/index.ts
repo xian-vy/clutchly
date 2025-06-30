@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { ExpenseRecord, ExpensesSummary, NewExpenseRecord } from '@/lib/types/expenses'
 import { getUserAndOrganizationInfo } from '../utils_client';
+import { Organization } from '@/lib/types/organizations';
 
 const supabase = createClient()
 
@@ -13,8 +14,7 @@ export interface ExpensesFilterParams {
   amountMax?: number;
 }
 
-export async function getExpensesRecords(dateRange?: { startDate?: string; endDate?: string }): Promise<ExpenseRecord[]> {
-  const { organization } = await getUserAndOrganizationInfo()
+export async function getExpensesRecords(organization : Organization,dateRange?: { startDate?: string; endDate?: string }): Promise<ExpenseRecord[]> {
 
   let query = supabase
     .from('expenses_records')
@@ -141,8 +141,7 @@ export async function getExpensesByDateRange(filters?: ExpensesFilterParams): Pr
   return data
 }
 
-export async function getExpensesSummary(filters?: ExpensesFilterParams): Promise<ExpensesSummary> {
-  const { organization } = await getUserAndOrganizationInfo()
+export async function getExpensesSummary(organization : Organization, filters?: ExpensesFilterParams): Promise<ExpensesSummary> {
 
   let query = supabase
     .from('expenses_records')

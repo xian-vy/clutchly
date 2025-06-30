@@ -5,11 +5,17 @@ import { useQuery } from '@tanstack/react-query';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import FlowChart from './components/FlowChart';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 const Lineage = () => {
+  const { organization } = useAuthStore()
+
   const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   })
  
   const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptiles});

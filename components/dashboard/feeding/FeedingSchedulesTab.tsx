@@ -17,11 +17,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useQuery } from '@tanstack/react-query';
 import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 
 
 export function FeedingSchedulesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const {organization} = useAuthStore()
 
   
   // Update the API functions to handle the new target types
@@ -50,7 +52,10 @@ export function FeedingSchedulesTab() {
   } = useResource<FeedingScheduleWithTargets, NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }>({
     resourceName: 'Feeding Schedule',
     queryKey: ['feeding-schedules'],
-    getResources: getFeedingSchedules,
+    getResources: async () => {
+      if (!organization) return [];
+      return getFeedingSchedules(organization);
+    },
     createResource: createScheduleWithTargetTypes,
     updateResource: updateScheduleWithTargetTypes,
     deleteResource: deleteFeedingSchedule,
@@ -58,7 +63,10 @@ export function FeedingSchedulesTab() {
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+      if (!organization) return [];
+      return getReptiles(organization) 
+    },
   });
 
   // Query for occupied locations (locations with reptiles)

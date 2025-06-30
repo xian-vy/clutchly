@@ -56,7 +56,10 @@ export function UserForm({ initialData, onSubmit, onCancel, organization }: User
 
   const { data: accessProfiles } = useQuery<AccessProfile[]>({
     queryKey: ['access-profiles'],
-    queryFn: getAccessProfiles,
+    queryFn: async ()=> {
+      if (!organization) return [];
+      return getAccessProfiles(organization);
+    },
   });
 
   const form = useForm<UserFormValues>({

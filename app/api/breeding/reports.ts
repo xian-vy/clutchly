@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { IncubationStatus } from '@/lib/types/breeding'
+import { Organization } from '@/lib/types/organizations';
 import { HetTrait, Reptile } from '@/lib/types/reptile'
 
 // Extended reptile interface that includes the morph_name 
@@ -47,13 +48,14 @@ export interface BreedingReportFilters {
 }
 
 // Get comprehensive breeding statistics
-export async function getBreedingStats(filters?: BreedingReportFilters): Promise<BreedingStats> {
+export async function getBreedingStats(organization : Organization, filters?: BreedingReportFilters): Promise<BreedingStats> {
   const supabase = createClient()
   
   // Fetch all breeding projects based on filters
   let projectsQuery = supabase
     .from('breeding_projects')
     .select('*')
+    .eq('org_id', organization.id)
   
   // Apply filters if provided
   if (filters) {
@@ -116,6 +118,7 @@ export async function getBreedingStats(filters?: BreedingReportFilters): Promise
   const hatchlingsQuery = supabase
     .from('reptiles')
     .select('*')
+    .eq('org_id', organization.id)
     .in('parent_clutch_id', clutchIds)
   
   const { data: hatchlingsData, error: hatchlingsError } = await hatchlingsQuery
@@ -288,13 +291,14 @@ export interface DetailedBreedingProject {
 }
 
 // Get detailed breeding project data with clutches and hatchlings
-export async function getDetailedBreedingProjects(filters?: BreedingReportFilters): Promise<DetailedBreedingProject[]> {
+export async function getDetailedBreedingProjects(organization : Organization,filters?: BreedingReportFilters): Promise<DetailedBreedingProject[]> {
   const supabase = createClient()
   
   // Fetch all breeding projects based on filters
   let projectsQuery = supabase
     .from('breeding_projects')
     .select('*')
+    .eq('org_id', organization.id)
   
   // Apply filters if provided
   if (filters) {
@@ -525,9 +529,9 @@ export interface GeneticOutcomeResult {
 }
 
 // Get data for genetic outcome analysis
-export async function getGeneticOutcomes(filters?: BreedingReportFilters): Promise<GeneticOutcomeResult[]> {
+export async function getGeneticOutcomes(organization : Organization,filters?: BreedingReportFilters): Promise<GeneticOutcomeResult[]> {
   // Get detailed projects first
-  const detailedProjects = await getDetailedBreedingProjects(filters)
+  const detailedProjects = await getDetailedBreedingProjects(organization,filters)
   
   // Analyze genetic outcomes by pairing types
   const outcomes = detailedProjects.reduce((acc: Record<string, PairingOutcome>, project) => {

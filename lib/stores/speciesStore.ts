@@ -2,12 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Species, NewSpecies } from '@/lib/types/species';
 import { getSpecies, createSpecies, updateSpecies, deleteSpecies, getGlobalSpecies, getInitialSpecies } from '@/app/api/reptiles/species';
+import { Organization } from '../types/organizations';
 
 interface SpeciesState {
   species: Species[];
   isLoading: boolean;
   error: Error | null;
-  fetchSpecies: () => Promise<void>;
+  fetchSpecies: (organization : Organization) => Promise<void>;
   fetchInitialSpecies: () => Promise<void>;
   downloadCommonSpecies: (selectedIds?: string[]) => Promise<void>;
   addSpecies: (species: NewSpecies) => Promise<Species | null>;
@@ -25,10 +26,10 @@ export const useSpeciesStore = create<SpeciesState>()(
       isLoading: false,
       error: null,
 
-      fetchSpecies: async () => {
+      fetchSpecies: async (organization : Organization) => {
         try {
           set({ isLoading: true, error: null });
-          const speciesData = await getSpecies();
+          const speciesData = await getSpecies(organization);
           set({ species: speciesData, isLoading: false });
         } catch (err) {
           set({ 

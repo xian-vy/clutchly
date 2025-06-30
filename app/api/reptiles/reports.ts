@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { Organization } from '@/lib/types/organizations';
 
 export interface ReptileReportData {
   totalReptiles: number;
@@ -23,8 +24,8 @@ export interface ReptileReportData {
   };
 }
 
-export async function getReptileReportData(): Promise<ReptileReportData> {
-  const supabase = await createClient();
+export async function getReptileReportData(organization : Organization): Promise<ReptileReportData> {
+  const supabase =  createClient();
 
   // Get all reptiles with their details
   const { data: reptiles, error } = await supabase
@@ -33,7 +34,8 @@ export async function getReptileReportData(): Promise<ReptileReportData> {
       *,
       species:species_id (name),
       morph:morph_id (name)
-    `);
+    `)
+    .eq('org_id', organization.id);
 
   if (error) throw error;
   if (!reptiles || reptiles.length === 0) {

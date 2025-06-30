@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { TabsContent } from '@radix-ui/react-tabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SALES_STATUS_COLORS } from '@/lib/constants/colors';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -67,9 +68,14 @@ interface SalesRecordFormProps {
 }
 
 export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecordFormProps) {
+  const {organization} = useAuthStore()
+
   const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
   const unSoldReptiles = reptiles.filter((reptile) => reptile.status === 'active');
   const { ReptileSelect } = useGroupedReptileBySpeciesSelect({ filteredReptiles: unSoldReptiles });

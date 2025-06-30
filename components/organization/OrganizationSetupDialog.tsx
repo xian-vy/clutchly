@@ -63,8 +63,8 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { fetchInitialSpecies } = useSpeciesStore();
-  const { fetchFeederSizes, fetchFeederTypes } = useFeedersStore();
+  const { fetchInitialSpecies, species} = useSpeciesStore();
+  const { fetchFeederSizes, fetchFeederTypes,feederSizes,feederTypes } = useFeedersStore();
   const { downloadCommonMorphs } = useMorphsStore();
   const { organization, isLoading } = useAuthStore();
 
@@ -90,14 +90,22 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
 
   // Fetch species on component mount
   useEffect(() => {
+    if (species.length !== 0 ) return
     fetchInitialSpecies();
-  }, [fetchInitialSpecies]);
+  }, [fetchInitialSpecies,species]);
+
   useEffect(() => {
-    fetchFeederTypes();
-  }, [fetchFeederTypes]);
+    if (feederSizes.length !== 0) return
+    if (!organization) return
+    fetchFeederSizes(organization)
+  }, [fetchFeederSizes,feederSizes,organization])
+
   useEffect(() => {
-    fetchFeederSizes();
-  }, [fetchFeederSizes]);
+    if (feederTypes.length !== 0) return
+    if (!organization) return
+    fetchFeederTypes(organization)
+  }, [fetchFeederTypes,feederTypes,organization])
+ 
 
   // Set dialog state once organization data is loaded
   useEffect(() => {
@@ -177,10 +185,15 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
         selected_species: data.selected_species,
         logo : null
       };
+
+      if (!organization) {
+        toast.error("Something went wrong. Please refresh the page and try again.");
+        return
+      }
       
       if (data.selected_species && data.selected_species.length > 0) {
         // Download morphs for the selected species
-        await downloadCommonMorphs(data.selected_species);
+        await downloadCommonMorphs(organization,data.selected_species);
       }
       if (organization) {
         // Set the selected resource before update
@@ -192,7 +205,11 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
           toast.error("There was a problem updating your organization. Please try again.");
         }
       } else {
-        await createOrganization(orgData);
+         if (!user) {
+          toast.error("Something went wrong. Please refresh the page and try again.");
+          return;
+         }
+        await createOrganization(user,orgData);
         console.log("Organization created successfully");
       }
       

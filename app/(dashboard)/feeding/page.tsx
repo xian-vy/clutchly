@@ -1,5 +1,4 @@
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
-import FeedersTab from '@/components/dashboard/feeding/feeders/FeedersTab'
 import { FeedingLogsTab } from '@/components/dashboard/feeding/FeedingLogsTab'
 import { FeedingReportsTab } from '@/components/dashboard/feeding/FeedingReportsTab'
 import { FeedingSchedulesTab } from '@/components/dashboard/feeding/FeedingSchedulesTab'
@@ -34,9 +33,6 @@ export default function FeedingPage() {
           <FeedingTab />
         </TabsContent>
 
-        <TabsContent value="feeders">
-          <FeedersTab />
-        </TabsContent>
 
         <TabsContent value="schedules">
           <FeedingSchedulesTab />

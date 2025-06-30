@@ -14,6 +14,7 @@ import {
     updateFeederSize,
     deleteFeederSize
   } from '@/app/api/feeders/sizes';
+import { Organization } from '../types/organizations';
 // Define the combined state for feeder types and sizes
 interface FeedersState {
   feederTypes: FeederType[];
@@ -22,14 +23,14 @@ interface FeedersState {
   error: Error | null;
   
   // Feeder Type operations
-  fetchFeederTypes: () => Promise<void>;
+  fetchFeederTypes: (organization : Organization) => Promise<void>;
   addFeederType: (feederType: NewFeederType) => Promise<FeederType | null>;
   updateFeederType: (id: string, updates: Partial<NewFeederType>) => Promise<FeederType | null>;
   deleteFeederType: (id: string) => Promise<boolean>;
   getFeederTypeById: (id: string) => FeederType | undefined;
   
   // Feeder Size operations
-  fetchFeederSizes: () => Promise<void>;
+  fetchFeederSizes: (organization : Organization ) => Promise<void>;
   fetchFeederSizesByType: (feederTypeId: string) => Promise<void>;
   addFeederSize: (feederSize: NewFeederSize) => Promise<FeederSize | null>;
   updateFeederSize: (id: string, updates: Partial<NewFeederSize>) => Promise<FeederSize | null>;
@@ -51,10 +52,10 @@ export const useFeedersStore = create<FeedersState>()(
       error: null,
 
       // Feeder Type operations
-      fetchFeederTypes: async () => {
+      fetchFeederTypes: async (organization : Organization) => {
         try {
           set({ isLoading: true, error: null });
-          const feederTypesData = await getFeederTypes();
+          const feederTypesData = await getFeederTypes(organization);
           set({ feederTypes: feederTypesData, isLoading: false });
         } catch (err) {
           set({ 
@@ -125,10 +126,10 @@ export const useFeedersStore = create<FeedersState>()(
       },
 
       // Feeder Size operations
-      fetchFeederSizes: async () => {
+      fetchFeederSizes: async (organization : Organization) => {
         try {
           set({ isLoading: true, error: null });
-          const feederSizesData = await getFeederSizes();
+          const feederSizesData = await getFeederSizes(organization);
           set({ feederSizes: feederSizesData, isLoading: false });
         } catch (err) {
           set({ 

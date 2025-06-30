@@ -12,6 +12,7 @@ import { ExpensesSummaryStats } from './reports/ExpensesSummaryStats';
 import { ExpensesByTimeChart } from './reports/charts/ExpensesByTimeChart';
 import { DistributionPieCharts } from './reports/charts/DistributionPieCharts';
 import { TimePeriod, TimeRangeSelector } from './reports/TimeRangeSelector';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 interface ExpensesFilterParams {
   period?: TimePeriod;
@@ -24,7 +25,7 @@ export function ExpenseReportTab() {
   const [filters, setFilters] = useState<ExpensesFilterParams>({});
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
-  
+  const {organization} = useAuthStore()
   // Handle time period change
   const handleTimePeriodChange = (period: TimePeriod) => {
     setTimePeriod(period);
@@ -79,7 +80,10 @@ export function ExpenseReportTab() {
   // Fetch data
   const { data: summary, isLoading: summaryLoading } = useQuery({
     queryKey: ['expenses-summary', filters],
-    queryFn: () => getExpensesSummary(),
+    queryFn: async () => {
+       if (!organization) return undefined;
+       return getExpensesSummary(organization);
+    }
   });
 
   const { data: expensesByCategory, isLoading: categoryLoading } = useQuery({
