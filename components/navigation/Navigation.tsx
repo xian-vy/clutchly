@@ -6,9 +6,7 @@ import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import AccountAvatar from './AccountAvatar';
 import { TopLoader } from '../ui/TopLoader';
 import { ScrollArea } from '../ui/scroll-area';
-import { useQueryClient } from '@tanstack/react-query';
 import { NAV_ITEMS, NavItem } from '@/lib/constants/navigation';
-import { logout } from '@/app/auth/logout/actions';
 import ReptileList from './ReptileList';
 import { OrganizationSetupDialog } from '../organization/OrganizationSetupDialog';
 import useAccessControl from '@/lib/hooks/useAccessControl';
@@ -23,16 +21,13 @@ export function Navigation() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const queryClient = useQueryClient();
   const {theme} = useTheme();
-  const { user,  fetchUserAndOrg, isLoading, isLoggingOut, setIsLoggingOut ,clearAuth} = useAuthStore();
+  const { user,  fetchUserAndOrg, isLoading, isLoggingOut, logoutUser } = useAuthStore();
+  const { filterNavItems, isLoading: accessLoading } = useAccessControl(user);
 
  useEffect(() => {
   fetchUserAndOrg()
   }, [fetchUserAndOrg]);
-
-
-  const { filterNavItems, isLoading: accessLoading } = useAccessControl(user);
 
   const accessibleNavItems = useMemo(() => {
     if (isLoading || accessLoading) return []; 
@@ -61,24 +56,6 @@ export function Navigation() {
       startTransition(() => {
         router.push(href);
       });
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true);
-      await queryClient.invalidateQueries();
-      queryClient.clear();
-      localStorage.removeItem('feeders-storage');
-      localStorage.removeItem('morphs-storage');
-      localStorage.removeItem('species-storage');
-      await logout();
-      clearAuth();
-      window.location.reload();
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // Reset logout state on error
-      setIsLoggingOut(false);
     }
   };
 
@@ -149,7 +126,7 @@ export function Navigation() {
           {/* Bottom avatar */}
           <div className="h-16 flex items-center px-2 border-t border-sidebar-border">
             <AccountAvatar 
-              onLogout={handleLogout} 
+              onLogout={logoutUser} 
               user={user} 
               isLoading={isLoading}
               onDropdownOpenChange={setIsDropdownOpen}
@@ -229,7 +206,7 @@ export function Navigation() {
             {/* Bottom avatar */}
             <div className="h-16 flex items-center px-2 border-t border-sidebar-border">
               <AccountAvatar 
-                onLogout={handleLogout} 
+                onLogout={logoutUser} 
                 user={user} 
                 isLoading={isLoading}
                 onDropdownOpenChange={setIsDropdownOpen}

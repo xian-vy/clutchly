@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { getUserAndOrganizationInfo } from '@/app/api/utils_client';
 import { User } from '@/lib/types/users';
 import { Organization } from '@/lib/types/organizations';
+import { logout } from '@/app/auth/logout/actions';
 
 interface AuthState {
   user: User | undefined;
@@ -15,6 +16,7 @@ interface AuthState {
   setIsLoggingOut: (isLoggingOut: boolean) => void;
   clearAuth: () => void;
   resetLoadingStates: () => void;
+  logoutUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -71,4 +73,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     isLoggingOut: false,
     error: null
   }),
+
+  logoutUser: async () => {
+    set({ isLoggingOut: true });
+    try {
+      localStorage.removeItem('feeders-storage');
+      localStorage.removeItem('morphs-storage');
+      localStorage.removeItem('species-storage');
+      await logout();
+      get().clearAuth();
+      window.location.reload();
+    } catch (error) {
+      set({ isLoggingOut: false });
+      set({ error: error instanceof Error ? error.message : 'Logout failed' });
+    }
+  },
 })); 
