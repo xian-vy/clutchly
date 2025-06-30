@@ -23,10 +23,12 @@ import { format } from 'date-fns'
 import { ChevronDown, Loader2 } from 'lucide-react'
 import { DonutChart } from './charts/DonutChart'
 import { PunnettSquareComponent } from './PunnettSquare'
+import { useAuthStore } from '@/lib/stores/authStore'
 
 
 const GeneticHistoryTab = () => {
   const { morphs } = useMorphsStore()
+  const {organization} = useAuthStore()
 
   const { data: history, isLoading } = useQuery<GeneticCalculation[]>({
     queryKey: ['genetic-calculations-history'],
@@ -34,7 +36,10 @@ const GeneticHistoryTab = () => {
   })
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   })
 
   if (isLoading) {

@@ -17,6 +17,7 @@ import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useAuthStore } from '@/lib/stores/authStore';
 
 interface EnrichedBreedingProject extends BreedingProject {
   male_name: string;
@@ -47,11 +48,15 @@ export function BreedingProjectList({
   const [filters, setFilters] = useState<BreedingFilters>({});
   const {species} = useSpeciesStore();
   const {morphs} = useMorphsStore();
+  const { organization } = useAuthStore()
 
   // Fetch reptiles to get parent names
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
 
   // Create a map of reptile IDs to names for quick lookup

@@ -72,7 +72,10 @@ export function HatchlingForm({
   const morphsForSpecies = getMorphsBySpecies(clutch.species_id.toString())
   const { data: reptiles, isLoading : reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+}
   })
   const { data: reptileLimit, isLoading : limitLoading } = useQuery({
     queryKey: ['limit'],
@@ -116,10 +119,11 @@ export function HatchlingForm({
 
   // Fetch species if not already loaded
   useEffect(() => {
-    if (species.length === 0) {
-      fetchSpecies()
-    }
-  }, [species.length, fetchSpecies])
+    if (species.length !== 0) return
+    if (!organization) return;
+      fetchSpecies(organization)
+  
+  }, [species.length, fetchSpecies, organization])
   
   // Auto-select first morph if available
   useEffect(() => {

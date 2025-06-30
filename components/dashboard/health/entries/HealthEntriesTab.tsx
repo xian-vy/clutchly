@@ -20,6 +20,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useQuery } from '@tanstack/react-query';
 import { HealthFilters } from './HealthFilterDialog';
 import { getCurrentMonthDateRange } from '@/lib/utils';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function HealthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -28,7 +29,8 @@ export function HealthEntriesTab() {
     dateFrom: currentMonthRange.dateFrom,
     dateTo: currentMonthRange.dateTo,
   });
-  
+  const {organization} = useAuthStore()
+
   const {
     resources: healthLogs,
     isLoading,
@@ -40,10 +42,12 @@ export function HealthEntriesTab() {
   } = useResource<HealthLogEntry, CreateHealthLogEntryInput>({
     resourceName: 'Health Log',
     queryKey: ['healthLogs', filters.dateFrom, filters.dateTo],
-    getResources: () => getHealthLogs({
+    getResources: async() => {
+       if (!organization) return [];
+      return getHealthLogs(organization,{
       startDate: filters.dateFrom,
       endDate: filters.dateTo
-    }),
+    })},
     createResource: createHealthLog,
     updateResource: updateHealthLog,
     deleteResource: deleteHealthLog,
@@ -51,7 +55,10 @@ export function HealthEntriesTab() {
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+    if (!organization) return [];
+    return getReptiles(organization) 
+   },
   });
 
   const { species,  isLoading: speciesLoading } = useSpeciesStore()

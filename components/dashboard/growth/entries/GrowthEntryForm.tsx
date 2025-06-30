@@ -6,6 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
+import { useAuthStore } from '@/lib/stores/authStore';
 import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -33,10 +34,14 @@ interface GrowthEntryFormProps {
 }
 
 export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntryFormProps) {
+  const {organization} = useAuthStore()
 
   const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   })
  
   const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptiles});

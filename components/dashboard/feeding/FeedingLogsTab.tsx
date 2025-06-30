@@ -10,6 +10,7 @@ import { FeedingLogsList } from './logs/FeedingLogsList';
 import { useFeedersStore } from '@/lib/stores/feedersStore';
 import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export interface FeedingEventNormalized {
   id: string;
@@ -31,10 +32,14 @@ export function FeedingLogsTab() {
     to: today,
   });
   const {feederSizes, feederTypes} = useFeedersStore();
+  const {organization} = useAuthStore()
 
   const { data: schedules = [], isLoading : schedulesLoading } = useQuery<FeedingScheduleWithTargets[]>({
     queryKey: ['feeding-schedules'],
-    queryFn: getFeedingSchedules,
+    queryFn: async () => {
+      if (!organization) return [];
+      return getFeedingSchedules(organization);
+    },
   });
 
   const { 

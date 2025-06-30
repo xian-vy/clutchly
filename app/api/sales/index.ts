@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { NewSaleRecord, SaleRecord, SalesSummary } from '@/lib/types/sales'
 import { getUserAndOrganizationInfo } from '../utils_client';
+import { Organization } from '@/lib/types/organizations';
 
 const supabase = createClient()
 
@@ -15,8 +16,7 @@ export interface SalesFilterParams {
   priceMax?: number;
 }
 
-export async function getSalesRecords(dateRange?: { startDate?: string; endDate?: string }): Promise<SaleRecord[]> {
-  const { organization } = await getUserAndOrganizationInfo()
+export async function getSalesRecords(organization : Organization, dateRange?: { startDate?: string; endDate?: string }): Promise<SaleRecord[]> {
 
   if (!organization) {
     console.error('No authenticated user found');
@@ -169,9 +169,8 @@ export async function deleteSalesRecord(id: string): Promise<void> {
   if (reptileError) throw reptileError
 }
 
-export async function getSalesByDateRange(filters?: SalesFilterParams): Promise<SaleRecord[]> {
+export async function getSalesByDateRange(organization : Organization, filters?: SalesFilterParams): Promise<SaleRecord[]> {
   const supabase = createClient()
-  const { organization } = await getUserAndOrganizationInfo()
 
   if (!organization) {
     console.error('No authenticated user found');
@@ -220,8 +219,8 @@ export async function getSalesByDateRange(filters?: SalesFilterParams): Promise<
   return data
 }
 
-export async function getSalesSummary(filters?: SalesFilterParams): Promise<SalesSummary> {
-  const salesRecords = await getSalesByDateRange(filters)
+export async function getSalesSummary(organization : Organization, filters?: SalesFilterParams): Promise<SalesSummary> {
+  const salesRecords = await getSalesByDateRange(organization,filters)
   
   if (!salesRecords.length) {
     return {
@@ -306,8 +305,8 @@ export async function getSalesSummary(filters?: SalesFilterParams): Promise<Sale
 }
 
 // Get sales distribution by reptile species
-export async function getSalesBySpecies(filters?: SalesFilterParams): Promise<{ name: string; value: number }[]> {
-  const salesRecords = await getSalesByDateRange(filters);
+export async function getSalesBySpecies(organization : Organization, filters?: SalesFilterParams): Promise<{ name: string; value: number }[]> {
+  const salesRecords = await getSalesByDateRange(organization,filters);
   
   if (!salesRecords.length) {
     return [];
@@ -362,8 +361,8 @@ export async function getSalesBySpecies(filters?: SalesFilterParams): Promise<{ 
 }
 
 // Get sales distribution by reptile morphs
-export async function getSalesByMorphs(filters?: SalesFilterParams): Promise<{ name: string; value: number }[]> {
-  const salesRecords = await getSalesByDateRange(filters);
+export async function getSalesByMorphs(organization : Organization, filters?: SalesFilterParams): Promise<{ name: string; value: number }[]> {
+  const salesRecords = await getSalesByDateRange(organization,filters);
   
   if (!salesRecords.length) {
     return [];

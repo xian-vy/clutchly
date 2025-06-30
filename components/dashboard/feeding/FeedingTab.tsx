@@ -23,14 +23,19 @@ import { useCallback, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { FeedingEvents } from './FeedingEvents';
 import { getScheduleStats, isTodayScheduledFeedingDay } from './utils';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function FeedingTab() {
   const [expandedScheduleIds, setExpandedScheduleIds] = useState<Set<string>>(new Set());
   const [activeScheduleId, setActiveScheduleId] = useState<string | null>(null);
+  const {organization} = useAuthStore()
 
   const { data: schedules = [], isLoading : schedulesLoading } = useQuery<FeedingScheduleWithTargets[]>({
     queryKey: ['feeding-schedules'],
-    queryFn: getFeedingSchedules,
+    queryFn:  async () => {
+      if (!organization) return [];
+      return getFeedingSchedules(organization);
+    },
     staleTime: 60 * 60 * 1000, 
   });
   const queryClient = useQueryClient();

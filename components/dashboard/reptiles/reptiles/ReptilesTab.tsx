@@ -36,7 +36,10 @@ export function ReptilesTab() {
   } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
     queryKey: ['reptiles'],
-    getResources: getReptiles,
+    getResources: async () => {
+      if (!organization) return [];
+       return getReptiles(organization) 
+    },
     createResource: createReptile,
     updateResource: updateReptile,
     deleteResource: deleteReptile,

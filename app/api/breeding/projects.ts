@@ -1,11 +1,11 @@
 import { createClient } from '@/lib/supabase/client'
 import { BreedingProject, NewBreedingProject } from '@/lib/types/breeding'
 import { getUserAndOrganizationInfo } from '../utils_client'
+import { Organization } from '@/lib/types/organizations'
 
 const supabase = createClient()
 
-export async function getBreedingProjects(): Promise<BreedingProject[]> {
-  const { organization } = await getUserAndOrganizationInfo()
+export async function getBreedingProjects(organization : Organization): Promise<BreedingProject[]> {
   const { data, error } = await supabase
     .from('breeding_projects')
     .select('*')
@@ -68,7 +68,7 @@ export async function deleteBreedingProject(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function getBreedingProjectsByDate(dateRange?: { 
+export async function getBreedingProjectsByDate(organization : Organization, dateRange?: { 
   startDate?: string; 
   endDate?: string;
   dateField?: 'start_date' | 'end_date' | 'expected_hatch_date' | 'created_at';
@@ -78,6 +78,7 @@ export async function getBreedingProjectsByDate(dateRange?: {
   let query = supabase
     .from('breeding_projects')
     .select('*')
+    .eq('org_id', organization.id)
     
   // Apply date filtering if range is provided
   if (dateRange) {

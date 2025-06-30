@@ -5,10 +5,10 @@ import { NewReptile, Reptile } from '@/lib/types/reptile'
 import { createFeedingEventForNewLocation } from '@/app/api/feeding/events'
 import { generateReptileCode, getSpeciesCode } from '@/components/dashboard/reptiles/utils'
 import { getUserAndOrganizationInfo } from '../utils_client'
+import { Organization } from '@/lib/types/organizations'
 
-export async function getReptiles() {
+export async function getReptiles(organization : Organization) {
   const supabase =  createClient()
-  const { organization } = await getUserAndOrganizationInfo()
   const { data: reptiles, error } = await supabase
     .from('reptiles')
     .select('*')

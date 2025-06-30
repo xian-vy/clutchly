@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { Clutch, NewClutch } from '@/lib/types/breeding'
+import { Organization } from '@/lib/types/organizations'
 
 const supabase = createClient()
 
@@ -193,6 +194,7 @@ export async function getClutchesByDate(
 }
 
 export async function getAllClutchesByDate(
+  organization : Organization,
   dateRange?: { 
     startDate?: string; 
     endDate?: string;
@@ -204,6 +206,7 @@ export async function getAllClutchesByDate(
   let query = supabase
     .from('clutches')
     .select('*')
+    .eq('org_id', organization.id)
     
   // Apply date filtering if range is provided
   if (dateRange) {

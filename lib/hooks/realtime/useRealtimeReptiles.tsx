@@ -18,7 +18,10 @@ const useRealtimeReptiles = () => {
     } = useResource<Reptile, NewReptile>({
       resourceName: 'Reptile',
       queryKey: ['reptiles'],
-      getResources: getReptiles,
+      getResources: async () => {
+        if (!organization?.id) return [];
+        return getReptiles(organization);
+      },
       createResource: createReptile,
       updateResource: updateReptile,
       deleteResource: deleteReptile,

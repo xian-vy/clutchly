@@ -10,6 +10,7 @@ import { ExpenseRecordDetails } from './ExpenseRecordDetails'
 import { ExpenseRecordForm } from './ExpenseRecordForm'
 import { ExpenseRecordList } from './ExpenseRecordList'
 import { getCurrentMonthDateRange } from '@/lib/utils'
+import { useAuthStore } from '@/lib/stores/authStore'
 
 export function ExpensesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -20,6 +21,7 @@ export function ExpensesTab() {
     dateTo: currentMonthRange.dateTo,
   })
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false)
+  const {organization} = useAuthStore()
 
   const {
     resources: expenses,
@@ -32,10 +34,13 @@ export function ExpensesTab() {
   } = useResource<ExpenseRecord, NewExpenseRecord>({
     resourceName: 'Expense Record',
     queryKey: ['expenses', filters.dateFrom, filters.dateTo],
-    getResources: () => getExpensesRecords({
+    getResources: async () => {
+      if (!organization) return [];
+      return getExpensesRecords(organization,{
       startDate: filters.dateFrom,
       endDate: filters.dateTo
-    }),
+    })
+  },
     createResource: createExpenseRecord,
     updateResource: updateExpenseRecord,
     deleteResource: deleteExpenseRecord,

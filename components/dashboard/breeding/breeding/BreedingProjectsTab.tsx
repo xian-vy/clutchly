@@ -16,13 +16,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { getAllClutches } from '@/app/api/breeding/clutches';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function BreedingProjectsTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedProjectForDetails, setSelectedProjectForDetails] = useState<BreedingProject | null>(null);
   const queryClient = useQueryClient();
-
+  const { organization } = useAuthStore()
   const {
     resources: projects,
     isLoading: projectsLoading,
@@ -34,7 +35,10 @@ export function BreedingProjectsTab() {
   } = useResource<BreedingProject, NewBreedingProject>({
     resourceName: 'Breeding Project',
     queryKey: ['breeding-projects'],
-    getResources: getBreedingProjects,
+    getResources: async () => {
+      if (!organization) return [];
+      return getBreedingProjects(organization);
+    },
     createResource: createBreedingProject,
     updateResource: updateBreedingProject,
     deleteResource: deleteBreedingProject,
@@ -42,7 +46,10 @@ export function BreedingProjectsTab() {
 
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
 
   const { data: allClutches = [], isLoading: clutchesLoading } = useQuery<Clutch[]>({

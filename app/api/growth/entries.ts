@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/client'
 import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth'
 import { getUserAndOrganizationInfo } from '../utils_client'
+import { Organization } from '@/lib/types/organizations';
 
-export async function getGrowthEntries(dateRange?: { startDate?: string; endDate?: string }) {
+export async function getGrowthEntries(organization : Organization, dateRange?: { startDate?: string; endDate?: string }) {
   const supabase = await createClient()
-  const { organization } = await getUserAndOrganizationInfo()
 
   let query = supabase
     .from('growth_entries')
@@ -137,12 +137,13 @@ export async function deleteGrowthEntry(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function getGrowthEntriesByDate(dateRange?: { startDate?: string; endDate?: string }) {
+export async function getGrowthEntriesByDate(organization : Organization, dateRange?: { startDate?: string; endDate?: string }) {
   const supabase = await createClient()
   
   let query = supabase
     .from('growth_entries')
     .select('*')
+    .eq('org_id', organization.id)
     
   // Apply date filtering if range is provided
   if (dateRange) {

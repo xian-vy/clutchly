@@ -3,13 +3,14 @@ import { persist } from 'zustand/middleware';
 import { Morph, NewMorph } from '@/lib/types/morph';
 import { getMorphs, createMorph, updateMorph, deleteMorph, getGlobalMorphs } from '@/app/api/reptiles/morphs';
 import { useSpeciesStore } from './speciesStore';
+import { Organization } from '../types/organizations';
 
 interface MorphsState {
   morphs: (Morph & { species: { name: string } })[];
   isLoading: boolean;
   error: Error | null;
   fetchMorphs: () => Promise<void>;
-  downloadCommonMorphs: (selectedSpeciesIds?: string[]) => Promise<void>;
+  downloadCommonMorphs: (organization : Organization, selectedSpeciesIds?: string[]) => Promise<void>;
   addMorph: (morph: NewMorph) => Promise<(Morph & { species: { name: string } }) | null>;
   updateMorph: (id: string, updates: Partial<NewMorph>) => Promise<(Morph & { species: { name: string } }) | null>;
   deleteMorph: (id: string) => Promise<boolean>;
@@ -40,7 +41,7 @@ export const useMorphsStore = create<MorphsState>()(
         }
       },
 
-      downloadCommonMorphs: async (selectedSpeciesIds?: string[]) => {
+      downloadCommonMorphs: async (organization : Organization,selectedSpeciesIds?: string[]) => {
         try {
           set({ isLoading: true, error: null });
           
@@ -54,7 +55,7 @@ export const useMorphsStore = create<MorphsState>()(
           }
 
           // Just pass selectedSpeciesIds to getGlobalMorphs
-          const commonMorphs = await getGlobalMorphs(selectedSpeciesIds);
+          const commonMorphs = await getGlobalMorphs(organization,selectedSpeciesIds);
           
           // Merge with existing morphs, avoiding duplicates by name and species
           const existingMorphs = get().morphs;

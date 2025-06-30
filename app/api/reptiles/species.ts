@@ -2,10 +2,10 @@
 import { createClient } from '@/lib/supabase/client'
 import { Species, NewSpecies } from '@/lib/types/species'
 import { getUserAndOrganizationInfo } from '../utils_client'
+import { Organization } from '@/lib/types/organizations'
 
-export async function getSpecies() {
+export async function getSpecies(organization : Organization) {
   const supabase = await createClient()
-  const { organization } = await getUserAndOrganizationInfo()
     
   const { data: species, error } = await supabase
     .from('species')

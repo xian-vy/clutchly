@@ -49,7 +49,10 @@ const GeneticCalculatorTab = () => {
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
   const { data: organization } = useQuery<Organization>({
     queryKey: ['organization2'],

@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { HealthCategorySelect } from './HealthCategorySelect';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 // Define the form schema to match the CreateHealthLogEntryInput type
 const formSchema = z.object({
@@ -45,10 +46,14 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
 
     isLoading: healthStoreLoading
   } = useHealthStore();
+  const {organization} = useAuthStore()
 
   const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   })
  
   const { ReptileSelect } = useGroupedReptileBySpeciesSelect({filteredReptiles: reptiles});

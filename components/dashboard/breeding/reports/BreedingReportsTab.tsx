@@ -14,6 +14,7 @@ import { BreedingStatistics } from './BreedingStatistics';
 import { GeneticOutcomes } from './GeneticOutcomes';
 import { ProjectPerformance } from './ProjectPerformance';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function BreedingReportsTab() {
   const [activeTab, setActiveTab] = useState('statistics');
@@ -21,7 +22,7 @@ export function BreedingReportsTab() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { species } = useSpeciesStore();
   const screen = useScreenSize()
-  
+  const {organization} = useAuthStore()
   // Update filters when date range changes
   const handleDateRangeChange = (newRange: DateRange | undefined) => {
     setDateRange(newRange);
@@ -60,7 +61,10 @@ export function BreedingReportsTab() {
     isLoading: statsLoading 
   } = useQuery({
     queryKey: ['breeding-stats', filters],
-    queryFn: () => getBreedingStats(filters),
+    queryFn: async () => {
+       if (!organization) return undefined;
+     return  getBreedingStats(organization,filters)
+    },
   });
   
   // Fetch detailed breeding projects data (lazy loaded)
@@ -70,7 +74,10 @@ export function BreedingReportsTab() {
     refetch: fetchDetailedData
   } = useQuery({
     queryKey: ['detailed-breeding-projects', filters],
-    queryFn: () => getDetailedBreedingProjects(filters),
+    queryFn: async () => {
+      if (!organization) return undefined;
+    return  getDetailedBreedingProjects(organization,filters)
+   },
     enabled: activeTab === 'projects', // Only fetch when this tab is active
   });
   
@@ -81,7 +88,10 @@ export function BreedingReportsTab() {
     refetch: fetchGeneticData
   } = useQuery({
     queryKey: ['genetic-outcomes', filters],
-    queryFn: () => getGeneticOutcomes(filters),
+    queryFn: async () => {
+      if (!organization) return undefined;
+    return  getGeneticOutcomes(organization,filters)
+   },
     enabled: activeTab === 'genetics', // Only fetch when this tab is active
   });
   

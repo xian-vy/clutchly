@@ -18,6 +18,7 @@ import { ClutchesList } from './clutch/ClutchesList';
 import { HatchlingForm } from './hatchling/HatchlingForm';
 import { PlusCircle } from 'lucide-react';
 import { ClutchForm } from './clutch/ClutchForm';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
@@ -32,10 +33,14 @@ export function BreedingProjectDetails({
   const queryClient = useQueryClient();
   const {morphs} = useMorphsStore()
   const [clutchDialogOpen, setClutchDialogOpen] = useState(false);
+  const {organization} = useAuthStore()
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
 
   const {

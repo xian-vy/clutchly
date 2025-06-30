@@ -1,11 +1,10 @@
 import { createClient } from '@/lib/supabase/client';
 import { FeederSize, NewFeederSize } from '@/lib/types/feeders';
 import { getUserAndOrganizationInfo } from '../utils_client';
+import { Organization } from '@/lib/types/organizations';
 
-export async function getFeederSizes(): Promise<FeederSize[]> {
-  const supabase = await createClient();
-  const { organization } = await getUserAndOrganizationInfo()
-
+export async function getFeederSizes(organization : Organization): Promise<FeederSize[]> {
+  const supabase = createClient();
   
   const { data: feederSizes, error } = await supabase
     .from('feeder_sizes')

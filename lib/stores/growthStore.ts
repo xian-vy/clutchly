@@ -2,12 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { GrowthEntry } from '@/lib/types/growth';
 import { getGrowthEntries } from '@/app/api/growth/entries';
+import { Organization } from '../types/organizations';
 
 interface GrowthState {
   entries: GrowthEntry[];
   isLoading: boolean;
   error: Error | null;
-  fetchEntries: () => Promise<void>;
+  fetchEntries: (organization : Organization) => Promise<void>;
   getEntriesByReptile: (reptileId: string) => GrowthEntry[];
 }
 
@@ -18,10 +19,10 @@ export const useGrowthStore = create<GrowthState>()(
       isLoading: false,
       error: null,
 
-      fetchEntries: async () => {
+      fetchEntries: async (organization : Organization) => {
         try {
           set({ isLoading: true, error: null });
-          const entriesData = await getGrowthEntries();
+          const entriesData = await getGrowthEntries(organization);
           set({ 
             entries: entriesData,
             isLoading: false 
