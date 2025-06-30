@@ -15,14 +15,11 @@ import { useAuthStore } from '@/lib/stores/authStore';
 export default function AccessControlTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<AccessProfileWithControls | null>(null);
-  const {organization,user} = useAuthStore()
+  const {organization} = useAuthStore()
 
   const { data: pages = [] } = useQuery<Page[]>({
     queryKey: ['pages'],
-    queryFn: async ()=> {
-      if (!user) return [];
-      return getPages(user)
-    },
+    queryFn:getPages,
   });
 
   const {

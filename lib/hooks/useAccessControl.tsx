@@ -28,10 +28,7 @@ const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
 
   const { data: pages = [], isLoading: pagesLoading } = useQuery({
     queryKey: ['pages'],
-    queryFn: async () => {
-      if (!user) return [];
-      return getPages(user);
-      },
+    queryFn: getPages,
     enabled: !!user,
     staleTime: 60 * 60 * 1000,
   });

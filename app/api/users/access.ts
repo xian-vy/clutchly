@@ -2,12 +2,10 @@ import { createClient } from '@/lib/supabase/client'
 import { AccessControl, AccessProfileWithControls, CreateAccessControl, CreateAccessProfile } from '@/lib/types/access';
 import { getUserAndOrganizationInfo } from '../utils_client';
 import { Page } from '@/lib/types/pages';
-import { User } from '@/lib/types/users';
 import { Organization } from '@/lib/types/organizations';
 
-export async function getPages(user : User ) {
+export async function getPages() {
     const supabase =  createClient()
-    if (!user) throw new Error('Not authenticated')
 
     const { data, error } = await supabase
         .from('pages')

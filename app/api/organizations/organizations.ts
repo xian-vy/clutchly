@@ -104,9 +104,13 @@ async function checkOrganizationNameExists(fullName: string, excludeId?: string)
   return !!data
 }
 
-export async function createOrganization(user: User, orgData: ProfileFormData) {
+export async function createOrganization(orgData: ProfileFormData) {
   const supabase =  createClient()
-  
+  const auth =  await supabase.auth.getUser()
+  const user = auth.data.user
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
   try {
     
     // Check for duplicate organization name
@@ -133,7 +137,7 @@ export async function createOrganization(user: User, orgData: ProfileFormData) {
 
     // Prepare all data in parallel
     const [pages] = await Promise.all([
-      getPages(user)
+      getPages()
     ]);
     
     const newProfile: Partial<Organization> = {
