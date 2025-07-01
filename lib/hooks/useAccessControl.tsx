@@ -54,6 +54,11 @@ const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
     // Organization owners (users.id === org_id) have full access
     if (user.id === user.org_id) return true;
 
+    // Special case: settings page (not in pages array)
+    if (pageId === 'settings') {
+      return false;
+    }
+
     // If no access profile, deny access
     if (!accessProfile) return false;
 
@@ -88,8 +93,8 @@ const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
     return items.filter(item => {
       // Always show Overview page
       if (item.name.toLowerCase() === 'overview') return true;
-      // Show settings to admin
-      if (item.name.toLowerCase() === 'settings' && user.role === 'admin') return true;
+      // Show settings to admin or org owner (regardless of pages)
+      if (item.name.toLowerCase() === 'settings') return user && (user.role === 'admin' || user.id === user.org_id);
       // Special case: Only org owners can see Users page
       if (item.name.toLowerCase() === 'users') return user && user.id === user.org_id;
 
