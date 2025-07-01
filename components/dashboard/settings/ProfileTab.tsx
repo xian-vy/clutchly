@@ -3,27 +3,18 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getOrganization } from '@/app/api/organizations/organizations';
 import { getCatalogSettings, updateCatalogSettings } from '@/app/api/catalog';
-import { Organization } from '@/lib/types/organizations';
 import { CatalogSettings, NewCatalogSettings } from '@/lib/types/catalog';
 import { ProfileDisplay } from './components/ProfileDisplay';
 import { CatalogSettingsDisplay } from './components/CatalogSettingsDisplay';
 import { CatalogSettingsForm, CatalogSettingsFormValues } from './components/CatalogSettingsForm';
 import { Loader2 } from 'lucide-react';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export const ProfileTab = () => {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-
-  // Get organization data
-  const { data: organization, isLoading: isProfileLoading } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: async () => {
-      const data = await getOrganization();
-      return Array.isArray(data) ? data[0] : data;
-    },
-  });
+  const {organization, isLoading} = useAuthStore();
 
   // Get catalog settings
   const { data: settings, isLoading: isSettingsLoading } = useQuery<CatalogSettings>({
@@ -70,7 +61,7 @@ export const ProfileTab = () => {
     }
   };
 
-  if (isProfileLoading || isSettingsLoading) {
+  if (isLoading || isSettingsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-4 w-4 animate-spin text-primary" />
