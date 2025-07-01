@@ -12,9 +12,8 @@ import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { Clutch } from '@/lib/types/breeding';
 import { SalesSummary } from '@/lib/types/sales';
 import { ExpensesSummary } from '@/lib/types/expenses';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DateRange } from 'react-day-picker';
-import { format } from 'date-fns';
 import { FilterX } from 'lucide-react';
 import { StatsCards } from './StatsCards';
 import { ActionItems } from './ActionItems';
@@ -27,71 +26,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { FeedingOverview } from './FeedingOverview';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useFeedersStore } from '@/lib/stores/feedersStore';
 import { useAuthStore } from '@/lib/stores/authStore';
+import useInitializeCommonData from '@/lib/hooks/useInitializeCommonData';
+import { formatDateForApi } from '@/lib/utils';
 
 export function DashboardOverviewTab() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('monthly');
   const {organization} = useAuthStore();
-  
-  // Format date string for API calls
-  const formatDateForApi = (date: Date) => {
-    return format(date, 'yyyy-MM-dd');
-  };
-  
+  const { species} = useSpeciesStore();
+  const { morphs } = useMorphsStore();
+  useInitializeCommonData();
 
-  
-  // Get species and morph data from their respective stores
-  const { species, fetchSpecies } = useSpeciesStore();
-  const { morphs, downloadCommonMorphs  } = useMorphsStore();
-  const { feederSizes,feederTypes,fetchFeederSizes,fetchFeederTypes } = useFeedersStore();
-
-  
-  useEffect(() => {
-    if (species.length === 0) {
-      if (!organization) return
-      fetchSpecies(organization)
-    }
-  }, [fetchSpecies,species,organization])
-
-  useEffect(() => {
-    if (feederSizes.length === 0) {
-      if (!organization) return
-      fetchFeederSizes(organization)
-    }
-  }, [fetchFeederSizes,feederSizes,organization])
-
-  useEffect(() => {
-    if (feederTypes.length === 0) {
-      if (!organization) return
-      fetchFeederTypes(organization)
-    }
-  }, [fetchFeederTypes,feederTypes,organization])
- 
-
-  // In the event local storage has been cleared (Refetch morphs base on organization sp selection)
-  useEffect(() => {
-    if (morphs.length === 0) {
-      console.log("No Morphs found, trying to download...");
-       async function fetchMorphs() {
-        if (!organization) {
-          console.log('No organization found to download common morphs');
-          return;
-        }
-        const speciesIds = organization.selected_species
-        if (!speciesIds) {
-          console.log('No species IDs found in organization');
-          return;
-        }
-        console.log("Downloading common morphs...");
-       await downloadCommonMorphs(organization,speciesIds);
-      }
-      fetchMorphs()
-    } 
-  }, [organization, morphs, downloadCommonMorphs]);
-
-  // Create date filter params for API calls
   const dateFilterParams = useMemo(() => {
     if (!dateRange) return undefined;
     return {
@@ -100,7 +46,6 @@ export function DashboardOverviewTab() {
     };
   }, [dateRange]);
 
-  // Group independent queries together using useQueries
   const independentQueries = useQueries({
     queries: [
       {
@@ -166,7 +111,6 @@ export function DashboardOverviewTab() {
     ],
   });
 
-  // Destructure the results with loading states
   const [
     { data: reptiles = [], isLoading: reptilesLoading },
     { data: healthLogs = [], isLoading: healthLoading },
@@ -193,26 +137,20 @@ export function DashboardOverviewTab() {
     enabled: !breedingLoading && !!organization && !!breedingProjects,
   });
   
-  // Handle date range changes
   const handleDateRangeChange = (newRange: DateRange | undefined) => {
     setDateRange(newRange);
   };
 
-  // Handle time period changes
   const handlePeriodChange = (newPeriod: TimePeriod) => {
     setTimePeriod(newPeriod);
   };
   
-  // Clear all filters
   const clearFilters = () => {
     setDateRange(undefined);
     setTimePeriod('monthly');
   };
   
-  
   const hasActiveFilters = !!dateRange || timePeriod !== 'monthly';
-  
-
   
   return (
     <div className="space-y-2 md:space-y-3 xl:space-y-4 max-w-screen-2xl mx-auto">

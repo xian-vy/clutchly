@@ -33,8 +33,7 @@ import { AlertCircle } from 'lucide-react';
 import * as z from 'zod';
 import { useGroupedReptileByMorphSelect } from '@/lib/hooks/useGroupedReptileByMorphSelect';
 import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies';
-import { Organization } from '@/lib/types/organizations';
-import { getOrganization } from '@/app/api/organizations/organizations';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 const breedingStatuses: BreedingStatus[] = ['planned', 'active', 'completed', 'failed'];
 
@@ -66,7 +65,8 @@ export function BreedingProjectForm({
     relationship: string;
     commonAncestors: Reptile[];
   }>({ isInbreeding: false, relationship: '', commonAncestors: [] });
-
+  const {organization} = useAuthStore();
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues:{
@@ -89,10 +89,7 @@ export function BreedingProjectForm({
    return getReptiles(organization) 
 },
   });
-  const { data: organization } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: getOrganization
-  })
+  
   const { species } = useSpeciesStore();
   const speciesId = form.watch('species_id');
   const maleId = form.watch('male_id');

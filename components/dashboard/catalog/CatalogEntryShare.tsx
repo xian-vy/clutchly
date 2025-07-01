@@ -1,21 +1,16 @@
-import { getOrganization } from '@/app/api/organizations/organizations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { APP_NAME, APP_URL } from '@/lib/constants/app';
-import { Organization } from '@/lib/types/organizations';
-import { useQuery } from '@tanstack/react-query';
 import { Copy, Share2Icon } from 'lucide-react';
 import React, { useState } from 'react'
 import { toast } from 'sonner';
 import ShareURLDialog from './components/ShareURLDialog';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 const CatalogEntryShare = () => {
   const [openShareDialog, setOpenShareDialog] = useState(false);
+  const {organization} = useAuthStore();
 
-    const { data: organization } = useQuery<Organization>({
-        queryKey: ['organization2'],
-        queryFn: getOrganization
-      })
       const userProfile = Array.isArray(organization) ? organization[0] : organization;
     
   return (
