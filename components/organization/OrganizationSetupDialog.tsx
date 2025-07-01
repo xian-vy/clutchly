@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {  ProfileFormData } from '@/lib/types/organizations';
 import { 
   createOrganization, 
-  updateOrganization, 
 } from '@/app/api/organizations/organizations';
 import { 
   Dialog,
@@ -124,7 +123,7 @@ export function OrganizationSetupDialog() {
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSubmitting(true);
     try {
-      // Convert the form data to match ProfileFormData
+      
       const orgData: ProfileFormData = {
         full_name: data.full_name,
         account_type: data.account_type,
@@ -140,14 +139,8 @@ export function OrganizationSetupDialog() {
         }
         await downloadCommonMorphs(organization,data.selected_species);
       }
-      if (isProfileComplete) {
-        const success = await updateOrganization(orgData);
-        if (success) {
-          console.log("Organization updated successfully");
-        } else {
-          toast.error("There was a problem updating your organization. Please try again.");
-        }
-      } else {
+
+      if (!isProfileComplete) {
         await createOrganization(orgData);
         console.log("Organization created successfully");
       }
@@ -167,7 +160,6 @@ export function OrganizationSetupDialog() {
       console.error("Organization update error:", error);
       if (error instanceof Error && error.message === 'An organization with this name already exists') {
         toast.error("This organization name is already taken. Please choose a different name.");
-        // Set focus back to the name field
         form.setError('full_name', { 
           type: 'manual',
           message: 'This organization name is already taken'
