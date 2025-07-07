@@ -25,26 +25,26 @@ export function Footer() {
             />
             <span className="font-bold text-xl md:text-2xl xl:text-3xl text-foreground/90">{APP_NAME}</span>
           </div>
-          <p className="text-sm xl:text-base 3xl:text-lg text-muted-foreground">
+          <p className="text-sm xl:text-base 3xl:text-lg text-foreground/70">
             {APP_DESCRIPTION}
           </p>
         </div>
         
         {/* Links Section */}
         <div className="flex items-center justify-center gap-5 sm:gap-8 mb-12">
-          <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/about" className="text-xs md:text-sm text-foreground/70 hover:text-primary transition-colors">
             About
           </Link>
-          <Link href="/features" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/features" className="text-xs md:text-sm text-foreground/70 hover:text-primary transition-colors">
             Features
           </Link>
-          <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/contact" className="text-xs md:text-sm text-foreground/70 hover:text-primary transition-colors">
             Contact
           </Link>
-          <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/privacy" className="text-xs md:text-sm text-foreground/70 hover:text-primary transition-colors">
             Privacy
           </Link>
-          <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/terms" className="text-xs md:text-sm text-foreground/70 hover:text-primary transition-colors">
             Terms
           </Link>
         </div>
@@ -53,31 +53,31 @@ export function Footer() {
         <hr className='bg-input/20 w-full'/>
         <div className="pt-8  w-full text-center flex items-center justify-between">
               {/* Copyright */}
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-foreground/70">
                 © {new Date().getFullYear()} {APP_NAME}
               </p>
               {/* Social Links */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <Link
                 href="https://www.facebook.com/xzyian.vy"
                 className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
                 aria-label="Facebook"
               >
-                <Facebook className="h-4 w-4 text-muted-foreground" />
+                <Facebook className="h-3.5 sm:h-4 sm:w-4 w-3.5 text-foreground/70" />
               </Link>
               <Link
                 href="https://github.com/xian-vy"
                 className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
                 aria-label="GitHub"
               >
-                <Github className="h-4 w-4  text-muted-foreground" />
+                <Github className="h-3.5 sm:h-4 sm:w-4 w-3.5 text-foreground/70" />
               </Link>
               <Link
                 href="mailto:clutchlyreptilehusbandry@gmail.com"
                 className="p-2 rounded-full bg-secondary/30 hover:bg-secondary/80 transition-colors"
                 aria-label="Email"
               >
-                <AtSign className="h-4 w-4  text-muted-foreground" />
+                <AtSign className="h-3.5 sm:h-4 sm:w-4 w-3.5  text-foreground/70" />
               </Link>
         
             </div>

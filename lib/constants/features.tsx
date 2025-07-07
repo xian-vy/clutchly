@@ -118,11 +118,14 @@ export const FEATURE_LIST = [
       badge: 'Get Started',
       features: [
         'Manage up to 99 reptiles',
-        'Advanced health tracking',
-        'Breeding records',
-        'Growth analytics',
-        'Pedigree analysis',
-        'Premium support'
+        'Reptile Management',
+        'Health Tracking',
+        'Breeding Management',
+        'Growth Management',
+        'Feeding Management',
+        'Shedding Management',
+        'Finance Tracker',
+        'Organization Management'
       ]
     },
     {
@@ -134,11 +137,14 @@ export const FEATURE_LIST = [
       description: 'Enhanced tracking for serious keepers',
       features: [
         'Manage up to 499 reptiles',
-        'Advanced health tracking',
-        'Breeding records',
-        'Growth analytics',
-        'Pedigree analysis',
-        'Premium support'
+        'Reptile Management',
+        'Health Tracking',
+        'Breeding Management',
+        'Growth Management',
+        'Feeding Management',
+        'Shedding Management',
+        'Finance Tracker',
+        'Organization Management'
       ]
     },
     {
@@ -149,12 +155,14 @@ export const FEATURE_LIST = [
       description: 'Complete solution for breeders & facilities',
       features: [
         'Manage up to 1499 reptiles',
-        'Complete genetic tracking',
-        'Advanced breeding projects',
-        'Full analytics dashboard',
-        'User management',
-        'Pedigree analysis',
-        'Priority support'
+        'Reptile Management',
+        'Health Tracking',
+        'Breeding Management',
+        'Growth Management',
+        'Feeding Management',
+        'Shedding Management',
+        'Finance Tracker',
+        'Organization Management'
       ]
     }
   ]
