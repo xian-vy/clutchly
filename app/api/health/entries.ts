@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/client'
 import { CreateHealthLogEntryInput, HealthLogEntry } from '@/lib/types/health'
 import { getUserAndOrganizationInfo } from '../utils_client'
+import { Organization } from '@/lib/types/organizations';
 
-export async function getHealthLogs(dateRange?: { startDate?: string; endDate?: string }) {
+export async function getHealthLogs(organization : Organization,dateRange?: { startDate?: string; endDate?: string }) {
   const supabase = await createClient()
-  const { organization } = await getUserAndOrganizationInfo()
 
   let query = supabase
     .from('health_log_entries')
@@ -100,12 +100,13 @@ export async function deleteHealthLog(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function getHealthLogsByDate(dateRange?: { startDate?: string; endDate?: string }) {
+export async function getHealthLogsByDate(organization : Organization, dateRange?: { startDate?: string; endDate?: string }) {
   const supabase = await createClient()
   
   let query = supabase
     .from('health_log_entries')
     .select('*')
+    .eq('org_id', organization.id)
     
   // Apply date filtering if range is provided
   if (dateRange) {

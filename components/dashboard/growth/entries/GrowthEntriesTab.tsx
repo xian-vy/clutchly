@@ -20,6 +20,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useQuery } from '@tanstack/react-query';
 import { GrowthFilters } from './GrowthFilterDialog';
 import { getCurrentMonthDateRange } from '@/lib/utils';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function GrowthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -27,7 +28,8 @@ export function GrowthEntriesTab() {
   const [filters, setFilters] = useState<GrowthFilters>({
     dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
   });
-  
+  const {organization} = useAuthStore()
+
   const {
     resources: growthEntries,
     isLoading,
@@ -39,10 +41,13 @@ export function GrowthEntriesTab() {
   } = useResource<GrowthEntry, CreateGrowthEntryInput>({
     resourceName: 'Growth Entry',
     queryKey: ['growthEntries', filters.dateRange],
-    getResources: () => getGrowthEntries({
+    getResources: async () => {
+      if (!organization) return [];
+      return getGrowthEntries(organization,{
       startDate: filters.dateRange?.[0] || currentMonthRange.dateFrom,
       endDate: filters.dateRange?.[1] || currentMonthRange.dateTo
-    }),
+    })
+  },
     createResource: createGrowthEntry,
     updateResource: updateGrowthEntry,
     deleteResource: deleteGrowthEntry,
@@ -50,7 +55,10 @@ export function GrowthEntriesTab() {
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
 
   const { species,  isLoading: speciesLoading } = useSpeciesStore()

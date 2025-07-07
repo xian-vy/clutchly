@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useAuthStore } from '@/lib/stores/authStore'
 import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { Morph, NewMorph } from '@/lib/types/morph'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -32,6 +33,7 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
  
   // Get species from the Zustand store
   const { species, fetchSpecies } = useSpeciesStore()
+  const { organization } = useAuthStore()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -44,11 +46,10 @@ export function MorphForm({ initialData, onSubmit, onCancel }: MorphFormProps) {
   const isSubmitting = form.formState.isSubmitting;
 
   useEffect(() => {
-    // Fetch species if not already loaded
-    if (species.length === 0) {
-      fetchSpecies()
-    }
-  }, [species.length, fetchSpecies])
+    if (species.length !== 0) return
+    if (!organization) return;
+     fetchSpecies(organization)
+  }, [species.length, fetchSpecies,organization])
 
   const handleSubmit = async (data: FormValues) => {
     await onSubmit({

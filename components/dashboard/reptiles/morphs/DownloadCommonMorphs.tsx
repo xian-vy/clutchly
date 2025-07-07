@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 interface DownloadCommonDataProps {
   showInMorphsTab?: boolean;
@@ -24,6 +25,7 @@ export function DownloadCommonMorphs({ showInMorphsTab = false }: DownloadCommon
   const downloadCommonMorphs = useMorphsStore(state => state.downloadCommonMorphs);
   const species = useSpeciesStore(state => state.species);
   const fetchSpecies = useSpeciesStore(state => state.fetchSpecies);
+  const {organization} = useAuthStore()
   
   // Only render in morphs tab if showInMorphsTab is true
   if (showInMorphsTab === false) {
@@ -32,10 +34,11 @@ export function DownloadCommonMorphs({ showInMorphsTab = false }: DownloadCommon
   
   const handleDownload = async () => {
     try {
+      if (!organization) return;
       setIsLoading(true);
       setIsDialogOpen(true);
       // Fetch global species first to show in selection
-      await fetchSpecies();
+      await fetchSpecies(organization);
     } catch (error) {
       console.error('Error fetching species:', error);
       toast.error('Failed to fetch species');
@@ -46,13 +49,15 @@ export function DownloadCommonMorphs({ showInMorphsTab = false }: DownloadCommon
 
   const handleConfirmDownload = async () => {
     try {
+      if (!organization) return;
+
       setIsLoading(true);
       
       // Download selected species
       await downloadCommonSpecies(selectedSpecies);
       
       // Download morphs for selected species
-      await downloadCommonMorphs(selectedSpecies);
+      await downloadCommonMorphs(organization,selectedSpecies);
       
       toast.success('Common data downloaded successfully');
       setIsDialogOpen(false);

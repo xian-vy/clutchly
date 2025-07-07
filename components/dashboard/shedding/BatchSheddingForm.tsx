@@ -16,6 +16,7 @@ import { DetailsSection } from './components/batch/DetailsSection'
 import { FiltersSection } from './components/batch/FiltersSection'
 import { ReptileSelection } from './components/batch/ReptileSelection'
 import { FormData, FilterState, ReptileWithLocation, formSchema } from './components/batch/types'
+import { useAuthStore } from '@/lib/stores/authStore'
 
 interface Props {
   onSubmit: (data: CreateSheddingInput[]) => Promise<boolean>
@@ -30,6 +31,7 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
     rack: 'all',
     ageGroup: 'all'
   })
+  const {organization} = useAuthStore()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -43,7 +45,10 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
 
   const { data: reptiles = [] } = useQuery({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   })
 
   const { data: locations = [] } = useQuery({

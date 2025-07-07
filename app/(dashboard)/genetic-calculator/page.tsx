@@ -8,7 +8,7 @@ import { Settings } from 'lucide-react';
 
 export default async function GeneticCalculatorPage() {
   return (
-  <ProtectedRoute pageName='Breeding'>
+  <ProtectedRoute pageName='Genetic Calculator'>
     <div className="container mx-auto">
       <div className="flex items-center justify-between w-full mb-3 lg:mb-4 xl:mb-6">
         <h1 className="text-lg sm:text-xl 2xl:text-2xl text-foreground/85 dark:text-foreground/95  font-bold">Genetic Calculator</h1>

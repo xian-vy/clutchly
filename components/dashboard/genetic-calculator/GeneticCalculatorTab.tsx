@@ -29,12 +29,11 @@ import { useSpeciesStore } from '@/lib/stores/speciesStore'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DonutChart } from './charts/DonutChart'
 import { Species } from '@/lib/types/species'
-import { Organization } from '@/lib/types/organizations'
-import { getOrganization } from '@/app/api/organizations/organizations'
 import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies'
 import { PunnettSquareComponent } from './PunnettSquare'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuthStore } from '@/lib/stores/authStore'
 
 const GeneticCalculatorTab = () => {
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>( null)
@@ -46,15 +45,16 @@ const GeneticCalculatorTab = () => {
   const {morphs} = useMorphsStore()
   const { species,  } = useSpeciesStore()
   const queryClient = useQueryClient();
+  const {organization} = useAuthStore();
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
-  const { data: organization } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: getOrganization
-  })
+
   const { selectedSpeciesId, maleReptiles, femaleReptiles } = useReptilesParentsBySpecies({
     reptiles,
     speciesId : selectedSpecies?.id.toString() || '',

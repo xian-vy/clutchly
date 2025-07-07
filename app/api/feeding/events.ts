@@ -5,7 +5,7 @@ import { startOfDay } from 'date-fns';
 // Get feeding events for a specific schedule
 // Modify getFeedingEvents to use a single join query
 export async function getFeedingEvents(scheduleId: string, dateRange?: { startDate?: string; endDate?: string }): Promise<FeedingEventWithDetails[]> {
-  const supabase = await createClient();
+  const supabase =  createClient();
   
   // First get the feeding events with reptile info
   let query = supabase

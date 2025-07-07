@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Organization, ProfileFormData } from '@/lib/types/organizations';
+import { useEffect, useMemo, useState } from 'react';
+import {  ProfileFormData } from '@/lib/types/organizations';
 import { 
-  getOrganization, 
   createOrganization, 
-  updateOrganization, 
 } from '@/app/api/organizations/organizations';
 import { 
   Dialog,
@@ -20,15 +18,13 @@ import * as z from 'zod';
 import { Form } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { Sparkles } from 'lucide-react';
-import { useSpeciesStore } from '@/lib/stores/speciesStore';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Step1 } from './Step1';
 import { Step2 } from './Step2';
 import { Step3 } from './Step3';
-import { useQuery } from '@tanstack/react-query';
 import { APP_NAME } from '@/lib/constants/app';
-import { useFeedersStore } from '@/lib/stores/feedersStore';
-import { User } from '@/lib/types/users';
+import { useAuthStore } from '@/lib/stores/authStore';
+import useInitializeCommonData from '@/lib/hooks/useInitializeCommonData';
 
 // Validation schemas for each step
 export const profileStep1Schema = z.object({
@@ -53,46 +49,24 @@ export const profileFormSchema = profileStep1Schema
 
 export type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-async function getOrganizations(): Promise<Organization[]> {
-  try {
-    const organization = await getOrganization();
-    return organization ? [organization] : [];
-  } catch (error) {
-    console.error('Error fetching organization:', error);
-    return [];
-  }
-}
-interface Props {
-  isLoggingOut : boolean;
-  isUserLoading : boolean
-  user : User | undefined,
-}
-export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Props) {
+export function OrganizationSetupDialog() {
   const [step, setStep] = useState(1);
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { fetchInitialSpecies } = useSpeciesStore();
-  const { fetchFeederSizes, fetchFeederTypes } = useFeedersStore();
   const { downloadCommonMorphs } = useMorphsStore();
+  const { organization, isLoading , isLoggingOut } = useAuthStore();
+  useInitializeCommonData()
 
-  const { data: organizations, isLoading } = useQuery({
-    queryKey: ['organization'],
-    queryFn: getOrganizations,
-  })
-
-  const organization = organizations ? organizations[0] : null;
-
-
-  const isProfileComplete = 
-    user ? true :
-    organization ? (
-      !!organization.full_name && 
-      !!organization.account_type && 
-      (organization.selected_species && organization.selected_species?.length > 0)
-    ) : false;
+  const isProfileComplete = useMemo(() => {
+    return (
+      organization &&
+      organization.full_name &&
+      organization.selected_species &&
+      organization.selected_species.length > 0
+    );
+  }, [organization,]);
   
-  // Initialize the form with react-hook-form and zod validation
+  
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
@@ -104,25 +78,15 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
     mode: 'onChange'
   });
 
-  // Fetch species on component mount
-  useEffect(() => {
-    fetchInitialSpecies();
-  }, [fetchInitialSpecies]);
-  useEffect(() => {
-    fetchFeederTypes();
-  }, [fetchFeederTypes]);
-  useEffect(() => {
-    fetchFeederSizes();
-  }, [fetchFeederSizes]);
 
-  // Set dialog state once organization data is loaded
   useEffect(() => {
-    if (isLoading || user || isLoggingOut || isUserLoading) return;
+    if (isLoading || isLoggingOut) {
+      setOpen(false);
+      return;
+    }
 
-    const shouldOpen = !isProfileComplete;
-
-    setOpen(shouldOpen);
-  }, [isLoading, isProfileComplete, user,isLoggingOut,isUserLoading]);
+    setOpen(!isProfileComplete);
+  }, [isLoading,isLoggingOut, isProfileComplete]);
 
   // Update form data when organization changes
   useEffect(() => {
@@ -159,7 +123,7 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
   const onSubmit = async (data: ProfileFormValues) => {
     setIsSubmitting(true);
     try {
-      // Convert the form data to match ProfileFormData
+      
       const orgData: ProfileFormData = {
         full_name: data.full_name,
         account_type: data.account_type,
@@ -167,21 +131,16 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
         selected_species: data.selected_species,
         logo : null
       };
-      
+
       if (data.selected_species && data.selected_species.length > 0) {
-        // Download morphs for the selected species
-        await downloadCommonMorphs(data.selected_species);
-      }
-      if (organization) {
-        // Set the selected resource before update
-        const success = await updateOrganization(orgData);
-        if (success) {
-          console.log("Organization updated successfully");
-        } else {
-          console.error("Organization update failed");
-          toast.error("There was a problem updating your organization. Please try again.");
+        if (!organization) {
+          toast.error("Something went wrong. Please refresh the page and try again.");
+          return
         }
-      } else {
+        await downloadCommonMorphs(organization,data.selected_species);
+      }
+
+      if (!isProfileComplete) {
         await createOrganization(orgData);
         console.log("Organization created successfully");
       }
@@ -196,11 +155,11 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
           toast.error("Organization setup failed. Please try again.");
         }
       }, 500);
+
     } catch (error) {
       console.error("Organization update error:", error);
       if (error instanceof Error && error.message === 'An organization with this name already exists') {
         toast.error("This organization name is already taken. Please choose a different name.");
-        // Set focus back to the name field
         form.setError('full_name', { 
           type: 'manual',
           message: 'This organization name is already taken'
@@ -210,19 +169,22 @@ export function OrganizationSetupDialog({isLoggingOut,isUserLoading,user} : Prop
       }
     } finally {
       setIsSubmitting(false);
-      // Only reload if the operation was successful
       if (!form.formState.errors.full_name) {
         window.location.reload();
       }
     }
   };
 
-  // Simplified loading and user checks
-  if (isLoading || isUserLoading) return null;
-  if (user) return null;
+  if (isLoading || isLoggingOut ) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => setOpen(newOpen)}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(newOpen) => {
+        if (isLoggingOut) return;
+        setOpen(newOpen);
+      }}
+    >
       <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden bg-gradient-to-b from-background to-background/95 border-0 [&>button]:hidden">
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-background/0 pointer-events-none" />
         

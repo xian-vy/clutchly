@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx"
+import { format } from "date-fns";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -92,3 +93,8 @@ export function toTitleCase(str : string): string {
     .toLowerCase()
     .replace(/\b\w/g, char => char.toUpperCase());
 }
+
+
+export const formatDateForApi = (date: Date) => {
+  return format(date, 'yyyy-MM-dd');
+};

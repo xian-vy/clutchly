@@ -5,12 +5,18 @@ import { FeedingScheduleWithTargets } from "@/lib/types/feeding";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday, parseISO } from "date-fns";
 import { useCallback } from "react";
+import { useAuthStore } from "../stores/authStore";
 
 export function useUpcomingFeedings() {
   const queryClient = useQueryClient();
+  const {organization} = useAuthStore()
+
   const { data: schedules } = useQuery({
     queryKey: ['feeding-schedules'],
-    queryFn: getFeedingSchedules
+    queryFn: async () => {
+      if (!organization) return [];
+      return getFeedingSchedules(organization);
+    },
   });
   // Get upcoming feeding days
   const today = new Date();

@@ -9,25 +9,17 @@ import { Loader2 } from 'lucide-react';
 import { AccessProfileForm } from './AccessProfileForm';
 import { AccessProfileList } from './AccessProfileList';
 import { useQuery } from '@tanstack/react-query';
-import { getOrganization } from '@/app/api/organizations/organizations';
-import { Organization } from '@/lib/types/organizations';
 import { Page } from '@/lib/types/pages';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export default function AccessControlTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<AccessProfileWithControls | null>(null);
+  const {organization} = useAuthStore()
 
   const { data: pages = [] } = useQuery<Page[]>({
     queryKey: ['pages'],
-    queryFn: getPages,
-  });
-
-  const { data: organization } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: async () => {
-      const data = await getOrganization();
-      return Array.isArray(data) ? data[0] : data;
-    },
+    queryFn:getPages,
   });
 
   const {
@@ -40,7 +32,10 @@ export default function AccessControlTab() {
   } = useResource<AccessProfileWithControls, CreateAccessProfile>({
     resourceName: 'Access Profile',
     queryKey: ['access-profiles'],
-    getResources: getAccessProfiles,
+    getResources: async ()=> {
+      if (!organization) return [];
+      return getAccessProfiles(organization);
+    },
     createResource: createAccessProfile,
     updateResource: updateAccessProfile,
     deleteResource: deleteAccessProfile,

@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 interface ReptileLocationsVisualizerProps {
   selectedRoom?: Room | null;
@@ -41,6 +42,7 @@ export function ReptileLocationsVisualizer({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedEnclosure, setSelectedEnclosure] = useState<string|null>(null);
   const queryClient = useQueryClient();
+  const { organization } = useAuthStore()
 
   const {
     resources: reptiles,
@@ -51,8 +53,10 @@ export function ReptileLocationsVisualizer({
   } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
     queryKey: ['reptiles'],
-    getResources: getReptiles,
-    createResource: createReptile,
+    getResources: async () => {
+      if (!organization) return [];
+       return getReptiles(organization) 
+    },    createResource: createReptile,
     updateResource: updateReptile,
     deleteResource: deleteReptile,
   })

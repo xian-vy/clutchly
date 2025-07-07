@@ -16,6 +16,7 @@ import { API_UPLOAD_PREVIEW, API_UPLOAD_PROCESS } from '@/lib/constants/api'
 import { useQuery } from '@tanstack/react-query'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { Reptile } from '@/lib/types/reptile'
+import { useAuthStore } from '@/lib/stores/authStore'
 
 interface ImportReptileDialogProps {
   open: boolean
@@ -34,11 +35,15 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { addMorphToState } = useMorphsStore()
   const { addSpeciesToState } = useSpeciesStore()
+  const {organization} = useAuthStore()
 
   // Add query for existing reptiles
   const { data: existingReptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   })
 
   // Reset state when dialog closes

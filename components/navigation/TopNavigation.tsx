@@ -8,25 +8,14 @@ import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { Building2,  ChevronsUpDown, Menu, User } from 'lucide-react';
 import { useSidebarStore } from '@/lib/stores/sidebarStore';
-import { useQuery } from '@tanstack/react-query';
-import { getCurrentUser, getOrganization } from '@/app/api/organizations/organizations';
 import { Skeleton } from '../ui/skeleton';
-import { Organization } from '@/lib/types/organizations';
-import RealtimeBadge from './RealtimeBadge';
+import RealtimeBadge from './components/RealtimeBadge';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 const TopNavigation = () => {
   const { theme } = useTheme();
   const openSidebar = useSidebarStore((s) => s.openSidebar);
-
-  const { data: user, isLoading: userLoading } = useQuery({
-    queryKey: ['user2'],
-    queryFn: getCurrentUser,
-  });
-  
-  const { data: organization,isLoading: orgLoading  } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: getOrganization,
-  });
+  const { user, isLoading :userLoading, organization} = useAuthStore();
 
   const userName = user?.full_name;
   const orgName = organization?.full_name
@@ -54,7 +43,7 @@ const TopNavigation = () => {
           <div className="hidden lg:flex items-center gap-3 3xl:gap-4">
               <span className='text-muted-foreground/60 text-xs'>/</span>
               {userLoading ? (
-                <Skeleton className='w-20 rounded-md h-4' />
+                <Skeleton className='w-[69px] 3xl:w-[74px] rounded-md h-4' />
               ) : (
                 <span className='flex items-center gap-2 font-medium text-[0.8rem] 3xl:!text-sm text-foreground/75 capitalize'>
                   <Building2 className='inline-block w-3.5 h-3.5' />
@@ -62,8 +51,8 @@ const TopNavigation = () => {
                 </span>
               )}
               <span className='text-muted-foreground/60 text-xs'>/</span>
-              {orgLoading ? (
-                <Skeleton className='w-20 rounded-md h-4' />
+              {userLoading ? (
+                <Skeleton className='w-[69px] 3xl:w-[74px] rounded-md h-4' />
               ) : (
                 <span className='flex items-center gap-2 font-medium text-[0.8rem] 3xl:!text-sm text-foreground/75 capitalize'>
                   <User className='inline-block w-3.5 h-3.5' />

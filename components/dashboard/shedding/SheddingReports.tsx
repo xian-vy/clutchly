@@ -12,15 +12,20 @@ import { SheddingOverview } from './components/reports/SheddingOverview'
 import { SheddingCharts } from './components/reports/SheddingCharts'
 import { SheddingDataTable } from './components/reports/SheddingDataTable'
 import { getSheddingReports } from '@/app/api/shedding/reports'
+import { useAuthStore } from '@/lib/stores/authStore'
 
 export function SheddingReports() {
   const [selectedReptileId, setSelectedReptileId] = useState<string>('')
   const [selectedMetric, setSelectedMetric] = useState<'intervals' | 'completeness'>('intervals')
   const [timeRange, setTimeRange] = useState<'1m' | '3m' | '6m' | '1y'>('1m')
+  const {organization} = useAuthStore()
 
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   })
 
   const { data: sheddingRecords, isLoading } = useQuery({

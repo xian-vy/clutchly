@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { Morph, NewMorph } from '@/lib/types/morph'
 import { getUserAndOrganizationInfo } from '../utils_client'
+import { Organization } from '@/lib/types/organizations'
 
 export async function getMorphs() {
   const supabase = await createClient()
@@ -124,10 +125,9 @@ export async function deleteMorph(id: string): Promise<void> {
   if (error) throw error
 }
 
-export async function getGlobalMorphs(speciesIds?: string[]) {
+export async function getGlobalMorphs(organization : Organization, speciesIds?: string[]) {
   const supabase =  createClient();
-  const { organization } = await getUserAndOrganizationInfo();
-
+  
   // 1. Fetch all unique species_id from reptiles for the current org
   const { data: reptiles, error: reptilesError } = await supabase
     .from('reptiles')
@@ -167,7 +167,6 @@ export async function getGlobalMorphs(speciesIds?: string[]) {
   }
 
   const { data: morphs, error } = await query;
-  console.log("Fetching global morphs for species IDs:", morphs);
 
   if (error) throw error;
   return (morphs as unknown) as (Morph & { species: { name: string } })[];

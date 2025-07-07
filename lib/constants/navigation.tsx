@@ -69,10 +69,10 @@ export interface NavItem {
 
     {
       section: 'Breeding',
-      name: 'Breeding Projects',
+      name: 'Breeding',
       href: '/breeding',
       icon: Dna,
-      displayName: 'Breeding Projects', 
+      displayName: 'Breeding', 
     },
     {
       section: 'Breeding',

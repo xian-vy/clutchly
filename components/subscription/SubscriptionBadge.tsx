@@ -69,7 +69,7 @@ export function SubscriptionBadge() {
     : null;
 
   if (isLoading) {
-    return  <Skeleton className='w-[120px] h-6' />
+    return  <Skeleton className='w-[90px] h-6 rounded-2xl' />
   }
 
   // If subscription data isn't available yet

@@ -16,6 +16,7 @@ import { getCurrentMonthDateRange } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { HealthFilterDialog, HealthFilters } from './HealthFilterDialog';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function HealthReportsTab() {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
@@ -23,18 +24,24 @@ export function HealthReportsTab() {
   const [filters, setFilters] = useState<HealthFilters>({
     dateRange: [currentMonthRange.dateFrom, currentMonthRange.dateTo],
   });
+  const {organization} = useAuthStore()
 
   const { data: healthLogs = [], isLoading : isHealthLogsLoading } = useQuery<HealthLogEntry[]>({
     queryKey: ['healthLogs', filters.dateRange],
-    queryFn: () => getHealthLogs({ 
+    queryFn: async () => {
+    if (!organization) return [];
+      return getHealthLogs(organization,{ 
       startDate: filters.dateRange?.[0] || undefined, 
       endDate: filters.dateRange?.[1] || undefined 
-    }),
+    })},
   });
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+},
   });
 
   const { data: categories = [], isLoading : isCategoriesLoading } = useQuery<HealthLogCategory[]>({

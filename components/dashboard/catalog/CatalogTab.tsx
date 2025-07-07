@@ -20,12 +20,15 @@ import CatalogFooter from './components/CatalogFooter';
 import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import CatalogSkeleton from './components/CatalogSkeleton';
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [detailView, setDetailView] = useState<EnrichedCatalogEntry | null>(null);
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { organization : org } = useAuthStore()
+
   const [filters, setFilters] = useState<CatalogFilters>({
     species: [],
     morphs: [],
@@ -54,7 +57,11 @@ export function CatalogTab() {
   const queryClient = useQueryClient();
   const { data: reptiles = [] } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles,
+    queryFn: async () => {
+    if (!org) return [];
+    return getReptiles(org) 
+  },
+  enabled: !!org, 
   });
   // Convert  enriched entries, cant cast Enriched to useResource since other CRUD works with original type : CatalogEntry
   const enrichedCatalog = useMemo(() =>  catalogEntries as EnrichedCatalogEntry[],[catalogEntries])

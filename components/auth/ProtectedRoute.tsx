@@ -2,11 +2,11 @@
 
 import useAccessControl from '@/lib/hooks/useAccessControl';
 import { useQuery } from '@tanstack/react-query';
-import { getCurrentUser } from '@/app/api/organizations/organizations';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { getPages } from '@/app/api/users/access';
+import { useAuthStore } from '@/lib/stores/authStore';
+import { useEffect } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,51 +15,46 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children, pageName }: ProtectedRouteProps) {
   const router = useRouter();
-  
-  const { data: user, isLoading: userLoading } = useQuery({
-    queryKey: ['user2'],
-    queryFn: getCurrentUser,
-    staleTime: 60 * 60 * 1000, 
-  });
-
-  
+  const { user, isLoading: userLoading } = useAuthStore();
   const { data: pages = [], isLoading: pagesLoading } = useQuery({
     queryKey: ['pages'],
     queryFn: getPages,
-    enabled: !!user,
     staleTime: 60 * 60 * 1000,
   });
-
   const { hasAccess, isLoading: accessLoading } = useAccessControl(user);
-  const pageId = pages.find(p => p.name.toLowerCase() === pageName.toLowerCase())?.id ;
+
+  const pageId = pages.find(p => p.name.toLowerCase() === pageName.toLowerCase())?.id;
+
+  // Compute access
+  const isUsersPage = pageName.toLowerCase() === 'users';
+  const canAccess =
+    isUsersPage
+      ? user && user.id === user.org_id
+      : pageId && hasAccess(pageId, 'view');
+
 
   useEffect(() => {
-    // Special case: Only org owners can access Users page
-    if (pageName.toLowerCase() === 'users') {
-      if (!userLoading && !pagesLoading && user && !(user.id === user.org_id)) {
-        router.push('/');
-      }
-      return;
-    }
-    if (!userLoading && !accessLoading && !pagesLoading && !hasAccess(pageId, 'view')) {
-      router.push('/'); // Redirect to home page if no access
-    }
-  }, [userLoading, accessLoading, hasAccess, pagesLoading, router, pageId, user, pageName]);
+    if (!userLoading && !accessLoading && !pagesLoading ) {
 
+      if (!canAccess) {
+         router.replace('/overview');
+      }
+    }
+  }, [canAccess, userLoading, accessLoading, pagesLoading, router]);
+
+  // Show loader while loading
   if (userLoading || accessLoading || pagesLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        <span className="ml-2 text-sm text-muted-foreground">Checking access...</span>
       </div>
     );
   }
-  // Special case: Only org owners can access Users page
-  if (pageName.toLowerCase() === 'users' && user && !(user.id === user.org_id)) {
+
+  // Don't render children if not allowed (prevents flash)
+  if (!canAccess && !userLoading && !accessLoading && !pagesLoading) {
     return null;
-  }
-  if (!pageId && pageName.toLowerCase() !== 'users') return null;
-  if (!hasAccess(pageId, 'view') && pageName.toLowerCase() !== 'users') {
-    return null; // Don't render anything while redirecting
   }
 
   return <>{children}</>;

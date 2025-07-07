@@ -8,10 +8,8 @@ import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { UserForm } from './UserForm';
 import { UserList } from './UserList';
-import { useQuery } from '@tanstack/react-query';
-import { getOrganization } from '@/app/api/organizations/organizations';
-import { Organization } from '@/lib/types/organizations';
 import {toast} from 'sonner'
+import { useAuthStore } from '@/lib/stores/authStore';
 
 export default function UsersTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -37,17 +35,10 @@ export default function UsersTab() {
     deleteResource: deleteUser,
   });
 
-  const { data: organization, isLoading: profileLoading, error: organizationError } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: async () => {
-      const data = await getOrganization();
-      return Array.isArray(data) ? data[0] : data;
-    },
-    staleTime: 60 * 60 * 1000,
-    retry: 1,
-  });
+  const {organization, isLoading : orgLoading} = useAuthStore();
 
-  const isLoading = usersLoading || profileLoading;
+
+  const isLoading = usersLoading || orgLoading;
 
   const handleResendConfirmation = async (email: string) => {
     try {
@@ -66,14 +57,6 @@ export default function UsersTab() {
     return (
       <div className='w-full flex flex-col justify-center items-center min-h-[70vh]'>
         <Loader2 className='w-4 h-4 animate-spin text-primary' />
-      </div>
-    );
-  }
-
-  if (organizationError) {
-    return (
-      <div className='w-full flex flex-col justify-center items-center min-h-[70vh] text-destructive'>
-        Error loading organization data. Please try refreshing the page.
       </div>
     );
   }

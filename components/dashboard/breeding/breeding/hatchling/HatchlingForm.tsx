@@ -35,10 +35,9 @@ import { VisualTraitsForm } from "@/components/dashboard/reptiles/reptiles/Visua
 import { HetTraitsForm } from "@/components/dashboard/reptiles/reptiles/HetTraitsForm";
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useQuery } from "@tanstack/react-query";
-import { getOrganization } from "@/app/api/organizations/organizations";
-import { Organization } from "@/lib/types/organizations";
 import {toast} from 'sonner';
 import { getSubscriptionLimitClient } from "@/app/api/utils_client";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 
 const formSchema = z.object({
@@ -69,19 +68,21 @@ export function HatchlingForm({
 
   const { getMorphsBySpecies } = useMorphsStore()
   const { species, fetchSpecies } = useSpeciesStore()
+  const {organization} = useAuthStore();
+
   const morphsForSpecies = getMorphsBySpecies(clutch.species_id.toString())
   const { data: reptiles, isLoading : reptilesLoading } = useQuery<Reptile[]>({
     queryKey: ['reptiles'],
-    queryFn: getReptiles
+    queryFn: async () => {
+  if (!organization) return [];
+   return getReptiles(organization) 
+}
   })
   const { data: reptileLimit, isLoading : limitLoading } = useQuery({
     queryKey: ['limit'],
     queryFn: getSubscriptionLimitClient
   })
-  const { data: organization } = useQuery<Organization>({
-    queryKey: ['organization2'],
-    queryFn: getOrganization
-  })
+
   const userProfile = Array.isArray(organization) ? organization[0] : organization;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -116,10 +117,11 @@ export function HatchlingForm({
 
   // Fetch species if not already loaded
   useEffect(() => {
-    if (species.length === 0) {
-      fetchSpecies()
-    }
-  }, [species.length, fetchSpecies])
+    if (species.length !== 0) return
+    if (!organization) return;
+      fetchSpecies(organization)
+  
+  }, [species.length, fetchSpecies, organization])
   
   // Auto-select first morph if available
   useEffect(() => {

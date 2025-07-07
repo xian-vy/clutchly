@@ -2,11 +2,10 @@ import { createClient } from '@/lib/supabase/client'
 import { AccessControl, AccessProfileWithControls, CreateAccessControl, CreateAccessProfile } from '@/lib/types/access';
 import { getUserAndOrganizationInfo } from '../utils_client';
 import { Page } from '@/lib/types/pages';
+import { Organization } from '@/lib/types/organizations';
 
 export async function getPages() {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
+    const supabase =  createClient()
 
     const { data, error } = await supabase
         .from('pages')
@@ -17,19 +16,10 @@ export async function getPages() {
     return data as Page[];
 }
 
-export async function getAccessProfiles() {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Not authenticated')
-
-    const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('org_id')
-        .eq('id', user.id)
-        .single()
-
-    if (userError || !userData) throw new Error('User organization not found')
-
+export async function getAccessProfiles(organization :Organization) {
+    const supabase =  createClient()
+    if (!organization) throw new Error('Not authenticated')
+  
     const { data, error } = await supabase
         .from('access_profiles')
         .select(`
@@ -37,7 +27,7 @@ export async function getAccessProfiles() {
             access_controls!inner (*),
             users!left (*)
         `)
-        .eq('org_id', userData.org_id)
+        .eq('org_id', organization.id)
         .order('created_at', { ascending: false });
 
     if (error) throw error;
