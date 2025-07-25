@@ -6,6 +6,7 @@ import { PiDiscordLogo, PiMessengerLogo } from "react-icons/pi";
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import Link from 'next/link';
 
 const ContactPage = () => {
   const [copiedStates, setCopiedStates] = useState({
@@ -65,7 +66,9 @@ const ContactPage = () => {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium text-sm text-muted-foreground">Contact</h3>
-                      <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">xianvy.vercel.app</p>
+                      <Link href="https://xianvy.vercel.app" target='_blank' className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors hover:underline hover:underline-offset-4">
+                          xianvy.vercel.app
+                      </Link>
                     </div>
                     <Button 
                       onClick={() => handleCopy("xianvy.vercel.app", "email")} 
