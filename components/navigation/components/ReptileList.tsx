@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React, { useRef, useState } from 'react'
 import { Button } from '../../ui/button';
-import {  CircleHelp, Funnel, Loader2, Mars, PanelRightClose, PanelRightOpen, Plus,  Search,  Venus,  } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleHelp, Funnel, Loader2, Mars, Plus,  Search,  Venus,  } from 'lucide-react';
 import { Input } from '../../ui/input';
 import { cn } from '@/lib/utils';
 import dynamic from 'next/dynamic';
@@ -206,14 +206,14 @@ const ReptileList = () => {
 
          {/* Collapse toggle button */}
           <button
-            className={cn("hidden lg:flex !border-0 shadow-none absolute  translate-x-1/2 cursor-pointer bg-background z-30",
+            className={cn("hidden lg:flex shadow-none absolute  translate-x-1/2 cursor-pointer  z-30 bg-background border rounded-sm p-1",
             isCollapsed ? '-right-18 top-17' : 'right-0 top-17',
             )}
             onClick={() => setIsCollapsed(!isCollapsed)}>
             {isCollapsed ? (
-                <PanelRightClose strokeWidth={1.5} className="!h-5 !w-5 text-foreground/75" />  
+                <ChevronRight className="size-3 text-foreground/75" />  
             ) : (
-                <PanelRightOpen strokeWidth={1.5}  className="!h-5 !w-5 text-foreground/65" />
+                <ChevronLeft className="size-3 text-foreground/75" />
             )}
         </button>
 

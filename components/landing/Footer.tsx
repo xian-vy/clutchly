@@ -9,7 +9,7 @@ export function Footer() {
   const { theme } = useTheme()
   
   return (
-    <footer className="w-11/12 mx-auto border-t border-border/50 bg-primary dark:bg-background/95 px-6 lg:px-8 2xl:!px-16 py-16 relative rounded-t-4xl dark:rounded-none">
+    <footer className="w-11/12 mx-auto border border-border/50 bg-primary dark:bg-background/95 px-6 md:px-8 2xl:!px-16 py-16 relative rounded-t-4xl">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,var(--color-primary)/15%_0%,transparent_70%)]" />
       
       <div className="container mx-auto relative flex flex-col items-center">
