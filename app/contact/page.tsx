@@ -1,7 +1,7 @@
 'use client'
 import { Footer } from '@/components/landing/Footer'
 import TopNavigation from '@/components/landing/TopNavigation'
-import { Mail, Copy, Check } from 'lucide-react'
+import { Globe, Copy, Check } from 'lucide-react'
 import { PiDiscordLogo, PiMessengerLogo } from "react-icons/pi";
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -61,14 +61,14 @@ const ContactPage = () => {
                 <div className="space-y-6">
                   <div className="flex items-center gap-4 group">
                     <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                      <Mail className="h-5 w-5 text-primary" />
+                      <Globe className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium text-sm text-muted-foreground">Email</h3>
-                      <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">clutchlyreptilehusbandry@gmail.com</p>
+                      <h3 className="font-medium text-sm text-muted-foreground">Contact</h3>
+                      <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">xianvy.vercel.app</p>
                     </div>
                     <Button 
-                      onClick={() => handleCopy("clutchlyreptilehusbandry@gmail.com", "email")} 
+                      onClick={() => handleCopy("xianvy.vercel.app", "email")} 
                       variant="ghost" 
                       size="icon" 
                       className="h-8 w-8"
