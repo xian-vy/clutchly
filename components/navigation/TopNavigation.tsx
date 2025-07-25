@@ -29,7 +29,7 @@ const TopNavigation = () => {
                 aria-label="Open sidebar menu"
                 onClick={openSidebar}
               >
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5" />
               </button>
               <Image
                 src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'}
