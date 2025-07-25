@@ -18,10 +18,10 @@ export function Footer() {
           <div className="flex flex-col items-center gap-2">
             <Image 
               src={theme === 'dark'? '/logo_dark.png' : '/logo_light.png'} 
-              width={37} 
-              height={37} 
+              width={50} 
+              height={50} 
               alt="clutchly" 
-              className="rounded-full" 
+              className="rounded-full size-8 sm:size-8.5 xl:size-9" 
             />
             <span className="font-bold text-xl md:text-2xl xl:text-3xl text-white">{APP_NAME}</span>
           </div>

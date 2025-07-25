@@ -13,15 +13,15 @@ const TopNavigation = () => {
       <div className=" mx-auto px-4 sm:px-6 lg:px-8 2xl:!px-16">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
               <Image 
                 src={theme === 'dark' ? '/logo_dark.png' : '/logo_light.png'} 
-                width={37} 
-                height={37} 
+                width={50} 
+                height={50} 
                 alt="Clutchly Logo" 
-                className="rounded-full"
+                className="rounded-full size-8 sm:size-8.5 xl:size-9"
               />
-              <span className="text-lg md:text-xl font-semibold text-foreground/90">
+              <span className="text-lg md:text-xl font-bold text-foreground/90">
                 Clutchly
               </span>
             </Link>
