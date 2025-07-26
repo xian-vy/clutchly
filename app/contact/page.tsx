@@ -1,34 +1,12 @@
 'use client'
 import { Footer } from '@/components/landing/Footer'
 import TopNavigation from '@/components/landing/TopNavigation'
-import { Globe, Copy, Check } from 'lucide-react'
+import { Globe,  SquareArrowOutUpRight } from 'lucide-react'
 import { PiDiscordLogo, PiMessengerLogo } from "react-icons/pi";
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
 import Link from 'next/link';
 
 const ContactPage = () => {
-  const [copiedStates, setCopiedStates] = useState({
-    email: false,
-    messenger: false,
-    discord: false
-  });
 
-  const handleCopy = async (text: string, type: 'email' | 'messenger' | 'discord') => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedStates({ ...copiedStates, [type]: true });
-      toast.success("Copied to clipboard!");
-      
-      setTimeout(() => {
-        setCopiedStates({ ...copiedStates, [type]: false });
-      }, 1000);
-    } catch (error) {
-      console.error("Failed to copy text:", error);
-      toast.error("Failed to copy. Please try again.");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background pt-16">
@@ -65,23 +43,14 @@ const ContactPage = () => {
                       <Globe className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium text-sm text-muted-foreground">Contact</h3>
-                      <Link href="https://xianvy.vercel.app" target='_blank' className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors hover:underline hover:underline-offset-4">
+                      <h3 className="font-medium text-sm text-muted-foreground">Website</h3>
+                      <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">
                           xianvy.vercel.app
-                      </Link>
+                      </p>
                     </div>
-                    <Button 
-                      onClick={() => handleCopy("xianvy.vercel.app", "email")} 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8"
-                    >
-                      {copiedStates.email ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
+                    <Link href="https://xianvy.vercel.app" target='_blank' >
+                      <SquareArrowOutUpRight className='size-4 text-foreground/85' />
+                    </Link>
                   </div>
                   <div className="flex items-center gap-4 group">
                     <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
@@ -91,18 +60,9 @@ const ContactPage = () => {
                       <h3 className="font-medium text-sm text-muted-foreground">Discord</h3>
                       <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">discord.gg/crispysnowflake.</p>
                     </div>
-                    <Button 
-                      onClick={() => handleCopy("discord.gg/crispysnowflake.", "discord")} 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8"
-                    >
-                      {copiedStates.discord ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
+                    <Link href="https://discord.gg/crispysnowflake." target='_blank' >
+                      <SquareArrowOutUpRight className='size-4 text-foreground/85' />
+                    </Link>
                   </div>
                   <div className="flex items-center gap-4 group">
                     <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
@@ -112,18 +72,9 @@ const ContactPage = () => {
                       <h3 className="font-medium text-sm text-muted-foreground">Messenger</h3>
                       <p className="text-[0.8rem] sm:text-sm xl:text-base text-foreground hover:text-primary transition-colors">facebook.com/xzyian.vy</p>
                     </div>
-                    <Button 
-                      onClick={() => handleCopy("facebook.com/xzyian.vy", "messenger")} 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8"
-                    >
-                      {copiedStates.messenger ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
+                    <Link href="https://facebook.com/xzyian.vy" target='_blank' >
+                      <SquareArrowOutUpRight className='size-4 text-foreground/85' />
+                    </Link>
                   </div>
           </div>
         </div>
