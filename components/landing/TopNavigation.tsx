@@ -21,7 +21,7 @@ const TopNavigation = () => {
                 alt="Clutchly Logo" 
                 className="rounded-full size-8 sm:size-8.5 xl:size-9"
               />
-              <span className="text-lg md:text-xl font-bold text-foreground/90">
+              <span className="text-lg md:text-xl font-semibold text-foreground/90">
                 Clutchly
               </span>
             </Link>

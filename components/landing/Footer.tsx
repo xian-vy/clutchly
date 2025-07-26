@@ -9,7 +9,7 @@ export function Footer() {
   const { theme } = useTheme()
   
   return (
-    <footer className="w-11/12 mx-auto border border-border/50 bg-primary dark:bg-background/95 px-6 md:px-8 2xl:!px-16 py-16 relative rounded-t-4xl">
+    <footer className="w-11/12 mx-auto dark:border border-border/90 bg-primary dark:bg-background/95 px-6 md:px-8 2xl:!px-16 py-16 relative rounded-t-4xl">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,var(--color-primary)/15%_0%,transparent_70%)]" />
       
       <div className="container mx-auto relative flex flex-col items-center">
@@ -23,7 +23,7 @@ export function Footer() {
               alt="clutchly" 
               className="rounded-full size-8 sm:size-8.5 xl:size-9" 
             />
-            <span className="font-bold text-xl md:text-2xl xl:text-3xl text-white">{APP_NAME}</span>
+            <span className="font-semibold text-xl md:text-2xl xl:text-3xl text-white">{APP_NAME}</span>
           </div>
           <p className="text-sm xl:text-base 3xl:text-lg text-gray-100">
             {APP_DESCRIPTION}
