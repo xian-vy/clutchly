@@ -12,7 +12,7 @@ export function Footer() {
      window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   return (
-    <footer className="w-11/12 mx-auto dark:border border-border/90 bg-primary dark:bg-background/95 px-6 md:px-8 2xl:!px-16 py-10 sm:py-12 md:py-16 3xl:!py-20 relative rounded-t-4xl">
+    <footer className="w-11/12 mx-auto dark:border border-border/90 bg-primary dark:bg-primary/4 px-7 md:px-8 xl:!px-16 py-10 sm:py-12 md:py-16 3xl:!py-20 relative rounded-t-4xl">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,var(--color-primary)/15%_0%,transparent_70%)]" />
       
       <div className="container mx-auto relative flex flex-col items-start">
@@ -29,7 +29,7 @@ export function Footer() {
                 />
                 <span className="font-semibold text-xl md:text-2xl xl:text-3xl text-white">{APP_NAME}</span>
               </div>
-              <button onClick={handleMoveToTop} className="bg-primary/10 border border-input/40 dark:border-input/20 rounded-full p-1.5 sm:p-2 md:p-2.5 cursor-pointer">
+              <button onClick={handleMoveToTop} className="bg-primary/10 dark:bg-primary/5 border border-input/40 dark:border-input/20 rounded-full p-1.5 sm:p-2 md:p-2.5 cursor-pointer">
                   <ChevronUp className="size-3 sm:size-4 text-white dark:text-primary" />
               </button>
           </div>
@@ -39,7 +39,7 @@ export function Footer() {
         </div>
         
         {/* Links Section */}
-        <div className="flex items-center justify-center gap-5 sm:gap-8 mb-12">
+        <div className="flex items-center justify-center gap-5 sm:gap-8 mb-6 md:mb-12">
           <Link href="/about" className="text-xs md:text-sm text-white/85 hover:text-primary transition-colors">
             About
           </Link>
@@ -58,7 +58,7 @@ export function Footer() {
         </div>
         
        
-        <div className='bg-white/25 dark:bg-white/10 h-[0.05rem]  w-full'/>
+        <div className='bg-white/20 dark:bg-white/10 h-[0.05rem]  w-full'/>
         <div className="pt-8  w-full text-center flex items-center justify-between">
               {/* Copyright */}
               <p className="text-xs sm:text-sm text-white/85">
