@@ -11,7 +11,7 @@ export function FeatureCard({ icon: Icon, title, features }: FeatureCardProps) {
       <div className="absolute -inset-px rounded-md bg-gradient-to-r from-primary/50 to-primary/10 opacity-20 blur transition-all group-hover:opacity-30" />
       <div className="flex flex-col justify-start items-start sm:items-center relative h-full rounded-md border bg-background/80 backdrop-blur-sm p-5 sm:p-6 md:p-8 transition-all hover:shadow-lg hover:scale-[1.01]">
         <div className="mb-4 sm:mb-6 2xl:mb-8 flex sm:flex-col items-center gap-4 sm:gap-5">
-          <div className="flex p-2 lg:p-2.5  items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/25">
+          <div className="flex p-2 lg:p-2.5  items-center justify-center rounded-sm sm:rounded-md lg:rounded-lg bg-primary/10 text-primary ring-1 ring-primary/25">
             <Icon  className="h-4 sm:h-5 w-4 sm:w-5" />
           </div>
           <h3 className="text-base sm:text-lg lg:text-xl max-w-[200px] md:max-w-full font-bold text-start sm:text-center leading-tight text-[#333] dark:text-foreground">{title}</h3>
