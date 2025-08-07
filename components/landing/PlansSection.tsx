@@ -119,23 +119,23 @@ const PlanCard = ({ plan }: { plan: typeof PLANS_LIST[0] }) => (
           </span>
         )}
         
-        <h3 className="text-xl font-bold text-[#333] dark:text-foreground">{plan.name}</h3>
-        <p className="text-sm text-muted-foreground mt-1 mb-3 lg:mb-5">
+        <h3 className="text-base sm:text-xl font-bold text-[#333] dark:text-foreground">{plan.name}</h3>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1 mb-3 lg:mb-5">
           {plan.description}
         </p>
         
         <div className="mb-3 lg:mb-6">
-          <span className="text-3xl font-bold text-[#333] dark:text-foreground">${plan.price}</span>
+          <span className="text-xl sm:text-3xl font-bold text-[#333] dark:text-foreground">${plan.price}</span>
           {plan.price > 0 && (
-            <span className="text-muted-foreground ml-1">/month</span>
+            <span className="text-xs sm:text-sm xl:text-base text-muted-foreground ml-1">/month</span>
           )}
         </div>
         
         <div className="mb-8 flex-1">
           <ul className="space-y-2 3xl:space-y-2.5">
             {plan.features.map((feature, i) => (
-              <li key={i} className="flex text-sm">
-                <Check className="h-5 w-5 text-primary shrink-0 mr-2" />
+              <li key={i} className="flex text-xs sm:text-sm">
+                <Check className="size-4 3xl:!size-5 text-primary shrink-0 mr-2" />
                 <span>{feature}</span>
               </li>
             ))}
