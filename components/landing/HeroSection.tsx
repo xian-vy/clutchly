@@ -40,7 +40,7 @@ export function HeroSection() {
                 </motion.div>
                 {/* Headline */}
                 <motion.h1 
-                  className="font-extrabold sm:font-bold !leading-[1] tracking-tighter text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-4xl xl:text-[3rem] 2xl:text-[3.5rem] 3xl:!text-[4rem] text-[#333] dark:text-foreground mb-4 text-center lg:text-left"
+                  className="font-extrabold sm:font-bold !leading-[1.1] md:!leading-[1] tracking-tighter text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-4xl xl:text-[3rem] 2xl:text-[3.5rem] 3xl:!text-[4rem] text-[#333] dark:text-foreground mb-4 text-center lg:text-left"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.5 }}
