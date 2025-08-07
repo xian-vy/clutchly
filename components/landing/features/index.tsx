@@ -18,28 +18,28 @@ const features = [
   {
     title: 'Data Management',
     description: 'Organize and analyze your reptile collection with ease.',
-    icon: <DatabaseZap strokeWidth={1.5} className='size-5 sm:size-6' />,
+    icon: <DatabaseZap strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/reptile_light.png',
     image_dark: '/features/reptile_dark.png',
   },
   {
     title: 'Pedigree Management',
     description: 'Track offspring lineage, visualize morph distribution.',
-    icon: <Network strokeWidth={1.5} className='size-5 sm:size-6' />, 
+    icon: <Network strokeWidth={1.5} className='size-4 sm:size-5' />, 
     image: '/features/featured_light.png',
     image_dark: '/features/featured_dark.png',
   },
   {
     title: 'Free Website',
     description: 'Create  catalogs and share your collection with the world.',
-    icon: <Globe strokeWidth={1.5} className='size-5 sm:size-6' />,
+    icon: <Globe strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/website_light.png',
     image_dark: '/features/website_dark.png',
   },
   {
     title: 'Feeding Management',
     description: 'Create feeding schedules and track feeding history.',
-    icon: <Sprout strokeWidth={1.5} className='size-5 sm:size-6' />,
+    icon: <Sprout strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/hero_light.png',
     image_dark: '/features/hero_dark.png',
   },
@@ -58,17 +58,17 @@ export function FeaturesSection() {
     <section className="relative py-16 sm:py-24 min-h-screen max-w-screen-xl 2xl:max-w-screen-xl mx-auto bg-background ">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--color-primary)/5%_0%,transparent_50%)]" />
    
-      <div className="flex flex-col gap-10 xl:gap-16 items-center  px-2 sm:px-4 md:px-8 xl:px-16 2xl:px-20">
+      <div className="flex flex-col gap-10 xl:gap-16 items-center  px-2 sm:px-4 md:px-8 xl:px-24">
 
                   <div className="flex flex-col items-center gap-4 text-center">
-                      <span className="rounded-full bg-primary/5 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
+                      <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs md:text-sm font-medium text-primary">
                         Features
                       </span>
                       <div className='space-y-1.5'>
                           <h3 className="text-center text-2xl lg:text-3xl 3xl:!text-4xl font-bold tracking-tight  dark:text-foreground">
                           Everything you need to manage your collection
                           </h3>
-                          <p className="text-muted-foreground text-base sm:text-base 3xl:!text-lg px-4 max-w-[600px] mt-2">
+                          <p className="text-muted-foreground text-sm lg:text-base 3xl:!text-lg  px-4 max-w-[600px] mt-2">
                             Discover all the powerful tools and features designed to help you manage your reptile collection effectively
                           </p>
                           
@@ -84,11 +84,11 @@ export function FeaturesSection() {
                              ' transition-colors'}`}
                         onClick={() => handleFeatureSelect(feature)}
                       >
-                        <div className={` mb-2 sm:mb-3 md:mb-4
-                          ${selectedFeature.title === feature.title ? 'text-primary' : 'text-muted-foreground'}`}>
+                        <div className={` mb-2 sm:mb-3 md:mb-4  p-2 rounded-full 
+                          ${selectedFeature.title === feature.title ? 'text-primary bg-primary/10 dark:bg-primary/15' : 'bg-black/5 dark:bg-white/5 text-muted-foreground'}`}>
                              {feature.icon}
                           </div>
-                        <h3 className={`text-sm sm:text-base md:text-xl font-semibold text-center mb-2 xl:mb-3 
+                        <h3 className={`text-sm sm:text-base md:text-lg 3xl:text-xl font-semibold text-center mb-1
                           ${selectedFeature.title === feature.title ? 'text-foreground' : 'text-foreground/75'}`}>
                               {feature.title}
                         </h3>
