@@ -12,7 +12,7 @@ export function Footer() {
      window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   return (
-    <footer className="w-11/12 mx-auto dark:border border-border/90 bg-primary dark:bg-primary/4 px-7 md:px-8 xl:!px-16 py-10 sm:py-12 md:py-16 3xl:!py-20 relative rounded-t-4xl">
+    <footer className="w-11/12 mx-auto dark:border border-border/90 bg-primary dark:bg-primary/2 px-7 md:px-8 xl:!px-16 py-10 sm:py-12 md:py-16 3xl:!py-20 relative rounded-t-4xl">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,var(--color-primary)/15%_0%,transparent_70%)]" />
       
       <div className="container mx-auto relative flex flex-col items-start">
@@ -40,19 +40,19 @@ export function Footer() {
         
         {/* Links Section */}
         <div className="flex items-center justify-center gap-5 sm:gap-8 mb-6 md:mb-12">
-          <Link href="/about" className="text-xs md:text-sm text-white/85 hover:text-primary transition-colors">
+          <Link href="/about" className="text-xs md:text-sm text-white/85 hover:underline transition-colors">
             About
           </Link>
-          <Link href="/features" className="text-xs md:text-sm text-white/85 hover:text-primary transition-colors">
+          <Link href="/features" className="text-xs md:text-sm text-white/85 hover:underline transition-colors">
             Features
           </Link>
-          <Link href="/contact" className="text-xs md:text-sm text-white/85 hover:text-primary transition-colors">
+          <Link href="/contact" className="text-xs md:text-sm text-white/85 hover:underline transition-colors">
             Contact
           </Link>
-          <Link href="/privacy" className="text-xs md:text-sm text-white/85 hover:text-primary transition-colors">
+          <Link href="/privacy" className="text-xs md:text-sm text-white/85 hover:underline transition-colors">
             Privacy
           </Link>
-          <Link href="/terms" className="text-xs md:text-sm text-white/85 hover:text-primary transition-colors">
+          <Link href="/terms" className="text-xs md:text-sm text-white/85 hover:underline transition-colors">
             Terms
           </Link>
         </div>
