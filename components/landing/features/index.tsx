@@ -1,6 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, DatabaseZap, Globe, Network, Sprout } from 'lucide-react'
+import { ArrowRight, Calendar, DatabaseZap, Globe, Network} from 'lucide-react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,29 +17,29 @@ type Feature = {
 const features = [
   {
     title: 'Data Management',
-    description: 'Organize and analyze your reptile collection with ease.',
+    description: 'Comprehensive and intuitive platform for reptile husbandry',
     icon: <DatabaseZap strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/reptile_light.png',
     image_dark: '/features/reptile_dark.png',
   },
   {
-    title: 'Pedigree Management',
-    description: 'Track offspring lineage, visualize morph distribution.',
+    title: 'Pedigree Tree',
+    description: 'Track offspring lineage, visualize morph distribution',
     icon: <Network strokeWidth={1.5} className='size-4 sm:size-5' />, 
     image: '/features/featured_light.png',
     image_dark: '/features/featured_dark.png',
   },
   {
     title: 'Free Website',
-    description: 'Create  catalogs and share your collection with the world.',
+    description: 'Create  catalogs and share your collection with the world',
     icon: <Globe strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/website_light.png',
     image_dark: '/features/website_dark.png',
   },
   {
-    title: 'Feeding Management',
-    description: 'Create feeding schedules and track feeding history.',
-    icon: <Sprout strokeWidth={1.5} className='size-4 sm:size-5' />,
+    title: 'Feeding Scheduler',
+    description: 'Create feeding schedules and track feeding history',
+    icon: <Calendar strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/hero_light.png',
     image_dark: '/features/hero_dark.png',
   },
