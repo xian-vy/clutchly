@@ -12,15 +12,17 @@ type Feature = {
   icon: React.ReactNode; 
   image: string;
   image_dark: string;
+  image_alt : string
 }
 
 const features = [
   {
-    title: 'Data Management',
+    title: 'Reptile Management',
     description: 'Comprehensive and intuitive platform for reptile husbandry',
     icon: <DatabaseZap strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/reptile_light.png',
     image_dark: '/features/reptile_dark.png',
+    image_alt : 'Screenshot of Clutchly reptile husbandry management dashboard for snake and gecko care'
   },
   {
     title: 'Pedigree Tree',
@@ -28,6 +30,7 @@ const features = [
     icon: <Network strokeWidth={1.5} className='size-4 sm:size-5' />, 
     image: '/features/featured_light.png',
     image_dark: '/features/featured_dark.png',
+    image_alt : 'Visual reptile pedigree tree showing morph distribution and lineage tracking'
   },
   {
     title: 'Free Website',
@@ -35,6 +38,7 @@ const features = [
     icon: <Globe strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/website_light.png',
     image_dark: '/features/website_dark.png',
+    image_alt : 'Screenshot of Free ecommerce website for Reptiles and Amphibians'
   },
   {
     title: 'Feeding Scheduler',
@@ -42,6 +46,7 @@ const features = [
     icon: <Calendar strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/hero_light.png',
     image_dark: '/features/hero_dark.png',
+    image_alt : 'Digital feeding scheduler for snakes, lizards, and other reptiles'
   },
 ]
 
@@ -101,7 +106,7 @@ export function FeaturesSection() {
                         <div className="relative aspect-[16/9] border w-full rounded-lg shadow-2xl shadow-primary/20 dark:shadow-primary/15 overflow-hidden " >
                           <Image 
                             src={theme.theme === 'dark' ? selectedFeature.image_dark : selectedFeature.image}
-                            alt="Data Management Feature"
+                            alt={selectedFeature.image_alt}
                             fill
                             loading='lazy'
                             className="object-cover object-left"

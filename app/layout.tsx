@@ -8,13 +8,13 @@ const sourceSans = Source_Sans_3({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://clutchly.vercel.app'),
-  title: "Clutchly - Reptile Husbandry Management",
+  title: "Clutchly - Reptile Husbandry and Breeding Management",
   description: "The digital toolkit for reptile enthusiasts and breeders. Easily manage records for breeding, health, feeding, finances and more.",
   keywords: ["reptile husbandry app", "reptile management app", "clutchly", "reptile data management", "reptile breeding management"],
   authors: [{ name: "Clutchly", url: "https://clutchly.vercel.app" }],
   creator: "Clutchly",
   openGraph: {
-    title: "Clutchly - Reptile Husbandry Management",
+    title: "Clutchly - Reptile Husbandry and Breeding Management",
     description: "The digital toolkit for reptile enthusiasts and breeders. Easily manage records for breeding, health, feeding, finances and more.",
     url: "https://clutchly.vercel.app",
     siteName: "Clutchly",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Clutchly - Reptile Husbandry Management",
+    title: "Clutchly - Reptile Husbandry and Breeding Management",
     description: "The digital toolkit for reptile enthusiasts and breeders. Easily manage records for breeding, health, feeding, finances and more.",
     images: ["/clutchly.png"],
   },
