@@ -29,7 +29,7 @@ export function Footer() {
                 />
                 <span className="font-semibold text-xl md:text-2xl xl:text-3xl text-white">{APP_NAME}</span>
               </div>
-              <button onClick={handleMoveToTop} className="bg-primary/10 dark:bg-primary/5 border border-input/40 dark:border-input/20 rounded-full p-1.5 sm:p-2 md:p-2.5 cursor-pointer">
+              <button onClick={handleMoveToTop} className="bg-primary/10 dark:bg-primary/5 border border-input/40 dark:border-input/20 rounded-full p-1.5 sm:p-2  cursor-pointer">
                   <ChevronUp className="size-3 sm:size-4 text-white dark:text-primary" />
               </button>
           </div>
@@ -68,21 +68,21 @@ export function Footer() {
             <div className="flex items-center gap-3 sm:gap-4">
               <Link
                 href="https://www.facebook.com/xzyian.vy"
-                className="p-2 rounded-full bg-white/5 dark:bg-primary/5 group transition-colors"
+                className="p-2 rounded-full bg-white/5 group transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook className="h-3.5 sm:h-4 sm:w-4 w-3.5 text-white/70 dark:group-hover:text-primary" />
               </Link>
               <Link
                 href="https://github.com/xian-vy"
-                className="p-2 rounded-full bg-white/5 dark:bg-primary/5 group transition-colors"
+                className="p-2 rounded-full bg-white/5 group transition-colors"
                 aria-label="GitHub"
               >
                 <Github className="h-3.5 sm:h-4 sm:w-4 w-3.5 text-white/70 dark:group-hover:text-primary" />
               </Link>
               <Link
                 href="mailto:clutchlyreptilehusbandry@gmail.com"
-                className="p-2 rounded-full bg-white/5  dark:bg-primary/5 group transition-colors"
+                className="p-2 rounded-full bg-white/5  group transition-colors"
                 aria-label="Email"
               >
                 <AtSign className="h-3.5 sm:h-4 sm:w-4 w-3.5  text-white/70 dark:group-hover:text-primary" />
