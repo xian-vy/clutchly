@@ -24,21 +24,21 @@ const features = [
   },
   {
     title: 'Pedigree Tree',
-    description: 'Track offspring lineage, visualize morph distribution',
+    description: 'Visualize offspring lineage, track morph distribution',
     icon: <Network strokeWidth={1.5} className='size-4 sm:size-5' />, 
     image: '/features/featured_light.png',
     image_dark: '/features/featured_dark.png',
   },
   {
     title: 'Free Website',
-    description: 'Create  catalogs and share your collection with the world',
+    description: 'Create  catalogs and share your collection in socials',
     icon: <Globe strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/website_light.png',
     image_dark: '/features/website_dark.png',
   },
   {
     title: 'Feeding Scheduler',
-    description: 'Create feeding schedules and track feeding history',
+    description: 'Create feeding schedules and track feeding patterns',
     icon: <Calendar strokeWidth={1.5} className='size-4 sm:size-5' />,
     image: '/features/hero_light.png',
     image_dark: '/features/hero_dark.png',
@@ -65,7 +65,7 @@ export function FeaturesSection() {
                         Features
                       </span>
                       <div className='space-y-1.5'>
-                          <h3 className="text-center text-2xl lg:text-3xl 3xl:!text-4xl font-bold tracking-tight  dark:text-foreground">
+                          <h3 className="text-center text-2xl lg:text-3xl 3xl:!text-4xl font-bold tracking-tight  text-[#333] dark:text-foreground">
                           Everything you need to manage your collection
                           </h3>
                           <p className="text-muted-foreground text-sm lg:text-base 3xl:!text-lg  px-4 max-w-[600px] mt-2">
