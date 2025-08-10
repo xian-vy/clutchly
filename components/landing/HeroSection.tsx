@@ -103,7 +103,7 @@ export function HeroSection() {
                 <div className="relative w-[85vw] lg:w-[500px] xl:w-[600px] 2xl:w-[700px] 3xl:!w-[900px] h-[200px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[550px] 3xl:!h-[700px] border-y border overflow-hidden rounded-sm lg:rounded-xl lg:border-l lg:border-r-0 lg:rounded-l-xl lg:rounded-r-none shadow-2xl shadow-primary/30 dark:shadow-primary/15">
                   <Image 
                     src={theme.theme === 'dark' ? '/features/hero_dark.png' : '/features/hero_light.png'}
-                    alt="Hero background"
+                    alt="Screenshot of Feeding Management for Reptiles and Amphibians"
                     fill
                     priority
                     className="object-cover object-left rounded-l-xl"

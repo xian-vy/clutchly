@@ -35,6 +35,7 @@ export const FEATURE_LIST = [
       features: [
         'Sales and expense tracking record tracking',
         'Interactive sales and expenses analytics dashboard',
+        'Automatically links sales to reptile records'
       ]
     },
     {
