@@ -18,12 +18,12 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative !overflow-hidden  min-h-[100dvh] flex flex-col items-center pt-[5vh] xl:pt-[7vh] 3xl:!pt-[8vh]">
+    <section className="relative !overflow-hidden  min-h-[100dvh] flex flex-col items-center pt-[5vh] lg:pt-0">
  
       {/* Background grid or effect */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
       
-      <div className="max-w-full relative z-10 flex flex-col lg:flex-row items-center w-full justify-center gap-12">
+      <div className="max-w-full relative z-10 flex flex-col lg:flex-row items-center w-full justify-center gap-12  lg:min-h-[100dvh] lg:-mt-[40px]">
         
           {/* Hero Text */}
           <div className="flex-1 max-w-3xl 3xl:!max-w-4xl w-full text-center lg:text-left">
