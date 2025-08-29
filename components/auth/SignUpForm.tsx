@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { FiMail, FiLock, FiAlertCircle, FiCheckCircle, FiInfo, FiKey } from 'react-icons/fi'
+import { FiMail, FiLock, FiAlertCircle, FiCheckCircle, FiKey } from 'react-icons/fi'
 import { AuthLayout } from './AuthLayout'
-import { signup } from '@/app/auth/signup/actions'
+import { signup, SignupState } from '@/app/auth/signup/actions'
 import { TopLoader } from '@/components/ui/TopLoader'
 import { Input } from '../ui/input'
 import { useForm } from 'react-hook-form'
@@ -14,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { APP_NAME } from '@/lib/constants/app'
+import { useActionState } from 'react'
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -25,29 +25,30 @@ const formSchema = z.object({
     .regex(/[0-9]/, 'Password must contain at least one number'),
   confirmPassword: z.string(),
   inviteCode: z.string()
-    .min(8, 'Invite code must be atleast 8 characters')
+    .min(8, 'Invite code must be at least 8 characters')
     .max(16, 'Invite code must be at most 16 characters')
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
 
-type T = {
-  isLoading : boolean
+const initialState: SignupState = {
+  errors: {},
+  message: '',
 }
 
-function SubmitButton({isLoading} : T) {
+function SubmitButton({isPending} : {isPending : boolean}) {
   
   return (
     <motion.button 
       type="submit" 
       className="relative w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden group cursor-pointer"
-      disabled={isLoading}
+      disabled={isPending}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
     >
       <span className="relative z-10">
-        {isLoading ? (
+        {isPending ? (
           <span className="flex items-center justify-center">
             <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -64,19 +65,10 @@ function SubmitButton({isLoading} : T) {
   )
 }
 
-interface StatusMessage {
-  type: 'error' | 'success' | 'info';
-  message: string;
-}
-
 export function SignUpForm() {
   const router = useRouter()
-  const [status, setStatus] = useState<StatusMessage | null>(null)
-  const [isPending, startTransition] = useTransition()
-  const [isFormSubmitting, setIsFormSubmitting] = useState(false)
+  const [state, formAction, isPending] = useActionState(signup, initialState)
   
-  const isLoading = isPending || isFormSubmitting
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -87,52 +79,17 @@ export function SignUpForm() {
     }
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsFormSubmitting(true)
-    const formData = new FormData()
-    formData.append('email', values.email)
-    formData.append('password', values.password)
-    formData.append('inviteCode', values.inviteCode)
-    
-    try {
-      const result = await signup(formData)
-      
-      if (result?.error) {
-        setStatus({
-          type: 'error',
-          message: result.error
-        })
-        setIsFormSubmitting(false)
-      } else if (result?.message) {
-        setStatus({
-          type: 'success', 
-          message: result.message
-        })
-        setIsFormSubmitting(false)
-      } else {
-        startTransition(() => {
-          router.push('/auth/verify-email')
-        })
-      }
-    } catch (error: unknown) {
-      setIsFormSubmitting(false)
-      if (error instanceof Error) {
-        setStatus({
-          type: 'error',
-          message: error.message
-        })
-      } else {
-        setStatus({
-          type: 'error',
-          message: 'An unexpected error occurred'
-        })
-      }
-    }
+  // Handle successful signup
+  if (state?.message && !state.errors) {
+    // Redirect to verify email page after a short delay
+    setTimeout(() => {
+      router.push('/auth/verify-email')
+    }, 2000)
   }
 
   return (
     <AuthLayout mode="signup">
-      {isLoading && <TopLoader />}
+      {isPending && <TopLoader />}
       <div className="w-full max-w-md space-y-3 sm:space-y-5 md:space-y-8">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-[#333] dark:text-foreground">Create Account</h2>
@@ -142,7 +99,7 @@ export function SignUpForm() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5 3xl:!space-y-6">
+          <form action={formAction} className="space-y-4 sm:space-y-5 3xl:!space-y-6">
             <FormField
               control={form.control}
               name="email"
@@ -164,6 +121,9 @@ export function SignUpForm() {
                     </FormControl>
                   </div>
                   <FormMessage />
+                  {state?.errors && 'email' in state.errors && state.errors.email && (
+                    <p className="text-sm text-destructive">{state.errors.email[0]}</p>
+                  )}
                 </FormItem>
               )}
             />
@@ -189,6 +149,9 @@ export function SignUpForm() {
                     </FormControl>
                   </div>
                   <FormMessage />
+                  {state?.errors && 'password' in state.errors && state.errors.password && (
+                    <p className="text-sm text-destructive">{state.errors.password[0]}</p>
+                  )}
                 </FormItem>
               )}
             />
@@ -214,6 +177,7 @@ export function SignUpForm() {
                     </FormControl>
                   </div>
                   <FormMessage />
+
                 </FormItem>
               )}
             />
@@ -244,36 +208,36 @@ export function SignUpForm() {
                     </FormControl>
                   </div>
                   <FormMessage />
+                  {state?.errors && 'inviteCode' in state.errors && state.errors.inviteCode && (
+                    <p className="text-sm text-destructive">{state.errors.inviteCode[0]}</p>
+                  )}
                 </FormItem>
               )}
             />
 
-            {status && (
+            {state?.message && (
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-lg flex items-start gap-3 ${
-                  status.type === 'error' 
-                    ? 'bg-destructive/10 border border-destructive/20' 
-                    : status.type === 'success'
-                      ? 'bg-green-500/10 border border-green-500/20'
-                      : 'bg-blue-500/10 border border-blue-500/20'
-                }`}
+                className="p-4 rounded-lg bg-green-500/10 border border-green-500/20 flex items-start gap-3"
               >
-                {status.type === 'error' && <FiAlertCircle className="text-destructive shrink-0 mt-0.5" />}
-                {status.type === 'success' && <FiCheckCircle className="text-green-500 shrink-0 mt-0.5" />}
-                {status.type === 'info' && <FiInfo className="text-blue-500 shrink-0 mt-0.5" />}
-                <p className={`text-sm ${
-                  status.type === 'error' 
-                    ? 'text-destructive' 
-                    : status.type === 'success'
-                      ? 'text-green-500'
-                      : 'text-blue-500'
-                }`}>{status.message}</p>
+                <FiCheckCircle className="text-green-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-green-500">{state.message}</p>
               </motion.div>
             )}
 
-            <SubmitButton isLoading={isLoading} />
+            {state?.errors && '_form' in state.errors && state.errors._form && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+              >
+                <FiAlertCircle className="text-destructive shrink-0 mt-0.5" />
+                <p className="text-sm text-destructive">{state.errors._form[0]}</p>
+              </motion.div>
+            )}
+
+            <SubmitButton isPending={isPending} />
 
             <div className="text-center text-sm">
               <span className="text-muted-foreground">Already have an account?</span>{' '}

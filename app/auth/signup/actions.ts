@@ -3,31 +3,60 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { checkInviteCode } from '@/app/api/invite-codes/invite-codes'
+import { z } from 'zod'
 
-export async function signup(formData: FormData) {
-  const supabase = await createClient()
+const signupSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(32, 'Password must be at most 32 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
+  inviteCode: z.string()
+    .min(8, 'Invite code must be at least 8 characters')
+    .max(16, 'Invite code must be at most 16 characters')
+})
 
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-    inviteCode: formData.get('inviteCode') as string
+export type SignupState = {
+  errors?: {
+    email?: string[]
+    password?: string[]
+    inviteCode?: string[]
+    _form?: string[]
   }
+  message?: string
+}
 
-  // Validate invite code
-  const isInviteCodeValid = await checkInviteCode(data.inviteCode)
-  if (!isInviteCodeValid) {
+export async function signup(prevState: SignupState, formData: FormData): Promise<SignupState> {
+  const validatedFields = signupSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+    inviteCode: formData.get('inviteCode'),
+  })
+
+  if (!validatedFields.success) {
     return {
-      error: 'Invalid or already used invite code',
-      status: 'invalid_invite_code'
+      errors: validatedFields.error.flatten().fieldErrors,
     }
   }
 
-  // First, check if a user with this email already exists
-  // const { data: { user } } = await supabase.auth.getUser()
-  
-  // Try to sign in with provided email (without password) to check if it exists
+  const { email, password, inviteCode } = validatedFields.data
+  const supabase = await createClient()
+
+  // Validate invite code
+  const isInviteCodeValid = await checkInviteCode(inviteCode)
+  if (!isInviteCodeValid) {
+    return {
+      errors: {
+        inviteCode: ['Invalid or already used invite code']
+      }
+    }
+  }
+
+  // Check if a user with this email already exists
   const { error: checkError } = await supabase.auth.signInWithOtp({
-    email: data.email,
+    email: email,
     options: {
       shouldCreateUser: false, // Don't create a new user
     }
@@ -40,7 +69,7 @@ export async function signup(formData: FormData) {
     // Resend confirmation email
     await supabase.auth.resend({
       type: 'signup',
-      email: data.email,
+      email: email,
       options: {
         emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
       },
@@ -48,18 +77,17 @@ export async function signup(formData: FormData) {
     
     return {
       message: 'If an account exists, we sent a confirmation email. Please check your inbox.',
-      status: 'confirmation_email_sent'
     }
   }
 
   // If no user exists, proceed with signup
   const { error } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
+    email: email,
+    password: password,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
       data: {
-        invite_code: data.inviteCode // Store the invite code with user metadata
+        invite_code: inviteCode // Store the invite code with user metadata
       }
     },
   })
@@ -67,14 +95,16 @@ export async function signup(formData: FormData) {
   if (error) {
     if (error.message.includes('already registered')) {
       return {
-        error: 'An account with this email already exists. Please sign in instead.',
-        status: 'user_exists'
+        errors: {
+          _form: ['An account with this email already exists. Please sign in instead.']
+        }
       }
     }
     
     return {
-      error: error.message,
-      status: 'error'
+      errors: {
+        _form: [error.message]
+      }
     }
   }
 
