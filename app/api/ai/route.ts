@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GeneticCalculatorInput } from '@/lib/types/genetic-calculator';
 import { createClient } from '@/lib/supabase/server'
+import { API_AI_GROQ } from '@/lib/constants/api';
 
 
 
@@ -143,7 +144,7 @@ Please provide a detailed genetic analysis in the following JSON format:
 
 IMPORTANT: Respond ONLY with the JSON object, no additional text or markdown formatting.`;
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch(API_AI_GROQ, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

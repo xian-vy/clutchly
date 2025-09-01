@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Loader2, Pencil } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { API_UPLOAD_LOGO } from '@/lib/constants/api';
 
 interface ProfileDisplayProps {
   organization: Organization | undefined;
@@ -35,14 +36,14 @@ export const ProfileDisplay = ({ organization, isAdmin = false }: ProfileDisplay
     }
     if (file.size > 300 * 1024) {
       setLogoError('Logo must be less than 300KB.');
-      toast.error('Logo must be less than 300KB.');
+      toast.error('Logo must be less than 300KB.'); 
       return;
     }
     setLogoUploading(true);
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('/api/organizations/upload-logo', {
+      const res = await fetch(API_UPLOAD_LOGO, {
         method: 'POST',
         body: formData,
       });
