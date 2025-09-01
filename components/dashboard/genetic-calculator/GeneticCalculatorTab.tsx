@@ -34,6 +34,7 @@ import { PunnettSquareComponent } from './PunnettSquare'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '@/lib/stores/authStore'
+import { API_AI } from '@/lib/constants/api'
 
 const GeneticCalculatorTab = () => {
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>( null)
@@ -102,7 +103,7 @@ const GeneticCalculatorTab = () => {
          visual_traits : sire.visual_traits?.join(', '),
          het_traits : sire.het_traits?.map(het => `${het.trait} (${het.percentage}%)`).join(', '),
       }
-      const response = await fetch('/api/ai', {
+      const response = await fetch(API_AI, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

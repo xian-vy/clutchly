@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
+import { API_UPLOAD_CATALOG_IMAGE } from '@/lib/constants/api';
 
 interface CatalogImageUploadProps {
   catalogEntryId: string;
@@ -54,7 +55,7 @@ export function CatalogImageUpload({
       formData.append('file', file);
       formData.append('catalogEntryId', catalogEntryId);
 
-      const response = await fetch('/api/catalog/upload', {
+      const response = await fetch(API_UPLOAD_CATALOG_IMAGE, {
         method: 'POST',
         body: formData,
       });

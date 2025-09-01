@@ -20,6 +20,7 @@ import { cn, toTitleCase } from '@/lib/utils';
 import { MinProfileInfo } from '@/lib/types/organizations';
 import ShareURLDialog from './ShareURLDialog';
 import { APP_NAME } from '@/lib/constants/app';
+import { API_UPLOAD_LOGO } from '@/lib/constants/api';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -121,7 +122,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,organization} : Props) 
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('/api/organizations/upload-logo', {
+      const res = await fetch(API_UPLOAD_LOGO, {
         method: 'POST',
         body: formData,
       });

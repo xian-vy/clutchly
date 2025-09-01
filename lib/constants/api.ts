@@ -1,2 +1,6 @@
 export const API_UPLOAD_PREVIEW = '/api/reptiles/import/preview'
 export const API_UPLOAD_PROCESS = '/api/reptiles/import/process'
+export const API_UPLOAD_LOGO = '/api/organizations/upload-logo'
+export const API_AI_GROQ = 'https://api.groq.com/openai/v1/chat/completions'
+export const API_UPLOAD_CATALOG_IMAGE = '/api/catalog/upload'
+export const API_AI = '/api/ai'
