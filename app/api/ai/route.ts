@@ -7,7 +7,7 @@ import { API_AI_GROQ } from '@/lib/constants/api';
 
 
 // Rate limiting configuration
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute in milliseconds
+const RATE_LIMIT_WINDOW = 30 * 1000;
 const userRateLimits = new Map<string, number>();
 
 function isRateLimited(userId: string): boolean {
