@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { HealthFilterDialog, HealthFilters } from './HealthFilterDialog';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function HealthReportsTab() {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
@@ -27,7 +28,7 @@ export function HealthReportsTab() {
   const {organization} = useAuthStore()
 
   const { data: healthLogs = [], isLoading : isHealthLogsLoading } = useQuery<HealthLogEntry[]>({
-    queryKey: ['healthLogs', filters.dateRange],
+    queryKey: [CACHE_KEYS.HEALTH_LOGS, filters.dateRange],
     queryFn: async () => {
     if (!organization) return [];
       return getHealthLogs(organization,{ 
@@ -37,7 +38,7 @@ export function HealthReportsTab() {
   });
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
@@ -45,7 +46,7 @@ export function HealthReportsTab() {
   });
 
   const { data: categories = [], isLoading : isCategoriesLoading } = useQuery<HealthLogCategory[]>({
-    queryKey: ['categories'],
+    queryKey: [CACHE_KEYS.HEALTH_CATEGORIES],
     queryFn: getHealthCategories,
   });
   

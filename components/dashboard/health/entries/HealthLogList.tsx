@@ -15,6 +15,7 @@ import { useState, useMemo } from "react";
 import { HealthFilterDialog, HealthFilters } from "./HealthFilterDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getSpeciesAbbreviation } from "@/lib/utils";
+import { CACHE_KEYS } from "@/lib/constants/cache_keys";
 
 interface HealthLogListProps {
   healthLogs: HealthLogEntry[];
@@ -47,7 +48,7 @@ export function HealthLogList({
 
   // Use TanStack Query only for the initial load of health data
   const { isLoading: healthQueryLoading } = useQuery({
-    queryKey: ['health-initial-load'],
+    queryKey: [CACHE_KEYS.HEALTH_ENTRIES],
     queryFn: async () => {
       // Only fetch if we don't have categories in the store
       if (categories.length === 0) {
