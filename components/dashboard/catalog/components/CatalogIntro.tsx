@@ -21,6 +21,7 @@ import { MinProfileInfo } from '@/lib/types/organizations';
 import ShareURLDialog from './ShareURLDialog';
 import { APP_NAME } from '@/lib/constants/app';
 import { API_UPLOAD_LOGO } from '@/lib/constants/api';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 const formSchema = z.object({
   bio: z.string().nullable(),
@@ -75,7 +76,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,organization} : Props) 
   async function onSubmit(values: FormValues) {
     try {
       await updateCatalogSettings(values);
-      await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+      await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CATALOG_ENTRIES] });
       toast.success('Settings updated successfully');
       setIsEditing(false);
     } catch (error) {
@@ -129,7 +130,7 @@ export function CatalogIntro({settings,isLoading,isAdmin,organization} : Props) 
       const data = await res.json();
       if (data?.imageUrl) {
         setLogoTimestamp(Date.now()); // Update timestamp when logo changes
-        await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+        await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CATALOG_ENTRIES] });
         toast.success('Logo uploaded!');
       } else {
         setLogoError(data?.error || 'Failed to upload logo.');
