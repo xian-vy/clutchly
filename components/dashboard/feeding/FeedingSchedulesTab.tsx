@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 
 
@@ -51,7 +52,7 @@ export function FeedingSchedulesTab() {
     handleDelete,
   } = useResource<FeedingScheduleWithTargets, NewFeedingSchedule & { targets: { target_type: TargetType, target_id: string }[] }>({
     resourceName: 'Feeding Schedule',
-    queryKey: ['feeding-schedules'],
+    queryKey: [CACHE_KEYS.FEEDING_SCHEDULES],
     getResources: async () => {
       if (!organization) return [];
       return getFeedingSchedules(organization);
@@ -62,7 +63,7 @@ export function FeedingSchedulesTab() {
   });
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
       if (!organization) return [];
       return getReptiles(organization) 
@@ -71,7 +72,7 @@ export function FeedingSchedulesTab() {
 
   // Query for occupied locations (locations with reptiles)
   const { data: occupiedLocations = [] } = useQuery({
-    queryKey: ['occupied-locations'],
+    queryKey: [CACHE_KEYS.OCCUPIED_LOCATIONS],
     queryFn: async () => {
       const locations = await getLocations();
       // Filter locations to only those that have reptiles assigned
@@ -86,7 +87,7 @@ export function FeedingSchedulesTab() {
   });
 
   const { data: locations = [] } = useQuery({
-    queryKey: ['locations'],
+    queryKey: [CACHE_KEYS.LOCATIONS],
     queryFn: async () => {
       return occupiedLocations.map(l => ({ id: l.id, label: l.label }));
     },
@@ -94,7 +95,7 @@ export function FeedingSchedulesTab() {
   });
 
   const { data: rooms = [] } = useQuery({
-    queryKey: ['rooms'],
+    queryKey: [CACHE_KEYS.ROOMS],
     queryFn: async () => {
       const data = await getRooms();
       
@@ -117,7 +118,7 @@ export function FeedingSchedulesTab() {
   });
 
   const { data: racks = [] } = useQuery({
-    queryKey: ['racks'],
+    queryKey: [CACHE_KEYS.RACKS],
     queryFn: async () => {
       const data = await getRacks();
       
@@ -139,7 +140,7 @@ export function FeedingSchedulesTab() {
   });
 
   const { data: levels = [] } = useQuery({
-    queryKey: ['rack-levels'],
+    queryKey: [CACHE_KEYS.RACK_LEVELS],
     queryFn: async () => {
       const rackData = await getRacks();
       
