@@ -51,7 +51,7 @@ export const ProfileDisplay = ({ organization, isAdmin = false }: ProfileDisplay
       const data = await res.json();
       if (data?.imageUrl) {
         setLogoTimestamp(Date.now());
-        await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.ORGANIZATION_GLOBAL] });
+        await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.ORGANIZATION] });
         toast.success('Logo uploaded!');
       } else {
         setLogoError(data?.error || 'Failed to upload logo.');
