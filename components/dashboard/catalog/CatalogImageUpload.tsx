@@ -10,6 +10,7 @@ import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
 import { API_UPLOAD_CATALOG_IMAGE } from '@/lib/constants/api';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface CatalogImageUploadProps {
   catalogEntryId: string;
@@ -67,7 +68,7 @@ export function CatalogImageUpload({
       }
 
       toast.success('Image uploaded successfully');
-      queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CATALOG_ENTRIES] });
 
       onImageUploaded();
     } catch (error) {

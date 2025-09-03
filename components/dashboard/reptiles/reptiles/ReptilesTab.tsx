@@ -15,6 +15,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {  getSubscriptionLimitClient } from '@/app/api/utils_client';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 type EnrichedReptileWithLabel = EnrichedReptile & {
   label: string;
@@ -35,7 +36,7 @@ export function ReptilesTab() {
     refetch: refetchReptiles
   } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     getResources: async () => {
       if (!organization) return [];
        return getReptiles(organization) 
@@ -46,7 +47,7 @@ export function ReptilesTab() {
   })
 
   const { data: reptileLimit, isLoading : limitLoading } = useQuery({
-    queryKey: ['limit'],
+    queryKey: [CACHE_KEYS.LIMIT],
     queryFn: getSubscriptionLimitClient
   })
 
@@ -67,7 +68,7 @@ export function ReptilesTab() {
     queries: reptiles
       .filter(r => r.location_id)
       .map(reptile => ({
-        queryKey: ['location', reptile.location_id],
+        queryKey: [CACHE_KEYS.LOCATIONS, reptile.location_id],
         queryFn: () => getLocationDetails(reptile.location_id!),
         staleTime: 60 * 60 * 1000, // Consider data fresh for 60 minutes
         cacheTime: 60 * 60 * 1000, // Keep in cache for 60 minutes
@@ -150,14 +151,14 @@ export function ReptilesTab() {
       : await handleCreate(data);
     if (success) {
       onDialogChange(); 
-      queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
-      queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CATALOG_ENTRIES] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
     }
   }
 
   const handleDeleteReptile = async ( id: string) => {
    await handleDelete(id)
-   queryClient.invalidateQueries({ queryKey: ['sales-records'] });
+   queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.SALES] });
   }
   return (
     <div className="space-y-6">

@@ -20,6 +20,7 @@ import {
 import { Crown, Clock, Sparkles, Zap, ExternalLink } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 async function getSubscriptions(): Promise<Subscription[]> {
   try {
@@ -48,7 +49,7 @@ export function SubscriptionBadge() {
     isLoading,
   } = useResource<Subscription, SubscriptionPlan>({
     resourceName: 'Subscription',
-    queryKey: ['subscription'],
+    queryKey: [CACHE_KEYS.SUBSCRIPTION],
     getResources: getSubscriptions,
     createResource: (plan) => updateSubscription(plan),
     updateResource: updateSubscriptionWithId,

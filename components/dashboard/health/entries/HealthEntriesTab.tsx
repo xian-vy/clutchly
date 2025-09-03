@@ -21,6 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import { HealthFilters } from './HealthFilterDialog';
 import { getCurrentMonthDateRange } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function HealthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -41,7 +42,7 @@ export function HealthEntriesTab() {
     handleDelete,
   } = useResource<HealthLogEntry, CreateHealthLogEntryInput>({
     resourceName: 'Health Log',
-    queryKey: ['healthLogs', filters.dateFrom, filters.dateTo],
+    queryKey: [CACHE_KEYS.HEALTH_LOGS, filters.dateFrom, filters.dateTo],
     getResources: async() => {
        if (!organization) return [];
       return getHealthLogs(organization,{
@@ -54,7 +55,7 @@ export function HealthEntriesTab() {
   });
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
     if (!organization) return [];
     return getReptiles(organization) 

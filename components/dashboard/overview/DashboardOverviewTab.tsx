@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuthStore } from '@/lib/stores/authStore';
 import useInitializeCommonData from '@/lib/hooks/useInitializeCommonData';
 import { formatDateForApi } from '@/lib/utils';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function DashboardOverviewTab() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
@@ -49,7 +50,7 @@ export function DashboardOverviewTab() {
   const independentQueries = useQueries({
     queries: [
       {
-        queryKey: ['reptiles'],
+        queryKey: [CACHE_KEYS.REPTILES],
         queryFn: async () => {
           if (!organization) return [];
            return getReptiles(organization) 
@@ -57,7 +58,7 @@ export function DashboardOverviewTab() {
         enabled: !!organization,
       },
       {
-        queryKey: ['health-logs', dateFilterParams],
+        queryKey: [CACHE_KEYS.HEALTH_LOGS, dateFilterParams],
         queryFn: async () => {
           if (!organization) return [];
           return dateFilterParams 
@@ -67,7 +68,7 @@ export function DashboardOverviewTab() {
         enabled: !!organization,
       },
       {
-        queryKey: ['growth-entries', dateFilterParams],
+        queryKey: [CACHE_KEYS.GROWTH_ENTRIES, dateFilterParams],
         queryFn: async () => {
           if (!organization) return [];
           return dateFilterParams 
@@ -77,7 +78,7 @@ export function DashboardOverviewTab() {
         enabled: !!organization,
       },
       {
-        queryKey: ['breeding-projects', dateFilterParams],
+        queryKey: [CACHE_KEYS.BREEDING_PROJECTS, dateFilterParams],
         queryFn: async () => {
           if (!organization) return [];
           return dateFilterParams 
@@ -90,7 +91,7 @@ export function DashboardOverviewTab() {
         enabled: !!organization,
       },
       {
-        queryKey: ['sales-summary', dateFilterParams, timePeriod],
+        queryKey: [CACHE_KEYS.SALES_SUMMARY, dateFilterParams, timePeriod],
         queryFn: async (): Promise<SalesSummary> => {
           if (!organization) return {} as SalesSummary;
           return getSalesSummary(organization, {
@@ -101,7 +102,7 @@ export function DashboardOverviewTab() {
         enabled: !!organization,
       },
       {
-        queryKey: ['expenses-summary', dateFilterParams],
+        queryKey: [CACHE_KEYS.EXPENSES_SUMMARY, dateFilterParams],
         queryFn: async (): Promise<ExpensesSummary> => {
           if (!organization) return {} as ExpensesSummary;
           return getExpensesSummary(organization, dateFilterParams);
@@ -122,7 +123,7 @@ export function DashboardOverviewTab() {
 
   // Keep the dependent clutches query separate since it depends on breedingProjects
   const { data: allClutches = [], isLoading: clutchesLoading } = useQuery<Clutch[]>({
-    queryKey: ['clutches', dateFilterParams, breedingProjects],
+    queryKey: [CACHE_KEYS.CLUTCHES, dateFilterParams, breedingProjects],
     queryFn: async () => {
       if (dateFilterParams) {
          if (!organization) return [];

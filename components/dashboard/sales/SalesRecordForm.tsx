@@ -37,6 +37,7 @@ import { TabsContent } from '@radix-ui/react-tabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SALES_STATUS_COLORS } from '@/lib/constants/colors';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -71,7 +72,7 @@ export function SalesRecordForm({ initialData, onSubmit, onCancel }: SalesRecord
   const {organization} = useAuthStore()
 
   const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

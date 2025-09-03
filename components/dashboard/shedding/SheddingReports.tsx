@@ -13,6 +13,7 @@ import { SheddingCharts } from './components/reports/SheddingCharts'
 import { SheddingDataTable } from './components/reports/SheddingDataTable'
 import { getSheddingReports } from '@/app/api/shedding/reports'
 import { useAuthStore } from '@/lib/stores/authStore'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 export function SheddingReports() {
   const [selectedReptileId, setSelectedReptileId] = useState<string>('')
@@ -21,7 +22,7 @@ export function SheddingReports() {
   const {organization} = useAuthStore()
 
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
@@ -29,7 +30,7 @@ export function SheddingReports() {
   })
 
   const { data: sheddingRecords, isLoading } = useQuery({
-    queryKey: ['shedding', timeRange],
+    queryKey: [CACHE_KEYS.SHEDDING, timeRange],
     queryFn: () => {
       const months = timeRange === '1m' ? 1 : 
                     timeRange === '3m' ? 3 : 

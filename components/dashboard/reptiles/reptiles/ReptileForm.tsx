@@ -24,6 +24,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useSortedSpecies } from '@/lib/hooks/useSortedSpecies'
 import { useReptileNameGeneration } from '@/lib/hooks/useReptileNameGeneration'
 import { toast } from 'sonner'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 interface EnrichedReptile extends Reptile {
   species_name?: string;
@@ -41,7 +42,7 @@ export function ReptileForm({ initialData, onSubmit, onCancel,organization }: Re
   const { species } = useSpeciesStore()
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

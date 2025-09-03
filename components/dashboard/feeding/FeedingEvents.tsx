@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import FeedingEventsList from './FeedingEventsList';
 import { saveMultipleEvents, shouldHaveFeedingToday, updateFeedingEventWithCache } from './utils';
 import { FeedingEventFilters } from './FeedingEventFilters';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export interface ScheduleStatus {
   totalEvents: number;
@@ -51,7 +52,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
     isLoading,
     refetch 
   } = useQuery({
-    queryKey: ['feeding-events', scheduleId],
+    queryKey: [CACHE_KEYS.FEEDING_EVENTS, scheduleId],
     queryFn: () => getFeedingEvents(scheduleId),
     staleTime: 30000 * 60, 
     refetchOnMount: false,
@@ -216,7 +217,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       toast.error('Failed to update feeding status');
     } finally {
       setUpdatingEventId(null);
-      queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_UPCOMING] });
     }
   };
 
@@ -294,7 +295,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       toast.error('Failed to feed all reptiles');
     } finally {
       setFeedingAll(false);
-      queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_UPCOMING] });
     }
   };
 
@@ -328,7 +329,7 @@ export function FeedingEvents({ scheduleId, schedule, onEventsUpdated, isNewSche
       toast.error('Failed to set feeder type');
     } finally {
       setFeedingAll(false);
-      queryClient.invalidateQueries({ queryKey: ['upcoming-feedings'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_UPCOMING] });
     }
   };
 

@@ -13,6 +13,7 @@ import { ExpensesByTimeChart } from './reports/charts/ExpensesByTimeChart';
 import { DistributionPieCharts } from './reports/charts/DistributionPieCharts';
 import { TimePeriod, TimeRangeSelector } from './reports/TimeRangeSelector';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface ExpensesFilterParams {
   period?: TimePeriod;
@@ -79,7 +80,7 @@ export function ExpenseReportTab() {
 
   // Fetch data
   const { data: summary, isLoading: summaryLoading } = useQuery({
-    queryKey: ['expenses-summary', filters],
+    queryKey: [CACHE_KEYS.EXPENSES_SUMMARY, filters],
     queryFn: async () => {
        if (!organization) return undefined;
        return getExpensesSummary(organization);
@@ -87,7 +88,7 @@ export function ExpenseReportTab() {
   });
 
   const { data: expensesByCategory, isLoading: categoryLoading } = useQuery({
-    queryKey: ['expenses-by-category', filters],
+    queryKey: [CACHE_KEYS.EXPENSES_BY_CATEGORY, filters],
     queryFn: () => getExpensesByCategory(filters),
   });
 

@@ -10,6 +10,7 @@ import { FeedingFilterDialog } from './logs/FeedingFilterDialog';
 import { SummaryCards } from './reports/SummaryCards';
 import { FeedingCharts } from './reports/FeedingCharts';
 import { Loader2, Filter } from 'lucide-react';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function FeedingReportsTab() {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
@@ -20,7 +21,7 @@ export function FeedingReportsTab() {
   });
 
   const { data: reportData, isLoading } = useQuery({
-    queryKey: ['feeding-reports', dateRange, filterStatus],
+    queryKey: [CACHE_KEYS.FEEDING_REPORTS, dateRange, filterStatus],
     queryFn: () => getFeedingReportData({
       startDate: dateRange.from?.toISOString(),
       endDate: dateRange.to?.toISOString()

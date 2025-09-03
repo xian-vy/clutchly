@@ -6,6 +6,7 @@ import { getReptileById } from '@/app/api/reptiles/reptiles';
 import { getReptilesByLocation } from '@/app/api/reptiles/byLocation';
 import { QueryClient } from '@tanstack/react-query';
 import { ScheduleStatus } from './FeedingEvents';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 // Interface for virtual events that don't exist in the DB yet
 export interface VirtualFeedingEvent {
@@ -153,7 +154,7 @@ export const saveEventNotes = async (
     }
     
     // Optimistic update
-    queryClient.setQueryData(['feeding-events', scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
+    queryClient.setQueryData([CACHE_KEYS.FEEDING_EVENTS, scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
       if (!oldData) return [];
       return oldData.map(event => 
         event.id === eventId 
@@ -169,14 +170,14 @@ export const saveEventNotes = async (
     });
     
     // Update the cache with the server response
-    queryClient.setQueryData(['feeding-events', scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
+    queryClient.setQueryData([CACHE_KEYS.FEEDING_EVENTS, scheduleId], (oldData: FeedingEventWithDetails[] | undefined) => {
       if (!oldData) return [updatedEvent];
       return oldData.map(event => event.id === eventId ? { ...event, ...updatedEvent } : event);
     });
     
     // Only invalidate the feeding status query
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-    queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_STATUS] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_EVENTS_LOGS] });
 
     toast.success('Details saved successfully');
     
@@ -203,12 +204,12 @@ export const updateFeedingEventWithCache = async (
   onEventsUpdated?: () => void
 ) => {
   try {
-    const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [];
+    const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>([CACHE_KEYS.FEEDING_EVENTS, scheduleId]) || [];
     const eventToUpdate = currentEvents.find(e => e.id === eventId);
     
     if (eventToUpdate) {
       // Optimistically update events cache
-      queryClient.setQueryData(['feeding-events', scheduleId], 
+      queryClient.setQueryData([CACHE_KEYS.FEEDING_EVENTS, scheduleId], 
         currentEvents.map(event => 
           event.id === eventId 
             ? { ...event, fed, fed_at: fed ? new Date().toISOString() : null, notes: notes || null, feeder_size_id: feederSizeId || null } 
@@ -217,7 +218,7 @@ export const updateFeedingEventWithCache = async (
       );
       
       // Optimistically update feeding status cache
-      queryClient.setQueryData(['feeding-status'], (oldData: Record<string, ScheduleStatus> | undefined) => {
+      queryClient.setQueryData([CACHE_KEYS.FEEDING_STATUS], (oldData: Record<string, ScheduleStatus> | undefined) => {
         if (!oldData || !oldData[scheduleId]) return oldData;
         const statusChange = eventToUpdate.fed !== fed ? 1 : 0;
         return {
@@ -240,13 +241,13 @@ export const updateFeedingEventWithCache = async (
     });
 
     // Update cache with server response
-    queryClient.setQueryData(['feeding-events', scheduleId], 
+    queryClient.setQueryData([CACHE_KEYS.FEEDING_EVENTS, scheduleId], 
       currentEvents.map(event => 
         event.id === eventId ? { ...event, ...updatedEvent } : event
       )
     );
 
-    queryClient.invalidateQueries({ queryKey: ['feeding-events-logs'] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_EVENTS_LOGS] });
 
     if (onEventsUpdated) {
       onEventsUpdated();
@@ -258,8 +259,8 @@ export const updateFeedingEventWithCache = async (
     toast.error('Failed to update feeding status');
     
     // Revert both caches on error
-    queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_EVENTS, scheduleId] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_STATUS] });
     throw error;
   }
 };
@@ -274,7 +275,7 @@ export const saveMultipleEvents = async (
 ) => {
   try {
     // Get current events from cache
-    const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>(['feeding-events', scheduleId]) || [];
+    const currentEvents = queryClient.getQueryData<FeedingEventWithDetails[]>([CACHE_KEYS.FEEDING_EVENTS, scheduleId]) || [];
     
     // Optimistically update events cache
     const updatedEvents = currentEvents.map(event => {
@@ -291,10 +292,10 @@ export const saveMultipleEvents = async (
       return event;
     });
     
-    queryClient.setQueryData(['feeding-events', scheduleId], updatedEvents);
+    queryClient.setQueryData([CACHE_KEYS.FEEDING_EVENTS, scheduleId], updatedEvents);
     
     // Optimistically update feeding status cache
-    queryClient.setQueryData(['feeding-status'], (oldData: Record<string, ScheduleStatus> | undefined) => {
+    queryClient.setQueryData([CACHE_KEYS.FEEDING_STATUS], (oldData: Record<string, ScheduleStatus> | undefined) => {
       if (!oldData || !oldData[scheduleId]) return oldData;
       
       const status = oldData[scheduleId];
@@ -331,8 +332,8 @@ export const saveMultipleEvents = async (
     toast.error('Failed to update feeding status');
     
     // Revert caches on error
-    queryClient.invalidateQueries({ queryKey: ['feeding-events', scheduleId] });
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_EVENTS, scheduleId] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_STATUS] });
     throw error;
   }
 };

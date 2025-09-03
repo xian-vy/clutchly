@@ -11,6 +11,7 @@ import { AccessProfileList } from './AccessProfileList';
 import { useQuery } from '@tanstack/react-query';
 import { Page } from '@/lib/types/pages';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export default function AccessControlTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -18,7 +19,7 @@ export default function AccessControlTab() {
   const {organization} = useAuthStore()
 
   const { data: pages = [] } = useQuery<Page[]>({
-    queryKey: ['pages'],
+    queryKey: [CACHE_KEYS.PAGES],
     queryFn:getPages,
   });
 
@@ -31,7 +32,7 @@ export default function AccessControlTab() {
     setSelectedResource,
   } = useResource<AccessProfileWithControls, CreateAccessProfile>({
     resourceName: 'Access Profile',
-    queryKey: ['access-profiles'],
+    queryKey: [CACHE_KEYS.ACCESS_PROFILES],
     getResources: async ()=> {
       if (!organization) return [];
       return getAccessProfiles(organization);

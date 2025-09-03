@@ -11,6 +11,7 @@ import { useFeedersStore } from '@/lib/stores/feedersStore';
 import { FeedingScheduleWithTargets } from '@/lib/types/feeding';
 import { getFeedingSchedules } from '@/app/api/feeding/schedule';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export interface FeedingEventNormalized {
   id: string;
@@ -35,7 +36,7 @@ export function FeedingLogsTab() {
   const {organization} = useAuthStore()
 
   const { data: schedules = [], isLoading : schedulesLoading } = useQuery<FeedingScheduleWithTargets[]>({
-    queryKey: ['feeding-schedules'],
+    queryKey: [CACHE_KEYS.FEEDING_SCHEDULES],
     queryFn: async () => {
       if (!organization) return [];
       return getFeedingSchedules(organization);
@@ -48,7 +49,7 @@ export function FeedingLogsTab() {
     error,
     refetch 
   } = useQuery<FeedingEventNormalized[]>({
-    queryKey: ['feeding-events-logs', dateRange],
+    queryKey: [CACHE_KEYS.FEEDING_EVENTS_LOGS, dateRange],
     queryFn: async () => {
       try {
         if (schedules && schedules.length > 0) {

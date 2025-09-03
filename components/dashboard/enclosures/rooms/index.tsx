@@ -6,6 +6,7 @@ import { Room, NewRoom } from '@/lib/types/location';
 import { createRoom, deleteRoom, getRooms, updateRoom } from '@/app/api/locations/rooms';
 import { RoomsList } from './RoomsList';
 import { RoomForm } from './RoomForm';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function RoomsManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -20,7 +21,7 @@ export function RoomsManagement() {
     handleDelete,
   } = useResource<Room, NewRoom>({
     resourceName: 'Room',
-    queryKey: ['rooms'],
+    queryKey: [CACHE_KEYS.ROOMS],
     getResources: getRooms,
     createResource: createRoom,
     updateResource: updateRoom,

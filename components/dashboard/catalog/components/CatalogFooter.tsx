@@ -17,6 +17,7 @@ import { AboutSettingsDialog } from './CatalogIntroAbout'
 import { MinProfileInfo } from '@/lib/types/organizations'
 import ShareURLDialog from './ShareURLDialog'
 import { toTitleCase } from '@/lib/utils'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 interface Props {
      organization : MinProfileInfo
@@ -51,7 +52,7 @@ const CatalogFooter = ({organization,settings, isAdmin} : Props) => {
       try {
         await updateCatalogSettings({ ...settings, address: values.address });
         setLogoTimestamp(Date.now());
-        await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+        await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CATALOG_ENTRIES] });
         toast.success('Address updated successfully');
         setIsEditing(false);
       } catch {

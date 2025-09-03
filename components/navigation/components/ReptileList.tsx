@@ -13,6 +13,7 @@ import { Skeleton } from '../../ui/skeleton';
 import { ReptileSidebarFilterDialog, SidebarReptileFilters } from './ReptileSidebarFilterDialog';
 import { useSidebarStore } from '@/lib/stores/sidebarStore';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 const AddNewShortcut = dynamic(() => import('./AddNewShortcut'), 
  {
   loading: () => <div className="absolute inset-0 z-50 flex items-center justify-center">
@@ -41,7 +42,7 @@ const ReptileList = () => {
     useSidebarAnimation({ isCollapsed }); 
     const { organization } = useAuthStore()
     const { data: reptiles = [], isLoading } = useQuery<Reptile[]>({
-      queryKey: ['reptiles'],
+      queryKey: [CACHE_KEYS.REPTILES],
       queryFn: async () => {
         if (!organization) return [];
         return getReptiles(organization) 

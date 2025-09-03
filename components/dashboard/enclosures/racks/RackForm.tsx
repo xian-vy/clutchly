@@ -17,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { EnclosureVisualizer } from '../enclosures/EnclosureVisualizer';
 import { useQueryClient } from '@tanstack/react-query';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 // Define form schema
 const rackFormSchema = z.object({
@@ -104,7 +105,7 @@ export function RackForm({ isOpen, onClose, selectedRack, rooms, onSubmit, onDel
       const success = await onSubmit(rackData);
       if (success) {
         // Invalidate locations query to refresh the locations list
-        await queryClient.invalidateQueries({ queryKey: ['locations'] });
+        await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.LOCATIONS] });
         onClose();
       }
     } finally {

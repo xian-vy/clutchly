@@ -35,6 +35,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '@/lib/stores/authStore'
 import { API_AI } from '@/lib/constants/api'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 const GeneticCalculatorTab = () => {
   const [selectedSpecies, setSelectedSpecies] = useState<Species | null>( null)
@@ -49,7 +50,7 @@ const GeneticCalculatorTab = () => {
   const {organization} = useAuthStore();
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
@@ -119,7 +120,7 @@ const GeneticCalculatorTab = () => {
       const data: GeneticCalculatorResponse = await response.json();
       setCalculation(data);
       setShowResults(true);
-      queryClient.invalidateQueries({ queryKey: ['genetic-calculations-history'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.GENETIC_CALCULATIONS_HISTORY] });
 
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to calculate genetics');

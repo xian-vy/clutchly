@@ -19,6 +19,7 @@ import { ThemeToggleCatalog } from '../theme/ThemeToggleCatalog';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
 import CatalogSkeleton from '../dashboard/catalog/components/CatalogSkeleton';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface CatalogClientPageProps {
   orgName: string;
@@ -37,7 +38,7 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
   });
   
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['catalog', orgName],
+    queryKey: [CACHE_KEYS.CATALOG_ENTRIES, orgName],
     queryFn: async () => {
       try {
         return await getCatalogEntriesByorgName(orgName);

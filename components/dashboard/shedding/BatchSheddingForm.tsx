@@ -17,6 +17,7 @@ import { FiltersSection } from './components/batch/FiltersSection'
 import { ReptileSelection } from './components/batch/ReptileSelection'
 import { FormData, FilterState, ReptileWithLocation, formSchema } from './components/batch/types'
 import { useAuthStore } from '@/lib/stores/authStore'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 interface Props {
   onSubmit: (data: CreateSheddingInput[]) => Promise<boolean>
@@ -44,7 +45,7 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
   })
 
   const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
@@ -52,12 +53,12 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
   })
 
   const { data: locations = [] } = useQuery({
-    queryKey: ['locations'],
+    queryKey: [CACHE_KEYS.LOCATIONS],
     queryFn: getLocations,
   })
 
   const { data: locationDetails = [] } = useQuery({
-    queryKey: ['location-details', locations.map(l => l.id)],
+    queryKey: [CACHE_KEYS.LOCATION_DETAILS, locations.map(l => l.id)],
     queryFn: async () => {
       const details = await Promise.all(
         locations.map(loc => getLocationDetails(loc.id))
@@ -68,12 +69,12 @@ export function BatchSheddingForm({ onSubmit, onOpenChange }: Props) {
   })
 
   const { data: rooms } = useQuery({
-    queryKey: ['rooms'],
+    queryKey: [CACHE_KEYS.ROOMS],
     queryFn: getRooms,
   })
 
   const { data: racks } = useQuery({
-    queryKey: ['racks', filters.room],
+    queryKey: [CACHE_KEYS.RACKS, filters.room],
     queryFn: async () => {
       if (filters.room === 'all') return []
       return getRacksByRoom(filters.room)

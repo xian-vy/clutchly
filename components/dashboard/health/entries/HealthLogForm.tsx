@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { HealthCategorySelect } from './HealthCategorySelect';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 // Define the form schema to match the CreateHealthLogEntryInput type
 const formSchema = z.object({
@@ -49,7 +50,7 @@ export function HealthLogForm({ initialData, onSubmit, onCancel }: HealthLogForm
   const {organization} = useAuthStore()
 
   const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

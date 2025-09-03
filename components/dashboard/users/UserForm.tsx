@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAccessProfiles } from '@/app/api/users/access';
 import { AccessProfile } from '@/lib/types/access';
 import { Loader2 } from 'lucide-react';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 const createUserSchema = z.object({
   email: z.string().email(),
@@ -55,7 +56,7 @@ interface UserFormProps {
 export function UserForm({ initialData, onSubmit, onCancel, organization }: UserFormProps) {
 
   const { data: accessProfiles } = useQuery<AccessProfile[]>({
-    queryKey: ['access-profiles'],
+    queryKey: [CACHE_KEYS.ACCESS_PROFILES],
     queryFn: async ()=> {
       if (!organization) return [];
       return getAccessProfiles(organization);

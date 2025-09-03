@@ -24,6 +24,7 @@ import { ChevronDown, Loader2 } from 'lucide-react'
 import { DonutChart } from './charts/DonutChart'
 import { PunnettSquareComponent } from './PunnettSquare'
 import { useAuthStore } from '@/lib/stores/authStore'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 
 const GeneticHistoryTab = () => {
@@ -31,11 +32,11 @@ const GeneticHistoryTab = () => {
   const {organization} = useAuthStore()
 
   const { data: history, isLoading } = useQuery<GeneticCalculation[]>({
-    queryKey: ['genetic-calculations-history'],
+    queryKey: [CACHE_KEYS.GENETIC_CALCULATIONS_HISTORY],
     queryFn: getGeneticCalculations,
   })
   const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

@@ -8,6 +8,7 @@ import { useMorphsStore } from "@/lib/stores/morphsStore";
 import { useMemo } from "react";
 import { getLocationDetails } from "@/app/api/locations/locations";
 import { useQueries } from "@tanstack/react-query";
+import { CACHE_KEYS } from "@/lib/constants/cache_keys";
 
 interface ReptileDetailsDialogProps {
   reptileId : string;
@@ -34,7 +35,7 @@ export function ReptileDetailsDialog({
     queries: reptiles
       .filter(r => r.location_id)
       .map(reptile => ({
-        queryKey: ['location', reptile.location_id],
+        queryKey: [CACHE_KEYS.LOCATIONS, reptile.location_id],
         queryFn: () => getLocationDetails(reptile.location_id!),
         staleTime: 60 * 60 * 1000, // Consider data fresh for 60 minutes
         cacheTime: 60 * 60 * 1000, // Keep in cache for 60 minutes

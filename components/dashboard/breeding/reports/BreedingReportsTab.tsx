@@ -15,6 +15,7 @@ import { GeneticOutcomes } from './GeneticOutcomes';
 import { ProjectPerformance } from './ProjectPerformance';
 import { useScreenSize } from '@/lib/hooks/useScreenSize';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function BreedingReportsTab() {
   const [activeTab, setActiveTab] = useState('statistics');
@@ -60,7 +61,7 @@ export function BreedingReportsTab() {
     data: statsData, 
     isLoading: statsLoading 
   } = useQuery({
-    queryKey: ['breeding-stats', filters],
+    queryKey: [CACHE_KEYS.BREEDING_STATS, filters],
     queryFn: async () => {
        if (!organization) return undefined;
      return  getBreedingStats(organization,filters)
@@ -73,7 +74,7 @@ export function BreedingReportsTab() {
     isLoading: detailedLoading,
     refetch: fetchDetailedData
   } = useQuery({
-    queryKey: ['detailed-breeding-projects', filters],
+    queryKey: [CACHE_KEYS.BREEDING_PROJECTS_DETAILED, filters],
     queryFn: async () => {
       if (!organization) return undefined;
     return  getDetailedBreedingProjects(organization,filters)
@@ -87,7 +88,7 @@ export function BreedingReportsTab() {
     isLoading: geneticLoading,
     refetch: fetchGeneticData
   } = useQuery({
-    queryKey: ['genetic-outcomes', filters],
+    queryKey: [CACHE_KEYS.GENETIC_OUTCOMES, filters],
     queryFn: async () => {
       if (!organization) return undefined;
     return  getGeneticOutcomes(organization,filters)

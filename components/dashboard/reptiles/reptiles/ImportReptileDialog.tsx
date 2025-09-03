@@ -17,6 +17,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getReptiles } from '@/app/api/reptiles/reptiles'
 import { Reptile } from '@/lib/types/reptile'
 import { useAuthStore } from '@/lib/stores/authStore'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 interface ImportReptileDialogProps {
   open: boolean
@@ -39,7 +40,7 @@ export function ImportReptileDialog({ open, onOpenChange, onImportComplete }: Im
 
   // Add query for existing reptiles
   const { data: existingReptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

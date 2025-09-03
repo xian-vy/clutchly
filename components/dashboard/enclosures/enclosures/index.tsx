@@ -9,6 +9,7 @@ import { EnclosureList } from './EnclosureList';
 import { EnclosureForm } from './EnclosureForm';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function EnclosureManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -20,7 +21,7 @@ export function EnclosureManagement() {
     isLoading,
     refetch: refetchLocations
   } = useQuery({
-    queryKey: ['locations'],
+    queryKey: [CACHE_KEYS.LOCATIONS],
     queryFn: getLocations
   });
   
@@ -28,7 +29,7 @@ export function EnclosureManagement() {
     data: rooms = [], 
     isLoading: isRoomsLoading 
   } = useQuery({
-    queryKey: ['rooms'],
+    queryKey: [CACHE_KEYS.ROOMS],
     queryFn: getRooms
   });
   
@@ -36,7 +37,7 @@ export function EnclosureManagement() {
     data: racks = [], 
     isLoading: isRacksLoading 
   } = useQuery({
-    queryKey: ['racks'],
+    queryKey: [CACHE_KEYS.RACKS],
     queryFn: getRacks
   });
 

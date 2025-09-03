@@ -6,13 +6,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isToday, parseISO } from "date-fns";
 import { useCallback } from "react";
 import { useAuthStore } from "../stores/authStore";
+import { CACHE_KEYS } from "../constants/cache_keys";
 
 export function useUpcomingFeedings() {
   const queryClient = useQueryClient();
   const {organization} = useAuthStore()
 
   const { data: schedules } = useQuery({
-    queryKey: ['feeding-schedules'],
+    queryKey: [CACHE_KEYS.FEEDING_SCHEDULES],
     queryFn: async () => {
       if (!organization) return [];
       return getFeedingSchedules(organization);
@@ -81,7 +82,7 @@ export function useUpcomingFeedings() {
     isLoading: isLoadingStatus,
     refetch: refreshStatus 
   } = useQuery({
-    queryKey: ['upcoming-feedings', schedules?.map(s => s.id).join(',')],
+    queryKey: [CACHE_KEYS.FEEDING_UPCOMING, schedules?.map(s => s.id).join(',')],
     queryFn: async () => {
       try {
         // Get the next feeding dates for all schedules
@@ -177,8 +178,8 @@ export function useUpcomingFeedings() {
   
   const handleRefreshStatus = useCallback(() => {
     refreshStatus();
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-    queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_STATUS] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_EVENTS] });
   }, [refreshStatus, queryClient]);
 
   return {

@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/table';
 import { useRouter } from 'next/navigation';
 import { TopLoader } from '@/components/ui/TopLoader';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 interface ClutchesListProps {
   clutch: Clutch;
   hatchlings: Record<string, Reptile[]>;
@@ -69,10 +70,10 @@ export function ClutchesList({
         toast.success('Clutch added successfully');
       }
       
-      queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
-      queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
-      queryClient.invalidateQueries({ queryKey: ['reptiles'] });
-      queryClient.invalidateQueries({ queryKey: ['clutches'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CLUTCHES, project.id] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.HATCHLINGS, project.id] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CLUTCHES] });
       setClutchDialogOpen(false);
       setEditingClutch(null);
     } catch (error) {

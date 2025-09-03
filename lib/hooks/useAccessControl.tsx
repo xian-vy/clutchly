@@ -5,6 +5,7 @@ import { NavItem } from '@/lib/constants/navigation';
 import { getAccessProfiles, getPages } from '@/app/api/users/access';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
+import { CACHE_KEYS } from '../constants/cache_keys';
 
 interface UseAccessControlReturn {
   hasAccess: (pageId: string | undefined, permission: 'view' | 'edit' | 'delete') => boolean;
@@ -17,7 +18,7 @@ const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
   const {organization} = useAuthStore()
 
   const { data: accessProfiles, isLoading: profilesLoading } = useQuery({
-    queryKey: ['accessProfiles'],
+    queryKey: [CACHE_KEYS.ACCESS_PROFILES],
     queryFn:  async () => {
        if (!organization) return []
       return getAccessProfiles(organization);
@@ -27,7 +28,7 @@ const useAccessControl = (user: User | undefined): UseAccessControlReturn => {
   });
 
   const { data: pages = [], isLoading: pagesLoading } = useQuery({
-    queryKey: ['pages'],
+    queryKey: [CACHE_KEYS.PAGES],
     queryFn: getPages,
     enabled: !!user,
     staleTime: 60 * 60 * 1000,

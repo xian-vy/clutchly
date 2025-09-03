@@ -11,6 +11,7 @@ import { ExpenseRecordForm } from './ExpenseRecordForm'
 import { ExpenseRecordList } from './ExpenseRecordList'
 import { getCurrentMonthDateRange } from '@/lib/utils'
 import { useAuthStore } from '@/lib/stores/authStore'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 export function ExpensesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -33,7 +34,7 @@ export function ExpensesTab() {
     handleDelete,
   } = useResource<ExpenseRecord, NewExpenseRecord>({
     resourceName: 'Expense Record',
-    queryKey: ['expenses', filters.dateFrom, filters.dateTo],
+    queryKey: [CACHE_KEYS.EXPENSES, filters.dateFrom, filters.dateTo],
     getResources: async () => {
       if (!organization) return [];
       return getExpensesRecords(organization,{

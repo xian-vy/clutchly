@@ -2,10 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { getBackupLogs } from '@/app/api/download/download'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 const DownloadHistory = () => {
   const { data: logs, isLoading, error } = useQuery({
-    queryKey: ['backupLogs'],
+    queryKey: [CACHE_KEYS.BACKUP_LOGS],
     queryFn: getBackupLogs
   })
 

@@ -5,11 +5,12 @@ import { Loader2 } from 'lucide-react';
 import React from 'react'
 import { BackupClient } from './DownloadData';
 import { backupTypes } from '@/lib/types/download';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 const DownloadTab = () => {
 
     const { data, isLoading } = useQuery({
-        queryKey: ['backup'],
+        queryKey: [CACHE_KEYS.BACKUP_HISTORY],
         queryFn: getLastBackupTimes,
       });
 

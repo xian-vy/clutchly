@@ -18,6 +18,7 @@ import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface EnrichedBreedingProject extends BreedingProject {
   male_name: string;
@@ -52,7 +53,7 @@ export function BreedingProjectList({
 
   // Fetch reptiles to get parent names
   const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

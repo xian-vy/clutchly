@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { FeedingEvents } from './FeedingEvents';
 import { getScheduleStats, isTodayScheduledFeedingDay } from './utils';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function FeedingTab() {
   const [expandedScheduleIds, setExpandedScheduleIds] = useState<Set<string>>(new Set());
@@ -31,7 +32,7 @@ export function FeedingTab() {
   const {organization} = useAuthStore()
 
   const { data: schedules = [], isLoading : schedulesLoading } = useQuery<FeedingScheduleWithTargets[]>({
-    queryKey: ['feeding-schedules'],
+    queryKey: [CACHE_KEYS.FEEDING_SCHEDULES],
     queryFn:  async () => {
       if (!organization) return [];
       return getFeedingSchedules(organization);
@@ -79,7 +80,7 @@ export function FeedingTab() {
 
   // Add a new query for schedule stats
   const { data: scheduleStats = {} } = useQuery({
-    queryKey: ['schedule-stats', schedules],
+    queryKey: [CACHE_KEYS.FEEDING_SCHEDULE_STATS, schedules],
     queryFn: async () => {
       const stats: Record<string, { locationCount: number; reptileCount: number; nextFeedingDate: Date }> = {};
       
@@ -99,8 +100,8 @@ export function FeedingTab() {
 
   const refreshStatus = useCallback(() => {
     // Only invalidate specific queries that need updating
-    queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_EVENTS] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_STATUS] });
     refreshUpcoming();
   }, [ queryClient,refreshUpcoming]);
 

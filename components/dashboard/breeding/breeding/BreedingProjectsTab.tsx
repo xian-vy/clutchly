@@ -17,6 +17,7 @@ import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import { getAllClutches } from '@/app/api/breeding/clutches';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function BreedingProjectsTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -34,7 +35,7 @@ export function BreedingProjectsTab() {
     handleDelete,
   } = useResource<BreedingProject, NewBreedingProject>({
     resourceName: 'Breeding Project',
-    queryKey: ['breeding-projects'],
+    queryKey: [CACHE_KEYS.BREEDING_PROJECTS],
     getResources: async () => {
       if (!organization) return [];
       return getBreedingProjects(organization);
@@ -45,7 +46,7 @@ export function BreedingProjectsTab() {
   });
 
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
@@ -53,7 +54,7 @@ export function BreedingProjectsTab() {
   });
 
   const { data: allClutches = [], isLoading: clutchesLoading } = useQuery<Clutch[]>({
-    queryKey: ['clutches'],
+    queryKey: [CACHE_KEYS.CLUTCHES],
     queryFn: () => getAllClutches(), 
   });
 
@@ -145,7 +146,7 @@ export function BreedingProjectsTab() {
               if (success) {
                 setIsDialogOpen(false);
                 setSelectedProject(undefined);
-                queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+                queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
               }
             }}
             onCancel={() => {

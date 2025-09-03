@@ -21,6 +21,7 @@ import { Reptile } from '@/lib/types/reptile';
 import { getReptiles } from '@/app/api/reptiles/reptiles';
 import CatalogSkeleton from './components/CatalogSkeleton';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function CatalogTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -48,7 +49,7 @@ export function CatalogTab() {
     handleDelete,
   } = useResource<CatalogEntry, NewCatalogEntry>({
     resourceName: 'Catalog Entry',
-    queryKey: ['catalog-entries'],
+    queryKey: [CACHE_KEYS.CATALOG_ENTRIES],
     getResources: getCatalogEntries,
     createResource: createCatalogEntry,
     updateResource: updateCatalogEntry,
@@ -56,7 +57,7 @@ export function CatalogTab() {
   });
   const queryClient = useQueryClient();
   const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
     if (!org) return [];
     return getReptiles(org) 
@@ -173,7 +174,7 @@ export function CatalogTab() {
       
       // Update the enrichedCatalog with preserved settings
       if (enrichedCatalog.length === 1) {
-        queryClient.setQueryData(['catalog-entries'], (oldData: EnrichedCatalogEntry[]) => {
+        queryClient.setQueryData([CACHE_KEYS.CATALOG_ENTRIES], (oldData: EnrichedCatalogEntry[]) => {
           if (!oldData || !Array.isArray(oldData)) return [];
           // Return empty array but with settings preserved
           return [{
@@ -213,10 +214,10 @@ export function CatalogTab() {
 
   const handleImageChange = async (entryId: string) => {
     // Wait for the query to be invalidated and refetched
-    await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+    await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CATALOG_ENTRIES] });
     
     // Get the latest data from the cache
-    const latestData = queryClient.getQueryData(['catalog-entries']) as EnrichedCatalogEntry[];
+    const latestData = queryClient.getQueryData([CACHE_KEYS.CATALOG_ENTRIES]) as EnrichedCatalogEntry[];
     const updatedEntry = latestData?.find(entry => entry.id === entryId);
     
     if (updatedEntry) {
@@ -317,7 +318,7 @@ export function CatalogTab() {
                   : await handleCreate(data);
                 if (success) {
                   onDialogChange(false);
-                  await queryClient.invalidateQueries({ queryKey: ['catalog-entries'] });
+                  await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CATALOG_ENTRIES] });
                 }
               } finally {
                 setIsSubmitting(false);

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { ReptileForm } from '../../dashboard/reptiles/reptiles/ReptileForm';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface Props {
    open : boolean;
@@ -23,7 +24,7 @@ const AddNewShortcut = ({open,setOpen} : Props) => {
                     if (success) {
                         toast.success('Reptile created successfully');
                         setOpen(false);
-                        queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+                        queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
                     }
                     }}
                     onCancel={() => {

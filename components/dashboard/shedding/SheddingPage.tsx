@@ -11,6 +11,7 @@ import { EditSheddingDialog } from './EditSheddingDialog'
 import { SheddingList } from './SheddingList'
 import { getCurrentMonthDateRange } from '@/lib/utils'
 import { SheddingFilters } from './SheddingFilterDialog'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 export function SheddingPage() {
   const queryClient = useQueryClient()
@@ -30,7 +31,7 @@ export function SheddingPage() {
     selectedResource
   } = useResource<SheddingWithReptile, UpdateSheddingInput>({
     resourceName: 'Shedding',
-    queryKey: ['shedding', filters.dateRange],
+    queryKey: [CACHE_KEYS.SHEDDING, filters.dateRange],
     getResources: () => getSheddingRecords({
       startDate: filters.dateRange?.[0] || currentMonthRange.dateFrom,
       endDate: filters.dateRange?.[1] || currentMonthRange.dateTo
@@ -56,7 +57,7 @@ export function SheddingPage() {
   const handleBatchCreate = async (data: CreateSheddingInput[]): Promise<boolean> => {
     try {
       await createBatchShedding(data)
-      await queryClient.invalidateQueries({ queryKey: ['shedding'] })
+      await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.SHEDDING] })
       toast.success('Batch shedding records created successfully')
       setIsNewDialogOpen(false)
       return true
