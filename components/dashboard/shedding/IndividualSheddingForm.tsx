@@ -27,6 +27,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/lib/stores/authStore'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 const formSchema = z.object({
   reptile_id: z.string().min(1, 'Please select a reptile'),
@@ -49,7 +50,7 @@ export function IndividualSheddingForm({  onSubmit,onOpenChange }: Props) {
   const {organization} = useAuthStore()
 
   const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
