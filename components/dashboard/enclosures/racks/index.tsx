@@ -7,6 +7,7 @@ import { getRooms } from '@/app/api/locations/rooms';
 import { createRack, deleteRack, getRacks, updateRack } from '@/app/api/locations/racks';
 import { RacksList } from './RacksList';
 import { RackForm } from './RackForm';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function RacksManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -17,7 +18,7 @@ export function RacksManagement() {
     isLoading: roomsLoading,
   } = useResource<Room, NewRoom>({
     resourceName: 'Room',
-    queryKey: ['rooms'],
+    queryKey: [CACHE_KEYS.ROOMS],
     getResources: getRooms,
     createResource: async () => { throw new Error('Not implemented') },
     updateResource: async () => { throw new Error('Not implemented') },
@@ -35,7 +36,7 @@ export function RacksManagement() {
     handleDelete,
   } = useResource<Rack, NewRack>({
     resourceName: 'Rack',
-    queryKey: ['racks'],
+    queryKey: [CACHE_KEYS.RACKS],
     getResources: getRacks,
     createResource: createRack,
     updateResource: updateRack,

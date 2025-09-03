@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface ReptileLocationsVisualizerProps {
   selectedRoom?: Room | null;
@@ -52,7 +53,7 @@ export function ReptileLocationsVisualizer({
     handleUpdate,
   } = useResource<Reptile, NewReptile>({
     resourceName: 'Reptile',
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     getResources: async () => {
       if (!organization) return [];
        return getReptiles(organization) 
@@ -88,7 +89,7 @@ const updateReptileLocation = async () => {
     const success = await handleUpdate(updatedReptile);
     if (success) {
       // Invalidate all reptile queries to ensure all components get updated data
-      await queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+      await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
       toast.success("Reptile assigned to enclosure.", {
         id: toastId
       });
