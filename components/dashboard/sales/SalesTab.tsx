@@ -135,7 +135,7 @@ export function SalesTab() {
               if (success) {
                 setIsDialogOpen(false);
                 setSelectedSale(undefined);
-                queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+                queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
               }
             }}
             onCancel={() => {

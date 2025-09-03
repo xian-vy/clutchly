@@ -6,12 +6,13 @@ import { getReptiles } from '@/app/api/reptiles/reptiles';
 import FlowChart from './components/FlowChart';
 import { useMorphsStore } from '@/lib/stores/morphsStore';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 const Lineage = () => {
   const { organization } = useAuthStore()
 
   const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

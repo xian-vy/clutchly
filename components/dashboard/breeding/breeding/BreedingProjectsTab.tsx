@@ -146,7 +146,7 @@ export function BreedingProjectsTab() {
               if (success) {
                 setIsDialogOpen(false);
                 setSelectedProject(undefined);
-                queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+                queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
               }
             }}
             onCancel={() => {

@@ -5,6 +5,7 @@ import { createReptile, deleteReptile, getReptiles, updateReptile } from '@/app/
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/authStore'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 const useRealtimeReptiles = () => {
     const { user, isLoading :userLoading, organization} = useAuthStore();
@@ -17,7 +18,7 @@ const useRealtimeReptiles = () => {
       removeResourceFromCache,
     } = useResource<Reptile, NewReptile>({
       resourceName: 'Reptile',
-      queryKey: ['reptiles'],
+      queryKey: [CACHE_KEYS.REPTILES],
       getResources: async () => {
         if (!organization?.id) return [];
         return getReptiles(organization);

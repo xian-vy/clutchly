@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { getPages } from '@/app/api/users/access';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { useEffect } from 'react';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ export default function ProtectedRoute({ children, pageName }: ProtectedRoutePro
   const router = useRouter();
   const { user, isLoading: userLoading } = useAuthStore();
   const { data: pages = [], isLoading: pagesLoading } = useQuery({
-    queryKey: ['pages'],
+    queryKey: [CACHE_KEYS.PAGES],
     queryFn: getPages,
     staleTime: 60 * 60 * 1000,
   });
