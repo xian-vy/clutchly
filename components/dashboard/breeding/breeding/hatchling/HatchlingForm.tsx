@@ -38,6 +38,7 @@ import { useQuery } from "@tanstack/react-query";
 import {toast} from 'sonner';
 import { getSubscriptionLimitClient } from "@/app/api/utils_client";
 import { useAuthStore } from "@/lib/stores/authStore";
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 
 const formSchema = z.object({
@@ -72,14 +73,14 @@ export function HatchlingForm({
 
   const morphsForSpecies = getMorphsBySpecies(clutch.species_id.toString())
   const { data: reptiles, isLoading : reptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
 }
   })
   const { data: reptileLimit, isLoading : limitLoading } = useQuery({
-    queryKey: ['limit'],
+    queryKey: [CACHE_KEYS.LIMIT],
     queryFn: getSubscriptionLimitClient
   })
 

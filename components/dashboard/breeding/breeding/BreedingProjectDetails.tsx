@@ -19,6 +19,7 @@ import { HatchlingForm } from './hatchling/HatchlingForm';
 import { PlusCircle } from 'lucide-react';
 import { ClutchForm } from './clutch/ClutchForm';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface BreedingProjectDetailsProps {
   project: BreedingProject;
@@ -36,7 +37,7 @@ export function BreedingProjectDetails({
   const {organization} = useAuthStore()
 
   const { data: reptiles = [] } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
@@ -48,7 +49,7 @@ export function BreedingProjectDetails({
     handleCreate: handleCreateHatchling,
   } = useResource<Reptile, NewReptile>({
     resourceName: 'Hatchling',
-    queryKey: ['all-hatchlings', project.id],
+    queryKey: [CACHE_KEYS.HATCHLINGS, project.id],
     getResources: async () => {
       const result: Reptile[] = [];
       const clutchesData = await getClutches(project.id);
@@ -81,7 +82,7 @@ export function BreedingProjectDetails({
   });
   // Fetch clutches for this project
   const { data: clutches = [] } = useQuery<Clutch[]>({
-    queryKey: ['clutches', project.id],
+    queryKey: [CACHE_KEYS.CLUTCHES, project.id],
     queryFn: () => getClutches(project.id),
   });
 
@@ -96,9 +97,9 @@ export function BreedingProjectDetails({
       } as NewClutch;
       
       await updateClutch(id, newClutch);
-      
+
       // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CLUTCHES, project.id] });
       
       toast.success('Clutch updated successfully');
     } catch (error) {
@@ -119,7 +120,7 @@ export function BreedingProjectDetails({
         parent_clutch_id: selectedClutchId,
       });
 
-      queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
 
       toast.success('Hatchling added successfully');
       setIsAddHatchlingDialogOpen(false);
@@ -158,10 +159,10 @@ export function BreedingProjectDetails({
     try {
       await createClutch({ ...data,  breeding_project_id: project.id, });
       toast.success('Clutch added successfully');
-      queryClient.invalidateQueries({ queryKey: ['clutches', project.id] });
-      queryClient.invalidateQueries({ queryKey: ['all-hatchlings', project.id] });
-      queryClient.invalidateQueries({ queryKey: ['reptiles'] });
-      queryClient.invalidateQueries({ queryKey: ['clutches'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CLUTCHES, project.id] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.HATCHLINGS, project.id] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CLUTCHES] });
       setClutchDialogOpen(false);
     } catch (error) {
       console.error('Error saving clutch:', error);
