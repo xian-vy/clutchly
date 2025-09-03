@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function GrowthReportsTab() {
   const screen = useScreenSize();
@@ -27,7 +28,7 @@ export function GrowthReportsTab() {
   const {organization} = useAuthStore()
 
   const { data: reptiles = [], isLoading: reptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

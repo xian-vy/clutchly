@@ -21,6 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import { GrowthFilters } from './GrowthFilterDialog';
 import { getCurrentMonthDateRange } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function GrowthEntriesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -40,7 +41,7 @@ export function GrowthEntriesTab() {
     handleDelete,
   } = useResource<GrowthEntry, CreateGrowthEntryInput>({
     resourceName: 'Growth Entry',
-    queryKey: ['growthEntries', filters.dateRange],
+    queryKey: [CACHE_KEYS.GROWTH_ENTRIES, filters.dateRange],
     getResources: async () => {
       if (!organization) return [];
       return getGrowthEntries(organization,{
@@ -54,7 +55,7 @@ export function GrowthEntriesTab() {
   });
 
   const { data: reptiles = [], isLoading : isReptilesLoading } = useQuery<Reptile[]>({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 

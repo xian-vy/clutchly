@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 import { useGroupedReptileBySpeciesSelect } from '@/lib/hooks/useGroupedReptileBySpeciesSelect';
 import { useAuthStore } from '@/lib/stores/authStore';
 import { CreateGrowthEntryInput, GrowthEntry } from '@/lib/types/growth';
@@ -37,7 +38,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
   const {organization} = useAuthStore()
 
   const { data: reptiles = [] } = useQuery({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
@@ -64,7 +65,7 @@ export function GrowthEntryForm({ initialData, onSubmit, onCancel }: GrowthEntry
   const handleSubmit = async (data: FormValues) => {
     const { ...formData } = data;
     await onSubmit(formData as CreateGrowthEntryInput);
-    queryClient.invalidateQueries({ queryKey: ['reptiles'] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.REPTILES] });
   };
 
 
