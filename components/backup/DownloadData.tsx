@@ -9,6 +9,7 @@ import { createBackup } from '@/app/api/download/download'
 import { toast } from 'sonner'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { BackupConfig } from '@/lib/types/download'
+import { CACHE_KEYS } from '@/lib/constants/cache_keys'
 
 interface BackupClientProps {
   type: BackupConfig
@@ -49,7 +50,7 @@ export function BackupClient({ type, lastBackup }: BackupClientProps) {
     },
     onSuccess: () => {
       toast.success('Backup created successfully')
-      queryClient.invalidateQueries({ queryKey: ['backupLogs'] })
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.BACKUP_LOGS] })
     },
     onError: (error) => {
       console.error('Backup error:', error)
