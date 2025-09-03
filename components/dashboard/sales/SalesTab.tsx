@@ -19,6 +19,7 @@ import { EnrichedSaleRecord, SalesRecordList } from './SalesRecordList';
 import { getCurrentMonthDateRange } from '@/lib/utils';
 import { SalesFilters } from './SalesFilterDialog';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function SalesTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,7 +45,7 @@ export function SalesTab() {
     handleDelete,
   } = useResource<SaleRecord, NewSaleRecord>({
     resourceName: 'Sales Record',
-    queryKey: ['sales-records', filters.dateFrom, filters.dateTo],
+    queryKey: [CACHE_KEYS.SALES, filters.dateFrom, filters.dateTo],
     getResources: async () => {
       if (!organization) return [];
       return getSalesRecords(organization,{
@@ -59,7 +60,7 @@ export function SalesTab() {
 
   // Fetch reptiles data
   const { data: reptiles, isLoading: reptilesLoading } = useQuery({
-    queryKey: ['reptiles'],
+    queryKey: [CACHE_KEYS.REPTILES],
     queryFn: async () => {
   if (!organization) return [];
    return getReptiles(organization) 
