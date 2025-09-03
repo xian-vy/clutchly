@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { CACHE_KEYS } from "@/lib/constants/cache_keys";
 import { useUpcomingFeedings } from "@/lib/hooks/useUpcomingFeedings";
 import { FeedingScheduleWithTargets } from "@/lib/types/feeding";
 import { useQueryClient } from "@tanstack/react-query";
@@ -35,8 +36,8 @@ export function FeedingOverview() {
   
   const handleRefreshStatus = useCallback(() => {
     refreshUpcoming();
-    queryClient.invalidateQueries({ queryKey: ['feeding-status'] });
-    queryClient.invalidateQueries({ queryKey: ['feeding-events'] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_STATUS] });
+    queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.FEEDING_EVENTS] });
   }, [ queryClient,refreshUpcoming]);
   
   // Format the date display
