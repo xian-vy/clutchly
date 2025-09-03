@@ -7,12 +7,13 @@ import { Loader2 } from 'lucide-react';
 import { ReptileSummaryCards } from './reports/ReptileSummaryCards';
 import { ReptileCharts } from './reports/ReptileCharts';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export function ReptileReportsTab() {
   const {organization} = useAuthStore()
 
   const { data: reportData, isLoading } = useQuery({
-    queryKey: ['reptile-reports'],
+    queryKey: [CACHE_KEYS.REPTILE_REPORTS],
     queryFn: async () => {
       if (!organization) return undefined;
       return getReptileReportData(organization);
