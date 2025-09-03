@@ -6,6 +6,7 @@ import { Loader2, Pencil } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { API_UPLOAD_LOGO } from '@/lib/constants/api';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 interface ProfileDisplayProps {
   organization: Organization | undefined;
@@ -50,7 +51,7 @@ export const ProfileDisplay = ({ organization, isAdmin = false }: ProfileDisplay
       const data = await res.json();
       if (data?.imageUrl) {
         setLogoTimestamp(Date.now());
-        await queryClient.invalidateQueries({ queryKey: ['organization2'] });
+        await queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.ORGANIZATION_GLOBAL] });
         toast.success('Logo uploaded!');
       } else {
         setLogoError(data?.error || 'Failed to upload logo.');

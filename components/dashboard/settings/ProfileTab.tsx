@@ -10,6 +10,7 @@ import { CatalogSettingsDisplay } from './components/CatalogSettingsDisplay';
 import { CatalogSettingsForm, CatalogSettingsFormValues } from './components/CatalogSettingsForm';
 import { Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export const ProfileTab = () => {
   const queryClient = useQueryClient();
@@ -18,7 +19,7 @@ export const ProfileTab = () => {
 
   // Get catalog settings
   const { data: settings, isLoading: isSettingsLoading } = useQuery<CatalogSettings>({
-    queryKey: ['catalogSettings'],
+    queryKey: [CACHE_KEYS.CATALOG_SETTINGS],
     queryFn: async () => {
       const data = await getCatalogSettings();
       return Array.isArray(data) ? data[0] : data;
@@ -43,7 +44,7 @@ export const ProfileTab = () => {
       return updateCatalogSettings(updateData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['catalogSettings'] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.CATALOG_SETTINGS] });
     },
   });
 
