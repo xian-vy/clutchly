@@ -10,6 +10,7 @@ import { UserForm } from './UserForm';
 import { UserList } from './UserList';
 import {toast} from 'sonner'
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 export default function UsersTab() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -24,7 +25,7 @@ export default function UsersTab() {
     handleDelete,
   } = useResource<User, CreateUser>({
     resourceName: 'User',
-    queryKey: ['users'],
+    queryKey: [CACHE_KEYS.USERS],
     getResources: getUsers,
     createResource: async (data) => {
       const result = await createUser(data);

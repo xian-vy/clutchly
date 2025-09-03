@@ -12,6 +12,7 @@ import { AccessProfile } from '@/lib/types/access';
 import { USER_STATUS_COLORS } from '@/lib/constants/colors';
 import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/lib/stores/authStore';
+import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 
 // Supabase email confirmation expiration is 24 hours
 const EMAIL_CONFIRMATION_EXPIRATION_MS = 24 * 60 * 60 * 1000;
@@ -29,7 +30,7 @@ export function UserList({ users, onEdit, onDelete, onAddNew, onResendConfirmati
   const {organization} = useAuthStore()
 
   const { data: accessProfiles } = useQuery<AccessProfile[]>({
-    queryKey: ['access-profiles'],
+    queryKey: [CACHE_KEYS.ACCESS_PROFILES],
     queryFn: async ()=> {
       if (!organization) return [];
       return getAccessProfiles(organization);
