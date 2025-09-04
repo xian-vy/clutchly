@@ -28,7 +28,7 @@ export default function FeaturesPage() {
               <h1 className="text-2xl lg:text-3xl 3xl:!text-4xl max-w-2xl font-bold tracking-tight text-[#333] dark:text-foreground">
                     Everything you need to manage your collection
               </h1>
-              <p className="text-muted-foreground text-base sm:text-base 3xl:!text-lg px-4 max-w-[600px] mt-2">
+              <p className="text-muted-foreground text-base sm:text-base 3xl:!text-lg px-4 max-w-[600px] mt-2 text-center mx-auto">
                 Discover all the powerful tools and features designed to help you manage your reptile collection effectively
               </p>
           </div>
