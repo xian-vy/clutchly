@@ -1,7 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { APP_DESCRIPTION, APP_NAME } from '@/lib/constants/app'
 import Image from 'next/image'
@@ -9,11 +9,19 @@ import { useTheme } from 'next-themes'
 
 export function HeroSection() {
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [isSignupPending, startSignupTransition] = useTransition()
+  const [isSigninPending, startSigninTransition] = useTransition()
   const theme = useTheme()
-  const handleNavigation = (path: string) => {
-    startTransition(() => {
-      router.push(path)
+  
+  const handleSignupNavigation = () => {
+    startSignupTransition(() => {
+      router.push('/auth/signup')
+    })
+  }
+  
+  const handleSigninNavigation = () => {
+    startSigninTransition(() => {
+      router.push('/auth/signin')
     })
   }
 
@@ -68,26 +76,32 @@ export function HeroSection() {
                   transition={{ duration: 0.3, delay: 0.3 }}
                 >
                   <motion.button
-                    onClick={() => handleNavigation('/auth/signup')}
+                    onClick={handleSignupNavigation}
                     className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-sm md:text-base 3xl:!text-lg font-medium text-primary-foreground transition-all hover:bg-primary/90 relative overflow-hidden group cursor-pointer"
-                    disabled={isPending}
+                    disabled={isSignupPending}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
                   >
                     <span className="relative z-10">
-                      Get Started
-                      <ArrowRight className="inline-block h-5 w-5 ml-2" />
+                        Get Started
+                        {isSignupPending ? (
+                            <Loader2 className='inline-block h-5 w-5 ml-2' />
+                        ):(
+                            <ArrowRight className="inline-block h-5 w-5 ml-2" />
+                        )}
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
                   </motion.button>
                   <motion.button
-                    onClick={() => handleNavigation('/auth/signin')}
+                    onClick={handleSigninNavigation}
                     className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background/50 backdrop-blur-sm px-8 py-3 text-sm md:text-base 3xl:!text-lg font-medium transition-all hover:bg-secondary relative overflow-hidden group cursor-pointer"
-                    disabled={isPending}
+                    disabled={isSigninPending}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
                   >
-                    <span className="relative z-10 text-foreground/85">Sign In</span>
+                    <span className="relative z-10 text-foreground/85">
+                       Sign In {isSigninPending && <Loader2 className='inline-block h-5 w-5 ml-2' />}
+                    </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-secondary to-secondary/70 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
                   </motion.button>
                 </motion.div>

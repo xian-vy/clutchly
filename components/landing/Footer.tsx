@@ -67,6 +67,7 @@ export function Footer() {
               {/* Social Links */}
             <div className="flex items-center gap-3 sm:gap-4">
               <Link
+                target='_blank'
                 href="https://www.facebook.com/xzyian.vy"
                 className="p-2 rounded-full bg-white/5 group transition-colors"
                 aria-label="Facebook"
@@ -74,13 +75,15 @@ export function Footer() {
                 <Facebook className="h-3.5 sm:h-4 sm:w-4 w-3.5 text-white/70 dark:group-hover:text-primary" />
               </Link>
               <Link
-                href="https://github.com/xian-vy"
+                target='_blank'
+                href="https://github.com/xian-vy/clutchly"
                 className="p-2 rounded-full bg-white/5 group transition-colors"
                 aria-label="GitHub"
               >
                 <Github className="h-3.5 sm:h-4 sm:w-4 w-3.5 text-white/70 dark:group-hover:text-primary" />
               </Link>
               <Link
+                target='_blank'
                 href="mailto:clutchlyreptilehusbandry@gmail.com"
                 className="p-2 rounded-full bg-white/5  group transition-colors"
                 aria-label="Email"
