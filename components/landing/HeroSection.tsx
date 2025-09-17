@@ -1,7 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
-import { ArrowRight, Loader2 } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { APP_DESCRIPTION, APP_NAME } from '@/lib/constants/app'
 import Image from 'next/image'
