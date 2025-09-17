@@ -209,8 +209,7 @@ export function CatalogPublicPage({ orgName }: CatalogClientPageProps) {
           <Info className="h-4 w-4" />
           <AlertTitle>Disclaimer</AlertTitle>
           <AlertDescription className='text-foreground/90 inline text-[0.8rem] sm:text-sm'>
-            Clutchly lists reptiles for free but does not handle transactions or verify legality. Users must comply with 
-            <Link target='_blank' href="https://www.officialgazette.gov.ph/2001/07/30/republic-act-no-9417/" className='underline underline-offset-4'> RA 9147 </Link> and wildlife laws. Contact sellers directly. Report illegal or suspicious listings through our 
+             Please report illegal or suspicious listings through our 
             <Link target='_blank' href="https://clutchly.vercel.app/contact" className='underline underline-offset-4 ml-1'>Contact Page</Link>.
           </AlertDescription>
        </Alert>
