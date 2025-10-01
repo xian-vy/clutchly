@@ -32,11 +32,12 @@ export function FeedingTab() {
   const {organization} = useAuthStore()
 
   const { data: schedules = [], isLoading : schedulesLoading } = useQuery<FeedingScheduleWithTargets[]>({
-    queryKey: [CACHE_KEYS.FEEDING_SCHEDULES],
+    queryKey: [CACHE_KEYS.FEEDING_SCHEDULES, organization],
     queryFn:  async () => {
       if (!organization) return [];
       return getFeedingSchedules(organization);
     },
+    enabled: !!organization,
     staleTime: 60 * 60 * 1000, 
   });
   const queryClient = useQueryClient();
