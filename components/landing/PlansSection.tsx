@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { Check, ChevronLeft, ChevronRight, Zap } from 'lucide-react'
 import React, { useState } from 'react'
 import { Button } from '../ui/button'
+import Link from 'next/link'
 
 const PlansSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -142,18 +143,20 @@ const PlanCard = ({ plan }: { plan: typeof PLANS_LIST[0] }) => (
           </ul>
         </div>
         
-        <Button 
-          className={cn(
-            "w-full",
-            plan.recommended 
-              ? "bg-primary hover:bg-primary/90" 
-            
-                : "bg-secondary text-black hover:bg-secondary/90"
-          )}
-        >
-          {'Choose Plan'}
-          <Zap className="ml-2 h-4 w-4" />
-        </Button>
+        <Link href="/auth/signup">
+          <Button 
+            className={cn(
+              "w-full",
+              plan.recommended 
+                ? "bg-primary hover:bg-primary/90" 
+              
+                  : "bg-secondary text-black hover:bg-secondary/90"
+            )}
+          >
+            {'Choose Plan'}
+            <Zap className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
       </div>
     </div>
   </div>
