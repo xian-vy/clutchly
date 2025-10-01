@@ -34,7 +34,8 @@ import { FileSpreadsheet, Filter, Plus, Search } from "lucide-react"
 import { useEffect, useState } from "react"
 import Paginator from "./paginator"
 import { DownloadCommonMorphs } from "../dashboard/reptiles/morphs/DownloadCommonMorphs"
-import { useScreenSize } from "@/lib/hooks/useScreenSize"
+// import { useScreenSize } from "@/lib/hooks/useScreenSize"
+import { useDataTableStore } from "@/lib/stores/dataTableStore"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -66,18 +67,19 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState("")
-  const screenSize = useScreenSize();
+  const { pageSize: storedPageSize, setPageSize } = useDataTableStore();
   const [pagination, setPagination] = useState({
-    pageIndex: 0, 
-    pageSize: screenSize === "large" ? 5 : 10,
+    pageIndex: 0,
+    pageSize: storedPageSize,
   });
   const [uncontrolledRowSelection, setUncontrolledRowSelection] = useState<Record<string, boolean>>({});
+  
   useEffect(() => {
     setPagination(prev => ({
       ...prev,
-      pageSize: screenSize === "large" ? 5 : 10
+      pageSize: storedPageSize
     }));
-  }, [screenSize]);
+  }, [storedPageSize]);
 
   // Use controlled or uncontrolled row selection
   const rowSelection = controlledRowSelection !== undefined ? controlledRowSelection : uncontrolledRowSelection;
@@ -259,7 +261,11 @@ export function DataTable<TData, TValue>({
          <span className="text-muted-foreground"> | </span>     
           <Select
             value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => table.setPageSize(Number(value))}
+            onValueChange={(value) => {
+              const newPageSize = Number(value);
+              table.setPageSize(newPageSize);
+              setPageSize(newPageSize);
+            }}
           >
             <SelectTrigger className="h-6 w-fit text-[0.6rem] sm:text-xs md:text-[0.8rem] cursor-pointer shadow-none border-none p-0 !bg-transparent">
               Show <SelectValue />
