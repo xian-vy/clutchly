@@ -3,6 +3,13 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Table,
   TableBody,
   TableCell,
@@ -244,18 +251,36 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex w-full items-center justify-center md:justify-between gap-3 mt-5 sm:mt-6 xl:mt-7">
-             <p className="text-[0.6rem] sm:text-xs md:text-[0.8rem] 3xl:text-sm hidden md:block">
-               {data.length}  {' Total Records'} 
-            </p>
-          <div className="flex items-center justify-end space-x-2">
-            <Paginator
-                currentPage={table.getState().pagination.pageIndex + 1}
-                totalPages={table.getPageCount()}
-                onPageChange={(page) => table.setPageIndex(page - 1)}
-                showPreviousNext={true}
-            />
-          </div>
+      <div className="flex w-full items-center justify-center md:justify-between gap-4 mt-5 sm:mt-6 xl:mt-7">
+        <div className="hidden md:flex items-center gap-3">
+          <p className="text-[0.6rem] sm:text-xs md:text-[0.8rem] 3xl:text-sm">
+            {data.length}  {'  Records'} 
+          </p>
+         <span className="text-muted-foreground"> | </span>     
+          <Select
+            value={table.getState().pagination.pageSize.toString()}
+            onValueChange={(value) => table.setPageSize(Number(value))}
+          >
+            <SelectTrigger className="h-6 w-fit text-[0.6rem] sm:text-xs md:text-[0.8rem] cursor-pointer shadow-none border-none p-0 !bg-transparent">
+              Show <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center justify-end space-x-2">
+          <Paginator
+              currentPage={table.getState().pagination.pageIndex + 1}
+              totalPages={table.getPageCount()}
+              onPageChange={(page) => table.setPageIndex(page - 1)}
+              showPreviousNext={true}
+          />
+        </div>
       </div>
 
     </div>
