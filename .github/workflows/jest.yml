@@ -1,0 +1,35 @@
+name: Run Jest Tests
+
+on:
+  push:
+    branches:
+      - development     # run on pushes to development
+  pull_request:
+    branches:
+      - development     # also run on PRs targeting development
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm' # or 'yarn', depending on your package manager
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm ci
+        # If using yarn: run: yarn install --frozen-lockfile
+
+      # 4. Run Jest tests
+      - name: Run Jest
+        run: npm test -- --ci --coverage
+        # If your script is just "jest" in package.json, use: npm run test
