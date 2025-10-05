@@ -3,7 +3,7 @@ name: Run Jest Tests
 on:
   pull_request:
     branches:
-      - main  # also run on PRs targeting development
+      - master  # also run on PRs targeting development
 
 jobs:
   test:
