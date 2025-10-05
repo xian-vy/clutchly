@@ -1,12 +1,9 @@
 name: Run Jest Tests
 
 on:
-  push:
-    branches:
-      - development     # run on pushes to development
   pull_request:
     branches:
-      - development     # also run on PRs targeting development
+      - main  # also run on PRs targeting development
 
 jobs:
   test:
