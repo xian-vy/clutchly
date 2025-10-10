@@ -169,9 +169,11 @@ const createWrapper = () => {
     },
   });
 
-  return ({ children }: { children: ReactNode }) => (
+  const Wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
+  Wrapper.displayName = 'TestWrapper';
+  return Wrapper;
 };
 
 describe('useAccessControl', () => {
@@ -183,7 +185,7 @@ describe('useAccessControl', () => {
       organization: { id: 'org-1', name: 'Test Org' },
     });
 
-    mockUseQuery.mockImplementation(({ queryKey, queryFn }) => {
+    mockUseQuery.mockImplementation(({ queryKey }) => {
       if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
         return createMockQueryResult([mockAccessProfile]);
       }

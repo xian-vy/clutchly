@@ -1,5 +1,5 @@
 import { renderHook, render, screen, fireEvent } from '@testing-library/react';
-import { ReactNode } from 'react';
+import { ReactNode, ComponentProps } from 'react';
 import { useGroupedReptileByMorphSelect } from '../useGroupedReptileByMorphSelect';
 import { Reptile } from '@/lib/types/reptile';
 import { Morph } from '@/lib/types/morph';
@@ -10,16 +10,16 @@ jest.mock('../../stores/morphsStore', () => ({
 }));
 
 jest.mock('@/components/ui/button', () => ({
-  Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
+  Button: ({ children, ...props }: ComponentProps<'button'>) => <button {...props}>{children}</button>,
 }));
 
 jest.mock('@/components/ui/command', () => ({
-  Command: ({ children }: any) => <div data-testid="command">{children}</div>,
-  CommandEmpty: ({ children }: any) => <div data-testid="command-empty">{children}</div>,
-  CommandInput: ({ placeholder, ...props }: any) => (
+  Command: ({ children }: { children: ReactNode }) => <div data-testid="command">{children}</div>,
+  CommandEmpty: ({ children }: { children: ReactNode }) => <div data-testid="command-empty">{children}</div>,
+  CommandInput: ({ placeholder, ...props }: { placeholder?: string } & ComponentProps<'input'>) => (
     <input data-testid="command-input" placeholder={placeholder} {...props} />
   ),
-  CommandItem: ({ children, onSelect, value, ...props }: any) => (
+  CommandItem: ({ children, onSelect, value, ...props }: { children: ReactNode; onSelect?: () => void; value?: string } & ComponentProps<'div'>) => (
     <div data-testid="command-item" onClick={onSelect} data-value={value} {...props}>
       {children}
     </div>
@@ -27,13 +27,13 @@ jest.mock('@/components/ui/command', () => ({
 }));
 
 jest.mock('@/components/ui/popover', () => ({
-  Popover: ({ children, open, onOpenChange }: any) => (
-    <div data-testid="popover" data-open={open} onClick={() => onOpenChange(!open)}>
+  Popover: ({ children, open, onOpenChange }: { children: ReactNode; open?: boolean; onOpenChange?: (open: boolean) => void }) => (
+    <div data-testid="popover" data-open={open} onClick={() => onOpenChange?.(!open)}>
       {children}
     </div>
   ),
-  PopoverContent: ({ children }: any) => <div data-testid="popover-content">{children}</div>,
-  PopoverTrigger: ({ children, asChild, disabled }: any) => (
+  PopoverContent: ({ children }: { children: ReactNode }) => <div data-testid="popover-content">{children}</div>,
+  PopoverTrigger: ({ children, asChild, disabled }: { children: ReactNode; asChild?: boolean; disabled?: boolean }) => (
     <div data-testid="popover-trigger" data-disabled={disabled}>
       {asChild ? children : <div>{children}</div>}
     </div>
@@ -41,7 +41,7 @@ jest.mock('@/components/ui/popover', () => ({
 }));
 
 jest.mock('@/components/ui/scroll-area', () => ({
-  ScrollArea: ({ children, className }: any) => (
+  ScrollArea: ({ children, className }: { children: ReactNode; className?: string }) => (
     <div data-testid="scroll-area" className={className}>
       {children}
     </div>
@@ -49,7 +49,7 @@ jest.mock('@/components/ui/scroll-area', () => ({
 }));
 
 jest.mock('@/lib/utils', () => ({
-  cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
+  cn: (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(' '),
 }));
 
 jest.mock('lucide-react', () => ({
@@ -162,7 +162,7 @@ describe('useGroupedReptileByMorphSelect', () => {
     // Default mock implementation
     mockUseMorphsStore.mockReturnValue({
       morphs: mockMorphs,
-    } as any);
+    });
   });
 
   describe('groupedReptiles', () => {
@@ -227,7 +227,7 @@ describe('useGroupedReptileByMorphSelect', () => {
 
       mockUseMorphsStore.mockReturnValue({
         morphs: morphsWithEmpty,
-      } as any);
+      });
 
       const { result } = renderHook(() => 
         useGroupedReptileByMorphSelect({ 
@@ -256,7 +256,7 @@ describe('useGroupedReptileByMorphSelect', () => {
     it('should handle empty morphs array', () => {
       mockUseMorphsStore.mockReturnValue({
         morphs: [],
-      } as any);
+      });
 
       const { result } = renderHook(() => 
         useGroupedReptileByMorphSelect({ 
@@ -621,7 +621,7 @@ describe('useGroupedReptileByMorphSelect', () => {
 
       mockUseMorphsStore.mockReturnValue({
         morphs: newMorphs,
-      } as any);
+      });
 
       rerender({ filteredReptiles: mockReptiles, disabled: false });
 
