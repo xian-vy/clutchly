@@ -9,6 +9,7 @@ import { NavItem } from '@/lib/constants/navigation';
 import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
+import { UseQueryResult } from '@tanstack/react-query';
 // Mock the dependencies
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual('@tanstack/react-query'),
@@ -27,6 +28,39 @@ jest.mock('@/app/api/users/access', () => ({
 
 const mockUseQuery = useQuery as jest.MockedFunction<typeof useQuery>;
 const mockUseAuthStore = useAuthStore as jest.MockedFunction<typeof useAuthStore>;
+
+// Helper function to create properly typed mock query results
+const createMockQueryResult = <T,>(
+  data: T,
+  isLoading: boolean = false,
+  error: Error | null = null
+): UseQueryResult<T, Error> => ({
+  data,
+  isLoading,
+  error,
+  isError: !!error,
+  isSuccess: !isLoading && !error,
+  isPending: isLoading,
+  isFetching: false,
+  isRefetching: false,
+  isStale: false,
+  isPlaceholderData: false,
+  isFetched: true,
+  isFetchedAfterMount: true,
+  isRefetchError: false,
+  isInitialLoading: false,
+  dataUpdatedAt: Date.now(),
+  errorUpdatedAt: 0,
+  failureCount: 0,
+  failureReason: null,
+  errorUpdateCount: 0,
+  refetch: jest.fn(),
+  status: isLoading ? 'pending' : error ? 'error' : 'success',
+  isLoadingError: null,
+  isPaused: false,
+  fetchStatus: 'idle',
+  promise: Promise.resolve(),
+} as unknown as UseQueryResult<T, Error>);
 
 
 // Test data
@@ -147,24 +181,16 @@ describe('useAccessControl', () => {
     // Default mock implementations
     mockUseAuthStore.mockReturnValue({
       organization: { id: 'org-1', name: 'Test Org' },
-    } as any);
+    });
 
     mockUseQuery.mockImplementation(({ queryKey, queryFn }) => {
       if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
-        return {
-          data: [mockAccessProfile],
-          isLoading: false,
-          error: null,
-        } as any;
+        return createMockQueryResult([mockAccessProfile]);
       }
       if (queryKey[0] === CACHE_KEYS.PAGES) {
-        return {
-          data: mockPages,
-          isLoading: false,
-          error: null,
-        } as any;
+        return createMockQueryResult(mockPages);
       }
-      return { data: null, isLoading: false, error: null } as any;
+      return createMockQueryResult(null);
     });
   });
 
@@ -226,12 +252,12 @@ describe('useAccessControl', () => {
     it('should return false when no access profile', () => {
       mockUseQuery.mockImplementation(({ queryKey }) => {
         if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
-          return { data: [], isLoading: false, error: null } as any;
+          return createMockQueryResult([]);
         }
         if (queryKey[0] === CACHE_KEYS.PAGES) {
-          return { data: mockPages, isLoading: false, error: null } as any;
+          return createMockQueryResult(mockPages);
         }
-        return { data: null, isLoading: false, error: null } as any;
+        return createMockQueryResult(null);
       });
 
       const { result } = renderHook(() => useAccessControl(mockUser), {
@@ -270,12 +296,12 @@ describe('useAccessControl', () => {
     it('should return empty array when loading', () => {
       mockUseQuery.mockImplementation(({ queryKey }) => {
         if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
-          return { data: null, isLoading: true, error: null } as any;
+          return createMockQueryResult(null, true);
         }
         if (queryKey[0] === CACHE_KEYS.PAGES) {
-          return { data: mockPages, isLoading: false, error: null } as any;
+          return createMockQueryResult(mockPages);
         }
-        return { data: null, isLoading: false, error: null } as any;
+        return createMockQueryResult(null);
       });
 
       const { result } = renderHook(() => useAccessControl(mockUser), {
@@ -419,12 +445,12 @@ describe('useAccessControl', () => {
     it('should return null when no access profiles', () => {
       mockUseQuery.mockImplementation(({ queryKey }) => {
         if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
-          return { data: [], isLoading: false, error: null } as any;
+          return createMockQueryResult([]);
         }
         if (queryKey[0] === CACHE_KEYS.PAGES) {
-          return { data: mockPages, isLoading: false, error: null } as any;
+          return createMockQueryResult(mockPages);
         }
-        return { data: null, isLoading: false, error: null } as any;
+        return createMockQueryResult(null);
       });
 
       const { result } = renderHook(() => useAccessControl(mockUser), {
@@ -460,12 +486,12 @@ describe('useAccessControl', () => {
     it('should return true when profiles are loading', () => {
       mockUseQuery.mockImplementation(({ queryKey }) => {
         if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
-          return { data: null, isLoading: true, error: null } as any;
+          return createMockQueryResult(null, true);
         }
         if (queryKey[0] === CACHE_KEYS.PAGES) {
-          return { data: mockPages, isLoading: false, error: null } as any;
+          return createMockQueryResult(mockPages);
         }
-        return { data: null, isLoading: false, error: null } as any;
+        return createMockQueryResult(null);
       });
 
       const { result } = renderHook(() => useAccessControl(mockUser), {
@@ -478,12 +504,12 @@ describe('useAccessControl', () => {
     it('should return true when pages are loading', () => {
       mockUseQuery.mockImplementation(({ queryKey }) => {
         if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
-          return { data: [mockAccessProfile], isLoading: false, error: null } as any;
+          return createMockQueryResult([mockAccessProfile]);
         }
         if (queryKey[0] === CACHE_KEYS.PAGES) {
-          return { data: null, isLoading: true, error: null } as any;
+          return createMockQueryResult(null, true);
         }
-        return { data: null, isLoading: false, error: null } as any;
+        return createMockQueryResult(null);
       });
 
       const { result } = renderHook(() => useAccessControl(mockUser), {
@@ -511,12 +537,12 @@ describe('useAccessControl', () => {
 
       mockUseQuery.mockImplementation(({ queryKey }) => {
         if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
-          return { data: [mockAccessProfile], isLoading: false, error: null } as any;
+          return createMockQueryResult([mockAccessProfile]);
         }
         if (queryKey[0] === CACHE_KEYS.PAGES) {
-          return { data: pagesWithDifferentCase, isLoading: false, error: null } as any;
+          return createMockQueryResult(pagesWithDifferentCase);
         }
-        return { data: null, isLoading: false, error: null } as any;
+        return createMockQueryResult(null);
       });
 
       const { result } = renderHook(() => useAccessControl(mockUser), {
@@ -535,12 +561,12 @@ describe('useAccessControl', () => {
 
       mockUseQuery.mockImplementation(({ queryKey }) => {
         if (queryKey[0] === CACHE_KEYS.ACCESS_PROFILES) {
-          return { data: [emptyAccessProfile], isLoading: false, error: null } as any;
+          return createMockQueryResult([emptyAccessProfile]);
         }
         if (queryKey[0] === CACHE_KEYS.PAGES) {
-          return { data: mockPages, isLoading: false, error: null } as any;
+          return createMockQueryResult(mockPages);
         }
-        return { data: null, isLoading: false, error: null } as any;
+        return createMockQueryResult(null);
       });
 
       const { result } = renderHook(() => useAccessControl(mockUser), {
