@@ -1,11 +1,11 @@
 import { renderHook, render, screen, fireEvent } from '@testing-library/react';
 import { ReactNode, ComponentProps } from 'react';
-import { useGroupedReptileByMorphSelect } from '../useGroupedReptileByMorphSelect';
+import { useGroupedReptileByMorphSelect } from '@/lib/hooks/useGroupedReptileByMorphSelect';
 import { Reptile } from '@/lib/types/reptile';
 import { Morph } from '@/lib/types/morph';
 
 // Mock the dependencies
-jest.mock('../../stores/morphsStore', () => ({
+jest.mock('@/lib/stores/morphsStore', () => ({
   useMorphsStore: jest.fn(),
 }));
 
@@ -57,7 +57,7 @@ jest.mock('lucide-react', () => ({
   ChevronsUpDown: () => <div data-testid="chevron-icon" />,
 }));
 
-import { useMorphsStore } from '../../stores/morphsStore';
+import { useMorphsStore } from '@/lib/stores/morphsStore';
 
 const mockUseMorphsStore = useMorphsStore as jest.MockedFunction<typeof useMorphsStore>;
 

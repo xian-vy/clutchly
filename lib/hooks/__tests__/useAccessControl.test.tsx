@@ -1,14 +1,14 @@
 import { renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
-import useAccessControl from '../useAccessControl';
+import useAccessControl from '@/lib/hooks/useAccessControl';
 import { User } from '@/lib/types/users';
 import { AccessProfileWithControls } from '@/lib/types/access';
 import { Page } from '@/lib/types/pages';
 import { NavItem } from '@/lib/constants/navigation';
 import { CACHE_KEYS } from '@/lib/constants/cache_keys';
 import { useQuery } from '@tanstack/react-query';
-import { useAuthStore } from '../../stores/authStore';
+import { useAuthStore } from '@/lib/stores/authStore';
 import { UseQueryResult } from '@tanstack/react-query';
 // Mock the dependencies
 jest.mock('@tanstack/react-query', () => ({
@@ -16,7 +16,7 @@ jest.mock('@tanstack/react-query', () => ({
   useQuery: jest.fn(),
 }));
 
-jest.mock('../../stores/authStore', () => ({
+jest.mock('@/lib/stores/authStore', () => ({
   useAuthStore: jest.fn(),
 }));
 
