@@ -48,7 +48,6 @@ const useInitializeCommonData = () => {
               console.log('Download Morph Failed. No species IDs found in organization');
               return;
             }
-             console.log("Downloading common morphs...");
              await downloadCommonMorphs(organization,speciesIds);
           }
 
