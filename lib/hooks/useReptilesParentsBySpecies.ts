@@ -33,7 +33,7 @@ export function useReptilesParentsBySpecies({ reptiles, speciesId }: UseReptiles
         (!r.morph_id || morphsList.some(m => m.id.toString() === r.morph_id.toString()))
       ));
     }
-  }, [speciesId, getMorphsBySpecies, reptiles]);
+  }, [speciesId, reptiles]);
 
   return {
     selectedSpeciesId,
