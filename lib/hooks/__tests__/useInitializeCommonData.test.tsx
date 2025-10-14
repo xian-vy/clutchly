@@ -31,6 +31,30 @@ const mockUseSpeciesStore = useSpeciesStore as jest.MockedFunction<typeof useSpe
 const mockUseAuthStore = useAuthStore as jest.MockedFunction<typeof useAuthStore>;
 const mockUseMorphsStore = useMorphsStore as jest.MockedFunction<typeof useMorphsStore>;
 
+// Type definitions for mock store return values
+type MockFeedersStoreReturn = {
+  feederSizes: FeederSize[];
+  feederTypes: FeederType[];
+  fetchFeederSizes: jest.MockedFunction<(organization: Organization) => Promise<void>>;
+  fetchFeederTypes: jest.MockedFunction<(organization: Organization) => Promise<void>>;
+};
+
+type MockSpeciesStoreReturn = {
+  species: Species[];
+  fetchSpecies: jest.MockedFunction<(organization: Organization) => Promise<void>>;
+  fetchInitialSpecies: jest.MockedFunction<() => Promise<void>>;
+};
+
+type MockAuthStoreReturn = {
+  organization: Organization | undefined;
+  isLoading: boolean;
+};
+
+type MockMorphsStoreReturn = {
+  morphs: (Morph & { species: { name: string } })[];
+  downloadCommonMorphs: jest.MockedFunction<(organization: Organization, selectedSpeciesIds?: string[]) => Promise<void>>;
+};
+
 // Test data
 const mockOrganization: Organization = {
   id: 'org-1',
@@ -142,23 +166,23 @@ describe('useInitializeCommonData', () => {
       feederTypes: [],
       fetchFeederSizes: mockFetchFeederSizes,
       fetchFeederTypes: mockFetchFeederTypes,
-    } as any);
+    } as MockFeedersStoreReturn);
 
     mockUseSpeciesStore.mockReturnValue({
       species: [],
       fetchSpecies: mockFetchSpecies,
       fetchInitialSpecies: mockFetchInitialSpecies,
-    } as any);
+    } as MockSpeciesStoreReturn);
 
     mockUseAuthStore.mockReturnValue({
       organization: mockOrganization,
       isLoading: false,
-    } as any);
+    } as MockAuthStoreReturn);
 
     mockUseMorphsStore.mockReturnValue({
       morphs: [],
       downloadCommonMorphs: mockDownloadCommonMorphs,
-    } as any);
+    } as MockMorphsStoreReturn);
   });
 
   describe('species initialization', () => {
@@ -171,7 +195,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: organizationWithNoSpecies,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -191,7 +215,7 @@ describe('useInitializeCommonData', () => {
         species: mockSpecies,
         fetchSpecies: mockFetchSpecies,
         fetchInitialSpecies: mockFetchInitialSpecies,
-      } as any);
+      } as MockSpeciesStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -203,7 +227,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: mockOrganization,
         isLoading: true,
-      } as any);
+      } as MockAuthStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -215,7 +239,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: undefined,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -237,7 +261,7 @@ describe('useInitializeCommonData', () => {
         feederTypes: [],
         fetchFeederSizes: mockFetchFeederSizes,
         fetchFeederTypes: mockFetchFeederTypes,
-      } as any);
+      } as MockFeedersStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -248,7 +272,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: undefined,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -269,7 +293,7 @@ describe('useInitializeCommonData', () => {
         feederTypes: mockFeederTypes,
         fetchFeederSizes: mockFetchFeederSizes,
         fetchFeederTypes: mockFetchFeederTypes,
-      } as any);
+      } as MockFeedersStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -280,7 +304,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: undefined,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -307,7 +331,7 @@ describe('useInitializeCommonData', () => {
       mockUseMorphsStore.mockReturnValue({
         morphs: mockMorphs,
         downloadCommonMorphs: mockDownloadCommonMorphs,
-      } as any);
+      } as MockMorphsStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -318,7 +342,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: undefined,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -328,13 +352,13 @@ describe('useInitializeCommonData', () => {
     it('should handle missing selected species in organization', () => {
       const organizationWithoutSpecies = {
         ...mockOrganization,
-        selected_species: undefined,
+        selected_species: null,
       };
 
       mockUseAuthStore.mockReturnValue({
         organization: organizationWithoutSpecies,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
@@ -373,14 +397,14 @@ describe('useInitializeCommonData', () => {
         species: mockSpecies,
         fetchSpecies: mockFetchSpecies,
         fetchInitialSpecies: mockFetchInitialSpecies,
-      } as any);
+      } as MockSpeciesStoreReturn);
 
       mockUseFeedersStore.mockReturnValue({
         feederSizes: mockFeederSizes,
         feederTypes: [],
         fetchFeederSizes: mockFetchFeederSizes,
         fetchFeederTypes: mockFetchFeederTypes,
-      } as any);
+      } as MockFeedersStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -394,7 +418,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: undefined,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       const { rerender } = renderHook(() => useInitializeCommonData());
 
@@ -405,7 +429,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: mockOrganization,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       rerender();
 
@@ -423,7 +447,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: organizationWithEmptySpecies,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       renderHook(() => useInitializeCommonData());
 
@@ -439,7 +463,7 @@ describe('useInitializeCommonData', () => {
       mockUseAuthStore.mockReturnValue({
         organization: organizationWithNullSpecies,
         isLoading: false,
-      } as any);
+      } as MockAuthStoreReturn);
 
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 

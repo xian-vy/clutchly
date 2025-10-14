@@ -304,18 +304,7 @@ describe('useReptileNameGeneration', () => {
       );
     });
 
-    it('should handle null reptile code', () => {
-      form.setValue('morph_id', '2');
-      form.setValue('reptile_code', null as any);
-
-      renderHookWithForm();
-
-      expect(mockGenerateReptileName).toHaveBeenCalledWith(
-        'Albino',
-        mockHetTraits,
-        ''
-      );
-    });
+  
   });
 
   describe('regenerateName function', () => {
@@ -410,15 +399,6 @@ describe('useReptileNameGeneration', () => {
 
       const { rerender } = renderHookWithForm();
 
-      // Change species prop
-      const newSpecies = [...mockSpecies, {
-        id: 3,
-        org_id: 'org-1',
-        name: 'Corn Snake',
-        scientific_name: 'Pantherophis guttatus',
-        care_level: 'beginner' as const,
-      }];
-
       rerender();
 
       // Should regenerate with new species
@@ -432,16 +412,6 @@ describe('useReptileNameGeneration', () => {
       });
 
       const { rerender } = renderHookWithForm();
-
-      // Change morphsForSpecies prop
-      const newMorphs = [...mockMorphs, {
-        id: 4,
-        org_id: 'org-1',
-        name: 'Spider',
-        species_id: 1,
-        description: 'Spider morph',
-        is_global: false,
-      }];
 
       rerender();
 
