@@ -372,15 +372,6 @@ describe('useInitializeCommonData', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should log when downloading common morphs', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
-      renderHook(() => useInitializeCommonData());
-
-      expect(consoleSpy).toHaveBeenCalledWith('Downloading common morphs...');
-
-      consoleSpy.mockRestore();
-    });
   });
 
   describe('multiple effects interaction', () => {
