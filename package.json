@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
+    "type-check": "tsc --noEmit",
     "test:watch": "jest --watch"
   },
   "dependencies": {
