@@ -57,3 +57,19 @@
 <h3>#Enclosure Management</h3>
 <p>Organizes enclosure information such as size, type, and reptile assignments for optimal husbandry.</p>
 <img width="1917" height="967" alt="enclosures" src="https://github.com/user-attachments/assets/184ecad1-1acf-4048-b1ad-0cf984330e6f" />
+
+<h3>#Access Control</h3>
+<p>Manage user roles and permissions to control access across different sections of the app</p>
+<img width="2556" height="1384" alt="Screenshot 2025-10-21 011006" src="https://github.com/user-attachments/assets/7b065481-09b7-4023-9a14-71f346638070" />
+
+<h3>#Genetic Calculator / Generative AI</h3>
+<p>Utilizes genetic logic and AI assistance to predict potential morph outcomes based on selected parent reptiles, helping breeders plan future pairings.</p>
+<img width="2532" height="1382" alt="Screenshot 2025-10-21 010927" src="https://github.com/user-attachments/assets/0734b80e-9dfe-4488-9863-1449d8aa8416" />
+
+<h3>#Growth Management</h3>
+<p>Monitors each reptile’s growth through weight and length tracking, providing visual progress insights over time.</p>
+<img width="2543" height="1383" alt="Screenshot 2025-10-21 011352" src="https://github.com/user-attachments/assets/42057890-aff4-43a2-a5e1-8b084c2bcaa4" />
+
+
+
+
