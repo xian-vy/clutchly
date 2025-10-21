@@ -1,60 +1,60 @@
-import  { useEffect } from 'react'
-import { useFeedersStore } from '../stores/feedersStore';
-import { useSpeciesStore } from '../stores/speciesStore';
-import { useAuthStore } from '../stores/authStore';
-import { useMorphsStore } from '../stores/morphsStore';
+import { useEffect } from "react";
+import { useFeedersStore } from "../stores/feedersStore";
+import { useSpeciesStore } from "../stores/speciesStore";
+import { useAuthStore } from "../stores/authStore";
+import { useMorphsStore } from "../stores/morphsStore";
 
 const useInitializeCommonData = () => {
-    const { feederSizes,feederTypes,fetchFeederSizes,fetchFeederTypes } = useFeedersStore();
-    const { species, fetchSpecies,fetchInitialSpecies } = useSpeciesStore();
-    const { morphs, downloadCommonMorphs  } = useMorphsStore();
-    const {organization, isLoading} = useAuthStore();
+  const { feederSizes, feederTypes, fetchFeederSizes, fetchFeederTypes } =
+    useFeedersStore();
+  const { species, fetchSpecies, fetchInitialSpecies } = useSpeciesStore();
+  const { morphs, downloadCommonMorphs } = useMorphsStore();
+  const { organization, isLoading } = useAuthStore();
 
-      useEffect(() => {
-          if (species.length !== 0 || isLoading) return
-          if (!organization) return
-        
-          //org selected species
-          const speciesIds = organization.selected_species
-          if (speciesIds?.length === 0) {
-              fetchInitialSpecies()
-          }else {
-              fetchSpecies(organization)
-          }
-      }, [fetchSpecies,species,organization,isLoading,fetchInitialSpecies]);
-    
-      useEffect(() => {
-        if (feederSizes.length !== 0) return
-        if (!organization) return
+  useEffect(() => {
+    if (species.length !== 0 || isLoading) return;
+    if (!organization) return;
 
-          fetchFeederSizes(organization)
-      }, [fetchFeederSizes,feederSizes,organization])
-    
-      useEffect(() => {
-        if (feederTypes.length !== 0) return
-        if (!organization) return
+    //org selected species
+    const speciesIds = organization.selected_species;
+    if (speciesIds?.length === 0) {
+      fetchInitialSpecies();
+    } else {
+      fetchSpecies(organization);
+    }
+  }, [fetchSpecies, species, organization, isLoading, fetchInitialSpecies]);
 
-          fetchFeederTypes(organization)
-      }, [fetchFeederTypes,feederTypes,organization])
+  useEffect(() => {
+    if (feederSizes.length !== 0) return;
+    if (!organization) return;
 
-      useEffect(() => {
-    
-         async function fetchMorphs() {
-            if (morphs.length !== 0) return
-            if (!organization) return
+    fetchFeederSizes(organization);
+  }, [fetchFeederSizes, feederSizes, organization]);
 
-            const speciesIds = organization.selected_species
-            if (!speciesIds) {
-              console.log('Download Morph Failed. No species IDs found in organization');
-              return;
-            }
-             await downloadCommonMorphs(organization,speciesIds);
-          }
+  useEffect(() => {
+    if (feederTypes.length !== 0) return;
+    if (!organization) return;
 
-          fetchMorphs()
-        
-      }, [organization, morphs, downloadCommonMorphs]);
-   
-}
+    fetchFeederTypes(organization);
+  }, [fetchFeederTypes, feederTypes, organization]);
 
-export default useInitializeCommonData
+  useEffect(() => {
+    async function fetchMorphs() {
+      if (morphs.length !== 0) return;
+      if (!organization) return;
+
+      const speciesIds = organization.selected_species;
+      if (!speciesIds) {
+        console.log(
+          "Download Morph Failed. No species IDs found in organization"
+        );
+        return;
+      }
+      await downloadCommonMorphs(organization, speciesIds);
+    }
+
+    fetchMorphs();
+  }, [organization, morphs, downloadCommonMorphs]);
+};
+
+export default useInitializeCommonData;

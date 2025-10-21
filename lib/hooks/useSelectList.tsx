@@ -1,56 +1,64 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
-    Command,
-    CommandEmpty,
-    CommandInput,
-    CommandItem
-} from "@/components/ui/command"
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { Check, ChevronsUpDown } from "lucide-react"
-import * as React from "react"
-import { useMemo } from "react"
-import { ScrollArea } from "@/components/ui/scroll-area"
-
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
+import { useMemo } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SelectListProps {
-  value?: string
-  onValueChange: (value: string) => void
-  placeholder?: string
+  value?: string;
+  onValueChange: (value: string) => void;
+  placeholder?: string;
 }
 
 interface UseSelectListProps<T> {
-  data: T[]
-  getValue: (item: T) => string
-  getLabel: (item: T) => string
-  disabled?: boolean
+  data: T[];
+  getValue: (item: T) => string;
+  getLabel: (item: T) => string;
+  disabled?: boolean;
 }
 
-export function useSelectList<T>({ data, getValue, getLabel, disabled }: UseSelectListProps<T>) {
+export function useSelectList<T>({
+  data,
+  getValue,
+  getLabel,
+  disabled,
+}: UseSelectListProps<T>) {
   // Format items for the select
   const itemsList = useMemo(() => {
-    return data.map(item => ({
+    return data.map((item) => ({
       value: getValue(item),
       label: getLabel(item),
-    }))
-  }, [data, getValue, getLabel])
+    }));
+  }, [data, getValue, getLabel]);
 
   // Define Select as a proper React component
   const Select: React.FC<SelectListProps> = React.useMemo(() => {
-    return React.memo(function Select({ value, onValueChange, placeholder = "Select an item..." }) {
-      const [open, setOpen] = React.useState(false)
+    return React.memo(function Select({
+      value,
+      onValueChange,
+      placeholder = "Select an item...",
+    }) {
+      const [open, setOpen] = React.useState(false);
 
       const selectedLabel = React.useMemo(() => {
-        const item = itemsList.find(item => item.value === value)
-        return item ? item.label : ""
-      }, [value])
+        const item = itemsList.find((item) => item.value === value);
+        return item ? item.label : "";
+      }, [value]);
 
       return (
-        <Popover modal={true}  open={open} onOpenChange={setOpen}>
+        <Popover modal={true} open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild disabled={disabled}>
             <Button
               variant="outline"
@@ -60,7 +68,7 @@ export function useSelectList<T>({ data, getValue, getLabel, disabled }: UseSele
               disabled={disabled}
             >
               <div className="truncate text-start flex-1">
-                 {selectedLabel || placeholder}
+                {selectedLabel || placeholder}
               </div>
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
@@ -75,8 +83,8 @@ export function useSelectList<T>({ data, getValue, getLabel, disabled }: UseSele
                     key={item.value}
                     value={item.label}
                     onSelect={() => {
-                      onValueChange(item.value)
-                      setOpen(false)
+                      onValueChange(item.value);
+                      setOpen(false);
                     }}
                   >
                     <Check
@@ -92,12 +100,12 @@ export function useSelectList<T>({ data, getValue, getLabel, disabled }: UseSele
             </Command>
           </PopoverContent>
         </Popover>
-      )
-    })
-  }, [itemsList])
+      );
+    });
+  }, [itemsList]);
 
   return {
     itemsList,
-    Select
-  }
+    Select,
+  };
 }
