@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Species } from '../types/species';
+import { useMemo } from "react";
+import { Species } from "../types/species";
 
 export function useSortedSpecies(
   species: Species[],
