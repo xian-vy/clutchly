@@ -181,7 +181,8 @@ describe("useSortedSpecies", () => {
         useSortedSpecies(mockSpecies, [1, 3])
       );
 
-      result.current; // Trigger the hook
+      // Trigger the hook to ensure it runs
+      void result.current;
 
       expect(mockSpecies).toEqual(originalSpecies);
     });

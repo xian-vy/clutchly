@@ -8,6 +8,7 @@ import { getReptilesByLocation } from "@/app/api/reptiles/byLocation";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { CACHE_KEYS } from "@/lib/constants/cache_keys";
 import { FeedingScheduleWithTargets } from "@/lib/types/feeding";
+import { Sex, Status } from "@/lib/types/reptile";
 
 // Mock the dependencies
 jest.mock("@/app/api/feeding/events");
@@ -138,12 +139,12 @@ const mockReptilesByLocation = [
     morph_id: "1",
     visual_traits: null,
     het_traits: null,
-    sex: "unknown" as const,
+    sex: "unknown" as Sex,
     weight: 10,
     length: 5,
     hatch_date: "2024-01-01",
     acquisition_date: "2024-01-01",
-    status: "active" as const,
+    status: "active" as Status,
     notes: null,
     last_modified: "2024-01-01T00:00:00Z",
     parent_clutch_id: null,
@@ -170,12 +171,12 @@ const mockReptilesByLocation = [
     morph_id: "1",
     visual_traits: null,
     het_traits: null,
-    sex: "unknown" as const,
+    sex: "unknown" as Sex,
     weight: 10,
     length: 5,
     hatch_date: "2024-01-01",
     acquisition_date: "2024-01-01",
-    status: "active" as const,
+    status: "active" as Status,
     notes: null,
     last_modified: "2024-01-01T00:00:00Z",
     parent_clutch_id: null,
@@ -212,9 +213,11 @@ describe("useUpcomingFeedings", () => {
   let queryClient: QueryClient;
 
   const createWrapper = () => {
-    return ({ children }: { children: ReactNode }) => (
+    const TestWrapper = ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     );
+    TestWrapper.displayName = "TestWrapper";
+    return TestWrapper;
   };
 
   beforeEach(() => {
@@ -231,7 +234,7 @@ describe("useUpcomingFeedings", () => {
     // Default mocks
     mockUseAuthStore.mockReturnValue({
       organization: "org-1",
-    } as any);
+    });
 
     mockGetFeedingSchedules.mockResolvedValue(mockFeedingSchedules);
     mockGetFeedingEvents.mockResolvedValue(mockFeedingEvents);
@@ -263,7 +266,7 @@ describe("useUpcomingFeedings", () => {
     it("should return empty array when no organization", async () => {
       mockUseAuthStore.mockReturnValue({
         organization: null,
-      } as any);
+      });
 
       const { result } = renderHook(() => useUpcomingFeedings(), {
         wrapper: createWrapper(),
