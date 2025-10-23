@@ -10,6 +10,7 @@ import {
   FiCheckCircle,
   FiKey,
 } from "react-icons/fi";
+import { Eye, EyeOff } from "lucide-react";
 import { AuthLayout } from "./AuthLayout";
 import { signup, SignupState } from "@/app/auth/signup/actions";
 import { TopLoader } from "@/components/ui/TopLoader";
@@ -72,6 +73,8 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Handle successful signup
   if (state?.message && !state.errors) {
@@ -139,14 +142,25 @@ export function SignUpForm() {
             <div className="relative mt-2">
               <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="••••••••"
-                className="w-full px-10 py-6 transition-all duration-500"
+                className="w-full px-10 pr-12 py-6 transition-all duration-500"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-color cursor-pointer"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
             </div>
             {state?.errors &&
               "password" in state.errors &&
@@ -165,14 +179,25 @@ export function SignUpForm() {
             <div className="relative mt-2">
               <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
                 placeholder="••••••••"
-                className="w-full px-10 py-6 transition-all duration-500"
+                className="w-full px-10 pr-12 py-6 transition-all duration-500"
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-color cursor-pointer"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
             </div>
             {passwordError && (
               <p className="mt-2 text-sm text-destructive">{passwordError}</p>

@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiMail, FiLock, FiAlertCircle } from "react-icons/fi";
+import { Eye, EyeOff } from "lucide-react";
 import { AuthLayout } from "./AuthLayout";
 import { login, LoginState } from "@/app/auth/signin/actions";
 import { TopLoader } from "@/components/ui/TopLoader";
 import { Input } from "../ui/input";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 const initialState: LoginState = {
   errors: {},
@@ -57,6 +58,7 @@ function SubmitButton({ isPending }: { isPending: boolean }) {
 
 export function SignInForm() {
   const [state, formAction, isPending] = useActionState(login, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <AuthLayout mode="signin">
@@ -105,12 +107,23 @@ export function SignInForm() {
             <div className="relative mt-2">
               <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="••••••••"
-                className="w-full px-10 py-6 transition-all duration-500"
+                className="w-full px-10 pr-12 py-6 transition-all duration-500"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-color cursor-pointer"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
             </div>
             {state?.errors &&
               "password" in state.errors &&
