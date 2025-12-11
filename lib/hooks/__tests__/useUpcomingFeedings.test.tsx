@@ -541,6 +541,11 @@ describe("useUpcomingFeedings", () => {
     });
 
     it("should handle getReptilesByLocation errors", async () => {
+      // Suppress console.error for this test since we're intentionally testing error handling
+      const consoleErrorSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
       mockGetReptilesByLocation.mockRejectedValue(
         new Error("Location API Error")
       );
@@ -555,6 +560,8 @@ describe("useUpcomingFeedings", () => {
 
       // Should still return results, but with 0 reptiles for location-based targets
       expect(result.current.upcomingFeedings).toBeDefined();
+
+      consoleErrorSpy.mockRestore();
     });
   });
 
